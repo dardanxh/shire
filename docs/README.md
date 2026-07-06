@@ -1,8 +1,8 @@
 # Hobits — Documentation
 
-> **Status: IDEA / PRODUCT VISION.** These docs capture *what* we're building and *why*.
-> No tech-stack or implementation decisions have been made yet — those are parked in
-> [`NEXT-STEPS.md`](./NEXT-STEPS.md), tagged **TBD**, for the upcoming architecture session.
+> **Status: VISION + ARCHITECTURE DECIDED — pre-build.** These docs capture *what* we're building
+> and *why* (vision), plus the *how* ([`architecture.md`](./architecture.md)). No code has been
+> written yet; implementation begins when Dardan says go.
 
 ## The pitch (one paragraph)
 
@@ -26,7 +26,8 @@ what **not** to show you.
 | [`coordination.md`](./coordination.md) | How the town coordinates: blackboard + event bus, the Council, the Briefing. |
 | [`scope-people-observability-cost.md`](./scope-people-observability-cost.md) | Scope, people graph, observability (3 drifts), global config, cost/token controls. |
 | [`hobit-roster.md`](./hobit-roster.md) | The committed + seed roster of hobits (user-extensible by design). |
-| [`NEXT-STEPS.md`](./NEXT-STEPS.md) | **TBD** tech decisions to discuss ASAP + the feature backlog. |
+| [`architecture.md`](./architecture.md) | **Decided** technical architecture: the stack, model tiering, and how each concept maps to a component. |
+| [`NEXT-STEPS.md`](./NEXT-STEPS.md) | The five tech decisions (now resolved) + the feature backlog. |
 
 ## The three surfaces (at a glance)
 
