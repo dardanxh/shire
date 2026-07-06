@@ -8,9 +8,10 @@
 
 1. **Tech-stack & architecture** — ✅ **Local-first custom**: Python; data stays on-machine;
    Claude API for inference only; borrow Managed Agents *patterns* but don't host on it.
-2. **Agent runtime** — ✅ **Model-agnostic**: **LiteLLM** gateway (any cloud/local-OSS model via
-   Ollama) + **Pydantic AI** for standard tool-calling & structured outputs (don't hand-roll the
-   loop). Tiering: local-OSS grunt (no tools) → mid cloud → top cloud (tool-heavy/Council).
+2. **Agent runtime** — ✅ **Claude-only** (simplicity). Each hobit is a `ClaudeAgent`: primary =
+   **Claude Code `claude -p` on the Max subscription ($0)**; alt = **Claude Agent SDK + API key**
+   (paid, same definitions). Tiering all-Claude: Haiku (grunt) → Sonnet (standard) → Opus (deep).
+   *(No LiteLLM/Ollama/Pydantic AI — dropped for simplicity.)*
 3. **Orchestration** — ✅ **Prefect** (schedules + event automations = inter-hobit triggers +
    on-demand + retries + run-history UI; Postgres-backed, **no Redis**).
 4. **Persistence** — ✅ **Postgres + pgvector** (one store: configs, 4-tier memory, blackboard,
