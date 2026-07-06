@@ -76,6 +76,56 @@ export interface Hotspot {
   score: number;
 }
 
+export type Rating = "A" | "B" | "C" | "D" | "E" | "NA";
+
+export interface EnrichmentRatings {
+  maintainability: Rating;
+  security: Rating;
+  health: Rating;
+}
+
+export interface Enrichment {
+  code_lines: number | null;
+  complexity_total: number | null;
+  cocomo_cost_usd: number | null;
+  schedule_months: number | null;
+  ccn_average: number | null;
+  ccn_max: number | null;
+  function_count: number | null;
+  high_complexity_count: number | null;
+  maintainability_index: number | null;
+  sbom_package_count: number | null;
+  vulnerability_count: number;
+  vuln_critical: number;
+  vuln_high: number;
+  vuln_moderate: number;
+  vuln_low: number;
+  secret_count: number;
+  health_score: number | null;
+  ratings: EnrichmentRatings;
+}
+
+export interface Vulnerability {
+  package: string;
+  ecosystem: string;
+  version: string | null;
+  vuln_id: string;
+  severity: string;
+  fixed_version: string | null;
+}
+
+export interface HealthCheck {
+  name: string;
+  score: number;
+  reason: string;
+}
+
+export interface ToolRun {
+  name: string;
+  available: boolean;
+  contributed: boolean;
+}
+
 export interface AnalysisOut {
   id: string;
   repository_id: string;
@@ -88,6 +138,19 @@ export interface AnalysisOut {
   dependencies: Dependency[];
   cicd: CICD[];
   hotspots: Hotspot[];
+  enrichment: Enrichment;
+  vulnerabilities: Vulnerability[];
+  health_checks: HealthCheck[];
+  tool_runs: ToolRun[];
+}
+
+export interface ToolStatus {
+  name: string;
+  available: boolean;
+  version: string | null;
+  purpose: string;
+  install: string;
+  homepage: string;
 }
 
 export const API_URL =
@@ -144,4 +207,8 @@ export function getRepository(id: string): Promise<RepositoryOut> {
 
 export function getAnalysis(id: string): Promise<AnalysisOut> {
   return request<AnalysisOut>(`/repositories/${id}/analysis`);
+}
+
+export function getTools(): Promise<ToolStatus[]> {
+  return request<ToolStatus[]>("/tools");
 }

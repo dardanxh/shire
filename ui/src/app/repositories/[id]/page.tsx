@@ -6,11 +6,17 @@ import {
   ArrowLeftIcon,
   ExternalLinkIcon,
   GitCommitHorizontalIcon,
+  KeyRoundIcon,
+  ShieldCheckIcon,
 } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 import { FactCard } from "@/components/FactCard";
 import { CommitsChart } from "@/components/CommitsChart";
 import { LanguageBars } from "@/components/LanguageBars";
+import { RatingBadge } from "@/components/RatingBadge";
+import { EnrichmentCards } from "@/components/EnrichmentCards";
+import { VulnerabilitiesTable } from "@/components/VulnerabilitiesTable";
+import { ToolRuns } from "@/components/ToolRuns";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -180,6 +186,47 @@ export default function RepositoryDetailPage({
               label="Dependencies"
               value={formatNumber(facts.dependency_count)}
             />
+          </section>
+
+          {/* Ratings */}
+          <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <RatingBadge
+              label="Maintainability"
+              rating={analysis.enrichment.ratings.maintainability}
+            />
+            <RatingBadge
+              label="Security"
+              rating={analysis.enrichment.ratings.security}
+            />
+            <RatingBadge
+              label="Health"
+              rating={analysis.enrichment.ratings.health}
+            />
+          </section>
+
+          {/* Code metrics */}
+          <EnrichmentCards enrichment={analysis.enrichment} />
+
+          {/* Secrets */}
+          <section>
+            {analysis.enrichment.secret_count > 0 ? (
+              <Card className="flex flex-row items-center gap-3 border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+                <KeyRoundIcon className="size-5 shrink-0" />
+                <span>
+                  <span className="font-semibold">
+                    {formatNumber(analysis.enrichment.secret_count)}
+                  </span>{" "}
+                  potential secret
+                  {analysis.enrichment.secret_count === 1 ? "" : "s"} detected in
+                  the codebase.
+                </span>
+              </Card>
+            ) : (
+              <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                <ShieldCheckIcon className="size-4 text-emerald-600 dark:text-emerald-400" />
+                No secrets detected.
+              </p>
+            )}
           </section>
 
           {/* Commits + Languages */}
@@ -358,6 +405,78 @@ export default function RepositoryDetailPage({
                     </Table>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* Vulnerabilities */}
+          <section>
+            <Card className="overflow-hidden p-0">
+              <CardHeader className="p-6 pb-0">
+                <CardTitle>
+                  Vulnerabilities
+                  {analysis.vulnerabilities.length > 0 ? (
+                    <span className="ml-2 text-sm font-normal text-muted-foreground">
+                      ({analysis.vulnerabilities.length})
+                    </span>
+                  ) : null}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0 pt-4">
+                {analysis.vulnerabilities.length === 0 ? (
+                  <p className="flex items-center gap-2 px-6 pb-6 text-sm text-muted-foreground">
+                    <ShieldCheckIcon className="size-4 text-emerald-600 dark:text-emerald-400" />
+                    No known vulnerabilities.
+                  </p>
+                ) : (
+                  <VulnerabilitiesTable
+                    vulnerabilities={analysis.vulnerabilities}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* Health checks */}
+          <section>
+            <Card>
+              <CardHeader>
+                <CardTitle>Health checks</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {analysis.health_checks.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Scorecard not run (needs a GitHub token).
+                  </p>
+                ) : (
+                  <ul className="space-y-3">
+                    {analysis.health_checks.map((h) => (
+                      <li key={h.name} className="space-y-1">
+                        <div className="flex items-center justify-between gap-2 text-sm">
+                          <span className="font-medium">{h.name}</span>
+                          <span className="shrink-0 tabular-nums text-muted-foreground">
+                            {h.score}/10
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {h.reason}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* Analysis tools */}
+          <section>
+            <Card>
+              <CardHeader>
+                <CardTitle>Analysis tools</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ToolRuns toolRuns={analysis.tool_runs} />
               </CardContent>
             </Card>
           </section>

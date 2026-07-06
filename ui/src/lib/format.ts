@@ -38,6 +38,17 @@ export function formatAge(ageDays: number | null | undefined): string {
   return `~${Math.round(years)} year${Math.round(years) === 1 ? "" : "s"}`;
 }
 
+/** Compact USD, e.g. "$1.2M", "$45.0K", "$820". */
+export function formatUsd(n: number | null | undefined): string {
+  if (n == null) return "—";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(n);
+}
+
 export function shortSha(sha: string | null | undefined): string {
   if (!sha) return "—";
   return sha.slice(0, 7);
