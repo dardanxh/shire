@@ -1,0 +1,20 @@
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    container_name: hobits-db
+    environment:
+      POSTGRES_USER: hobits
+      POSTGRES_PASSWORD: hobits
+      POSTGRES_DB: hobits
+    ports:
+      - "5433:5432"
+    volumes:
+      - hobits_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hobits -d hobits"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  hobits_pgdata:
