@@ -16,6 +16,20 @@ export function Nav() {
         <span className="ml-1 hidden text-sm text-muted-foreground sm:inline">
           repository insights
         </span>
+        <nav className="ml-auto flex items-center gap-1 text-sm">
+          <Link
+            href="/"
+            className="rounded-md px-3 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            Repositories
+          </Link>
+          <Link
+            href="/tools"
+            className="rounded-md px-3 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            Tools
+          </Link>
+        </nav>
       </div>
     </header>
   );
