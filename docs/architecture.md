@@ -61,6 +61,16 @@ wrapper, so hobit definitions are identical either way:
 | **UI** | **Local web app — React/Next + FastAPI** | Richest UX for commit charts, topic workspaces, feedback, dashboards. `localhost`, fully local. |
 | **Observability / metrics** | **Postgres + TimescaleDB** | Time-series (tokens, latency, cost) + relational + vector in ONE store; joins with hobit/feedback data. **Grafana**-ready (add later). Derive all 3 drifts from the same tables. |
 
+## Repository layout (monorepo)
+
+| Path | What |
+| --- | --- |
+| `be/` | Backend — Python (FastAPI), Prefect, Postgres+pgvector+TimescaleDB, `ClaudeAgent` engine, substrate scanners. |
+| `ui/` | Frontend — local React/Next web app (Briefing · Council · Town Hall), talks to the `be` API. |
+| `docs/` | Vision + architecture. |
+
+Single repo, no submodules; `be` and `ui` are plain directories. See each dir's `README.md`.
+
 ## Model tiering (cost NFR) — all Claude
 
 Model per hobit via `--model`. On the subscription, cheaper models burn less quota — so tiering
