@@ -15,6 +15,8 @@ dependencies = [
     "gitpython>=3.1.43",
     "httpx>=0.27",
     "pgvector>=0.3.6",
+    "lizard>=1.23.0",
+    "radon>=6.0.1",
 ]
 
 [dependency-groups]

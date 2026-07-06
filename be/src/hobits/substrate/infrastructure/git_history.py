@@ -14,7 +14,7 @@ _UNIT = "\x1f"  # unit separator between header fields
 _PRETTY = f"{_REC}%H{_UNIT}%an{_UNIT}%ae{_UNIT}%aI"
 
 
-def build_scan_context(clone_path: Path, head_sha: str) -> ScanContext:
+def build_scan_context(clone_path: Path, head_sha: str, repo_url: str | None = None) -> ScanContext:
     repo = Repo(clone_path)
     commits: list[CommitInfo] = []
     try:
@@ -42,4 +42,6 @@ def build_scan_context(clone_path: Path, head_sha: str) -> ScanContext:
             )
         )
 
-    return ScanContext(clone_path=clone_path, head_sha=head_sha, commits=tuple(commits))
+    return ScanContext(
+        clone_path=clone_path, head_sha=head_sha, commits=tuple(commits), repo_url=repo_url
+    )

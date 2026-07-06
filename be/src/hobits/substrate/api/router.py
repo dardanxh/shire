@@ -11,6 +11,12 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from hobits.shared.infrastructure.db import get_session
+from hobits.substrate.domain.enrichment import (
+    Enrichment,
+    HealthCheck,
+    ToolRun,
+    Vulnerability,
+)
 from hobits.substrate.domain.models import Analysis, Contributor
 from hobits.substrate.domain.value_objects import (
     CiCdConfig,
@@ -19,6 +25,7 @@ from hobits.substrate.domain.value_objects import (
     Hotspot,
     LanguageStat,
 )
+from hobits.substrate.infrastructure.external_tools import all_tool_statuses
 from hobits.substrate.infrastructure.persistence import SqlAnalysisRepository
 
 router = APIRouter(tags=["substrate"])
@@ -50,6 +57,10 @@ class AnalysisOut(BaseModel):
     dependencies: list[Dependency]
     cicd: list[CiCdConfig]
     hotspots: list[Hotspot]
+    enrichment: Enrichment
+    vulnerabilities: list[Vulnerability]
+    health_checks: list[HealthCheck]
+    tool_runs: list[ToolRun]
 
     @classmethod
     def of(cls, analysis: Analysis) -> AnalysisOut:
@@ -78,6 +89,10 @@ class AnalysisOut(BaseModel):
             dependencies=analysis.dependencies,
             cicd=analysis.cicd,
             hotspots=analysis.hotspots,
+            enrichment=analysis.enrichment,
+            vulnerabilities=analysis.vulnerabilities,
+            health_checks=analysis.health_checks,
+            tool_runs=analysis.tool_runs,
         )
 
 
@@ -110,3 +125,18 @@ def repositories_using_dependency(
         DependencyUsageOut(repository_id=rid, versions=sorted(vers))
         for rid, vers in grouped.items()
     ]
+
+
+class ToolStatusOut(BaseModel):
+    name: str
+    available: bool
+    version: str | None
+    purpose: str
+    install: str
+    homepage: str
+
+
+@router.get("/tools", response_model=list[ToolStatusOut])
+def external_tools() -> list[ToolStatusOut]:
+    """Availability + versions of the external analysis tools (drives docs + setup)."""
+    return [ToolStatusOut(**vars(status)) for status in all_tool_statuses()]

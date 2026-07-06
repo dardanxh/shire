@@ -8,6 +8,12 @@ from datetime import UTC, datetime
 from pydantic import Field
 
 from hobits.shared.domain.base import AggregateRoot, Entity
+from hobits.substrate.domain.enrichment import (
+    Enrichment,
+    HealthCheck,
+    ToolRun,
+    Vulnerability,
+)
 from hobits.substrate.domain.value_objects import (
     AnalysisStatus,
     CiCdConfig,
@@ -45,6 +51,12 @@ class Analysis(AggregateRoot):
     dependencies: list[Dependency] = Field(default_factory=list)
     cicd: list[CiCdConfig] = Field(default_factory=list)
     hotspots: list[Hotspot] = Field(default_factory=list)
+
+    # Phase 1.5 enrichment (external tools; best-effort)
+    enrichment: Enrichment = Field(default_factory=Enrichment)
+    vulnerabilities: list[Vulnerability] = Field(default_factory=list)
+    health_checks: list[HealthCheck] = Field(default_factory=list)
+    tool_runs: list[ToolRun] = Field(default_factory=list)
 
     def complete(self) -> None:
         self.status = AnalysisStatus.complete

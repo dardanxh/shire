@@ -7,7 +7,10 @@ this same service for scheduled / event-triggered runs (the orchestration seam).
 from __future__ import annotations
 
 import uuid
+from collections.abc import Iterable
 
+from hobits.substrate.application.ratings import compute_ratings
+from hobits.substrate.domain.enrichment import Enrichment
 from hobits.substrate.domain.models import Analysis
 from hobits.substrate.domain.ports import (
     AnalysisRepository,
@@ -37,6 +40,8 @@ class AnalyzeRepositoryService:
             has_tests=bool(merged.has_tests),
             dependency_count=len(merged.dependencies),
         )
+        enrichment = _build_enrichment(merged)
+
         analysis = Analysis(
             repository_id=repository_id,
             commit_sha=ctx.head_sha,
@@ -48,36 +53,55 @@ class AnalyzeRepositoryService:
             dependencies=merged.dependencies,
             cicd=merged.cicd,
             hotspots=merged.hotspots,
+            enrichment=enrichment,
+            vulnerabilities=merged.vulnerabilities,
+            health_checks=merged.health_checks,
+            tool_runs=merged.tool_runs,
         )
         self._analysis_repo.add(analysis)
         return analysis
 
 
-def _merge(contributions) -> ScanContribution:
-    """Fold per-scanner contributions into one: scalars take the last non-None; lists concat."""
-    acc: dict = {}
-    lists: dict[str, list] = {
-        "contributors": [],
-        "commit_activity": [],
-        "languages": [],
-        "dependencies": [],
-        "cicd": [],
-        "hotspots": [],
-    }
-    scalars = (
-        "first_commit_at",
-        "last_commit_at",
-        "commit_count",
-        "loc_total",
-        "primary_language",
-        "license",
-        "has_tests",
-    )
+def _merge(contributions: Iterable[ScanContribution]) -> ScanContribution:
+    """Fold per-scanner contributions: list fields concatenate; scalars take the last non-None."""
+    scalars: dict = {}
+    lists: dict[str, list] = {}
     for contribution in contributions:
-        for key in lists:
-            lists[key].extend(getattr(contribution, key))
-        for key in scalars:
-            value = getattr(contribution, key)
-            if value is not None:
-                acc[key] = value
-    return ScanContribution(**acc, **lists)
+        for name in ScanContribution.model_fields:
+            value = getattr(contribution, name)
+            if isinstance(value, list):
+                lists.setdefault(name, []).extend(value)
+            elif value is not None:
+                scalars[name] = value
+    return ScanContribution(**scalars, **lists)
+
+
+def _build_enrichment(merged: ScanContribution) -> Enrichment:
+    vulns = merged.vulnerabilities
+
+    def count(sev: str) -> int:
+        return sum(1 for v in vulns if v.severity == sev)
+
+    enrichment = Enrichment(
+        code_lines=merged.code_lines,
+        complexity_total=merged.complexity_total,
+        cocomo_cost_usd=merged.cocomo_cost_usd,
+        schedule_months=merged.schedule_months,
+        ccn_average=merged.ccn_average,
+        ccn_max=merged.ccn_max,
+        function_count=merged.function_count,
+        high_complexity_count=merged.high_complexity_count,
+        maintainability_index=merged.maintainability_index,
+        sbom_package_count=merged.sbom_package_count,
+        vulnerability_count=len(vulns),
+        vuln_critical=count("CRITICAL"),
+        vuln_high=count("HIGH"),
+        vuln_moderate=count("MODERATE"),
+        vuln_low=count("LOW"),
+        secret_count=merged.secret_count or 0,
+        health_score=merged.health_score,
+    )
+    security_ran = any(t.name == "osv-scanner" and t.contributed for t in merged.tool_runs)
+    health_ran = merged.health_score is not None
+    ratings = compute_ratings(enrichment, security_ran=security_ran, health_ran=health_ran)
+    return enrichment.model_copy(update={"ratings": ratings})

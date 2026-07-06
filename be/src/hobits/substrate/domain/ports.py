@@ -16,6 +16,7 @@ from typing import Protocol
 from pydantic import Field
 
 from hobits.shared.domain.base import ValueObject
+from hobits.substrate.domain.enrichment import HealthCheck, ToolRun, Vulnerability
 from hobits.substrate.domain.models import Analysis, Contributor
 from hobits.substrate.domain.value_objects import (
     CiCdConfig,
@@ -42,6 +43,7 @@ class ScanContext:
     clone_path: Path
     head_sha: str
     commits: tuple[CommitInfo, ...]
+    repo_url: str | None = None
 
 
 class ScanContribution(ValueObject):
@@ -60,6 +62,23 @@ class ScanContribution(ValueObject):
     hotspots: list[Hotspot] = Field(default_factory=list)
     license: LicenseInfo | None = None
     has_tests: bool | None = None
+
+    # Phase 1.5 enrichment (external tools; each optional / best-effort)
+    code_lines: int | None = None
+    complexity_total: int | None = None
+    cocomo_cost_usd: float | None = None
+    schedule_months: float | None = None
+    ccn_average: float | None = None
+    ccn_max: int | None = None
+    function_count: int | None = None
+    high_complexity_count: int | None = None
+    maintainability_index: float | None = None
+    sbom_package_count: int | None = None
+    vulnerabilities: list[Vulnerability] = Field(default_factory=list)
+    secret_count: int | None = None
+    health_score: float | None = None
+    health_checks: list[HealthCheck] = Field(default_factory=list)
+    tool_runs: list[ToolRun] = Field(default_factory=list)
 
 
 class Scanner(Protocol):

@@ -10,11 +10,21 @@ from hobits.substrate.infrastructure.scanners.code import (
     LicenseScanner,
     TestPresenceScanner,
 )
+from hobits.substrate.infrastructure.scanners.enrichment import (
+    CodeMetricsScanner,
+    ComplexityScanner,
+    HealthScanner,
+    MaintainabilityScanner,
+    SbomScanner,
+    SecretsScanner,
+    VulnerabilityScanner,
+)
 from hobits.substrate.infrastructure.scanners.git import GitStatsScanner, HotspotScanner
 
 
 def default_scanners() -> list[Scanner]:
     return [
+        # L1 / L2 deterministic (always on)
         GitStatsScanner(),
         LanguageScanner(),
         DependencyScanner(),
@@ -22,6 +32,14 @@ def default_scanners() -> list[Scanner]:
         LicenseScanner(),
         TestPresenceScanner(),
         HotspotScanner(),
+        # Phase 1.5 enrichment (external tools; degrade gracefully)
+        CodeMetricsScanner(),
+        ComplexityScanner(),
+        MaintainabilityScanner(),
+        SbomScanner(),
+        VulnerabilityScanner(),
+        SecretsScanner(),
+        HealthScanner(),
     ]
 
 

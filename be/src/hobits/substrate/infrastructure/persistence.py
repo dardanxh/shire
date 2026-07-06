@@ -24,6 +24,14 @@ from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 
 from hobits.shared.infrastructure.db import Base
 from hobits.shared.infrastructure.settings import get_settings
+from hobits.substrate.domain.enrichment import (
+    Enrichment,
+    HealthCheck,
+    Rating,
+    Ratings,
+    ToolRun,
+    Vulnerability,
+)
 from hobits.substrate.domain.models import Analysis, Contributor
 from hobits.substrate.domain.value_objects import (
     AnalysisStatus,
@@ -66,6 +74,28 @@ class AnalysisRow(Base):
     has_tests: Mapped[bool] = mapped_column(Boolean, default=False)
     dependency_count: Mapped[int] = mapped_column(Integer, default=0)
 
+    # Phase 1.5 enrichment (external tools; nullable = tool didn't run)
+    code_lines: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    complexity_total: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    cocomo_cost_usd: Mapped[float | None] = mapped_column(Float, nullable=True)
+    schedule_months: Mapped[float | None] = mapped_column(Float, nullable=True)
+    ccn_average: Mapped[float | None] = mapped_column(Float, nullable=True)
+    ccn_max: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    function_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    high_complexity_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    maintainability_index: Mapped[float | None] = mapped_column(Float, nullable=True)
+    sbom_package_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    vulnerability_count: Mapped[int] = mapped_column(Integer, default=0)
+    vuln_critical: Mapped[int] = mapped_column(Integer, default=0)
+    vuln_high: Mapped[int] = mapped_column(Integer, default=0)
+    vuln_moderate: Mapped[int] = mapped_column(Integer, default=0)
+    vuln_low: Mapped[int] = mapped_column(Integer, default=0)
+    secret_count: Mapped[int] = mapped_column(Integer, default=0)
+    health_score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    rating_maintainability: Mapped[str] = mapped_column(String(2), default="NA")
+    rating_security: Mapped[str] = mapped_column(String(2), default="NA")
+    rating_health: Mapped[str] = mapped_column(String(2), default="NA")
+
     contributors: Mapped[list[ContributorRow]] = relationship(
         cascade="all, delete-orphan", lazy="selectin"
     )
@@ -80,6 +110,15 @@ class AnalysisRow(Base):
     )
     cicd: Mapped[list[CiCdRow]] = relationship(cascade="all, delete-orphan", lazy="selectin")
     hotspots: Mapped[list[HotspotRow]] = relationship(cascade="all, delete-orphan", lazy="selectin")
+    vulnerabilities: Mapped[list[VulnerabilityRow]] = relationship(
+        cascade="all, delete-orphan", lazy="selectin"
+    )
+    health_checks: Mapped[list[HealthCheckRow]] = relationship(
+        cascade="all, delete-orphan", lazy="selectin"
+    )
+    tool_runs: Mapped[list[ToolRunRow]] = relationship(
+        cascade="all, delete-orphan", lazy="selectin"
+    )
 
 
 class ContributorRow(Base):
@@ -150,6 +189,42 @@ class HotspotRow(Base):
     churn: Mapped[int] = mapped_column(Integer)
     size: Mapped[int] = mapped_column(Integer)
     score: Mapped[int] = mapped_column(Integer)
+
+
+class VulnerabilityRow(Base):
+    __tablename__ = "vulnerabilities"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    analysis_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("analyses.id", ondelete="CASCADE"), index=True
+    )
+    package: Mapped[str] = mapped_column(String(255), index=True)
+    ecosystem: Mapped[str] = mapped_column(String(64))
+    version: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    vuln_id: Mapped[str] = mapped_column(String(64))
+    severity: Mapped[str] = mapped_column(String(16))
+    fixed_version: Mapped[str | None] = mapped_column(String(128), nullable=True)
+
+
+class HealthCheckRow(Base):
+    __tablename__ = "health_checks"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    analysis_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("analyses.id", ondelete="CASCADE"), index=True
+    )
+    name: Mapped[str] = mapped_column(String(128))
+    score: Mapped[int] = mapped_column(Integer)
+    reason: Mapped[str] = mapped_column(String)
+
+
+class ToolRunRow(Base):
+    __tablename__ = "tool_runs"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    analysis_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("analyses.id", ondelete="CASCADE"), index=True
+    )
+    name: Mapped[str] = mapped_column(String(64))
+    available: Mapped[bool] = mapped_column(Boolean)
+    contributed: Mapped[bool] = mapped_column(Boolean)
 
 
 class CodeChunkRow(Base):
@@ -223,11 +298,54 @@ def _to_domain(row: AnalysisRow) -> Analysis:
         hotspots=[
             Hotspot(path=h.path, churn=h.churn, size=h.size, score=h.score) for h in row.hotspots
         ],
+        enrichment=Enrichment(
+            code_lines=row.code_lines,
+            complexity_total=row.complexity_total,
+            cocomo_cost_usd=row.cocomo_cost_usd,
+            schedule_months=row.schedule_months,
+            ccn_average=row.ccn_average,
+            ccn_max=row.ccn_max,
+            function_count=row.function_count,
+            high_complexity_count=row.high_complexity_count,
+            maintainability_index=row.maintainability_index,
+            sbom_package_count=row.sbom_package_count,
+            vulnerability_count=row.vulnerability_count,
+            vuln_critical=row.vuln_critical,
+            vuln_high=row.vuln_high,
+            vuln_moderate=row.vuln_moderate,
+            vuln_low=row.vuln_low,
+            secret_count=row.secret_count,
+            health_score=row.health_score,
+            ratings=Ratings(
+                maintainability=Rating(row.rating_maintainability),
+                security=Rating(row.rating_security),
+                health=Rating(row.rating_health),
+            ),
+        ),
+        vulnerabilities=[
+            Vulnerability(
+                package=v.package,
+                ecosystem=v.ecosystem,
+                version=v.version,
+                vuln_id=v.vuln_id,
+                severity=v.severity,
+                fixed_version=v.fixed_version,
+            )
+            for v in row.vulnerabilities
+        ],
+        health_checks=[
+            HealthCheck(name=h.name, score=h.score, reason=h.reason) for h in row.health_checks
+        ],
+        tool_runs=[
+            ToolRun(name=t.name, available=t.available, contributed=t.contributed)
+            for t in row.tool_runs
+        ],
     )
 
 
 def _build_row(analysis: Analysis) -> AnalysisRow:
     f = analysis.facts
+    e = analysis.enrichment
     row = AnalysisRow(
         id=analysis.id,
         repository_id=analysis.repository_id,
@@ -245,6 +363,26 @@ def _build_row(analysis: Analysis) -> AnalysisRow:
         license_source_file=f.license.source_file,
         has_tests=f.has_tests,
         dependency_count=f.dependency_count,
+        code_lines=e.code_lines,
+        complexity_total=e.complexity_total,
+        cocomo_cost_usd=e.cocomo_cost_usd,
+        schedule_months=e.schedule_months,
+        ccn_average=e.ccn_average,
+        ccn_max=e.ccn_max,
+        function_count=e.function_count,
+        high_complexity_count=e.high_complexity_count,
+        maintainability_index=e.maintainability_index,
+        sbom_package_count=e.sbom_package_count,
+        vulnerability_count=e.vulnerability_count,
+        vuln_critical=e.vuln_critical,
+        vuln_high=e.vuln_high,
+        vuln_moderate=e.vuln_moderate,
+        vuln_low=e.vuln_low,
+        secret_count=e.secret_count,
+        health_score=e.health_score,
+        rating_maintainability=e.ratings.maintainability.value,
+        rating_security=e.ratings.security.value,
+        rating_health=e.ratings.health.value,
     )
     row.contributors = [
         ContributorRow(
@@ -281,6 +419,24 @@ def _build_row(analysis: Analysis) -> AnalysisRow:
         HotspotRow(path=h.path, churn=h.churn, size=h.size, score=h.score)
         for h in analysis.hotspots
     ]
+    row.vulnerabilities = [
+        VulnerabilityRow(
+            package=v.package,
+            ecosystem=v.ecosystem,
+            version=v.version,
+            vuln_id=v.vuln_id,
+            severity=v.severity,
+            fixed_version=v.fixed_version,
+        )
+        for v in analysis.vulnerabilities
+    ]
+    row.health_checks = [
+        HealthCheckRow(name=h.name, score=h.score, reason=h.reason) for h in analysis.health_checks
+    ]
+    row.tool_runs = [
+        ToolRunRow(name=t.name, available=t.available, contributed=t.contributed)
+        for t in analysis.tool_runs
+    ]
     return row
 
 
@@ -291,6 +447,16 @@ class SqlAnalysisRepository:
         self._session = session
 
     def add(self, analysis: Analysis) -> None:
+        # Re-analysis of the same commit replaces the prior snapshot (idempotent).
+        existing = self._session.scalars(
+            select(AnalysisRow).where(
+                AnalysisRow.repository_id == analysis.repository_id,
+                AnalysisRow.commit_sha == analysis.commit_sha,
+            )
+        ).first()
+        if existing is not None:
+            self._session.delete(existing)
+            self._session.flush()
         self._session.add(_build_row(analysis))
 
     def get(self, analysis_id: uuid.UUID) -> Analysis | None:
