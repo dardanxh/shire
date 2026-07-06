@@ -24,7 +24,7 @@ from hobits.substrate.domain.ports import ScanContext
 
 logger = logging.getLogger(__name__)
 
-ScanContextBuilder = Callable[[Path, str], ScanContext]
+ScanContextBuilder = Callable[[Path, str, str | None], ScanContext]
 
 
 class IngestRepositoryService:
@@ -64,7 +64,7 @@ class IngestRepositoryService:
             repository.mark_analyzing()
             self._repos.save(repository)
 
-            ctx = self._build_context(Path(outcome.clone_path), outcome.head_sha)
+            ctx = self._build_context(Path(outcome.clone_path), outcome.head_sha, url)
             analysis = self._analyze.analyze(repository.id, ctx)
 
             repository.mark_ready(outcome.head_sha)

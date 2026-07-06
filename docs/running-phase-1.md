@@ -5,7 +5,18 @@ deterministic scanners (L1 facts + basic L2 structure), persist an immutable ana
 and view it. Backend is fully working; UI is a local web app.
 
 ## Prerequisites
-- Docker (running), `uv`, Node ≥ 20. (`uv` manages Python 3.13 itself.)
+- Docker (running), `uv`, Node ≥ 20, Homebrew (for the analysis tools). (`uv` manages Python 3.13.)
+
+## Quick start (scripts)
+
+```bash
+./scripts/setup.sh   # installs external tools + backend + frontend + db + migrations
+./scripts/run.sh     # starts db + backend (:8000) + frontend (:3000)
+```
+
+The **Phase 1.5 enrichment** shells out to external tools (scc, syft, osv-scanner, gitleaks,
+scorecard) — see [`external-tools.md`](./external-tools.md). Missing tools degrade gracefully;
+check live availability at `GET /tools`. Below is the manual, step-by-step equivalent.
 
 ## Backend (`be/`)
 
