@@ -78,7 +78,7 @@ def test_full_pipeline(sample_repo: Path) -> None:
 
 
 def test_repo_url_parsing() -> None:
-    url, coords = RepoUrl.parse("https://github.com/pallets/flask.git")
+    _url, coords = RepoUrl.parse("https://github.com/pallets/flask.git")
     assert coords.provider is GitProvider.github
     assert coords.slug == "pallets/flask"
 
