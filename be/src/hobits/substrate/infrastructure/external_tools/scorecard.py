@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import os
 import re
+import subprocess
 from dataclasses import dataclass, field
 
 from hobits.substrate.infrastructure.external_tools.base import ExternalTool, ToolSpec
@@ -34,6 +35,21 @@ class ScorecardAdapter(ExternalTool):
         install="brew install scorecard",
         version_args=("version",),
     )
+
+    def version(self) -> str | None:
+        # `scorecard version` prints an ASCII banner then a `GitVersion:` line.
+        if not self.is_available():
+            return None
+        try:
+            result = subprocess.run(
+                ["scorecard", "version"], capture_output=True, text=True, timeout=15
+            )
+        except (OSError, subprocess.SubprocessError):
+            return None
+        for line in (result.stdout or result.stderr).splitlines():
+            if "GitVersion" in line:
+                return line.split(":", 1)[-1].strip()
+        return None
 
     def run(self, repo_url: str, token: str | None) -> ScorecardResult | None:
         target = _github_target(repo_url)
