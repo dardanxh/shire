@@ -7,9 +7,9 @@ from pathlib import Path
 
 import pytest
 
-from hobits.repository.domain.value_objects import GitProvider, RepoUrl
-from hobits.substrate.infrastructure.git_history import build_scan_context
-from hobits.substrate.infrastructure.scanners import default_scanners
+from hobits.domain.repository.domain import GitProvider, RepoUrl
+from hobits.integrations.git_history import build_scan_context
+from hobits.integrations.scanners import default_scanners
 
 
 def _git(cwd: Path, *args: str) -> None:

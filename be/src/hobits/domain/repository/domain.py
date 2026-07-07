@@ -1,0 +1,182 @@
+"""Repository bounded-context domain: the Repository aggregate, its value objects, and ports.
+
+The domain never imports SQLAlchemy, GitPython, or httpx — it declares what it needs (ports);
+`integrations/` and this domain's `repositories.py` implement them.
+"""
+
+from __future__ import annotations
+
+import re
+import uuid
+from datetime import UTC, datetime
+from enum import StrEnum
+from typing import Protocol
+
+from hobits.core.domain_base import AggregateRoot, ValueObject
+
+# --- value objects ------------------------------------------------------------
+
+
+class GitProvider(StrEnum):
+    github = "github"
+    gitlab = "gitlab"
+    bitbucket = "bitbucket"
+    generic = "generic"
+
+
+class IngestionStatus(StrEnum):
+    registered = "registered"
+    cloning = "cloning"
+    analyzing = "analyzing"
+    ready = "ready"
+    failed = "failed"
+
+
+_HOST_TO_PROVIDER = {
+    "github.com": GitProvider.github,
+    "gitlab.com": GitProvider.gitlab,
+    "bitbucket.org": GitProvider.bitbucket,
+}
+
+# https://host/owner/name(.git)  |  git@host:owner/name(.git)
+_HTTPS_RE = re.compile(r"^https?://(?P<host>[^/]+)/(?P<path>.+?)(?:\.git)?/?$")
+_SSH_RE = re.compile(r"^git@(?P<host>[^:]+):(?P<path>.+?)(?:\.git)?/?$")
+
+
+class RepoCoordinates(ValueObject):
+    """Natural key for a repository."""
+
+    provider: GitProvider
+    owner: str
+    name: str
+
+    @property
+    def slug(self) -> str:
+        return f"{self.owner}/{self.name}"
+
+
+class RepoUrl(ValueObject):
+    """A validated git clone URL that can derive coordinates."""
+
+    value: str
+
+    @classmethod
+    def parse(cls, raw: str) -> tuple[RepoUrl, RepoCoordinates]:
+        raw = raw.strip()
+        match = _HTTPS_RE.match(raw) or _SSH_RE.match(raw)
+        if not match:
+            raise ValueError(f"Unrecognized git URL: {raw!r}")
+
+        host = match.group("host").lower()
+        path = match.group("path").strip("/")
+        segments = [s for s in path.split("/") if s]
+        if len(segments) < 2:
+            raise ValueError(f"Cannot derive owner/name from URL: {raw!r}")
+
+        provider = _HOST_TO_PROVIDER.get(host, GitProvider.generic)
+        owner, name = segments[-2], segments[-1]
+        coordinates = RepoCoordinates(provider=provider, owner=owner, name=name)
+        return cls(value=raw), coordinates
+
+
+# --- aggregate ----------------------------------------------------------------
+
+
+def _now() -> datetime:
+    return datetime.now(UTC)
+
+
+class Repository(AggregateRoot):
+    """A tracked codebase and its ingestion lifecycle.
+
+    Invariants enforced by the transition methods:
+    - a clone path must be recorded before analysis begins;
+    - `failed` is reachable from any active state and records the error.
+    """
+
+    coordinates: RepoCoordinates
+    url: RepoUrl
+    default_branch: str = "main"
+    clone_path: str | None = None
+    status: IngestionStatus = IngestionStatus.registered
+    last_analyzed_commit: str | None = None
+    last_analyzed_at: datetime | None = None
+    error: str | None = None
+    created_at: datetime = None  # type: ignore[assignment]
+    updated_at: datetime = None  # type: ignore[assignment]
+
+    def model_post_init(self, _context: object) -> None:
+        now = _now()
+        if self.created_at is None:
+            self.created_at = now
+        if self.updated_at is None:
+            self.updated_at = now
+
+    # --- lifecycle transitions -------------------------------------------------
+    def mark_cloning(self) -> None:
+        self.status = IngestionStatus.cloning
+        self.error = None
+        self._touch()
+
+    def mark_cloned(self, clone_path: str, default_branch: str) -> None:
+        self.clone_path = clone_path
+        self.default_branch = default_branch
+        self._touch()
+
+    def mark_analyzing(self) -> None:
+        if not self.clone_path:
+            raise ValueError("Cannot analyze a repository that has not been cloned.")
+        self.status = IngestionStatus.analyzing
+        self._touch()
+
+    def mark_ready(self, commit_sha: str) -> None:
+        self.status = IngestionStatus.ready
+        self.last_analyzed_commit = commit_sha
+        self.last_analyzed_at = _now()
+        self.error = None
+        self._touch()
+
+    def mark_failed(self, error: str) -> None:
+        self.status = IngestionStatus.failed
+        self.error = error
+        self._touch()
+
+    def _touch(self) -> None:
+        self.updated_at = _now()
+
+
+# --- ports --------------------------------------------------------------------
+
+
+class ProviderMetadata(ValueObject):
+    default_branch: str | None = None
+    description: str | None = None
+
+
+class CloneOutcome(ValueObject):
+    clone_path: str
+    default_branch: str
+    head_sha: str
+
+
+class RepositoryRepository(Protocol):
+    """Persistence port for the Repository aggregate."""
+
+    def add(self, repository: Repository) -> None: ...
+    def save(self, repository: Repository) -> None: ...
+    def get(self, repository_id: uuid.UUID) -> Repository | None: ...
+    def get_by_coordinates(self, coordinates: RepoCoordinates) -> Repository | None: ...
+    def list(self, *, limit: int | None = None, offset: int = 0) -> list[Repository]: ...
+    def count(self) -> int: ...
+
+
+class GitProviderClient(Protocol):
+    """Fetches provider-side metadata (best-effort; may return None)."""
+
+    def fetch_metadata(self, url: str) -> ProviderMetadata | None: ...
+
+
+class CloneService(Protocol):
+    """Clones (or updates) a repository into a local workspace."""
+
+    def clone(self, url: str, coordinates: RepoCoordinates) -> CloneOutcome: ...

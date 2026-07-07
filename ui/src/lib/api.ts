@@ -1,217 +1,45 @@
+import createClient from "openapi-fetch";
+import type { components, paths } from "@/lib/api-types.gen";
+import { env } from "@/lib/env";
+
+/**
+ * openapi-fetch client. The backend serves under `/api/v1` and the generated
+ * paths already include that prefix, so the base URL is empty (same-origin).
+ * The Vite dev proxy forwards `/api/* → :8000` verbatim (see vite.config.ts),
+ * so we call paths as generated: `api.GET("/api/v1/repositories")`.
+ *
+ * No auth shim: the hobits backend has no per-request auth headers.
+ */
+export const api = createClient<paths>({ baseUrl: env.VITE_API_BASE_URL });
+
+// ---- Domain types (source of truth: generated `api-types.gen.ts`) ----------
+// The backend result schemas are `*Result`; we keep the shorter `*Out` alias
+// names on the frontend so feature code stays stable.
+export type RepositoryOut = components["schemas"]["RepositoryResult"];
+export type AnalysisOut = components["schemas"]["AnalysisResult"];
+export type ToolStatusOut = components["schemas"]["ToolStatusResult"];
+export type RepositoriesPage = components["schemas"]["Page_RepositoryResult_"];
+export type ToolRun = components["schemas"]["ToolRun"];
+export type Enrichment = components["schemas"]["Enrichment"];
+export type Ratings = components["schemas"]["Ratings"];
+export type Rating = components["schemas"]["Rating"];
+export type Vulnerability = components["schemas"]["Vulnerability"];
+export type HealthCheck = components["schemas"]["HealthCheck"];
+export type Hotspot = components["schemas"]["Hotspot"];
+export type LanguageStat = components["schemas"]["LanguageStat"];
+export type Dependency = components["schemas"]["Dependency"];
+export type Contributor = components["schemas"]["Contributor"];
+export type Facts = components["schemas"]["FactsResult"];
+export type CommitActivity = components["schemas"]["DailyCommitCount"];
+export type CiCdConfig = components["schemas"]["CiCdConfig"];
+
+/** Repository lifecycle status (backend types it as a bare string). */
 export type RepositoryStatus =
   | "registered"
   | "cloning"
   | "analyzing"
   | "ready"
   | "failed";
-
-export interface RepositoryOut {
-  id: string;
-  provider: string;
-  owner: string;
-  name: string;
-  slug: string;
-  url: string;
-  default_branch: string;
-  status: RepositoryStatus;
-  last_analyzed_commit: string | null;
-  last_analyzed_at: string | null;
-  error: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface AnalysisFacts {
-  first_commit_at: string | null;
-  last_commit_at: string | null;
-  age_days: number | null;
-  commit_count: number | null;
-  contributor_count: number | null;
-  loc_total: number | null;
-  primary_language: string | null;
-  license_spdx: string | null;
-  license_name: string | null;
-  has_tests: boolean | null;
-  dependency_count: number | null;
-}
-
-export interface Contributor {
-  id: string;
-  name: string;
-  email: string;
-  commits: number;
-  first_commit_at: string | null;
-  last_commit_at: string | null;
-}
-
-export interface CommitActivity {
-  day: string; // YYYY-MM-DD
-  count: number;
-}
-
-export interface LanguageStat {
-  language: string;
-  loc: number;
-  files: number;
-  pct: number;
-}
-
-export interface Dependency {
-  ecosystem: string;
-  name: string;
-  version: string | null;
-  manifest_file: string | null;
-  is_dev: boolean;
-}
-
-export interface CICD {
-  system: string;
-  config_files: string[];
-}
-
-export interface Hotspot {
-  path: string;
-  churn: number;
-  size: number;
-  score: number;
-}
-
-export type Rating = "A" | "B" | "C" | "D" | "E" | "NA";
-
-export interface EnrichmentRatings {
-  maintainability: Rating;
-  security: Rating;
-  health: Rating;
-}
-
-export interface Enrichment {
-  code_lines: number | null;
-  complexity_total: number | null;
-  cocomo_cost_usd: number | null;
-  schedule_months: number | null;
-  ccn_average: number | null;
-  ccn_max: number | null;
-  function_count: number | null;
-  high_complexity_count: number | null;
-  maintainability_index: number | null;
-  sbom_package_count: number | null;
-  vulnerability_count: number;
-  vuln_critical: number;
-  vuln_high: number;
-  vuln_moderate: number;
-  vuln_low: number;
-  secret_count: number;
-  health_score: number | null;
-  ratings: EnrichmentRatings;
-}
-
-export interface Vulnerability {
-  package: string;
-  ecosystem: string;
-  version: string | null;
-  vuln_id: string;
-  severity: string;
-  fixed_version: string | null;
-}
-
-export interface HealthCheck {
-  name: string;
-  score: number;
-  reason: string;
-}
-
-export interface ToolRun {
-  name: string;
-  available: boolean;
-  contributed: boolean;
-}
-
-export interface AnalysisOut {
-  id: string;
-  repository_id: string;
-  commit_sha: string;
-  analyzed_at: string;
-  facts: AnalysisFacts;
-  contributors: Contributor[];
-  commit_activity: CommitActivity[];
-  languages: LanguageStat[];
-  dependencies: Dependency[];
-  cicd: CICD[];
-  hotspots: Hotspot[];
-  enrichment: Enrichment;
-  vulnerabilities: Vulnerability[];
-  health_checks: HealthCheck[];
-  tool_runs: ToolRun[];
-}
-
-export interface ToolStatus {
-  name: string;
-  available: boolean;
-  version: string | null;
-  purpose: string;
-  install: string;
-  homepage: string;
-}
-
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
-/** Thrown for non-OK HTTP responses. `status` is the HTTP status code. */
-export class ApiError extends Error {
-  status: number;
-  constructor(status: number, message: string) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
-  }
-}
-
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    let detail = res.statusText;
-    try {
-      const body = await res.json();
-      detail = body?.detail ?? body?.error ?? detail;
-    } catch {
-      // ignore non-JSON error bodies
-    }
-    throw new ApiError(res.status, String(detail));
-  }
-
-  return (await res.json()) as T;
-}
-
-export function listRepositories(): Promise<RepositoryOut[]> {
-  return request<RepositoryOut[]>("/repositories");
-}
-
-export function addRepository(url: string): Promise<RepositoryOut> {
-  return request<RepositoryOut>("/repositories", {
-    method: "POST",
-    body: JSON.stringify({ url }),
-  });
-}
-
-export function getRepository(id: string): Promise<RepositoryOut> {
-  return request<RepositoryOut>(`/repositories/${id}`);
-}
-
-export function getAnalysis(id: string): Promise<AnalysisOut> {
-  return request<AnalysisOut>(`/repositories/${id}/analysis`);
-}
-
-export function getTools(): Promise<ToolStatus[]> {
-  return request<ToolStatus[]>("/tools");
-}
 
 /** External tools that can be run on-demand against a repository. */
 export const TOOL_NAMES = [
@@ -227,23 +55,28 @@ export const TOOL_NAMES = [
 export type ToolName = (typeof TOOL_NAMES)[number];
 
 /**
- * Pull the latest commits and re-run the full analysis. Blocking: this clones
- * the pull and re-analyzes, taking several seconds. May return a repository
- * with `status: "failed"` and an `error`.
+ * Pull the BE `detail` out of an error thrown by a feature hook. Handles the
+ * FastAPI exception-handler shapes:
+ *  - `{ detail: string }` — AppError / HTTPException.
+ *  - `{ detail: Array<{ msg }> }` — 422 validation errors (joined).
+ *  - native `Error` — falls through to `err.message`.
+ *  - anything else — a generic fallback.
  */
-export function refreshRepository(id: string): Promise<RepositoryOut> {
-  return request<RepositoryOut>(`/repositories/${id}/refresh`, {
-    method: "POST",
-  });
-}
-
-/**
- * Run a single external tool against a repository. Blocking (a few seconds).
- * Returns the updated analysis. 404 if the tool is unknown; 409 if the repo is
- * not cloned/analyzed yet.
- */
-export function runTool(id: string, tool: ToolName): Promise<AnalysisOut> {
-  return request<AnalysisOut>(`/repositories/${id}/tools/${tool}/run`, {
-    method: "POST",
-  });
+export function extractErrorMessage(err: unknown): string {
+  if (err && typeof err === "object" && "detail" in err) {
+    const detail = (err as { detail: unknown }).detail;
+    if (typeof detail === "string") return detail;
+    if (Array.isArray(detail)) {
+      const msgs = detail
+        .map((d) =>
+          d && typeof d === "object" && "msg" in d
+            ? String((d as { msg: unknown }).msg)
+            : String(d),
+        )
+        .filter(Boolean);
+      if (msgs.length) return msgs.join("; ");
+    }
+  }
+  if (err instanceof Error) return err.message;
+  return "Something went wrong. Please try again.";
 }

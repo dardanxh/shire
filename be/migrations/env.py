@@ -7,8 +7,8 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from hobits.shared.infrastructure.metadata import Base
-from hobits.shared.infrastructure.settings import get_settings
+from hobits.core.metadata import Base
+from hobits.core.settings import get_settings
 
 config = context.config
 config.set_main_option("sqlalchemy.url", get_settings().database_url)
