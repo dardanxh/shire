@@ -100,3 +100,15 @@ def get_repository(
     if repository is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Repository not found")
     return RepositoryOut.of(repository)
+
+
+@router.post("/{repository_id}/refresh", response_model=RepositoryOut)
+def refresh_repository(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> RepositoryOut:
+    """Pull the latest from the remote and re-run the full analysis."""
+    existing = SqlRepositoryRepository(session).get(repository_id)
+    if existing is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Repository not found")
+    repository, _ = _ingest_service(session).ingest(existing.url.value)
+    return RepositoryOut.of(repository)
