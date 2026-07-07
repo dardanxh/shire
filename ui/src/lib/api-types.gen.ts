@@ -136,6 +136,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/repositories/{repository_id}/graph": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Codebase Graph
+         * @description Whether a codebase graph exists for this repository and the URL to view it.
+         */
+        get: operations["codebase_graph_api_v1_repositories__repository_id__graph_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/graph/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate Codebase Graph
+         * @description (Re)generate the interactive codebase graph (emerge) for the current clone.
+         */
+        post: operations["generate_codebase_graph_api_v1_repositories__repository_id__graph_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -349,6 +389,36 @@ export interface components {
             has_tests: boolean;
             /** Dependency Count */
             dependency_count: number;
+        };
+        /**
+         * GraphResult
+         * @description State of a repository's codebase graph (emerge) artifact.
+         *
+         *     Not part of the analysis snapshot — the graph is a standalone visualization artifact served
+         *     under a static mount. `url` points at the generated interactive HTML app (iframe target) and is
+         *     None until the graph has been generated.
+         */
+        GraphResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Generated */
+            generated: boolean;
+            /** Url */
+            url?: string | null;
+            /** Generated At */
+            generated_at?: string | null;
+            /** Scanned Files */
+            scanned_files?: number | null;
+            /** Node Count */
+            node_count?: number | null;
+            /**
+             * Tool Available
+             * @default false
+             */
+            tool_available: boolean;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -762,6 +832,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AnalysisResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    codebase_graph_api_v1_repositories__repository_id__graph_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GraphResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_codebase_graph_api_v1_repositories__repository_id__graph_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GraphResult"];
                 };
             };
             /** @description Validation Error */

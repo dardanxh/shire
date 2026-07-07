@@ -7,12 +7,16 @@ ingestion (service-to-service).
 
 from __future__ import annotations
 
+import shutil
 import uuid
 from collections.abc import Iterable
+from datetime import UTC, datetime
+from pathlib import Path
 
 from sqlalchemy.orm import Session
 
 from hobits.core.exceptions import ConflictError, NotFoundError
+from hobits.core.settings import get_settings
 from hobits.domain.repository.repositories import SqlRepositoryRepository
 from hobits.domain.substrate.domain import (
     Analysis,
@@ -28,11 +32,18 @@ from hobits.domain.substrate.repositories import SqlAnalysisRepository
 from hobits.domain.substrate.schemas import (
     AnalysisResult,
     DependencyUsageResult,
+    GraphResult,
     ToolStatusResult,
 )
 from hobits.integrations.external_tools import all_tool_statuses
+from hobits.integrations.external_tools.emerge import EmergeAdapter
 from hobits.integrations.git_history import build_scan_context
 from hobits.integrations.scanners import default_scanners, tool_scanners
+
+# Public URL prefix where codebase-graph artifacts are served (static mount in main.py). The
+# per-repo emerge output lives at <graph_root>/<repository_id>/ and its interactive app entry is
+# <that>/html/emerge.html — hence the URL below.
+GRAPH_ARTIFACTS_PATH = "/api/v1/graph-artifacts"
 
 # Enrichment scalar fields owned by each tool (overwritten when that tool runs on demand).
 _SCALAR_FIELDS: dict[str, tuple[str, ...]] = {
@@ -131,6 +142,47 @@ class AnalysisService:
         _apply_tool(analysis, tool_name, scanner.scan(ctx))
         self._analyses.add(analysis)  # idempotent replace by (repository, commit)
         return AnalysisResult.of(analysis)
+
+    # --- codebase graph (emerge artifact) -------------------------------------
+    def graph_status(self, repository_id: uuid.UUID) -> GraphResult:
+        """Report whether a graph artifact exists for the repository, and where to view it."""
+        out_dir = get_settings().graph_root / str(repository_id)
+        entry = out_dir / EmergeAdapter.HTML_ENTRY
+        available = EmergeAdapter().is_available()
+        if not entry.is_file():
+            return GraphResult(
+                repository_id=repository_id, generated=False, tool_available=available
+            )
+        stats = EmergeAdapter.read_stats(out_dir)
+        return GraphResult(
+            repository_id=repository_id,
+            generated=True,
+            url=f"{GRAPH_ARTIFACTS_PATH}/{repository_id}/{EmergeAdapter.HTML_ENTRY}",
+            generated_at=datetime.fromtimestamp(entry.stat().st_mtime, tz=UTC),
+            scanned_files=stats.get("scanned_files"),
+            node_count=stats.get("node_count"),
+            tool_available=available,
+        )
+
+    def generate_graph(self, repository_id: uuid.UUID) -> GraphResult:
+        """Run emerge against the current clone and (re)generate the interactive graph."""
+        emerge = EmergeAdapter()
+        if not emerge.is_available():
+            raise ConflictError(
+                "emerge is not installed on the server. Install it with: "
+                "uv tool install emerge-viz --with 'setuptools<81' --with pip"
+            )
+        repo = self._repos.get(repository_id)
+        if repo is None or not repo.clone_path:
+            raise ConflictError("Repository has not been cloned.")
+
+        out_dir = get_settings().graph_root / str(repository_id)
+        # Clear any prior run so a failure can't leave a stale graph looking current.
+        shutil.rmtree(out_dir, ignore_errors=True)
+        project_name = Path(repo.clone_path).name or str(repository_id)
+        if emerge.run(Path(repo.clone_path), out_dir, project_name) is None:
+            raise ConflictError("Graph generation failed — emerge produced no output.")
+        return self.graph_status(repository_id)
 
 
 # --- pipeline helpers ---------------------------------------------------------

@@ -104,3 +104,20 @@ class ToolStatusResult(BaseModel):
 class DependencyUsageResult(BaseModel):
     repository_id: uuid.UUID
     versions: list[str]
+
+
+class GraphResult(BaseModel):
+    """State of a repository's codebase graph (emerge) artifact.
+
+    Not part of the analysis snapshot — the graph is a standalone visualization artifact served
+    under a static mount. `url` points at the generated interactive HTML app (iframe target) and is
+    None until the graph has been generated.
+    """
+
+    repository_id: uuid.UUID
+    generated: bool
+    url: str | None = None
+    generated_at: datetime | None = None
+    scanned_files: int | None = None
+    node_count: int | None = None
+    tool_available: bool = False

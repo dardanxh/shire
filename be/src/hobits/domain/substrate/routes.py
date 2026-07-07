@@ -11,6 +11,7 @@ from hobits.core.db import get_session
 from hobits.domain.substrate.schemas import (
     AnalysisResult,
     DependencyUsageResult,
+    GraphResult,
     ToolStatusResult,
 )
 from hobits.domain.substrate.services import AnalysisService
@@ -44,3 +45,19 @@ def run_tool_on_demand(
 ) -> AnalysisResult:
     """Run a single external tool against the current clone and merge it into the analysis."""
     return AnalysisService(session).run_tool(repository_id, tool)
+
+
+@router.get("/repositories/{repository_id}/graph", response_model=GraphResult)
+def codebase_graph(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> GraphResult:
+    """Whether a codebase graph exists for this repository and the URL to view it."""
+    return AnalysisService(session).graph_status(repository_id)
+
+
+@router.post("/repositories/{repository_id}/graph/run", response_model=GraphResult)
+def generate_codebase_graph(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> GraphResult:
+    """(Re)generate the interactive codebase graph (emerge) for the current clone."""
+    return AnalysisService(session).generate_graph(repository_id)

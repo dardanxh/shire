@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   type AnalysisOut,
   api,
+  type GraphOut,
   type RepositoryOut,
   type ToolName,
 } from "@/lib/api";
@@ -89,6 +90,43 @@ export function useRefreshRepositoryMutation(id: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: repositoryKeys.all });
+    },
+  });
+}
+
+/**
+ * Codebase-graph (emerge) status for a repository: whether an artifact exists
+ * and the URL to iframe. Cheap poll target; independent of the analysis query.
+ */
+export function useGraphQuery(id: string) {
+  return useQuery<GraphOut>({
+    queryKey: repositoryKeys.graph(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/graph",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+  });
+}
+
+/** (Re)generate the codebase graph. Blocking — emerge can take a while on big repos. */
+export function useGenerateGraphMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (): Promise<GraphOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/graph/run",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(repositoryKeys.graph(id), data);
     },
   });
 }
