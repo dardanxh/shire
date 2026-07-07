@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     # Where cloned repositories live on the local filesystem.
     clone_root: Path = Field(default=Path(".data/repos"))
 
+    # Where generated codebase-graph artifacts (emerge HTML apps) are written,
+    # keyed by repository id. Served read-only under /api/v1/graph-artifacts.
+    graph_root: Path = Field(default=Path(".data/graph"))
+
     # Optional GitHub token for richer metadata + higher rate limits + private repos.
     github_token: str | None = Field(default=None)
 
@@ -33,6 +37,7 @@ class Settings(BaseSettings):
 
     def ensure_dirs(self) -> None:
         self.clone_root.mkdir(parents=True, exist_ok=True)
+        self.graph_root.mkdir(parents=True, exist_ok=True)
 
 
 @lru_cache

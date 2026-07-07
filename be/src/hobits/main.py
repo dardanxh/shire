@@ -8,10 +8,13 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from hobits.core.exceptions import register_exception_handlers
+from hobits.core.settings import get_settings
 from hobits.domain.repository.routes import router as repositories_router
 from hobits.domain.substrate.routes import router as substrate_router
+from hobits.domain.substrate.services import GRAPH_ARTIFACTS_PATH
 
 API_V1_PREFIX = "/api/v1"
 
@@ -34,6 +37,17 @@ register_exception_handlers(app)
 
 app.include_router(repositories_router, prefix=API_V1_PREFIX)
 app.include_router(substrate_router, prefix=API_V1_PREFIX)
+
+# Serve generated codebase-graph artifacts (emerge HTML apps) read-only. Mounted under /api/v1 so
+# the dev Vite proxy (/api → :8000) reaches it same-origin and the UI can iframe the graph. The
+# directory must exist before mounting, so materialize it here.
+_settings = get_settings()
+_settings.ensure_dirs()
+app.mount(
+    GRAPH_ARTIFACTS_PATH,
+    StaticFiles(directory=_settings.graph_root),
+    name="graph-artifacts",
+)
 
 
 @app.get("/health", tags=["meta"])

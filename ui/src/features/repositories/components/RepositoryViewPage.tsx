@@ -27,6 +27,7 @@ import {
   shortSha,
 } from "@/lib/format";
 import { useAnalysisQuery, useRepositoryQuery } from "../api";
+import { CodebaseGraph } from "./CodebaseGraph";
 import { CommitsChart } from "./CommitsChart";
 import { EnrichmentCards } from "./EnrichmentCards";
 import { FactCard } from "./FactCard";
@@ -462,6 +463,11 @@ export function RepositoryViewPage({ id }: { id: string }) {
                 )}
               </CardContent>
             </Card>
+          </section>
+
+          {/* Codebase graph */}
+          <section>
+            <CodebaseGraph id={repo.id} />
           </section>
 
           {/* Analysis tools */}

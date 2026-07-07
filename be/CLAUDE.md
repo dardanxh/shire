@@ -122,6 +122,18 @@ the generic template; follow these when they conflict:
     `external_tools/`).
 - **Two domains, not fifteen:** `repository` (ingest/clone/list/get/refresh) and `substrate`
   (analysis snapshot, tools, on-demand tool runs). No customer/project/task/team/etc.
+- **Codebase graph (emerge) is an *artifact* tool, not a scanner.** `external_tools/emerge.py`
+  runs [emerge](https://github.com/glato/emerge) against a clone and produces an interactive D3
+  HTML app under `<graph_root>/<repo_id>/html/` — it does **not** contribute scalar metrics or
+  ratings, so it stays out of the scanner/enrichment pipeline (`tool_scanners()`). It's surfaced in
+  `GET /tools` for availability only; run it via `POST /repositories/{id}/graph/run` and read state
+  via `GET /repositories/{id}/graph`. The HTML is served read-only by a `StaticFiles` mount at
+  `/api/v1/graph-artifacts` (under `/api/v1` so the UI iframes it same-origin through the Vite
+  proxy). **Install caveat:** emerge is stale (2024) with dependency drift — on Python 3.13 it needs
+  `uv tool install emerge-viz --with 'setuptools<81' --with pip --with 'networkx<3.4'` (the
+  `networkx<3.4` pin matters: 3.4 flipped `node_link_data`'s edge key from `links`→`edges`, which
+  silently blanks emerge's graph canvas). Since `uv tool` installs to `~/.local/bin` (often off the
+  server's PATH) the adapter probes that path directly.
 - **No auth.** There is no Cognito, no permissions/scope, no `current_user` dependency — the
   hobits backend is unauthenticated. Ignore the auth sections until auth is introduced.
 - **Bulk CRUD is N/A for the single-resource ingest** (`POST /api/v1/repositories` takes one

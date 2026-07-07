@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from hobits.integrations.external_tools.base import ToolSpec, ToolStatus
+from hobits.integrations.external_tools.emerge import EmergeAdapter
 from hobits.integrations.external_tools.gitleaks import GitleaksAdapter
 from hobits.integrations.external_tools.osv import OsvScannerAdapter
 from hobits.integrations.external_tools.scc import SccAdapter
@@ -19,6 +20,9 @@ BINARY_TOOLS = [
     OsvScannerAdapter(),
     GitleaksAdapter(),
     ScorecardAdapter(),
+    # Artifact-producing (graph HTML), not a scanner — surfaced in /tools for availability only;
+    # run via the dedicated /repositories/{id}/graph/run endpoint, not the generic tool-run flow.
+    EmergeAdapter(),
 ]
 
 LIBRARY_TOOLS = [

@@ -127,7 +127,18 @@
       "tools_summary": "{{contributed}} of {{total}} tools contributed to this analysis",
       "tool_contributed": "contributed",
       "tool_available": "available",
-      "tool_unavailable": "unavailable"
+      "tool_unavailable": "unavailable",
+      "graph_title": "Codebase graph",
+      "graph_desc": "Interactive dependency graph across modules, sized by weight (lines, methods, fan-in/out).",
+      "graph_generate": "Generate graph",
+      "graph_regenerate": "Regenerate",
+      "graph_generating": "Generating…",
+      "graph_empty": "No graph generated yet. Generate one to explore module dependencies.",
+      "graph_unavailable": "The emerge tool is not installed on the server.",
+      "graph_unavailable_hint": "Install it with: uv tool install emerge-viz --with 'setuptools<81' --with pip",
+      "graph_open": "Open in new tab",
+      "graph_meta": "Generated {{when}} · {{files}} files · {{nodes}} nodes",
+      "graph_toast_done": "Codebase graph generated"
     }
   }
 }
