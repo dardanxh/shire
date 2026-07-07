@@ -212,3 +212,38 @@ export function getAnalysis(id: string): Promise<AnalysisOut> {
 export function getTools(): Promise<ToolStatus[]> {
   return request<ToolStatus[]>("/tools");
 }
+
+/** External tools that can be run on-demand against a repository. */
+export const TOOL_NAMES = [
+  "scc",
+  "lizard",
+  "radon",
+  "syft",
+  "osv-scanner",
+  "gitleaks",
+  "scorecard",
+] as const;
+
+export type ToolName = (typeof TOOL_NAMES)[number];
+
+/**
+ * Pull the latest commits and re-run the full analysis. Blocking: this clones
+ * the pull and re-analyzes, taking several seconds. May return a repository
+ * with `status: "failed"` and an `error`.
+ */
+export function refreshRepository(id: string): Promise<RepositoryOut> {
+  return request<RepositoryOut>(`/repositories/${id}/refresh`, {
+    method: "POST",
+  });
+}
+
+/**
+ * Run a single external tool against a repository. Blocking (a few seconds).
+ * Returns the updated analysis. 404 if the tool is unknown; 409 if the repo is
+ * not cloned/analyzed yet.
+ */
+export function runTool(id: string, tool: ToolName): Promise<AnalysisOut> {
+  return request<AnalysisOut>(`/repositories/${id}/tools/${tool}/run`, {
+    method: "POST",
+  });
+}

@@ -17,6 +17,7 @@ import { RatingBadge } from "@/components/RatingBadge";
 import { EnrichmentCards } from "@/components/EnrichmentCards";
 import { VulnerabilitiesTable } from "@/components/VulnerabilitiesTable";
 import { ToolRuns } from "@/components/ToolRuns";
+import { RepositoryActions } from "@/components/RepositoryActions";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -147,6 +148,27 @@ export default function RepositoryDetailPage({
           </Card>
         ) : null}
       </div>
+
+      <RepositoryActions
+        id={repo.id}
+        toolRuns={analysis?.tool_runs ?? []}
+        onRefreshed={(nextRepo, nextAnalysis) =>
+          setState({
+            kind: "ready",
+            repo: nextRepo,
+            analysis: nextAnalysis,
+            analysisMissing: nextAnalysis === null,
+          })
+        }
+        onAnalysisUpdated={(nextAnalysis) =>
+          setState({
+            kind: "ready",
+            repo,
+            analysis: nextAnalysis,
+            analysisMissing: false,
+          })
+        }
+      />
 
       {analysisMissing || !analysis || !facts ? (
         <Card className="p-10 text-center">
