@@ -10,7 +10,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from hobits.repository.infrastructure.persistence import SqlRepositoryRepository
 from hobits.shared.infrastructure.db import get_session
+from hobits.substrate.application.run_tool import (
+    RepositoryNotReadyError,
+    RunToolService,
+    ToolNotFoundError,
+)
 from hobits.substrate.domain.enrichment import (
     Enrichment,
     HealthCheck,
@@ -26,6 +32,7 @@ from hobits.substrate.domain.value_objects import (
     LanguageStat,
 )
 from hobits.substrate.infrastructure.external_tools import all_tool_statuses
+from hobits.substrate.infrastructure.git_history import build_scan_context
 from hobits.substrate.infrastructure.persistence import SqlAnalysisRepository
 
 router = APIRouter(tags=["substrate"])
@@ -140,3 +147,22 @@ class ToolStatusOut(BaseModel):
 def external_tools() -> list[ToolStatusOut]:
     """Availability + versions of the external analysis tools (drives docs + setup)."""
     return [ToolStatusOut(**vars(status)) for status in all_tool_statuses()]
+
+
+@router.post("/repositories/{repository_id}/tools/{tool}/run", response_model=AnalysisOut)
+def run_tool_on_demand(
+    repository_id: uuid.UUID, tool: str, session: Session = Depends(get_session)
+) -> AnalysisOut:
+    """Run a single external tool against the current clone and merge it into the analysis."""
+    service = RunToolService(
+        SqlRepositoryRepository(session),
+        SqlAnalysisRepository(session),
+        build_scan_context,
+    )
+    try:
+        analysis = service.run(repository_id, tool)
+    except ToolNotFoundError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(exc)) from exc
+    except RepositoryNotReadyError as exc:
+        raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+    return AnalysisOut.of(analysis)

@@ -43,4 +43,18 @@ def default_scanners() -> list[Scanner]:
     ]
 
 
-__all__ = ["default_scanners"]
+# Map an external-tool name (as reported by GET /tools) to the scanner that runs it, for
+# on-demand single-tool runs.
+def tool_scanners() -> dict[str, Scanner]:
+    return {
+        "scc": CodeMetricsScanner(),
+        "lizard": ComplexityScanner(),
+        "radon": MaintainabilityScanner(),
+        "syft": SbomScanner(),
+        "osv-scanner": VulnerabilityScanner(),
+        "gitleaks": SecretsScanner(),
+        "scorecard": HealthScanner(),
+    }
+
+
+__all__ = ["default_scanners", "tool_scanners"]
