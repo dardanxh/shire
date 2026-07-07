@@ -7,7 +7,10 @@
 from __future__ import annotations
 
 from hobits.integrations.external_tools.base import ToolSpec, ToolStatus
+from hobits.integrations.external_tools.code_maat import CodeMaatAdapter
+from hobits.integrations.external_tools.codecharta import CodeChartaAdapter
 from hobits.integrations.external_tools.emerge import EmergeAdapter
+from hobits.integrations.external_tools.git_of_theseus import GitOfTheseusAdapter
 from hobits.integrations.external_tools.gitleaks import GitleaksAdapter
 from hobits.integrations.external_tools.osv import OsvScannerAdapter
 from hobits.integrations.external_tools.scc import SccAdapter
@@ -20,9 +23,12 @@ BINARY_TOOLS = [
     OsvScannerAdapter(),
     GitleaksAdapter(),
     ScorecardAdapter(),
-    # Artifact-producing (graph HTML), not a scanner — surfaced in /tools for availability only;
-    # run via the dedicated /repositories/{id}/graph/run endpoint, not the generic tool-run flow.
-    EmergeAdapter(),
+    # Visualization / artifact tools — surfaced in /tools for availability only; each runs via its
+    # own dedicated endpoint, not the generic scanner tool-run flow.
+    EmergeAdapter(),  # dependency graph (HTML)
+    GitOfTheseusAdapter(),  # code age (SVG)
+    CodeMaatAdapter(),  # temporal coupling (data)
+    CodeChartaAdapter(),  # code-city map (cc.json + viewer)
 ]
 
 LIBRARY_TOOLS = [

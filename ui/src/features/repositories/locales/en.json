@@ -138,7 +138,42 @@
       "graph_unavailable_hint": "Install it with: uv tool install emerge-viz --with 'setuptools<81' --with pip",
       "graph_open": "Open in new tab",
       "graph_meta": "Generated {{when}} · {{files}} files · {{nodes}} nodes",
-      "graph_toast_done": "Codebase graph generated"
+      "graph_toast_done": "Codebase graph generated",
+      "viz_generate": "Generate",
+      "viz_regenerate": "Regenerate",
+      "viz_generating": "Generating…",
+      "viz_open": "Open in new tab",
+      "viz_generated_at": "Generated {{when}}",
+      "code_age_title": "Code age",
+      "code_age_desc": "How much code from each year still survives — a read on churn vs. fossilization.",
+      "code_age_empty": "No code-age chart yet. Generate one to see how the codebase has evolved.",
+      "code_age_unavailable": "The git-of-theseus tool is not installed on the server.",
+      "code_age_toast": "Code-age chart generated",
+      "coupling_title": "Change coupling",
+      "coupling_desc": "Files that historically change together — hidden entanglement a dependency graph can't see.",
+      "coupling_empty": "No coupling computed yet. Generate to mine the git history for files that change together.",
+      "coupling_none": "No significantly coupled files found.",
+      "coupling_unavailable": "The code-maat tool is not installed on the server (needs java + the jar).",
+      "coupling_toast": "Change coupling computed",
+      "coupling_entity": "File",
+      "coupling_coupled": "Coupled with",
+      "coupling_degree": "Coupling",
+      "code_map_title": "Code city",
+      "code_map_desc": "Files as buildings sized and colored by metrics (lines, complexity) — where the weight sits.",
+      "code_map_empty": "No code map yet. Generate one to explore the codebase as a 3D city.",
+      "code_map_unavailable": "The CodeCharta analyzer (ccsh) is not installed on the server.",
+      "code_map_no_viewer": "Map generated, but the CodeCharta viewer isn't installed. Install codecharta-visualization to view it here.",
+      "code_map_meta": "Generated {{when}} · {{files}} files",
+      "code_map_toast": "Code map generated",
+      "tabs": {
+        "overview": "Overview",
+        "code": "Code",
+        "activity": "Activity",
+        "dependencies": "Dependencies",
+        "security": "Security",
+        "graph": "Graph",
+        "tools": "Tools"
+      }
     }
   }
 }

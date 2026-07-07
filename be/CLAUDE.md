@@ -134,6 +134,21 @@ the generic template; follow these when they conflict:
   `networkx<3.4` pin matters: 3.4 flipped `node_link_data`'s edge key from `links`→`edges`, which
   silently blanks emerge's graph canvas). Since `uv tool` installs to `~/.local/bin` (often off the
   server's PATH) the adapter probes that path directly.
+- **Three more visualization tools follow the same artifact pattern** (own endpoint, not the scanner
+  flow; surfaced in `GET /tools` for availability only). Their artifacts live under
+  `<artifacts_root>/<tool>/<repo_id>/` served at `/api/v1/artifacts`; each has
+  `GET/POST /repositories/{id}/<kind>[/run]`:
+  - **git-of-theseus** (`code-age`) — code survival/age SVG. `uv tool install git-of-theseus`.
+    Resolves binaries from `~/.local/bin`. Serves `stack.svg` (shown as an `<img>`).
+  - **code-maat** (`coupling`) — temporal (change) coupling. *Data*, not an artifact: git log →
+    `java -jar code-maat …-standalone.jar -c git2 -a coupling` → CSV → JSON cached to disk. Needs
+    `java` + the jar in `~/.local/share/code-maat/` (or `$HOBITS_CODE_MAAT_JAR`).
+  - **CodeCharta** (`code-map`) — 3D code-city map. `ccsh unifiedparser` → `.cc.json` (we gunzip it
+    so static serving doesn't fight `Content-Encoding`). The **viewer is a separate static SPA**
+    (`codecharta-visualization`) mounted at `/api/v1/cc-viewer`; the map loads via
+    `…/cc-viewer/index.html?file=<map-url>`. `npm i -g codecharta-analysis codecharta-visualization`.
+    Viewer dir resolved from `$HOBITS_CODECHARTA_VIEWER` or the npm global root; `viewer_available`
+    is reported separately from `tool_available`.
 - **No auth.** There is no Cognito, no permissions/scope, no `current_user` dependency — the
   hobits backend is unauthenticated. Ignore the auth sections until auth is introduced.
 - **Bulk CRUD is N/A for the single-resource ingest** (`POST /api/v1/repositories` takes one

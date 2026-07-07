@@ -14,7 +14,12 @@ from hobits.core.exceptions import register_exception_handlers
 from hobits.core.settings import get_settings
 from hobits.domain.repository.routes import router as repositories_router
 from hobits.domain.substrate.routes import router as substrate_router
-from hobits.domain.substrate.services import GRAPH_ARTIFACTS_PATH
+from hobits.domain.substrate.services import (
+    ARTIFACTS_PATH,
+    CC_VIEWER_PATH,
+    GRAPH_ARTIFACTS_PATH,
+)
+from hobits.integrations.external_tools.codecharta import resolve_viewer_dir
 
 API_V1_PREFIX = "/api/v1"
 
@@ -48,6 +53,17 @@ app.mount(
     StaticFiles(directory=_settings.graph_root),
     name="graph-artifacts",
 )
+# Other visualization artifacts (git-of-theseus SVG, code-maat JSON, CodeCharta maps).
+app.mount(
+    ARTIFACTS_PATH,
+    StaticFiles(directory=_settings.artifacts_root),
+    name="artifacts",
+)
+# CodeCharta's static browser viewer (a SPA that loads a map via ?file=). Mounted only when the
+# viewer package is installed; the code-map endpoint reports viewer_available accordingly.
+_cc_viewer = resolve_viewer_dir()
+if _cc_viewer is not None:
+    app.mount(CC_VIEWER_PATH, StaticFiles(directory=_cc_viewer, html=True), name="cc-viewer")
 
 
 @app.get("/health", tags=["meta"])

@@ -176,6 +176,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/repositories/{repository_id}/code-age": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Code Age
+         * @description Code age / survival over time (git-of-theseus): whether generated + the SVG URL.
+         */
+        get: operations["code_age_api_v1_repositories__repository_id__code_age_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/code-age/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate Code Age
+         * @description (Re)generate the code-age stacked-area chart (git-of-theseus) for the current clone.
+         */
+        post: operations["generate_code_age_api_v1_repositories__repository_id__code_age_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/coupling": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Coupling
+         * @description Temporal (change) coupling (code-maat): ranked pairs of files that change together.
+         */
+        get: operations["coupling_api_v1_repositories__repository_id__coupling_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/coupling/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate Coupling
+         * @description (Re)compute temporal coupling (code-maat) from the current clone's git history.
+         */
+        post: operations["generate_coupling_api_v1_repositories__repository_id__coupling_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/code-map": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Code Map
+         * @description Code-city map (CodeCharta): whether generated + the viewer URL to iframe.
+         */
+        get: operations["code_map_api_v1_repositories__repository_id__code_map_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/code-map/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate Code Map
+         * @description (Re)generate the CodeCharta code-city map for the current clone.
+         */
+        post: operations["generate_code_map_api_v1_repositories__repository_id__code_map_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -248,6 +368,76 @@ export interface components {
          * @enum {string}
          */
         CiCdSystem: "github_actions" | "gitlab_ci" | "circleci" | "jenkins" | "travis" | "azure_pipelines" | "drone" | "other";
+        /** CodeAgeCohort */
+        CodeAgeCohort: {
+            /** Label */
+            label: string;
+            /** Lines */
+            lines: number;
+        };
+        /**
+         * CodeAgeResult
+         * @description State of a repository's code-age artifact (git-of-theseus stacked-area SVG).
+         *
+         *     `url` points at the generated SVG (rendered as an image); `cohorts` is the surviving-lines
+         *     breakdown per year as of the latest commit.
+         */
+        CodeAgeResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Generated */
+            generated: boolean;
+            /** Url */
+            url?: string | null;
+            /** Generated At */
+            generated_at?: string | null;
+            /**
+             * Cohorts
+             * @default []
+             */
+            cohorts: components["schemas"]["CodeAgeCohort"][];
+            /**
+             * Tool Available
+             * @default false
+             */
+            tool_available: boolean;
+        };
+        /**
+         * CodeMapResult
+         * @description State of a repository's code-city map (CodeCharta).
+         *
+         *     `url` points at the CodeCharta browser viewer with the generated map loaded (iframe target).
+         *     `viewer_available` is separate from `tool_available`: the analyzer (ccsh) and the viewer
+         *     (codecharta-visualization) are installed independently.
+         */
+        CodeMapResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Generated */
+            generated: boolean;
+            /** Url */
+            url?: string | null;
+            /** Generated At */
+            generated_at?: string | null;
+            /** File Count */
+            file_count?: number | null;
+            /**
+             * Tool Available
+             * @default false
+             */
+            tool_available: boolean;
+            /**
+             * Viewer Available
+             * @default false
+             */
+            viewer_available: boolean;
+        };
         /** Contributor */
         Contributor: {
             /**
@@ -265,6 +455,45 @@ export interface components {
             first_commit_at?: string | null;
             /** Last Commit At */
             last_commit_at?: string | null;
+        };
+        /** CouplingPair */
+        CouplingPair: {
+            /** Entity */
+            entity: string;
+            /** Coupled */
+            coupled: string;
+            /** Degree */
+            degree: number;
+            /** Average Revs */
+            average_revs: number;
+        };
+        /**
+         * CouplingResult
+         * @description State of a repository's temporal-coupling analysis (code-maat).
+         *
+         *     Data, not an artifact: `pairs` are files that historically change together, ranked by coupling
+         *     degree. Computed on demand and cached to disk so `generated_at` reflects the last run.
+         */
+        CouplingResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Generated */
+            generated: boolean;
+            /** Generated At */
+            generated_at?: string | null;
+            /**
+             * Pairs
+             * @default []
+             */
+            pairs: components["schemas"]["CouplingPair"][];
+            /**
+             * Tool Available
+             * @default false
+             */
+            tool_available: boolean;
         };
         /** DailyCommitCount */
         DailyCommitCount: {
@@ -894,6 +1123,192 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GraphResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    code_age_api_v1_repositories__repository_id__code_age_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodeAgeResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_code_age_api_v1_repositories__repository_id__code_age_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodeAgeResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    coupling_api_v1_repositories__repository_id__coupling_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouplingResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_coupling_api_v1_repositories__repository_id__coupling_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouplingResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    code_map_api_v1_repositories__repository_id__code_map_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodeMapResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_code_map_api_v1_repositories__repository_id__code_map_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodeMapResult"];
                 };
             };
             /** @description Validation Error */

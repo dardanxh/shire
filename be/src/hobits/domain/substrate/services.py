@@ -7,6 +7,7 @@ ingestion (service-to-service).
 
 from __future__ import annotations
 
+import json
 import shutil
 import uuid
 from collections.abc import Iterable
@@ -31,19 +32,30 @@ from hobits.domain.substrate.domain import (
 from hobits.domain.substrate.repositories import SqlAnalysisRepository
 from hobits.domain.substrate.schemas import (
     AnalysisResult,
+    CodeAgeCohort,
+    CodeAgeResult,
+    CodeMapResult,
+    CouplingPair,
+    CouplingResult,
     DependencyUsageResult,
     GraphResult,
     ToolStatusResult,
 )
 from hobits.integrations.external_tools import all_tool_statuses
+from hobits.integrations.external_tools.code_maat import CodeMaatAdapter
+from hobits.integrations.external_tools.codecharta import CodeChartaAdapter
 from hobits.integrations.external_tools.emerge import EmergeAdapter
+from hobits.integrations.external_tools.git_of_theseus import GitOfTheseusAdapter
 from hobits.integrations.git_history import build_scan_context
 from hobits.integrations.scanners import default_scanners, tool_scanners
 
-# Public URL prefix where codebase-graph artifacts are served (static mount in main.py). The
-# per-repo emerge output lives at <graph_root>/<repository_id>/ and its interactive app entry is
-# <that>/html/emerge.html — hence the URL below.
+# Public URL prefixes for statically-served artifacts (static mounts in main.py).
+# - emerge graph output:        <graph_root>/<repo_id>/html/emerge.html
+# - other viz artifacts:        <artifacts_root>/<tool>/<repo_id>/...
+# - CodeCharta browser viewer:  a static SPA that loads a map via ?file=<url>
 GRAPH_ARTIFACTS_PATH = "/api/v1/graph-artifacts"
+ARTIFACTS_PATH = "/api/v1/artifacts"
+CC_VIEWER_PATH = "/api/v1/cc-viewer"
 
 # Enrichment scalar fields owned by each tool (overwritten when that tool runs on demand).
 _SCALAR_FIELDS: dict[str, tuple[str, ...]] = {
@@ -184,8 +196,130 @@ class AnalysisService:
             raise ConflictError("Graph generation failed — emerge produced no output.")
         return self.graph_status(repository_id)
 
+    # --- code age (git-of-theseus) --------------------------------------------
+    def code_age_status(self, repository_id: uuid.UUID) -> CodeAgeResult:
+        out_dir = self._artifact_dir("git-of-theseus", repository_id)
+        svg = out_dir / GitOfTheseusAdapter.SVG_NAME
+        available = GitOfTheseusAdapter().is_available()
+        if not svg.is_file():
+            return CodeAgeResult(
+                repository_id=repository_id, generated=False, tool_available=available
+            )
+        cohorts = [CodeAgeCohort(**c) for c in GitOfTheseusAdapter.read_cohorts(out_dir)]
+        return CodeAgeResult(
+            repository_id=repository_id,
+            generated=True,
+            url=f"{ARTIFACTS_PATH}/git-of-theseus/{repository_id}/{GitOfTheseusAdapter.SVG_NAME}",
+            generated_at=_mtime(svg),
+            cohorts=cohorts,
+            tool_available=available,
+        )
 
-# --- pipeline helpers ---------------------------------------------------------
+    def generate_code_age(self, repository_id: uuid.UUID) -> CodeAgeResult:
+        adapter = GitOfTheseusAdapter()
+        if not adapter.is_available():
+            raise ConflictError(
+                "git-of-theseus is not installed. Install it with: uv tool install git-of-theseus"
+            )
+        repo = self._require_cloned_repo(repository_id)
+        out_dir = self._artifact_dir("git-of-theseus", repository_id)
+        shutil.rmtree(out_dir, ignore_errors=True)
+        branch = getattr(repo, "default_branch", None)
+        if adapter.run(Path(repo.clone_path), out_dir, branch) is None:
+            raise ConflictError("Code-age generation failed — git-of-theseus produced no output.")
+        return self.code_age_status(repository_id)
+
+    # --- temporal coupling (code-maat) ----------------------------------------
+    def coupling_status(self, repository_id: uuid.UUID) -> CouplingResult:
+        cache = self._artifact_dir("code-maat", repository_id) / "coupling.json"
+        available = CodeMaatAdapter().is_available()
+        if not cache.is_file():
+            return CouplingResult(
+                repository_id=repository_id, generated=False, tool_available=available
+            )
+        try:
+            pairs = [CouplingPair(**p) for p in json.loads(cache.read_text())]
+        except (OSError, json.JSONDecodeError, ValueError, TypeError):
+            pairs = []
+        return CouplingResult(
+            repository_id=repository_id,
+            generated=True,
+            generated_at=_mtime(cache),
+            pairs=pairs,
+            tool_available=available,
+        )
+
+    def generate_coupling(self, repository_id: uuid.UUID) -> CouplingResult:
+        adapter = CodeMaatAdapter()
+        if not adapter.is_available():
+            raise ConflictError(
+                "code-maat is not installed. Download its standalone jar into "
+                "~/.local/share/code-maat/ (requires java)."
+            )
+        repo = self._require_cloned_repo(repository_id)
+        out_dir = self._artifact_dir("code-maat", repository_id)
+        shutil.rmtree(out_dir, ignore_errors=True)
+        rows = adapter.run(Path(repo.clone_path), out_dir)
+        if rows is None:
+            raise ConflictError("Coupling analysis failed — code-maat produced no output.")
+        (out_dir / "coupling.json").write_text(json.dumps(rows))
+        return self.coupling_status(repository_id)
+
+    # --- code city (CodeCharta) -----------------------------------------------
+    def code_map_status(self, repository_id: uuid.UUID) -> CodeMapResult:
+        adapter = CodeChartaAdapter()
+        out_dir = self._artifact_dir("codecharta", repository_id)
+        map_path = out_dir / CodeChartaAdapter.MAP_NAME
+        available = adapter.is_available()
+        viewer = adapter.viewer_available()
+        if not map_path.is_file():
+            return CodeMapResult(
+                repository_id=repository_id,
+                generated=False,
+                tool_available=available,
+                viewer_available=viewer,
+            )
+        map_url = f"{ARTIFACTS_PATH}/codecharta/{repository_id}/{CodeChartaAdapter.MAP_NAME}"
+        return CodeMapResult(
+            repository_id=repository_id,
+            generated=True,
+            url=f"{CC_VIEWER_PATH}/index.html?file={map_url}" if viewer else None,
+            generated_at=_mtime(map_path),
+            file_count=CodeChartaAdapter.file_count(map_path),
+            tool_available=available,
+            viewer_available=viewer,
+        )
+
+    def generate_code_map(self, repository_id: uuid.UUID) -> CodeMapResult:
+        adapter = CodeChartaAdapter()
+        if not adapter.is_available():
+            raise ConflictError(
+                "CodeCharta (ccsh) is not installed. Install it with: "
+                "npm install -g codecharta-analysis codecharta-visualization"
+            )
+        repo = self._require_cloned_repo(repository_id)
+        out_dir = self._artifact_dir("codecharta", repository_id)
+        shutil.rmtree(out_dir, ignore_errors=True)
+        if adapter.run(Path(repo.clone_path), out_dir) is None:
+            raise ConflictError("Code-map generation failed — CodeCharta produced no output.")
+        return self.code_map_status(repository_id)
+
+    # --- shared helpers for visualization artifacts ---------------------------
+    def _artifact_dir(self, tool: str, repository_id: uuid.UUID) -> Path:
+        return get_settings().artifacts_root / tool / str(repository_id)
+
+    def _require_cloned_repo(self, repository_id: uuid.UUID):
+        repo = self._repos.get(repository_id)
+        if repo is None or not repo.clone_path:
+            raise ConflictError("Repository has not been cloned.")
+        return repo
+
+
+# --- helpers ------------------------------------------------------------------
+
+
+def _mtime(path: Path) -> datetime:
+    return datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)
 
 
 def _merge(contributions: Iterable[ScanContribution]) -> ScanContribution:

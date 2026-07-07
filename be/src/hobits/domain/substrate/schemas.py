@@ -121,3 +121,61 @@ class GraphResult(BaseModel):
     scanned_files: int | None = None
     node_count: int | None = None
     tool_available: bool = False
+
+
+class CodeAgeCohort(BaseModel):
+    label: str
+    lines: int
+
+
+class CodeAgeResult(BaseModel):
+    """State of a repository's code-age artifact (git-of-theseus stacked-area SVG).
+
+    `url` points at the generated SVG (rendered as an image); `cohorts` is the surviving-lines
+    breakdown per year as of the latest commit.
+    """
+
+    repository_id: uuid.UUID
+    generated: bool
+    url: str | None = None
+    generated_at: datetime | None = None
+    cohorts: list[CodeAgeCohort] = []
+    tool_available: bool = False
+
+
+class CouplingPair(BaseModel):
+    entity: str
+    coupled: str
+    degree: float  # % of revisions in which the two files changed together
+    average_revs: float
+
+
+class CouplingResult(BaseModel):
+    """State of a repository's temporal-coupling analysis (code-maat).
+
+    Data, not an artifact: `pairs` are files that historically change together, ranked by coupling
+    degree. Computed on demand and cached to disk so `generated_at` reflects the last run.
+    """
+
+    repository_id: uuid.UUID
+    generated: bool
+    generated_at: datetime | None = None
+    pairs: list[CouplingPair] = []
+    tool_available: bool = False
+
+
+class CodeMapResult(BaseModel):
+    """State of a repository's code-city map (CodeCharta).
+
+    `url` points at the CodeCharta browser viewer with the generated map loaded (iframe target).
+    `viewer_available` is separate from `tool_available`: the analyzer (ccsh) and the viewer
+    (codecharta-visualization) are installed independently.
+    """
+
+    repository_id: uuid.UUID
+    generated: bool
+    url: str | None = None
+    generated_at: datetime | None = None
+    file_count: int | None = None
+    tool_available: bool = False
+    viewer_available: bool = False
