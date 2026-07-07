@@ -29,6 +29,11 @@ class Settings(BaseSettings):
     # keyed by repository id. Served read-only under /api/v1/graph-artifacts.
     graph_root: Path = Field(default=Path(".data/graph"))
 
+    # Where the other visualization artifacts live (git-of-theseus SVGs,
+    # code-maat coupling JSON, CodeCharta maps), under <root>/<tool>/<repo_id>/.
+    # Served read-only under /api/v1/artifacts.
+    artifacts_root: Path = Field(default=Path(".data/artifacts"))
+
     # Optional GitHub token for richer metadata + higher rate limits + private repos.
     github_token: str | None = Field(default=None)
 
@@ -38,6 +43,7 @@ class Settings(BaseSettings):
     def ensure_dirs(self) -> None:
         self.clone_root.mkdir(parents=True, exist_ok=True)
         self.graph_root.mkdir(parents=True, exist_ok=True)
+        self.artifacts_root.mkdir(parents=True, exist_ok=True)
 
 
 @lru_cache

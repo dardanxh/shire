@@ -121,7 +121,11 @@ export function RepositoriesListPage({
             message: error ? extractErrorMessage(error) : "",
           })}
           onRowClick={(repo) =>
-            navigate({ to: "/repositories/$id", params: { id: repo.id } })
+            navigate({
+              to: "/repositories/$id",
+              params: { id: repo.id },
+              search: { tab: "overview" },
+            })
           }
           emptyState={
             <div className="flex flex-col items-center gap-2 p-12 text-center">

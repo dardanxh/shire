@@ -10,6 +10,9 @@ from sqlalchemy.orm import Session
 from hobits.core.db import get_session
 from hobits.domain.substrate.schemas import (
     AnalysisResult,
+    CodeAgeResult,
+    CodeMapResult,
+    CouplingResult,
     DependencyUsageResult,
     GraphResult,
     ToolStatusResult,
@@ -61,3 +64,45 @@ def generate_codebase_graph(
 ) -> GraphResult:
     """(Re)generate the interactive codebase graph (emerge) for the current clone."""
     return AnalysisService(session).generate_graph(repository_id)
+
+
+@router.get("/repositories/{repository_id}/code-age", response_model=CodeAgeResult)
+def code_age(repository_id: uuid.UUID, session: Session = Depends(get_session)) -> CodeAgeResult:
+    """Code age / survival over time (git-of-theseus): whether generated + the SVG URL."""
+    return AnalysisService(session).code_age_status(repository_id)
+
+
+@router.post("/repositories/{repository_id}/code-age/run", response_model=CodeAgeResult)
+def generate_code_age(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> CodeAgeResult:
+    """(Re)generate the code-age stacked-area chart (git-of-theseus) for the current clone."""
+    return AnalysisService(session).generate_code_age(repository_id)
+
+
+@router.get("/repositories/{repository_id}/coupling", response_model=CouplingResult)
+def coupling(repository_id: uuid.UUID, session: Session = Depends(get_session)) -> CouplingResult:
+    """Temporal (change) coupling (code-maat): ranked pairs of files that change together."""
+    return AnalysisService(session).coupling_status(repository_id)
+
+
+@router.post("/repositories/{repository_id}/coupling/run", response_model=CouplingResult)
+def generate_coupling(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> CouplingResult:
+    """(Re)compute temporal coupling (code-maat) from the current clone's git history."""
+    return AnalysisService(session).generate_coupling(repository_id)
+
+
+@router.get("/repositories/{repository_id}/code-map", response_model=CodeMapResult)
+def code_map(repository_id: uuid.UUID, session: Session = Depends(get_session)) -> CodeMapResult:
+    """Code-city map (CodeCharta): whether generated + the viewer URL to iframe."""
+    return AnalysisService(session).code_map_status(repository_id)
+
+
+@router.post("/repositories/{repository_id}/code-map/run", response_model=CodeMapResult)
+def generate_code_map(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> CodeMapResult:
+    """(Re)generate the CodeCharta code-city map for the current clone."""
+    return AnalysisService(session).generate_code_map(repository_id)
