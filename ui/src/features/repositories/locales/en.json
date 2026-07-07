@@ -1,0 +1,133 @@
+{
+  "repositories": {
+    "list": {
+      "title": "Repositories",
+      "count": "{{count}} tracked",
+      "empty_title": "No repositories yet",
+      "empty_body": "Add a git repository to clone and analyze it.",
+      "col_repository": "Repository",
+      "col_provider": "Provider",
+      "col_status": "Status",
+      "col_branch": "Branch",
+      "col_last_analyzed": "Last analyzed"
+    },
+    "ingest": {
+      "trigger": "Add repository",
+      "title": "Add a repository",
+      "description": "Paste a git URL. Hobits clones and analyzes it — this can take a few seconds.",
+      "placeholder": "https://github.com/owner/repo",
+      "submit": "Add & analyze",
+      "submitting": "Analyzing…",
+      "url": {
+        "label": "Repository URL",
+        "required": "A git URL is required.",
+        "invalid": "Enter a valid URL."
+      },
+      "toast_added": "Added {{slug}}",
+      "toast_added_desc": "Repository cloned and analyzed.",
+      "toast_failed": "Analysis failed for {{slug}}",
+      "toast_failed_desc": "The repository could not be analyzed."
+    },
+    "status": {
+      "registered": "registered",
+      "cloning": "cloning",
+      "analyzing": "analyzing",
+      "ready": "ready",
+      "failed": "failed"
+    },
+    "actions": {
+      "pull_title": "Pull latest",
+      "pull_desc": "Fetch new commits and re-run the full analysis.",
+      "pull_button": "Pull latest",
+      "pulling": "Pulling…",
+      "run_title": "Run a tool",
+      "running": "Running {{tool}}…",
+      "tool_muted_title": "{{tool}} did not contribute to the current analysis",
+      "refreshed": "Refreshed",
+      "refresh_failed": "Refresh failed for {{slug}}",
+      "tool_ran": "{{tool}} ran"
+    },
+    "view": {
+      "crumb": "Repository",
+      "back": "All repositories",
+      "pending_title": "Analysis pending / not available",
+      "pending_body": "No analysis has been produced for this repository yet.",
+      "load_error": "Failed to load repository.",
+      "analyzed_meta": "Analyzed {{when}} · commit {{sha}}",
+      "facts": {
+        "age": "Age",
+        "commits": "Commits",
+        "contributors": "Contributors",
+        "loc": "Total LOC",
+        "primary_language": "Primary language",
+        "license": "License",
+        "tests": "Tests",
+        "tests_yes": "Yes",
+        "tests_no": "No",
+        "dependencies": "Dependencies"
+      },
+      "ratings": {
+        "maintainability": "Maintainability",
+        "security": "Security",
+        "health": "Health"
+      },
+      "enrichment": {
+        "cost": "Est. cost (COCOMO)",
+        "cost_sub": "~{{months}} months",
+        "complexity": "Complexity (avg CCN)",
+        "complexity_sub": "max {{max}} · {{high}} high",
+        "maintainability_index": "Maintainability index",
+        "maintainability_value": "{{value}}/100",
+        "sbom": "SBOM packages"
+      },
+      "secrets": {
+        "detected_one": "{{count}} potential secret detected in the codebase.",
+        "detected_other": "{{count}} potential secrets detected in the codebase.",
+        "none": "No secrets detected."
+      },
+      "commits_title": "Commits over time",
+      "commits_empty": "No commit activity available.",
+      "commits_tooltip": "commits",
+      "languages_title": "Languages",
+      "languages_empty": "No language data available.",
+      "languages_loc": "{{pct}}% · {{loc}} LOC",
+      "dependencies_title": "Dependencies",
+      "dependencies_empty": "No dependencies detected.",
+      "dep_name": "Name",
+      "dep_version": "Version",
+      "dep_ecosystem": "Ecosystem",
+      "dep_scope": "Scope",
+      "dep_manifest": "Manifest",
+      "dep_dev": "dev",
+      "dep_prod": "prod",
+      "contributors_title": "Top contributors",
+      "contributors_empty": "No contributors found.",
+      "contributor_commits": "{{count}} commits",
+      "cicd_title": "CI / CD",
+      "cicd_empty": "No CI/CD configuration detected.",
+      "hotspots_title": "Hotspots",
+      "hotspots_empty": "No hotspots computed.",
+      "hotspot_path": "Path",
+      "hotspot_churn": "Churn",
+      "hotspot_size": "Size",
+      "hotspot_score": "Score",
+      "vulns_title": "Vulnerabilities",
+      "vulns_none": "No known vulnerabilities.",
+      "vuln_package": "Package",
+      "vuln_ecosystem": "Ecosystem",
+      "vuln_version": "Version",
+      "vuln_id": "Vulnerability",
+      "vuln_severity": "Severity",
+      "vuln_fixed": "Fixed in",
+      "health_title": "Health checks",
+      "health_empty": "Scorecard not run (needs a GitHub token).",
+      "health_score": "{{score}}/10",
+      "tools_title": "Analysis tools",
+      "tools_none": "No tool runs recorded for this analysis.",
+      "tools_summary": "{{contributed}} of {{total}} tools contributed to this analysis",
+      "tool_contributed": "contributed",
+      "tool_available": "available",
+      "tool_unavailable": "unavailable"
+    }
+  }
+}
