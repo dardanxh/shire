@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+/* Inter (variable) — self-hosted Sohne substitute for the Stripi type system. */
+@import "@fontsource-variable/inter/index.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -49,79 +51,85 @@
 }
 
 :root {
+  /* Stripi type system: Inter (thin) as the Sohne substitute. */
   --font-sans:
-    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
+    "Inter Variable", Inter, ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-geist-mono:
     ui-monospace, "SF Mono", "SFMono-Regular", "Menlo", "Consolas",
     "Liberation Mono", monospace;
 
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Stripi palette (light). Deep-navy ink text, single indigo CTA, cool
+     off-white surfaces, hairline borders — no pure black. */
+  --background: #ffffff; /* canvas */
+  --foreground: #0d253d; /* ink */
+  --card: #ffffff;
+  --card-foreground: #0d253d;
+  --popover: #ffffff;
+  --popover-foreground: #0d253d;
+  --primary: #533afd; /* indigo — the one CTA color */
+  --primary-foreground: #ffffff; /* on-primary */
+  --secondary: #f6f9fc; /* canvas-soft */
+  --secondary-foreground: #0d253d;
+  --muted: #f6f9fc; /* canvas-soft */
+  --muted-foreground: #64748d; /* ink-mute */
+  --accent: #eef0ff; /* pale indigo wash for hover/accent */
+  --accent-foreground: #4434d4; /* indigo-deep */
+  --destructive: #df1b41; /* dashboard error red */
+  --border: #e3e8ee; /* hairline */
+  --input: #a8c3de; /* hairline-input (cooler, for fields) */
+  --ring: #533afd; /* focus ring = indigo */
+  /* Charts pull from the gradient-mesh stops. */
+  --chart-1: #533afd; /* indigo */
+  --chart-2: #ea2261; /* ruby */
+  --chart-3: #f96bee; /* magenta */
+  --chart-4: #665efd; /* indigo-soft */
+  --chart-5: #9b6829; /* lemon/sherbet */
+  --radius: 0.75rem; /* 12px = rounded.lg */
+  --sidebar: #f6f9fc; /* canvas-soft */
+  --sidebar-foreground: #0d253d;
+  --sidebar-primary: #533afd;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef0ff;
+  --sidebar-accent-foreground: #4434d4;
+  --sidebar-border: #e3e8ee;
+  --sidebar-ring: #533afd;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Dark app track: deep-navy surfaces (brand's dashboard chrome). Not shipped
+     yet (no toggle), but kept coherent with the light theme. */
+  --background: #0d253d; /* ink navy */
+  --foreground: #f6f9fc;
+  --card: #10233b;
+  --card-foreground: #f6f9fc;
+  --popover: #10233b;
+  --popover-foreground: #f6f9fc;
+  --primary: #665efd; /* indigo-soft reads brighter on navy */
+  --primary-foreground: #ffffff;
+  --secondary: #1c2f49;
+  --secondary-foreground: #f6f9fc;
+  --muted: #1c2f49;
+  --muted-foreground: #9fb3ca;
+  --accent: #233860;
+  --accent-foreground: #f6f9fc;
+  --destructive: #f2597a;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: #665efd;
+  --chart-1: #665efd;
+  --chart-2: #ea2261;
+  --chart-3: #f96bee;
+  --chart-4: #b9b9f9;
+  --chart-5: #f5e9d4;
+  --sidebar: #0b1f34;
+  --sidebar-foreground: #f6f9fc;
+  --sidebar-primary: #665efd;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1c2f49;
+  --sidebar-accent-foreground: #f6f9fc;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #665efd;
 }
 
 @layer base {
@@ -130,8 +138,20 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* ss01 globally — the brand's single-story-a stylistic set. */
+    font-feature-settings: "ss01";
   }
   html {
     @apply font-sans;
+  }
+  /* Negative tracking on display headings — Stripi's typographic signature. */
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.02em;
+  }
+  /* Tabular figures for money/numeric cells — the quiet financial-data signal. */
+  .tabular-nums {
+    font-feature-settings: "ss01", "tnum";
   }
 }
