@@ -171,9 +171,21 @@
         "activity": "Activity",
         "dependencies": "Dependencies",
         "security": "Security",
-        "graph": "Graph",
-        "tools": "Tools"
+        "integrations": "Integrations"
       }
+    },
+    "integrations": {
+      "back": "All integrations",
+      "run": "Run",
+      "running": "Running…",
+      "toast_ran": "Ran {{tool}}",
+      "unavailable": "This tool is not installed on the server.",
+      "not_installed": "Not installed",
+      "not_run": "Not run yet",
+      "ready": "Ready",
+      "ran_at": "Ran {{when}}",
+      "contributed": "Contributed to the latest analysis",
+      "view_in": "View in {{tab}}"
     }
   }
 }

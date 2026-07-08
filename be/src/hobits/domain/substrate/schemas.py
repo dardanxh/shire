@@ -95,6 +95,9 @@ class ToolStatusResult(BaseModel):
     purpose: str
     install: str
     homepage: str
+    id: str
+    category: str
+    kind: str
 
     @classmethod
     def of(cls, status: ToolStatus) -> ToolStatusResult:

@@ -49,6 +49,9 @@ class CodeChartaAdapter(ExternalTool):
         purpose="3D code-city map — files as buildings sized/colored by metrics (LOC, complexity).",
         homepage="https://github.com/MaibornWolff/codecharta",
         install="npm install -g codecharta-analysis codecharta-visualization",
+        id="codecharta",
+        category="visualization",
+        kind="artifact",
     )
 
     MAP_NAME = "map.cc.json"

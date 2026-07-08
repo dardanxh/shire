@@ -793,6 +793,12 @@ export interface components {
             install: string;
             /** Homepage */
             homepage: string;
+            /** Id */
+            id: string;
+            /** Category */
+            category: string;
+            /** Kind */
+            kind: string;
         };
         /** ValidationError */
         ValidationError: {

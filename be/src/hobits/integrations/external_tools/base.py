@@ -21,6 +21,14 @@ class ToolSpec:
     homepage: str
     install: str  # install hint (macOS/brew-first)
     version_args: tuple[str, ...] = ("--version",)
+    # Catalog metadata (drives the Integrations hub). `id` is a stable slug distinct from the
+    # binary `name` (defaults to `name`). `category` groups tools; `kind` says what they produce:
+    #   scorecard — contributes metrics/ratings to the analysis snapshot
+    #   artifact  — produces a standalone visualization artifact (served + viewed)
+    #   data      — produces standalone structured data (e.g. a table)
+    id: str = ""
+    category: str = "analysis"
+    kind: str = "scorecard"
 
 
 @dataclass(frozen=True)
@@ -31,6 +39,9 @@ class ToolStatus:
     purpose: str
     install: str
     homepage: str
+    id: str
+    category: str
+    kind: str
 
 
 class ExternalTool:
@@ -64,6 +75,9 @@ class ExternalTool:
             purpose=self.spec.purpose,
             install=self.spec.install,
             homepage=self.spec.homepage,
+            id=self.spec.id or self.spec.name,
+            category=self.spec.category,
+            kind=self.spec.kind,
         )
 
     def _run(

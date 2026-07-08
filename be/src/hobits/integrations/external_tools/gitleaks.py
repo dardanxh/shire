@@ -30,6 +30,7 @@ class GitleaksAdapter(ExternalTool):
         purpose="Detects committed secrets/credentials (reports rule + location, not the value).",
         homepage="https://github.com/gitleaks/gitleaks",
         install="brew install gitleaks",
+        category="security",
         version_args=("version",),
     )
 

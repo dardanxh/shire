@@ -37,12 +37,14 @@ LIBRARY_TOOLS = [
         purpose="Multi-language cyclomatic complexity (avg/max CCN, function count, warnings).",
         homepage="https://github.com/terryyin/lizard",
         install="bundled (uv sync)",
+        category="metrics",
     ),
     ToolSpec(
         name="radon",
         purpose="Python Maintainability Index + cyclomatic complexity + Halstead metrics.",
         homepage="https://github.com/rubik/radon",
         install="bundled (uv sync)",
+        category="metrics",
     ),
 ]
 
@@ -61,6 +63,9 @@ def all_tool_statuses() -> list[ToolStatus]:
             purpose=spec.purpose,
             install=spec.install,
             homepage=spec.homepage,
+            id=spec.id or spec.name,
+            category=spec.category,
+            kind=spec.kind,
         )
         for spec in LIBRARY_TOOLS
     ]
