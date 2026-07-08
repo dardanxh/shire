@@ -29,7 +29,10 @@ from hobits.domain.substrate.domain import (
     ScanContext,
     ScanContribution,
 )
-from hobits.domain.substrate.repositories import SqlAnalysisRepository
+from hobits.domain.substrate.repositories import (
+    SqlAnalysisRepository,
+    SqlRepositoryToolRepository,
+)
 from hobits.domain.substrate.schemas import (
     AnalysisResult,
     CodeAgeCohort,
@@ -39,15 +42,20 @@ from hobits.domain.substrate.schemas import (
     CouplingResult,
     DependencyUsageResult,
     GraphResult,
-    ToolStatusResult,
+    RepositoryContributorsResult,
+    ToolLogResult,
 )
-from hobits.integrations.external_tools import all_tool_statuses
+from hobits.integrations.external_tools import tool_languages
 from hobits.integrations.external_tools.code_maat import CodeMaatAdapter
 from hobits.integrations.external_tools.codecharta import CodeChartaAdapter
 from hobits.integrations.external_tools.emerge import EmergeAdapter
 from hobits.integrations.external_tools.git_of_theseus import GitOfTheseusAdapter
 from hobits.integrations.git_history import build_scan_context
-from hobits.integrations.scanners import default_scanners, tool_scanners
+from hobits.integrations.scanners import base_scanners, tool_scanners
+
+# Visualization/artifact tools: their "data" is a generated file tree (not analysis scalars), so
+# unlinking clears the artifact directory rather than analysis fields.
+_VIZ_TOOLS = {"emerge", "git-of-theseus", "code-maat", "codecharta"}
 
 # Public URL prefixes for statically-served artifacts (static mounts in main.py).
 # - emerge graph output:        <graph_root>/<repo_id>/html/emerge.html
@@ -65,6 +73,25 @@ _SCALAR_FIELDS: dict[str, tuple[str, ...]] = {
     "syft": ("sbom_package_count",),
     "gitleaks": ("secret_count",),
     "scorecard": ("health_score",),
+    "test-metrics": (
+        "test_count",
+        "test_file_count",
+        "test_to_code_ratio",
+        "assertion_density",
+        "test_frameworks",
+        "test_coverage_pct",
+    ),
+    "ruff": ("lint_issue_count",),
+    "bandit": ("sast_issue_count", "sast_high", "sast_medium", "sast_low"),
+    "vulture": ("dead_code_count",),
+    "ownership": (
+        "bus_factor",
+        "top_author_share",
+        "active_contributor_count",
+        "commits_last_90d",
+        "days_since_last_commit",
+        "maintenance_status",
+    ),
 }
 
 
@@ -75,13 +102,29 @@ class AnalysisService:
         self._analyses = SqlAnalysisRepository(session)
         # Cross-domain read (clone path) for on-demand tool runs — tightly coupled to a clone.
         self._repos = SqlRepositoryRepository(session)
-        self._scanners = default_scanners()
+        self._links = SqlRepositoryToolRepository(session)
+        self._base_scanners = base_scanners()
         self._tool_scanners = tool_scanners()
         self._build_context = build_scan_context
 
     # --- pipeline (internal; reused by RepositoryService during ingestion) ----
     def analyze(self, repository_id: uuid.UUID, ctx: ScanContext) -> Analysis:
-        merged = _merge(scanner.scan(ctx) for scanner in self._scanners)
+        # Base substrate always runs; integrations run only if linked to this repo. An unconfigured
+        # repo (no link rows) is auto-linked from the detected languages on this first analysis.
+        base = _merge(scanner.scan(ctx) for scanner in self._base_scanners)
+        if self._links.has_any(repository_id):
+            linked = self._links.linked_ids(repository_id)
+        else:
+            linked = _auto_link(base)
+            self._links.set_all(repository_id, linked)
+
+        contributions = [base]
+        contributions.extend(
+            scanner.scan(ctx)
+            for tool_id, scanner in self._tool_scanners.items()
+            if tool_id in linked
+        )
+        merged = _merge(contributions)
 
         facts = RepositoryFacts(
             first_commit_at=merged.first_commit_at,
@@ -122,8 +165,38 @@ class AnalysisService:
             raise NotFoundError("No completed analysis for this repository")
         return AnalysisResult.of(analysis)
 
-    def tool_statuses(self) -> list[ToolStatusResult]:
-        return [ToolStatusResult.of(status) for status in all_tool_statuses()]
+    def tool_log(self, repository_id: uuid.UUID, tool_name: str) -> ToolLogResult:
+        """Raw findings log for a tool's latest run — None when it hasn't run or produced none."""
+        analysis = self._analyses.get_latest_for_repository(repository_id)
+        run = (
+            next((t for t in analysis.tool_runs if t.name == tool_name), None)
+            if analysis
+            else None
+        )
+        log = run.log if run else None
+        return ToolLogResult(
+            tool=tool_name, log=log, line_count=len(log.splitlines()) if log else 0
+        )
+
+    def contributors_across_repositories(self) -> list[RepositoryContributorsResult]:
+        """Every repository's contributors from its latest complete analysis (fleet-wide read).
+
+        The contributors bounded context calls this (service-to-service) to aggregate people
+        across all repositories, keeping the substrate's persistence private to this domain.
+        """
+        results: list[RepositoryContributorsResult] = []
+        for repo in self._repos.list():
+            analysis = self._analyses.get_latest_for_repository(repo.id)
+            if analysis is None:
+                continue
+            results.append(
+                RepositoryContributorsResult(
+                    repository_id=repo.id,
+                    repository_name=f"{repo.coordinates.owner}/{repo.coordinates.name}",
+                    contributors=analysis.contributors,
+                )
+            )
+        return results
 
     def dependency_usage(self, name: str) -> list[DependencyUsageResult]:
         grouped: dict[uuid.UUID, set[str]] = {}
@@ -136,11 +209,65 @@ class AnalysisService:
             for rid, vers in grouped.items()
         ]
 
+    # --- per-repo integration links -------------------------------------------
+    def linked_integrations(self, repository_id: uuid.UUID) -> list[str]:
+        return sorted(self._links.linked_ids(repository_id))
+
+    def link_integration(self, repository_id: uuid.UUID, tool_id: str) -> list[str]:
+        if tool_id not in tool_languages():
+            raise NotFoundError(f"Unknown tool: {tool_id}")
+        self._links.add(repository_id, tool_id)
+        return self.linked_integrations(repository_id)
+
+    def unlink_integration(self, repository_id: uuid.UUID, tool_id: str) -> list[str]:
+        self._links.remove(repository_id, tool_id)
+        self._clear_tool_data(repository_id, tool_id)
+        return self.linked_integrations(repository_id)
+
+    def _clear_tool_data(self, repository_id: uuid.UUID, tool_id: str) -> None:
+        """On unlink, remove the tool's contribution: its artifact (viz) or its analysis data."""
+        if tool_id in _VIZ_TOOLS:
+            target = (
+                get_settings().graph_root / str(repository_id)
+                if tool_id == "emerge"
+                else self._artifact_dir(tool_id, repository_id)
+            )
+            shutil.rmtree(target, ignore_errors=True)
+            return
+
+        analysis = self._analyses.get_latest_for_repository(repository_id)
+        if analysis is None:
+            return
+        updates: dict = {field: None for field in _SCALAR_FIELDS.get(tool_id, ())}
+        if tool_id == "gitleaks":
+            updates["secret_count"] = 0  # non-nullable count column
+        if tool_id == "osv-scanner":
+            analysis.vulnerabilities = []
+            updates.update(
+                vulnerability_count=0, vuln_critical=0, vuln_high=0, vuln_moderate=0, vuln_low=0
+            )
+        if tool_id == "scorecard":
+            analysis.health_checks = []
+        enrichment = analysis.enrichment.model_copy(update=updates)
+        security_ran = any(
+            t.name == "osv-scanner" and t.contributed
+            for t in analysis.tool_runs
+            if t.name != tool_id
+        )
+        ratings = compute_ratings(
+            enrichment, security_ran=security_ran, health_ran=enrichment.health_score is not None
+        )
+        analysis.enrichment = enrichment.model_copy(update={"ratings": ratings})
+        analysis.tool_runs = [t for t in analysis.tool_runs if t.name != tool_id]
+        self._analyses.add(analysis)
+
     # --- on-demand single tool run --------------------------------------------
     def run_tool(self, repository_id: uuid.UUID, tool_name: str) -> AnalysisResult:
         scanner = self._tool_scanners.get(tool_name)
         if scanner is None:
             raise NotFoundError(f"Unknown tool: {tool_name}")
+        if tool_name not in self._links.linked_ids(repository_id):
+            raise ConflictError(f"Integration '{tool_name}' is not linked to this repository.")
         repo = self._repos.get(repository_id)
         if repo is None or not repo.clone_path:
             raise ConflictError("Repository has not been cloned.")
@@ -336,6 +463,17 @@ def _merge(contributions: Iterable[ScanContribution]) -> ScanContribution:
     return ScanContribution(**scalars, **lists)
 
 
+def _auto_link(base: ScanContribution) -> set[str]:
+    """Integrations to link on a repo's first analysis: every general tool, plus language-specific
+    tools only when that language is present (e.g. Python tools only for repos with Python)."""
+    repo_languages = {stat.language.lower() for stat in base.languages}
+    return {
+        tool_id
+        for tool_id, language in tool_languages().items()
+        if language == "general" or language.lower() in repo_languages
+    }
+
+
 def _build_enrichment(merged: ScanContribution) -> Enrichment:
     vulns = merged.vulnerabilities
 
@@ -360,6 +498,24 @@ def _build_enrichment(merged: ScanContribution) -> Enrichment:
         vuln_low=count("LOW"),
         secret_count=merged.secret_count or 0,
         health_score=merged.health_score,
+        test_count=merged.test_count,
+        test_file_count=merged.test_file_count,
+        test_to_code_ratio=merged.test_to_code_ratio,
+        assertion_density=merged.assertion_density,
+        test_frameworks=merged.test_frameworks,
+        test_coverage_pct=merged.test_coverage_pct,
+        lint_issue_count=merged.lint_issue_count,
+        sast_issue_count=merged.sast_issue_count,
+        sast_high=merged.sast_high,
+        sast_medium=merged.sast_medium,
+        sast_low=merged.sast_low,
+        dead_code_count=merged.dead_code_count,
+        bus_factor=merged.bus_factor,
+        top_author_share=merged.top_author_share,
+        active_contributor_count=merged.active_contributor_count,
+        commits_last_90d=merged.commits_last_90d,
+        days_since_last_commit=merged.days_since_last_commit,
+        maintenance_status=merged.maintenance_status,
     )
     security_ran = any(t.name == "osv-scanner" and t.contributed for t in merged.tool_runs)
     health_ran = merged.health_score is not None

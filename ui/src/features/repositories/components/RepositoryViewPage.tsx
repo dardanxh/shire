@@ -42,7 +42,6 @@ import { IntegrationsPanel } from "./integrations/IntegrationsPanel";
 import { LanguageBars } from "./LanguageBars";
 import { RatingBadge } from "./RatingBadge";
 import { RepositoryActions } from "./RepositoryActions";
-import { StatusBadge } from "./StatusBadge";
 import { VulnerabilitiesTable } from "./VulnerabilitiesTable";
 
 export function RepositoryViewPage({
@@ -90,12 +89,9 @@ export function RepositoryViewPage({
         <BackLink label={t("repositories.view.back")} />
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl font-semibold tracking-tight">
-                {repo.slug}
-              </h1>
-              <StatusBadge status={repo.status} />
-            </div>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {repo.slug}
+            </h1>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
               <span className="capitalize">{repo.provider}</span>
               <a
@@ -114,6 +110,7 @@ export function RepositoryViewPage({
               <span className="font-mono text-xs">{repo.default_branch}</span>
             </div>
           </div>
+          <RepositoryActions id={repo.id} />
         </div>
         {repo.status === "failed" && repo.error ? (
           <Card className="border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
@@ -121,8 +118,6 @@ export function RepositoryViewPage({
           </Card>
         ) : null}
       </div>
-
-      <RepositoryActions id={repo.id} />
 
       {!analysis || !facts ? (
         <Card className="p-10 text-center">
@@ -529,7 +524,6 @@ export function RepositoryViewPage({
                 repoId={repo.id}
                 selectedTool={selectedTool}
                 onSelectTool={onSelectTool}
-                onViewTab={onTabChange}
               />
             </TabsContent>
           </Tabs>

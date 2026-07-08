@@ -70,6 +70,25 @@ class AnalysisRow(Base):
     vuln_low: Mapped[int] = mapped_column(Integer, default=0)
     secret_count: Mapped[int] = mapped_column(Integer, default=0)
     health_score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    # Testing / Python-quality / ownership metrics (nullable = tool didn't run)
+    test_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    test_file_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    test_to_code_ratio: Mapped[float | None] = mapped_column(Float, nullable=True)
+    assertion_density: Mapped[float | None] = mapped_column(Float, nullable=True)
+    test_frameworks: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    test_coverage_pct: Mapped[float | None] = mapped_column(Float, nullable=True)
+    lint_issue_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    sast_issue_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    sast_high: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    sast_medium: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    sast_low: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    dead_code_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    bus_factor: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    top_author_share: Mapped[float | None] = mapped_column(Float, nullable=True)
+    active_contributor_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    commits_last_90d: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    days_since_last_commit: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    maintenance_status: Mapped[str | None] = mapped_column(String(16), nullable=True)
     rating_maintainability: Mapped[str] = mapped_column(String(2), default="NA")
     rating_security: Mapped[str] = mapped_column(String(2), default="NA")
     rating_health: Mapped[str] = mapped_column(String(2), default="NA")
@@ -108,6 +127,9 @@ class ContributorRow(Base):
     name: Mapped[str] = mapped_column(String(255))
     email: Mapped[str] = mapped_column(String(320))
     commits: Mapped[int] = mapped_column(Integer)
+    lines_added: Mapped[int] = mapped_column(Integer, default=0)
+    lines_removed: Mapped[int] = mapped_column(Integer, default=0)
+    files_touched: Mapped[int] = mapped_column(Integer, default=0)
     first_commit_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     last_commit_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
@@ -203,6 +225,22 @@ class ToolRunRow(Base):
     name: Mapped[str] = mapped_column(String(64))
     available: Mapped[bool] = mapped_column(Boolean)
     contributed: Mapped[bool] = mapped_column(Boolean)
+    log: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class RepositoryToolRow(Base):
+    """Which integrations are linked to a repository — the allow-list the analysis pipeline runs.
+
+    A repo with no rows is treated as unconfigured (auto-linked on next analyze).
+    """
+
+    __tablename__ = "repository_tools"
+
+    repository_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("repositories.id", ondelete="CASCADE"), primary_key=True
+    )
+    tool_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    linked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
 class CodeChunkRow(Base):

@@ -9,7 +9,7 @@
       "col_provider": "Provider",
       "col_status": "Status",
       "col_branch": "Branch",
-      "col_last_analyzed": "Last analyzed"
+      "col_last_polled": "Last polled"
     },
     "ingest": {
       "trigger": "Add repository",
@@ -190,7 +190,48 @@
       "ready": "Ready",
       "ran_at": "Ran {{when}}",
       "contributed": "Contributed to the latest analysis",
-      "view_in": "View in {{tab}}"
+      "filter_all": "All",
+      "filter_linked": "Linked",
+      "link": "Link",
+      "unlink": "Unlink",
+      "linked": "Linked {{tool}}",
+      "unlinked": "Unlinked {{tool}}",
+      "not_linked_title": "{{tool}} isn't linked to this repository",
+      "not_linked_body": "Link it to enable this integration — it runs on the next Pull latest, or when you run it.",
+      "log": {
+        "title": "Findings ({{count}})",
+        "download": "Download"
+      },
+      "data": {
+        "empty": "Run this tool (or pull latest) to see its data here.",
+        "code_lines": "Code lines",
+        "primary_language": "Primary language",
+        "ccn_max": "Max CCN",
+        "functions": "Functions",
+        "high_complexity": "High-complexity fns",
+        "tests": "Tests",
+        "test_files": "Test files",
+        "coverage": "Coverage",
+        "test_ratio": "Test-to-code",
+        "assertion_density": "Asserts / test",
+        "frameworks": "Frameworks",
+        "lint_issues": "Lint issues",
+        "sast_issues": "Security issues",
+        "sast_high": "High",
+        "sast_medium": "Medium",
+        "sast_low": "Low",
+        "dead_code": "Dead code",
+        "bus_factor": "Bus factor",
+        "top_author_share": "Top author",
+        "active_contributors": "Active (90d)",
+        "commits_90d": "Commits (90d)",
+        "last_commit": "Last commit",
+        "days_ago": "{{count}}d ago",
+        "status": "Status",
+        "status_active": "Active",
+        "status_dormant": "Dormant",
+        "status_abandoned": "Abandoned"
+      }
     }
   }
 }

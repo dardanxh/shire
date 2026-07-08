@@ -9,7 +9,7 @@ import { DataTablePagination } from "@/components/shared/DataTablePagination";
 import { Card } from "@/components/ui/card";
 import type { RepositoryOut } from "@/lib/api";
 import { extractErrorMessage } from "@/lib/api";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatTimeAgo } from "@/lib/format";
 import { useRepositoriesQuery } from "../api";
 import { IngestRepositoryDialog } from "./IngestRepositoryDialog";
 import { StatusBadge } from "./StatusBadge";
@@ -76,11 +76,16 @@ export function RepositoriesListPage({
       },
       {
         accessorKey: "last_analyzed_at",
-        header: t("repositories.list.col_last_analyzed"),
+        header: t("repositories.list.col_last_polled"),
         cell: ({ row }) => (
-          <span className="text-muted-foreground">
-            {formatDate(row.original.last_analyzed_at)}
-          </span>
+          <div className="text-muted-foreground">
+            <div>{formatDate(row.original.last_analyzed_at)}</div>
+            {row.original.last_analyzed_at ? (
+              <div className="text-xs">
+                {formatTimeAgo(row.original.last_analyzed_at)}
+              </div>
+            ) : null}
+          </div>
         ),
       },
       {

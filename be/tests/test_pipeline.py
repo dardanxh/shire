@@ -76,6 +76,21 @@ def test_full_pipeline(sample_repo: Path) -> None:
     assert any(h["path"] == "app.py" for h in merged["hotspots"])
     assert len(merged["contributors"]) == 1
 
+    # Line-level churn (git log --numstat): the sole author added lines across several files.
+    alice = merged["contributors"][0]
+    assert alice["commits"] == 2
+    assert alice["lines_added"] > 0
+    assert alice["files_touched"] >= 1
+
+    # Testing metrics (deterministic scanner): one test fn with one assertion.
+    assert merged["test_count"] == 1
+    assert merged["test_file_count"] == 1
+    assert merged["assertion_density"] == 1.0
+    # Ownership/maintenance (git history): single author, freshly committed.
+    assert merged["bus_factor"] == 1
+    assert merged["top_author_share"] == 1.0
+    assert merged["maintenance_status"] == "active"
+
 
 def test_repo_url_parsing() -> None:
     _url, coords = RepoUrl.parse("https://github.com/pallets/flask.git")

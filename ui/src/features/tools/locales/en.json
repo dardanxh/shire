@@ -6,13 +6,18 @@
       "empty": "No tools reported.",
       "col_tool": "Tool",
       "col_status": "Status",
+      "col_language": "Language",
       "col_version": "Version",
       "col_purpose": "Purpose",
       "col_install": "Install",
       "col_homepage": "Homepage",
       "available": "available",
       "missing": "missing",
-      "link": "Link"
+      "link": "Link",
+      "sync": "Sync tools",
+      "syncing": "Syncing…",
+      "synced": "Tools synced",
+      "last_synced": "Synced {{when}}"
     }
   }
 }

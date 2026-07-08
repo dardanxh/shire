@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ToolsRouteImport } from './routes/tools'
+import { Route as MembersRouteImport } from './routes/members'
 import { Route as ConnectorsRouteImport } from './routes/connectors'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RepositoriesIdRouteImport } from './routes/repositories.$id'
@@ -17,6 +18,11 @@ import { Route as RepositoriesIdRouteImport } from './routes/repositories.$id'
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
   path: '/tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MembersRoute = MembersRouteImport.update({
+  id: '/members',
+  path: '/members',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConnectorsRoute = ConnectorsRouteImport.update({
@@ -38,12 +44,14 @@ const RepositoriesIdRoute = RepositoriesIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/connectors': typeof ConnectorsRoute
+  '/members': typeof MembersRoute
   '/tools': typeof ToolsRoute
   '/repositories/$id': typeof RepositoriesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/connectors': typeof ConnectorsRoute
+  '/members': typeof MembersRoute
   '/tools': typeof ToolsRoute
   '/repositories/$id': typeof RepositoriesIdRoute
 }
@@ -51,20 +59,28 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/connectors': typeof ConnectorsRoute
+  '/members': typeof MembersRoute
   '/tools': typeof ToolsRoute
   '/repositories/$id': typeof RepositoriesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/connectors' | '/tools' | '/repositories/$id'
+  fullPaths: '/' | '/connectors' | '/members' | '/tools' | '/repositories/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/connectors' | '/tools' | '/repositories/$id'
-  id: '__root__' | '/' | '/connectors' | '/tools' | '/repositories/$id'
+  to: '/' | '/connectors' | '/members' | '/tools' | '/repositories/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/connectors'
+    | '/members'
+    | '/tools'
+    | '/repositories/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConnectorsRoute: typeof ConnectorsRoute
+  MembersRoute: typeof MembersRoute
   ToolsRoute: typeof ToolsRoute
   RepositoriesIdRoute: typeof RepositoriesIdRoute
 }
@@ -76,6 +92,13 @@ declare module '@tanstack/react-router' {
       path: '/tools'
       fullPath: '/tools'
       preLoaderRoute: typeof ToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/members': {
+      id: '/members'
+      path: '/members'
+      fullPath: '/members'
+      preLoaderRoute: typeof MembersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/connectors': {
@@ -105,6 +128,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConnectorsRoute: ConnectorsRoute,
+  MembersRoute: MembersRoute,
   ToolsRoute: ToolsRoute,
   RepositoriesIdRoute: RepositoriesIdRoute,
 }
