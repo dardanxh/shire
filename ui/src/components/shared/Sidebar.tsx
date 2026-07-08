@@ -1,6 +1,8 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import {
+  BookOpenIcon,
   FolderGitIcon,
+  InboxIcon,
   type LucideIcon,
   PlugIcon,
   UsersIcon,
@@ -24,6 +26,18 @@ const ITEMS: NavItem[] = [
     labelKey: "common.nav.repositories",
     icon: FolderGitIcon,
     match: (p) => p === "/" || p.startsWith("/repositories"),
+  },
+  {
+    to: "/hobits",
+    labelKey: "common.nav.hobits",
+    icon: BookOpenIcon,
+    match: (p) => p === "/hobits" || p.startsWith("/hobits/"),
+  },
+  {
+    to: "/briefing",
+    labelKey: "common.nav.briefing",
+    icon: InboxIcon,
+    match: (p) => p === "/briefing" || p.startsWith("/briefing/"),
   },
   {
     to: "/members",

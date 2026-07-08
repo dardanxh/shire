@@ -1,0 +1,14 @@
+{
+  "briefing": {
+    "title": "Briefing",
+    "subtitle": "What your hobits surfaced, grouped by how much it needs you.",
+    "empty": "No briefing items yet. Run a hobit on a repository to populate this.",
+    "tier_empty": "Nothing here.",
+    "scores": "importance {{importance}} · confidence {{confidence}} · urgency {{urgency}}",
+    "tiers": {
+      "now": "Now",
+      "daily": "Daily",
+      "weekly": "Weekly"
+    }
+  }
+}

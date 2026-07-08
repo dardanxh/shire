@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import type { ContextMarkdownOut } from "@/lib/api";
@@ -13,6 +14,7 @@ import {
   useResetContextMarkdownMutation,
   useSaveContextMarkdownMutation,
 } from "../api";
+import { OnboardingRunner } from "./OnboardingRunner";
 
 /**
  * The "Context" tab: the repository's context pack as an editable Markdown document.
@@ -42,7 +44,38 @@ export function ContextPanel({ repoId }: { repoId: string }) {
 
   // Keyed by repo so switching repositories re-seeds the editor; within a repo the draft
   // persists across refetches (the editor tracks dirtiness against the live query data).
-  return <MarkdownEditor key={repoId} repoId={repoId} markdown={markdown} />;
+  return (
+    <div className="space-y-6">
+      <OnboardingRunner repoId={repoId} />
+      {markdown.narrative ? (
+        <MentalModel narrative={markdown.narrative} />
+      ) : null}
+      <MarkdownEditor key={repoId} repoId={repoId} markdown={markdown} />
+    </div>
+  );
+}
+
+/**
+ * The hobit-authored L3 mental model — shown on its own, always visible even when the pack
+ * Markdown below has been overridden. Read-only Markdown source.
+ */
+function MentalModel({ narrative }: { narrative: string }) {
+  const { t } = useTranslation();
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("hobits.run.title")}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Textarea
+          value={narrative}
+          readOnly
+          spellCheck={false}
+          className="min-h-[20rem] font-mono text-xs leading-relaxed"
+        />
+      </CardContent>
+    </Card>
+  );
 }
 
 function MarkdownEditor({

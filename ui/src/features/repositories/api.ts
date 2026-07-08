@@ -8,6 +8,7 @@ import {
   type ContextMarkdownOut,
   type CouplingOut,
   type GraphOut,
+  type HobitRunOut,
   type RepositoryOut,
   type ToolLogOut,
   type ToolName,
@@ -117,6 +118,45 @@ export function useResetContextMarkdownMutation(id: string) {
     },
     onSuccess: (data) => {
       queryClient.setQueryData(repositoryKeys.context(id), data);
+    },
+  });
+}
+
+/** This repository's hobit runs, newest first. */
+export function useRepoHobitRunsQuery(id: string) {
+  return useQuery<HobitRunOut[]>({
+    queryKey: repositoryKeys.hobitRuns(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/hobits/runs",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+  });
+}
+
+/**
+ * Run the Repo-Onboarding hobit against this repository (blocking — the agent explores the
+ * clone and writes an L3 narrative into the context pack). On success, invalidate the context
+ * markdown so the new narrative surfaces.
+ */
+export function useRunOnboardingMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (): Promise<HobitRunOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/hobits/{slug}/run",
+        { params: { path: { repository_id: id, slug: "repo-onboarding" } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.context(id) });
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.hobitRuns(id) });
     },
   });
 }

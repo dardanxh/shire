@@ -82,23 +82,30 @@ class ContextService:
             raise NotFoundError("Repository not found")
         artifacts = self._artifact_state(repository_id)
         source_hash = _compute_hash(analysis, artifacts)
+        stored = self._store.get(repository_id)
 
-        if not refresh:
-            stored = self._store.get(repository_id)
-            if stored is not None and stored.source_hash == source_hash:
-                return RepoContextResult.model_validate(stored.document)
-
-        pack = _build_pack(repo, analysis, artifacts)
-        self._store.upsert(
-            StoredContextPack(
-                repository_id=repository_id,
-                commit_sha=analysis.commit_sha,
-                source_hash=source_hash,
-                document=pack.model_dump(mode="json"),
-                generated_at=pack.identity.generated_at,
+        if not refresh and stored is not None and stored.source_hash == source_hash:
+            pack = RepoContextResult.model_validate(stored.document)
+        else:
+            pack = _build_pack(repo, analysis, artifacts)
+            self._store.upsert(
+                StoredContextPack(
+                    repository_id=repository_id,
+                    commit_sha=analysis.commit_sha,
+                    source_hash=source_hash,
+                    document=pack.model_dump(mode="json"),
+                    generated_at=pack.identity.generated_at,
+                )
             )
-        )
+        # Overlay the hobit-authored narrative (like edited_markdown, it's not part of source_hash
+        # and survives regeneration). `stored` is read before upsert, which never touches narrative.
+        pack.narrative = stored.narrative if stored else None
         return pack
+
+    def set_narrative(self, repository_id: uuid.UUID, narrative: str | None) -> None:
+        """Persist the L3 mental-model narrative (written by the Repo-Onboarding hobit)."""
+        self.get_context(repository_id)  # ensure the pack row exists before overlaying
+        self._store.set_narrative(repository_id, narrative)
 
     # --- markdown (editable override layer) -----------------------------------
     def get_markdown(self, repository_id: uuid.UUID) -> ContextMarkdownResult:
@@ -115,6 +122,7 @@ class ContextService:
             edited=edited,
             effective=edited if edited is not None else generated,
             is_edited=edited is not None,
+            narrative=pack.narrative,
         )
 
     def save_markdown(

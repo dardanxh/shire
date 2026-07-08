@@ -27,6 +27,7 @@ class SqlContextPackRepository:
             document=row.document,
             generated_at=row.generated_at,
             edited_markdown=row.edited_markdown,
+            narrative=row.narrative,
         )
 
     def upsert(self, pack: StoredContextPack) -> None:
@@ -45,3 +46,8 @@ class SqlContextPackRepository:
         row = self._session.get(ContextPackRow, repository_id)
         if row is not None:
             row.edited_markdown = markdown
+
+    def set_narrative(self, repository_id: uuid.UUID, narrative: str | None) -> None:
+        row = self._session.get(ContextPackRow, repository_id)
+        if row is not None:
+            row.narrative = narrative

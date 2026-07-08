@@ -34,7 +34,12 @@ def repository_context(
     """
     service = ContextService(session)
     if format == "markdown":
-        return PlainTextResponse(service.get_markdown(repository_id).effective)
+        md = service.get_markdown(repository_id)
+        # For agents/LLMs, lead with the mental model (when present) then the pack.
+        text = md.effective
+        if md.narrative:
+            text = f"## Mental model\n{md.narrative}\n\n{text}"
+        return PlainTextResponse(text)
     return service.get_context(repository_id, refresh=refresh)
 
 

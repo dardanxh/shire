@@ -11,9 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as MembersRouteImport } from './routes/members'
+import { Route as HobitsRouteImport } from './routes/hobits'
 import { Route as ConnectorsRouteImport } from './routes/connectors'
+import { Route as BriefingRouteImport } from './routes/briefing'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HobitsIndexRouteImport } from './routes/hobits.index'
 import { Route as RepositoriesIdRouteImport } from './routes/repositories.$id'
+import { Route as HobitsSlugRouteImport } from './routes/hobits.$slug'
 
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
@@ -25,9 +29,19 @@ const MembersRoute = MembersRouteImport.update({
   path: '/members',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HobitsRoute = HobitsRouteImport.update({
+  id: '/hobits',
+  path: '/hobits',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConnectorsRoute = ConnectorsRouteImport.update({
   id: '/connectors',
   path: '/connectors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BriefingRoute = BriefingRouteImport.update({
+  id: '/briefing',
+  path: '/briefing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -35,51 +49,95 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HobitsIndexRoute = HobitsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => HobitsRoute,
+} as any)
 const RepositoriesIdRoute = RepositoriesIdRouteImport.update({
   id: '/repositories/$id',
   path: '/repositories/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HobitsSlugRoute = HobitsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => HobitsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/briefing': typeof BriefingRoute
   '/connectors': typeof ConnectorsRoute
+  '/hobits': typeof HobitsRouteWithChildren
   '/members': typeof MembersRoute
   '/tools': typeof ToolsRoute
+  '/hobits/$slug': typeof HobitsSlugRoute
   '/repositories/$id': typeof RepositoriesIdRoute
+  '/hobits/': typeof HobitsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/briefing': typeof BriefingRoute
   '/connectors': typeof ConnectorsRoute
   '/members': typeof MembersRoute
   '/tools': typeof ToolsRoute
+  '/hobits/$slug': typeof HobitsSlugRoute
   '/repositories/$id': typeof RepositoriesIdRoute
+  '/hobits': typeof HobitsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/briefing': typeof BriefingRoute
   '/connectors': typeof ConnectorsRoute
+  '/hobits': typeof HobitsRouteWithChildren
   '/members': typeof MembersRoute
   '/tools': typeof ToolsRoute
+  '/hobits/$slug': typeof HobitsSlugRoute
   '/repositories/$id': typeof RepositoriesIdRoute
+  '/hobits/': typeof HobitsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/connectors' | '/members' | '/tools' | '/repositories/$id'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/connectors' | '/members' | '/tools' | '/repositories/$id'
-  id:
-    | '__root__'
+  fullPaths:
     | '/'
+    | '/briefing'
+    | '/connectors'
+    | '/hobits'
+    | '/members'
+    | '/tools'
+    | '/hobits/$slug'
+    | '/repositories/$id'
+    | '/hobits/'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/briefing'
     | '/connectors'
     | '/members'
     | '/tools'
+    | '/hobits/$slug'
     | '/repositories/$id'
+    | '/hobits'
+  id:
+    | '__root__'
+    | '/'
+    | '/briefing'
+    | '/connectors'
+    | '/hobits'
+    | '/members'
+    | '/tools'
+    | '/hobits/$slug'
+    | '/repositories/$id'
+    | '/hobits/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BriefingRoute: typeof BriefingRoute
   ConnectorsRoute: typeof ConnectorsRoute
+  HobitsRoute: typeof HobitsRouteWithChildren
   MembersRoute: typeof MembersRoute
   ToolsRoute: typeof ToolsRoute
   RepositoriesIdRoute: typeof RepositoriesIdRoute
@@ -101,11 +159,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MembersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hobits': {
+      id: '/hobits'
+      path: '/hobits'
+      fullPath: '/hobits'
+      preLoaderRoute: typeof HobitsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/connectors': {
       id: '/connectors'
       path: '/connectors'
       fullPath: '/connectors'
       preLoaderRoute: typeof ConnectorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/briefing': {
+      id: '/briefing'
+      path: '/briefing'
+      fullPath: '/briefing'
+      preLoaderRoute: typeof BriefingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -115,6 +187,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hobits/': {
+      id: '/hobits/'
+      path: '/'
+      fullPath: '/hobits/'
+      preLoaderRoute: typeof HobitsIndexRouteImport
+      parentRoute: typeof HobitsRoute
+    }
     '/repositories/$id': {
       id: '/repositories/$id'
       path: '/repositories/$id'
@@ -122,12 +201,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RepositoriesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hobits/$slug': {
+      id: '/hobits/$slug'
+      path: '/$slug'
+      fullPath: '/hobits/$slug'
+      preLoaderRoute: typeof HobitsSlugRouteImport
+      parentRoute: typeof HobitsRoute
+    }
   }
 }
 
+interface HobitsRouteChildren {
+  HobitsSlugRoute: typeof HobitsSlugRoute
+  HobitsIndexRoute: typeof HobitsIndexRoute
+}
+
+const HobitsRouteChildren: HobitsRouteChildren = {
+  HobitsSlugRoute: HobitsSlugRoute,
+  HobitsIndexRoute: HobitsIndexRoute,
+}
+
+const HobitsRouteWithChildren =
+  HobitsRoute._addFileChildren(HobitsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BriefingRoute: BriefingRoute,
   ConnectorsRoute: ConnectorsRoute,
+  HobitsRoute: HobitsRouteWithChildren,
   MembersRoute: MembersRoute,
   ToolsRoute: ToolsRoute,
   RepositoriesIdRoute: RepositoriesIdRoute,

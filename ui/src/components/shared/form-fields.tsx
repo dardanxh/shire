@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 /**
  * Shared RHF field components. They read `control` from `useFormContext<T>()`
@@ -96,6 +97,67 @@ export function SelectField<T extends FieldValues>({
             </FormControl>
             <SelectContent>{children}</SelectContent>
           </Select>
+          {description ? (
+            <FormDescription>{description}</FormDescription>
+          ) : null}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+export function TextareaField<T extends FieldValues>({
+  name,
+  label,
+  description,
+  ...textareaProps
+}: BaseFieldProps<T> & Omit<ComponentProps<typeof Textarea>, "name">) {
+  const { control } = useFormContext<T>();
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>{label}</FormLabel>
+          <FormControl>
+            <Textarea {...field} {...textareaProps} />
+          </FormControl>
+          {description ? (
+            <FormDescription>{description}</FormDescription>
+          ) : null}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+export function CheckboxField<T extends FieldValues>({
+  name,
+  label,
+  description,
+  disabled,
+}: BaseFieldProps<T> & { disabled?: boolean }) {
+  const { control } = useFormContext<T>();
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex flex-row items-center gap-2 space-y-0">
+          <FormControl>
+            <input
+              type="checkbox"
+              checked={Boolean(field.value)}
+              onChange={(e) => field.onChange(e.target.checked)}
+              onBlur={field.onBlur}
+              disabled={disabled}
+              className="size-4 rounded border border-input accent-primary"
+            />
+          </FormControl>
+          <FormLabel className="font-normal">{label}</FormLabel>
           {description ? (
             <FormDescription>{description}</FormDescription>
           ) : null}
