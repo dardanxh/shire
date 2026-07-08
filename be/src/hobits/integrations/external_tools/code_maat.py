@@ -49,6 +49,9 @@ class CodeMaatAdapter(ExternalTool):
         install=(
             "download code-maat-1.0.4-standalone.jar into ~/.local/share/code-maat/ (needs java)"
         ),
+        id="code-maat",
+        category="history",
+        kind="data",
     )
 
     def is_available(self) -> bool:

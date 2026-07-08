@@ -13,8 +13,7 @@ export const REPOSITORY_TAB_VALUES = [
   "activity",
   "dependencies",
   "security",
-  "graph",
-  "tools",
+  "integrations",
 ] as const;
 
 export type RepositoryTab = (typeof REPOSITORY_TAB_VALUES)[number];

@@ -33,6 +33,7 @@ class ScorecardAdapter(ExternalTool):
         purpose="OpenSSF project health/security rating (branch protection, CI, review, SAST...).",
         homepage="https://github.com/ossf/scorecard",
         install="brew install scorecard",
+        category="health",
         version_args=("version",),
     )
 

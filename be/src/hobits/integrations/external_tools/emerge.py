@@ -102,6 +102,9 @@ class EmergeAdapter(ExternalTool):
         install=(
             "uv tool install emerge-viz --with 'setuptools<81' --with pip --with 'networkx<3.4'"
         ),
+        id="emerge",
+        category="visualization",
+        kind="artifact",
     )
 
     # emerge has no --version flag; version() below parses the banner instead.

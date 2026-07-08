@@ -7,11 +7,10 @@ import {
   GaugeIcon,
   GitCommitHorizontalIcon,
   KeyRoundIcon,
-  NetworkIcon,
   PackageIcon,
+  PuzzleIcon,
   ShieldCheckIcon,
   ShieldIcon,
-  WrenchIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -36,28 +35,28 @@ import {
 } from "@/lib/format";
 import { useAnalysisQuery, useRepositoryQuery } from "../api";
 import type { RepositoryTab } from "../tabs";
-import { CodeAge } from "./CodeAge";
-import { CodebaseGraph } from "./CodebaseGraph";
-import { CodeMap } from "./CodeMap";
 import { CommitsChart } from "./CommitsChart";
-import { Coupling } from "./Coupling";
 import { EnrichmentCards } from "./EnrichmentCards";
 import { FactCard } from "./FactCard";
+import { IntegrationsPanel } from "./integrations/IntegrationsPanel";
 import { LanguageBars } from "./LanguageBars";
 import { RatingBadge } from "./RatingBadge";
 import { RepositoryActions } from "./RepositoryActions";
 import { StatusBadge } from "./StatusBadge";
-import { ToolRuns } from "./ToolRuns";
 import { VulnerabilitiesTable } from "./VulnerabilitiesTable";
 
 export function RepositoryViewPage({
   id,
   tab,
   onTabChange,
+  selectedTool,
+  onSelectTool,
 }: {
   id: string;
   tab: RepositoryTab;
   onTabChange: (tab: RepositoryTab) => void;
+  selectedTool: string | undefined;
+  onSelectTool: (tool: string | undefined) => void;
 }) {
   const { t } = useTranslation();
   const {
@@ -123,7 +122,7 @@ export function RepositoryViewPage({
         ) : null}
       </div>
 
-      <RepositoryActions id={repo.id} toolRuns={analysis?.tool_runs ?? []} />
+      <RepositoryActions id={repo.id} />
 
       {!analysis || !facts ? (
         <Card className="p-10 text-center">
@@ -159,13 +158,9 @@ export function RepositoryViewPage({
                 <ShieldIcon />
                 {t("repositories.view.tabs.security")}
               </TabsTrigger>
-              <TabsTrigger value="graph">
-                <NetworkIcon />
-                {t("repositories.view.tabs.graph")}
-              </TabsTrigger>
-              <TabsTrigger value="tools">
-                <WrenchIcon />
-                {t("repositories.view.tabs.tools")}
+              <TabsTrigger value="integrations">
+                <PuzzleIcon />
+                {t("repositories.view.tabs.integrations")}
               </TabsTrigger>
             </TabsList>
 
@@ -293,8 +288,6 @@ export function RepositoryViewPage({
                   )}
                 </CardContent>
               </Card>
-
-              <Coupling id={repo.id} />
             </TabsContent>
 
             {/* Activity — commits, contributors, CI/CD */}
@@ -374,8 +367,6 @@ export function RepositoryViewPage({
                   </CardContent>
                 </Card>
               </div>
-
-              <CodeAge id={repo.id} />
             </TabsContent>
 
             {/* Dependencies */}
@@ -532,21 +523,14 @@ export function RepositoryViewPage({
             </TabsContent>
 
             {/* Codebase graph */}
-            <TabsContent value="graph" className="space-y-6">
-              <CodebaseGraph id={repo.id} />
-              <CodeMap id={repo.id} />
-            </TabsContent>
-
-            {/* Analysis tools */}
-            <TabsContent value="tools">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("repositories.view.tools_title")}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ToolRuns toolRuns={analysis.tool_runs} />
-                </CardContent>
-              </Card>
+            {/* Integrations — catalog of tools + per-tool views */}
+            <TabsContent value="integrations">
+              <IntegrationsPanel
+                repoId={repo.id}
+                selectedTool={selectedTool}
+                onSelectTool={onSelectTool}
+                onViewTab={onTabChange}
+              />
             </TabsContent>
           </Tabs>
 
