@@ -17,6 +17,8 @@ export const api = createClient<paths>({ baseUrl: env.VITE_API_BASE_URL });
 // names on the frontend so feature code stays stable.
 export type RepositoryOut = components["schemas"]["RepositoryResult"];
 export type AnalysisOut = components["schemas"]["AnalysisResult"];
+export type RepoContextOut = components["schemas"]["RepoContextResult"];
+export type ContextMarkdownOut = components["schemas"]["ContextMarkdownResult"];
 export type GraphOut = components["schemas"]["GraphResult"];
 export type CodeAgeOut = components["schemas"]["CodeAgeResult"];
 export type CouplingOut = components["schemas"]["CouplingResult"];

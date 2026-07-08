@@ -7,6 +7,7 @@ autogenerate (imported via `hobits.core.metadata`).
 from __future__ import annotations
 
 from hobits.domain.connections import models as _connections_models  # noqa: F401
+from hobits.domain.context import models as _context_models  # noqa: F401
 from hobits.domain.members import models as _members_models  # noqa: F401
 from hobits.domain.repository import models as _repository_models  # noqa: F401
 from hobits.domain.substrate import models as _substrate_models  # noqa: F401

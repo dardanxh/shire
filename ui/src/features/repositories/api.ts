@@ -5,6 +5,7 @@ import {
   api,
   type CodeAgeOut,
   type CodeMapOut,
+  type ContextMarkdownOut,
   type CouplingOut,
   type GraphOut,
   type RepositoryOut,
@@ -60,6 +61,63 @@ export function useAnalysisQuery(id: string) {
       return data ?? null;
     },
     enabled: id !== "",
+  });
+}
+
+/**
+ * A repository's context pack rendered as Markdown — the generated text plus any saved
+ * user override (`edited`) and the `effective` one the agent reads. Resolves to `null`
+ * (not an error) when the backend has no analysis yet (404), mirroring `useAnalysisQuery`.
+ */
+export function useContextMarkdownQuery(id: string) {
+  return useQuery<ContextMarkdownOut | null>({
+    queryKey: repositoryKeys.context(id),
+    queryFn: async () => {
+      const { data, error, response } = await api.GET(
+        "/api/v1/repositories/{repository_id}/context/markdown",
+        { params: { path: { repository_id: id } } },
+      );
+      if (response.status === 404) return null;
+      if (error) throw error;
+      return data ?? null;
+    },
+    enabled: id !== "",
+  });
+}
+
+/** Save a user-authored Markdown override for a repository's context. */
+export function useSaveContextMarkdownMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (markdown: string): Promise<ContextMarkdownOut> => {
+      const { data, error } = await api.PUT(
+        "/api/v1/repositories/{repository_id}/context/markdown",
+        { params: { path: { repository_id: id } }, body: { markdown } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(repositoryKeys.context(id), data);
+    },
+  });
+}
+
+/** Drop the override and fall back to the generated Markdown. */
+export function useResetContextMarkdownMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (): Promise<ContextMarkdownOut> => {
+      const { data, error } = await api.DELETE(
+        "/api/v1/repositories/{repository_id}/context/markdown",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(repositoryKeys.context(id), data);
+    },
   });
 }
 
