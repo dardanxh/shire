@@ -1,0 +1,18 @@
+{
+  "tools": {
+    "list": {
+      "title": "Analysis tools",
+      "count": "{{available}} of {{total}} external tools available",
+      "empty": "No tools reported.",
+      "col_tool": "Tool",
+      "col_status": "Status",
+      "col_version": "Version",
+      "col_purpose": "Purpose",
+      "col_install": "Install",
+      "col_homepage": "Homepage",
+      "available": "available",
+      "missing": "missing",
+      "link": "Link"
+    }
+  }
+}
