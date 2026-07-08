@@ -38,6 +38,23 @@ export function formatAge(ageDays: number | null | undefined): string {
   return `~${Math.round(years)} year${Math.round(years) === 1 ? "" : "s"}`;
 }
 
+/** Relative time from now, e.g. "today", "3 days ago", "2 months ago". */
+export function formatTimeAgo(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "—";
+  const days = (Date.now() - then) / 86_400_000;
+  if (days < 1) return "today";
+  if (days < 60) {
+    const d = Math.round(days);
+    return `${d} day${d === 1 ? "" : "s"} ago`;
+  }
+  const months = days / 30.44;
+  if (months < 24) return `${Math.round(months)} months ago`;
+  const years = days / 365.25;
+  return `${Math.round(years)} year${Math.round(years) === 1 ? "" : "s"} ago`;
+}
+
 /** Compact USD, e.g. "$1.2M", "$45.0K", "$820". */
 export function formatUsd(n: number | null | undefined): string {
   if (n == null) return "—";

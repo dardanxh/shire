@@ -29,6 +29,8 @@ class ToolSpec:
     id: str = ""
     category: str = "analysis"
     kind: str = "scorecard"
+    # Language scope: "general" (any language) or a specific language like "python".
+    language: str = "general"
 
 
 @dataclass(frozen=True)
@@ -42,6 +44,7 @@ class ToolStatus:
     id: str
     category: str
     kind: str
+    language: str
 
 
 class ExternalTool:
@@ -78,6 +81,7 @@ class ExternalTool:
             id=self.spec.id or self.spec.name,
             category=self.spec.category,
             kind=self.spec.kind,
+            language=self.spec.language,
         )
 
     def _run(

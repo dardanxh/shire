@@ -1,4 +1,4 @@
-import { ArrowRightIcon, CheckCircle2Icon, Loader2Icon } from "lucide-react";
+import { CheckCircle2Icon, Loader2Icon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -6,38 +6,40 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  type AnalysisOut,
   TOOL_NAMES,
   type ToolName,
   type ToolRun,
   type ToolStatusOut,
 } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import { useRunToolMutation } from "../../api";
-import type { RepositoryTab } from "../../tabs";
-import { integrationIcon, SCORECARD_TAB } from "./registry";
+import { categoryStyle, integrationIcon, languageStyle } from "./registry";
+import { SCORECARD_DATA_IDS, ScorecardData } from "./ScorecardData";
 
 /**
- * Generic detail view for a "scorecard" integration (scanners like scc, osv,
- * gitleaks). Their output is woven into the scorecard tabs, so here we show what
- * the tool provides, its run status, a trigger, and a jump to where its data
- * appears — the manage-in-one-place surface for tools without a bespoke view.
+ * Detail view for a "scorecard" integration (scanners like scc, lizard, osv,
+ * gitleaks). Their output feeds the scorecard tabs, but here we render the
+ * tool's own contributed data inline so the integration is self-contained —
+ * plus what it provides, its run status, and a trigger.
  */
 export function ScorecardIntegration({
   repoId,
   tool,
   toolRun,
-  onViewTab,
+  analysis,
 }: {
   repoId: string;
   tool: ToolStatusOut;
   toolRun: ToolRun | undefined;
-  onViewTab: (tab: RepositoryTab) => void;
+  analysis: AnalysisOut | null | undefined;
 }) {
   const { t } = useTranslation();
   const { mutate: runTool, isPending: running } = useRunToolMutation(repoId);
 
   const Icon = integrationIcon(tool.id);
   const runnable = (TOOL_NAMES as readonly string[]).includes(tool.id);
-  const targetTab = SCORECARD_TAB[tool.id];
+  const hasData = SCORECARD_DATA_IDS.has(tool.id);
 
   const handleRun = () => {
     runTool(tool.id as ToolName, {
@@ -55,7 +57,16 @@ export function ScorecardIntegration({
           <CardTitle className="flex items-center gap-2">
             <Icon className="size-4" />
             {tool.id}
-            <Badge variant="secondary" className="capitalize">
+            <Badge
+              variant="outline"
+              className={cn("capitalize", languageStyle(tool.language))}
+            >
+              {tool.language}
+            </Badge>
+            <Badge
+              variant="outline"
+              className={cn("capitalize", categoryStyle(tool.category))}
+            >
               {tool.category}
             </Badge>
           </CardTitle>
@@ -96,28 +107,29 @@ export function ScorecardIntegration({
           </div>
         )}
 
-        <div className="flex flex-wrap items-center gap-3 text-sm">
-          {targetTab ? (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => onViewTab(targetTab)}
-            >
-              {t("repositories.integrations.view_in", {
-                tab: t(`repositories.view.tabs.${targetTab}`),
-              })}
-              <ArrowRightIcon className="size-3.5" />
-            </Button>
-          ) : null}
-          <a
-            href={tool.homepage}
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs text-muted-foreground hover:text-foreground hover:underline"
-          >
-            {tool.homepage}
-          </a>
-        </div>
+        {/* The tool's own data, rendered inline. */}
+        {tool.available && hasData ? (
+          analysis ? (
+            <ScorecardData
+              repoId={repoId}
+              toolId={tool.id}
+              analysis={analysis}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {t("repositories.integrations.data.empty")}
+            </p>
+          )
+        ) : null}
+
+        <a
+          href={tool.homepage}
+          target="_blank"
+          rel="noreferrer"
+          className="block text-xs text-muted-foreground hover:text-foreground hover:underline"
+        >
+          {tool.homepage}
+        </a>
       </CardContent>
     </Card>
   );

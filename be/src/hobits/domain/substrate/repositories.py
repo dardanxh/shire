@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import uuid
+from datetime import UTC, datetime
 
-from sqlalchemy import select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from hobits.domain.substrate.domain import (
@@ -36,6 +37,7 @@ from hobits.domain.substrate.models import (
     HealthCheckRow,
     HotspotRow,
     LanguageStatRow,
+    RepositoryToolRow,
     ToolRunRow,
     VulnerabilityRow,
 )
@@ -69,6 +71,9 @@ def _to_domain(row: AnalysisRow) -> Analysis:
                 name=c.name,
                 email=c.email,
                 commits=c.commits,
+                lines_added=c.lines_added,
+                lines_removed=c.lines_removed,
+                files_touched=c.files_touched,
                 first_commit_at=c.first_commit_at,
                 last_commit_at=c.last_commit_at,
             )
@@ -114,6 +119,24 @@ def _to_domain(row: AnalysisRow) -> Analysis:
             vuln_low=row.vuln_low,
             secret_count=row.secret_count,
             health_score=row.health_score,
+            test_count=row.test_count,
+            test_file_count=row.test_file_count,
+            test_to_code_ratio=row.test_to_code_ratio,
+            assertion_density=row.assertion_density,
+            test_frameworks=row.test_frameworks,
+            test_coverage_pct=row.test_coverage_pct,
+            lint_issue_count=row.lint_issue_count,
+            sast_issue_count=row.sast_issue_count,
+            sast_high=row.sast_high,
+            sast_medium=row.sast_medium,
+            sast_low=row.sast_low,
+            dead_code_count=row.dead_code_count,
+            bus_factor=row.bus_factor,
+            top_author_share=row.top_author_share,
+            active_contributor_count=row.active_contributor_count,
+            commits_last_90d=row.commits_last_90d,
+            days_since_last_commit=row.days_since_last_commit,
+            maintenance_status=row.maintenance_status,
             ratings=Ratings(
                 maintainability=Rating(row.rating_maintainability),
                 security=Rating(row.rating_security),
@@ -135,7 +158,7 @@ def _to_domain(row: AnalysisRow) -> Analysis:
             HealthCheck(name=h.name, score=h.score, reason=h.reason) for h in row.health_checks
         ],
         tool_runs=[
-            ToolRun(name=t.name, available=t.available, contributed=t.contributed)
+            ToolRun(name=t.name, available=t.available, contributed=t.contributed, log=t.log)
             for t in row.tool_runs
         ],
     )
@@ -178,6 +201,24 @@ def _build_row(analysis: Analysis) -> AnalysisRow:
         vuln_low=e.vuln_low,
         secret_count=e.secret_count,
         health_score=e.health_score,
+        test_count=e.test_count,
+        test_file_count=e.test_file_count,
+        test_to_code_ratio=e.test_to_code_ratio,
+        assertion_density=e.assertion_density,
+        test_frameworks=e.test_frameworks,
+        test_coverage_pct=e.test_coverage_pct,
+        lint_issue_count=e.lint_issue_count,
+        sast_issue_count=e.sast_issue_count,
+        sast_high=e.sast_high,
+        sast_medium=e.sast_medium,
+        sast_low=e.sast_low,
+        dead_code_count=e.dead_code_count,
+        bus_factor=e.bus_factor,
+        top_author_share=e.top_author_share,
+        active_contributor_count=e.active_contributor_count,
+        commits_last_90d=e.commits_last_90d,
+        days_since_last_commit=e.days_since_last_commit,
+        maintenance_status=e.maintenance_status,
         rating_maintainability=e.ratings.maintainability.value,
         rating_security=e.ratings.security.value,
         rating_health=e.ratings.health.value,
@@ -188,6 +229,9 @@ def _build_row(analysis: Analysis) -> AnalysisRow:
             name=c.name,
             email=c.email,
             commits=c.commits,
+            lines_added=c.lines_added,
+            lines_removed=c.lines_removed,
+            files_touched=c.files_touched,
             first_commit_at=c.first_commit_at,
             last_commit_at=c.last_commit_at,
         )
@@ -232,7 +276,7 @@ def _build_row(analysis: Analysis) -> AnalysisRow:
         HealthCheckRow(name=h.name, score=h.score, reason=h.reason) for h in analysis.health_checks
     ]
     row.tool_runs = [
-        ToolRunRow(name=t.name, available=t.available, contributed=t.contributed)
+        ToolRunRow(name=t.name, available=t.available, contributed=t.contributed, log=t.log)
         for t in analysis.tool_runs
     ]
     return row
@@ -294,3 +338,48 @@ class SqlAnalysisRepository:
             .distinct()
         )
         return [(rid, ver) for rid, ver in self._session.execute(stmt).all()]
+
+
+class SqlRepositoryToolRepository:
+    """Per-repo linked-integration allow-list."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def linked_ids(self, repository_id: uuid.UUID) -> set[str]:
+        stmt = select(RepositoryToolRow.tool_id).where(
+            RepositoryToolRow.repository_id == repository_id
+        )
+        return set(self._session.scalars(stmt))
+
+    def has_any(self, repository_id: uuid.UUID) -> bool:
+        stmt = (
+            select(func.count())
+            .select_from(RepositoryToolRow)
+            .where(RepositoryToolRow.repository_id == repository_id)
+        )
+        return (self._session.scalar(stmt) or 0) > 0
+
+    def add(self, repository_id: uuid.UUID, tool_id: str) -> None:
+        if self._session.get(RepositoryToolRow, (repository_id, tool_id)) is None:
+            self._session.add(
+                RepositoryToolRow(
+                    repository_id=repository_id, tool_id=tool_id, linked_at=datetime.now(UTC)
+                )
+            )
+
+    def remove(self, repository_id: uuid.UUID, tool_id: str) -> None:
+        row = self._session.get(RepositoryToolRow, (repository_id, tool_id))
+        if row is not None:
+            self._session.delete(row)
+
+    def set_all(self, repository_id: uuid.UUID, tool_ids: set[str]) -> None:
+        self._session.execute(
+            delete(RepositoryToolRow).where(RepositoryToolRow.repository_id == repository_id)
+        )
+        self._session.flush()
+        now = datetime.now(UTC)
+        self._session.add_all(
+            RepositoryToolRow(repository_id=repository_id, tool_id=tool_id, linked_at=now)
+            for tool_id in tool_ids
+        )

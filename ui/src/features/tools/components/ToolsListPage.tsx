@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { extractErrorMessage, type ToolStatusOut } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useToolsQuery } from "../api";
+import { SyncToolsButton } from "./SyncToolsButton";
 
 export function ToolsListPage() {
   const { t } = useTranslation();
@@ -41,6 +42,23 @@ export function ToolsListPage() {
             {row.original.available
               ? t("tools.list.available")
               : t("tools.list.missing")}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: "language",
+        header: t("tools.list.col_language"),
+        cell: ({ row }) => (
+          <Badge
+            variant="outline"
+            className={cn(
+              "capitalize",
+              row.original.language === "python"
+                ? "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400 border-yellow-500/25"
+                : "bg-muted text-muted-foreground border-foreground/10",
+            )}
+          >
+            {row.original.language}
           </Badge>
         ),
       },
@@ -94,15 +112,18 @@ export function ToolsListPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {t("tools.list.title")}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {isPending
-            ? t("common.states.loading")
-            : t("tools.list.count", { available: availableCount, total })}
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {t("tools.list.title")}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {isPending
+              ? t("common.states.loading")
+              : t("tools.list.count", { available: availableCount, total })}
+          </p>
+        </div>
+        <SyncToolsButton />
       </div>
 
       <Card className="overflow-hidden p-0">
