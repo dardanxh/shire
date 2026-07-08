@@ -543,6 +543,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/repositories/{repository_id}/context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Repository Context
+         * @description The whole precomputed context pack for a repository in one call.
+         *
+         *     `format=markdown` returns the effective Markdown (the user's override when present, else the
+         *     generated rendering); `refresh=true` forces a rebuild instead of serving the cached pack.
+         */
+        get: operations["repository_context_api_v1_repositories__repository_id__context_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/context/markdown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Context Markdown
+         * @description The context as Markdown: the generated rendering plus any saved user override.
+         */
+        get: operations["context_markdown_api_v1_repositories__repository_id__context_markdown_get"];
+        /**
+         * Save Context Markdown
+         * @description Save a user-authored Markdown override (persists across regeneration).
+         */
+        put: operations["save_context_markdown_api_v1_repositories__repository_id__context_markdown_put"];
+        post?: never;
+        /**
+         * Reset Context Markdown
+         * @description Drop the override and fall back to the generated Markdown.
+         */
+        delete: operations["reset_context_markdown_api_v1_repositories__repository_id__context_markdown_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -722,6 +773,235 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+        };
+        /** ContextDependencies */
+        ContextDependencies: {
+            /** Count */
+            count: number;
+            /** Items */
+            items: components["schemas"]["Dependency"][];
+            /** Truncated */
+            truncated: boolean;
+        };
+        /**
+         * ContextDrilldown
+         * @description How the agent goes deeper when the pack isn't enough (Layers 2 & 3).
+         */
+        ContextDrilldown: {
+            /** Clone Path */
+            clone_path: string | null;
+            /** Tools */
+            tools: string[];
+            /** Suggested Entry Files */
+            suggested_entry_files: string[];
+        };
+        /** ContextIdentity */
+        ContextIdentity: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Provider */
+            provider: string;
+            /** Owner */
+            owner: string;
+            /** Name */
+            name: string;
+            /** Slug */
+            slug: string;
+            /** Url */
+            url: string;
+            /** Default Branch */
+            default_branch: string;
+            /** Status */
+            status: string;
+            /** Commit Sha */
+            commit_sha: string;
+            /** Clone Path */
+            clone_path: string | null;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+        };
+        /**
+         * ContextMarkdownResult
+         * @description The context pack as Markdown, with the user's override surfaced separately.
+         *
+         *     `generated` is always the freshly-rendered pack; `edited` is the user's saved override (or
+         *     None); `effective` is what the agent/UI should treat as the context (edited when present).
+         */
+        ContextMarkdownResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Commit Sha */
+            commit_sha: string;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Generated */
+            generated: string;
+            /** Edited */
+            edited: string | null;
+            /** Effective */
+            effective: string;
+            /** Is Edited */
+            is_edited: boolean;
+        };
+        /**
+         * ContextMarkdownUpdate
+         * @description Save a user-authored Markdown override for a repository's context.
+         */
+        ContextMarkdownUpdate: {
+            /** Markdown */
+            markdown: string;
+        };
+        /**
+         * ContextMetrics
+         * @description L2 enrichment — size, complexity, maintainability, cost, tests, quality gates.
+         */
+        ContextMetrics: {
+            /** Code Lines */
+            code_lines: number | null;
+            /** Complexity Total */
+            complexity_total: number | null;
+            /** Ccn Average */
+            ccn_average: number | null;
+            /** Ccn Max */
+            ccn_max: number | null;
+            /** Function Count */
+            function_count: number | null;
+            /** High Complexity Count */
+            high_complexity_count: number | null;
+            /** Maintainability Index */
+            maintainability_index: number | null;
+            /** Cocomo Cost Usd */
+            cocomo_cost_usd: number | null;
+            /** Schedule Months */
+            schedule_months: number | null;
+            /** Test Count */
+            test_count: number | null;
+            /** Test File Count */
+            test_file_count: number | null;
+            /** Test To Code Ratio */
+            test_to_code_ratio: number | null;
+            /** Test Coverage Pct */
+            test_coverage_pct: number | null;
+            /** Lint Issue Count */
+            lint_issue_count: number | null;
+            /** Sast Issue Count */
+            sast_issue_count: number | null;
+            /** Dead Code Count */
+            dead_code_count: number | null;
+        };
+        /** ContextPeople */
+        ContextPeople: {
+            /** Contributor Count */
+            contributor_count: number;
+            /** Bus Factor */
+            bus_factor: number | null;
+            /** Top Author Share */
+            top_author_share: number | null;
+            /** Active Contributor Count */
+            active_contributor_count: number | null;
+            /** Top Contributors */
+            top_contributors: components["schemas"]["Contributor"][];
+        };
+        /** ContextSecurity */
+        ContextSecurity: {
+            /** Vulnerability Count */
+            vulnerability_count: number;
+            /** Vuln Critical */
+            vuln_critical: number;
+            /** Vuln High */
+            vuln_high: number;
+            /** Vuln Moderate */
+            vuln_moderate: number;
+            /** Vuln Low */
+            vuln_low: number;
+            /** Secret Count */
+            secret_count: number;
+            /** Top Vulnerabilities */
+            top_vulnerabilities: components["schemas"]["Vulnerability"][];
+            /** Health Score */
+            health_score: number | null;
+            /** Health Checks */
+            health_checks: components["schemas"]["HealthCheck"][];
+        };
+        /** ContextStructure */
+        ContextStructure: {
+            /** Languages */
+            languages: components["schemas"]["LanguageStat"][];
+            /** Hotspots */
+            hotspots: components["schemas"]["Hotspot"][];
+            /** Coupling */
+            coupling: components["schemas"]["CouplingPair"][];
+            /** Code Age */
+            code_age: components["schemas"]["CodeAgeCohort"][];
+            /** Cicd */
+            cicd: components["schemas"]["CiCdConfig"][];
+            /** Graph Generated */
+            graph_generated: boolean;
+            /** Code Map Generated */
+            code_map_generated: boolean;
+        };
+        /**
+         * ContextSummary
+         * @description The agent's TL;DR — everything needed to size up the repo at a glance.
+         */
+        ContextSummary: {
+            /** Rating Maintainability */
+            rating_maintainability: string;
+            /** Rating Security */
+            rating_security: string;
+            /** Rating Health */
+            rating_health: string;
+            /** Primary Language */
+            primary_language: string | null;
+            /** Loc Total */
+            loc_total: number;
+            /** Age Days */
+            age_days: number | null;
+            /** Commit Count */
+            commit_count: number;
+            /** Contributor Count */
+            contributor_count: number;
+            /** Dependency Count */
+            dependency_count: number;
+            /** Has Tests */
+            has_tests: boolean;
+            /** Maintenance Status */
+            maintenance_status: string | null;
+            /** Bus Factor */
+            bus_factor: number | null;
+            /** Open Vulnerabilities */
+            open_vulnerabilities: number;
+            /** Secret Count */
+            secret_count: number;
+            /** Health Score */
+            health_score: number | null;
+        };
+        /**
+         * ContextToolCoverage
+         * @description What the agent can and cannot trust — its blind spots.
+         *
+         *     `contributed` ran and produced data; `ran_no_data` ran but found nothing / didn't apply;
+         *     `unavailable` are linked tools whose binary is missing on the server.
+         */
+        ContextToolCoverage: {
+            /** Contributed */
+            contributed: string[];
+            /** Ran No Data */
+            ran_no_data: string[];
+            /** Unavailable */
+            unavailable: string[];
         };
         /** Contributor */
         Contributor: {
@@ -1233,6 +1513,21 @@ export interface components {
             security: components["schemas"]["Rating"];
             /** @default NA */
             health: components["schemas"]["Rating"];
+        };
+        /** RepoContextResult */
+        RepoContextResult: {
+            identity: components["schemas"]["ContextIdentity"];
+            summary: components["schemas"]["ContextSummary"];
+            facts: components["schemas"]["FactsResult"];
+            metrics: components["schemas"]["ContextMetrics"];
+            security: components["schemas"]["ContextSecurity"];
+            people: components["schemas"]["ContextPeople"];
+            structure: components["schemas"]["ContextStructure"];
+            dependencies: components["schemas"]["ContextDependencies"];
+            tool_coverage: components["schemas"]["ContextToolCoverage"];
+            /** Narrative */
+            narrative?: string | null;
+            drilldown: components["schemas"]["ContextDrilldown"];
         };
         /**
          * RepositoryResult
@@ -2407,6 +2702,137 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MemberDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    repository_context_api_v1_repositories__repository_id__context_get: {
+        parameters: {
+            query?: {
+                format?: "json" | "markdown";
+                refresh?: boolean;
+            };
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepoContextResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    context_markdown_api_v1_repositories__repository_id__context_markdown_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContextMarkdownResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    save_context_markdown_api_v1_repositories__repository_id__context_markdown_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContextMarkdownUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContextMarkdownResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_context_markdown_api_v1_repositories__repository_id__context_markdown_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContextMarkdownResult"];
                 };
             };
             /** @description Validation Error */

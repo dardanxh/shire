@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import {
   ActivityIcon,
   ArrowLeftIcon,
+  BookOpenIcon,
   CodeIcon,
   ExternalLinkIcon,
   GaugeIcon,
@@ -36,6 +37,7 @@ import {
 import { useAnalysisQuery, useRepositoryQuery } from "../api";
 import type { RepositoryTab } from "../tabs";
 import { CommitsChart } from "./CommitsChart";
+import { ContextPanel } from "./ContextPanel";
 import { EnrichmentCards } from "./EnrichmentCards";
 import { FactCard } from "./FactCard";
 import { IntegrationsPanel } from "./integrations/IntegrationsPanel";
@@ -156,6 +158,10 @@ export function RepositoryViewPage({
               <TabsTrigger value="integrations">
                 <PuzzleIcon />
                 {t("repositories.view.tabs.integrations")}
+              </TabsTrigger>
+              <TabsTrigger value="context">
+                <BookOpenIcon />
+                {t("repositories.view.tabs.context")}
               </TabsTrigger>
             </TabsList>
 
@@ -525,6 +531,11 @@ export function RepositoryViewPage({
                 selectedTool={selectedTool}
                 onSelectTool={onSelectTool}
               />
+            </TabsContent>
+
+            {/* Context — the precomputed, agent-ready snapshot of the repo */}
+            <TabsContent value="context">
+              <ContextPanel repoId={repo.id} />
             </TabsContent>
           </Tabs>
 

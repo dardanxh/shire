@@ -176,7 +176,21 @@
         "activity": "Activity",
         "dependencies": "Dependencies",
         "security": "Security",
-        "integrations": "Integrations"
+        "integrations": "Integrations",
+        "context": "Context"
+      },
+      "context": {
+        "intro": "The precomputed context an AI agent reads first — every tool's findings folded into one Markdown snapshot, so it needn't call a dozen endpoints. Edit it to add your own notes; your version is saved as an override and becomes what the agent reads.",
+        "generated_meta": "Generated {{when}} · commit {{sha}}",
+        "editor_label": "Context (Markdown)",
+        "edited_badge": "Edited",
+        "save": "Save",
+        "saving": "Saving…",
+        "saved_toast": "Context saved",
+        "reset": "Reset to generated",
+        "reset_toast": "Reverted to the generated context",
+        "revert": "Discard changes",
+        "hint": "Saved as an override — regenerating the analysis won't overwrite it. Reset restores the auto-generated context."
       }
     },
     "integrations": {

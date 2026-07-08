@@ -13,15 +13,16 @@ from fastapi.staticfiles import StaticFiles
 from hobits.core.exceptions import register_exception_handlers
 from hobits.core.settings import get_settings
 from hobits.domain.connections.routes import router as connections_router
+from hobits.domain.context.routes import router as context_router
 from hobits.domain.members.routes import router as members_router
 from hobits.domain.repository.routes import router as repositories_router
 from hobits.domain.substrate.routes import router as substrate_router
-from hobits.domain.tools.routes import router as tools_router
 from hobits.domain.substrate.services import (
     ARTIFACTS_PATH,
     CC_VIEWER_PATH,
     GRAPH_ARTIFACTS_PATH,
 )
+from hobits.domain.tools.routes import router as tools_router
 from hobits.integrations.external_tools.codecharta import resolve_viewer_dir
 
 API_V1_PREFIX = "/api/v1"
@@ -48,6 +49,7 @@ app.include_router(substrate_router, prefix=API_V1_PREFIX)
 app.include_router(connections_router, prefix=API_V1_PREFIX)
 app.include_router(tools_router, prefix=API_V1_PREFIX)
 app.include_router(members_router, prefix=API_V1_PREFIX)
+app.include_router(context_router, prefix=API_V1_PREFIX)
 
 # Serve generated codebase-graph artifacts (emerge HTML apps) read-only. Mounted under /api/v1 so
 # the dev Vite proxy (/api → :8000) reaches it same-origin and the UI can iframe the graph. The
