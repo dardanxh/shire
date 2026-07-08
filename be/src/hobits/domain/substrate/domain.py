@@ -145,11 +145,17 @@ class HealthCheck(ValueObject):
 
 
 class ToolRun(ValueObject):
-    """Which external tool ran for an analysis and whether it contributed data."""
+    """Which external tool ran for an analysis and whether it contributed data.
+
+    `log` holds the tool's raw findings text (lint violations, SAST hits, dead code, secret
+    locations). It's excluded from API serialization to keep the analysis payload lean — fetch it
+    on demand via the tool-log endpoint.
+    """
 
     name: str
     available: bool
     contributed: bool
+    log: str | None = Field(default=None, exclude=True)
 
 
 class Enrichment(ValueObject):
@@ -179,6 +185,29 @@ class Enrichment(ValueObject):
     secret_count: int = 0
     # scorecard — health
     health_score: float | None = None
+    # test-metrics — testing (deterministic scanner)
+    test_count: int | None = None
+    test_file_count: int | None = None
+    test_to_code_ratio: float | None = None
+    assertion_density: float | None = None
+    test_frameworks: str | None = None  # comma-joined
+    test_coverage_pct: float | None = None
+    # ruff — lint
+    lint_issue_count: int | None = None
+    # bandit — Python SAST
+    sast_issue_count: int | None = None
+    sast_high: int | None = None
+    sast_medium: int | None = None
+    sast_low: int | None = None
+    # vulture — dead code
+    dead_code_count: int | None = None
+    # ownership — people & maintenance (git history)
+    bus_factor: int | None = None
+    top_author_share: float | None = None  # 0..1
+    active_contributor_count: int | None = None
+    commits_last_90d: int | None = None
+    days_since_last_commit: int | None = None
+    maintenance_status: str | None = None  # active / dormant / abandoned
     # derived
     ratings: Ratings = Field(default_factory=Ratings)
 
@@ -190,6 +219,9 @@ class Contributor(Entity):
     name: str
     email: str
     commits: int
+    lines_added: int = 0
+    lines_removed: int = 0
+    files_touched: int = 0
     first_commit_at: datetime | None = None
     last_commit_at: datetime | None = None
 
@@ -226,12 +258,20 @@ class Analysis(AggregateRoot):
 # --- ports --------------------------------------------------------------------
 
 
+class FileChange(ValueObject):
+    """One file's line delta within a commit (`-` binary counts normalize to 0)."""
+
+    path: str
+    additions: int = 0
+    deletions: int = 0
+
+
 class CommitInfo(ValueObject):
     sha: str
     author_name: str
     author_email: str
     committed_at: datetime
-    files_changed: tuple[str, ...] = ()
+    files_changed: tuple[FileChange, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -276,6 +316,25 @@ class ScanContribution(ValueObject):
     secret_count: int | None = None
     health_score: float | None = None
     health_checks: list[HealthCheck] = Field(default_factory=list)
+    # testing / quality / ownership metrics (best-effort)
+    test_count: int | None = None
+    test_file_count: int | None = None
+    test_to_code_ratio: float | None = None
+    assertion_density: float | None = None
+    test_frameworks: str | None = None
+    test_coverage_pct: float | None = None
+    lint_issue_count: int | None = None
+    sast_issue_count: int | None = None
+    sast_high: int | None = None
+    sast_medium: int | None = None
+    sast_low: int | None = None
+    dead_code_count: int | None = None
+    bus_factor: int | None = None
+    top_author_share: float | None = None
+    active_contributor_count: int | None = None
+    commits_last_90d: int | None = None
+    days_since_last_commit: int | None = None
+    maintenance_status: str | None = None
     tool_runs: list[ToolRun] = Field(default_factory=list)
 
 

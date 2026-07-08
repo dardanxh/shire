@@ -8,6 +8,7 @@ import {
   type CouplingOut,
   type GraphOut,
   type RepositoryOut,
+  type ToolLogOut,
   type ToolName,
 } from "@/lib/api";
 import { type RepositoryListParams, repositoryKeys } from "./keys";
@@ -236,6 +237,80 @@ export function useGenerateCodeMapMutation(id: string) {
     },
     onSuccess: (data) =>
       queryClient.setQueryData(repositoryKeys.codeMap(id), data),
+  });
+}
+
+/**
+ * A tool's raw findings log (lint/SAST/dead-code/secret locations) for its latest run.
+ * Fetched on demand (kept out of the analysis payload); resolves to a null log when the tool
+ * hasn't run or produced nothing.
+ */
+export function useToolLogQuery(id: string, tool: string) {
+  return useQuery<ToolLogOut>({
+    queryKey: repositoryKeys.toolLog(id, tool),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/tools/{tool}/log",
+        { params: { path: { repository_id: id, tool } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+  });
+}
+
+/** Tool-ids of the integrations linked to a repository (the analysis allow-list). */
+export function useRepoIntegrationsQuery(id: string) {
+  return useQuery<string[]>({
+    queryKey: repositoryKeys.integrations(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/integrations",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+  });
+}
+
+/** Link an integration to a repo (enables it; runs on next refresh / manual run). */
+export function useLinkIntegrationMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (tool: string): Promise<string[]> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/integrations/{tool_id}",
+        { params: { path: { repository_id: id, tool_id: tool } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(repositoryKeys.integrations(id), data);
+    },
+  });
+}
+
+/** Unlink an integration and clear its contributed data from the analysis. */
+export function useUnlinkIntegrationMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (tool: string): Promise<string[]> => {
+      const { data, error } = await api.DELETE(
+        "/api/v1/repositories/{repository_id}/integrations/{tool_id}",
+        { params: { path: { repository_id: id, tool_id: tool } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(repositoryKeys.integrations(id), data);
+      // Unlink clears analysis data / viz artifacts — refetch everything under the repo.
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.detail(id) });
+    },
   });
 }
 

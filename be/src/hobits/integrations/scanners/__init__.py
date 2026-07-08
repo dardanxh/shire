@@ -13,13 +13,35 @@ from hobits.integrations.scanners.code import (
 from hobits.integrations.scanners.enrichment import (
     CodeMetricsScanner,
     ComplexityScanner,
+    DeadCodeScanner,
     HealthScanner,
+    LintScanner,
     MaintainabilityScanner,
+    SastScanner,
     SbomScanner,
     SecretsScanner,
+    TestMetricsScanner,
     VulnerabilityScanner,
 )
-from hobits.integrations.scanners.git import GitStatsScanner, HotspotScanner
+from hobits.integrations.scanners.git import (
+    GitStatsScanner,
+    HotspotScanner,
+    OwnershipScanner,
+)
+
+
+def base_scanners() -> list[Scanner]:
+    """Always-on substrate scanners (L1/L2 facts). Run regardless of which integrations are linked;
+    they establish the base facts (languages, commits, deps, license, tests) the rest builds on."""
+    return [
+        GitStatsScanner(),
+        LanguageScanner(),
+        DependencyScanner(),
+        CiCdScanner(),
+        LicenseScanner(),
+        TestPresenceScanner(),
+        HotspotScanner(),
+    ]
 
 
 def default_scanners() -> list[Scanner]:
@@ -32,6 +54,7 @@ def default_scanners() -> list[Scanner]:
         LicenseScanner(),
         TestPresenceScanner(),
         HotspotScanner(),
+        OwnershipScanner(),
         # Phase 1.5 enrichment (external tools; degrade gracefully)
         CodeMetricsScanner(),
         ComplexityScanner(),
@@ -40,6 +63,11 @@ def default_scanners() -> list[Scanner]:
         VulnerabilityScanner(),
         SecretsScanner(),
         HealthScanner(),
+        # Testing + Python quality
+        TestMetricsScanner(),
+        LintScanner(),
+        SastScanner(),
+        DeadCodeScanner(),
     ]
 
 
@@ -54,7 +82,12 @@ def tool_scanners() -> dict[str, Scanner]:
         "osv-scanner": VulnerabilityScanner(),
         "gitleaks": SecretsScanner(),
         "scorecard": HealthScanner(),
+        "test-metrics": TestMetricsScanner(),
+        "ruff": LintScanner(),
+        "bandit": SastScanner(),
+        "vulture": DeadCodeScanner(),
+        "ownership": OwnershipScanner(),
     }
 
 
-__all__ = ["default_scanners", "tool_scanners"]
+__all__ = ["base_scanners", "default_scanners", "tool_scanners"]

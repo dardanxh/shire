@@ -18,6 +18,9 @@ dependencies = [
     "pgvector>=0.3.6",
     "lizard>=1.23.0",
     "radon>=6.0.1",
+    "ruff>=0.15.20",
+    "bandit>=1.9.4",
+    "vulture>=2.16",
 ]
 
 [dependency-groups]

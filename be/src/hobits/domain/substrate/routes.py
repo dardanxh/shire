@@ -15,7 +15,7 @@ from hobits.domain.substrate.schemas import (
     CouplingResult,
     DependencyUsageResult,
     GraphResult,
-    ToolStatusResult,
+    ToolLogResult,
 )
 from hobits.domain.substrate.services import AnalysisService
 
@@ -36,18 +36,44 @@ def repositories_using_dependency(
     return AnalysisService(session).dependency_usage(name)
 
 
-@router.get("/tools", response_model=list[ToolStatusResult])
-def external_tools(session: Session = Depends(get_session)) -> list[ToolStatusResult]:
-    """Availability + versions of the external analysis tools (drives docs + setup)."""
-    return AnalysisService(session).tool_statuses()
-
-
 @router.post("/repositories/{repository_id}/tools/{tool}/run", response_model=AnalysisResult)
 def run_tool_on_demand(
     repository_id: uuid.UUID, tool: str, session: Session = Depends(get_session)
 ) -> AnalysisResult:
     """Run a single external tool against the current clone and merge it into the analysis."""
     return AnalysisService(session).run_tool(repository_id, tool)
+
+
+@router.get("/repositories/{repository_id}/tools/{tool}/log", response_model=ToolLogResult)
+def tool_log(
+    repository_id: uuid.UUID, tool: str, session: Session = Depends(get_session)
+) -> ToolLogResult:
+    """Raw findings log (lint/SAST/dead-code/secret locations) for the tool's latest run."""
+    return AnalysisService(session).tool_log(repository_id, tool)
+
+
+@router.get("/repositories/{repository_id}/integrations", response_model=list[str])
+def linked_integrations(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> list[str]:
+    """Tool-ids of the integrations linked to this repository (the analysis allow-list)."""
+    return AnalysisService(session).linked_integrations(repository_id)
+
+
+@router.post("/repositories/{repository_id}/integrations/{tool_id}", response_model=list[str])
+def link_integration(
+    repository_id: uuid.UUID, tool_id: str, session: Session = Depends(get_session)
+) -> list[str]:
+    """Link an integration to a repository (enables it; runs on the next refresh or manual run)."""
+    return AnalysisService(session).link_integration(repository_id, tool_id)
+
+
+@router.delete("/repositories/{repository_id}/integrations/{tool_id}", response_model=list[str])
+def unlink_integration(
+    repository_id: uuid.UUID, tool_id: str, session: Session = Depends(get_session)
+) -> list[str]:
+    """Unlink an integration and clear its contributed data from the analysis."""
+    return AnalysisService(session).unlink_integration(repository_id, tool_id)
 
 
 @router.get("/repositories/{repository_id}/graph", response_model=GraphResult)

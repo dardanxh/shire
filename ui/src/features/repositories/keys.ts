@@ -20,4 +20,8 @@ export const repositoryKeys = {
   codeAge: (id: string) => [...repositoryKeys.detail(id), "code-age"] as const,
   coupling: (id: string) => [...repositoryKeys.detail(id), "coupling"] as const,
   codeMap: (id: string) => [...repositoryKeys.detail(id), "code-map"] as const,
+  integrations: (id: string) =>
+    [...repositoryKeys.detail(id), "integrations"] as const,
+  toolLog: (id: string, tool: string) =>
+    [...repositoryKeys.detail(id), "tool-log", tool] as const,
 };

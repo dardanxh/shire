@@ -3,6 +3,7 @@ import {
   FolderGitIcon,
   type LucideIcon,
   PlugIcon,
+  UsersIcon,
   WrenchIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -23,6 +24,12 @@ const ITEMS: NavItem[] = [
     labelKey: "common.nav.repositories",
     icon: FolderGitIcon,
     match: (p) => p === "/" || p.startsWith("/repositories"),
+  },
+  {
+    to: "/members",
+    labelKey: "common.nav.members",
+    icon: UsersIcon,
+    match: (p) => p === "/members" || p.startsWith("/members/"),
   },
   {
     to: "/tools",

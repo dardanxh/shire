@@ -96,26 +96,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/tools": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * External Tools
-         * @description Availability + versions of the external analysis tools (drives docs + setup).
-         */
-        get: operations["external_tools_api_v1_tools_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/repositories/{repository_id}/tools/{tool}/run": {
         parameters: {
             query?: never;
@@ -131,6 +111,70 @@ export interface paths {
          */
         post: operations["run_tool_on_demand_api_v1_repositories__repository_id__tools__tool__run_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/tools/{tool}/log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tool Log
+         * @description Raw findings log (lint/SAST/dead-code/secret locations) for the tool's latest run.
+         */
+        get: operations["tool_log_api_v1_repositories__repository_id__tools__tool__log_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/integrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Linked Integrations
+         * @description Tool-ids of the integrations linked to this repository (the analysis allow-list).
+         */
+        get: operations["linked_integrations_api_v1_repositories__repository_id__integrations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/integrations/{tool_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Link Integration
+         * @description Link an integration to a repository (enables it; runs on the next refresh or manual run).
+         */
+        post: operations["link_integration_api_v1_repositories__repository_id__integrations__tool_id__post"];
+        /**
+         * Unlink Integration
+         * @description Unlink an integration and clear its contributed data from the analysis.
+         */
+        delete: operations["unlink_integration_api_v1_repositories__repository_id__integrations__tool_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -376,6 +420,129 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tools": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Tools
+         * @description The persisted tools catalog (availability + versions). Fast read; refresh via /tools/sync.
+         */
+        get: operations["list_tools_api_v1_tools_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tools/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sync Tools
+         * @description Re-probe the local environment for every tool and refresh the stored catalog.
+         */
+        post: operations["sync_tools_api_v1_tools_sync_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Members Overview
+         * @description Fleet-wide members overview: portfolio health + aggregated identities.
+         *
+         *     Pass `anonymize=true` to replace names/emails with stable pseudonyms for sharing.
+         */
+        get: operations["members_overview_api_v1_members_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/exclusions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Exclusions
+         * @description User-managed opt-out / bot patterns applied on top of the built-in bot filters.
+         */
+        get: operations["list_exclusions_api_v1_members_exclusions_get"];
+        put?: never;
+        /**
+         * Add Exclusion
+         * @description Exclude a member from every view (an email or a glob like `*[bot]*`).
+         */
+        post: operations["add_exclusion_api_v1_members_exclusions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/exclusions/{exclusion_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove Exclusion */
+        delete: operations["remove_exclusion_api_v1_members_exclusions__exclusion_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{identity_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Member Detail
+         * @description One member's cross-repo breakdown (per-repo commits + churn).
+         */
+        get: operations["member_detail_api_v1_members__identity_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -569,6 +736,21 @@ export interface components {
             email: string;
             /** Commits */
             commits: number;
+            /**
+             * Lines Added
+             * @default 0
+             */
+            lines_added: number;
+            /**
+             * Lines Removed
+             * @default 0
+             */
+            lines_removed: number;
+            /**
+             * Files Touched
+             * @default 0
+             */
+            files_touched: number;
             /** First Commit At */
             first_commit_at?: string | null;
             /** Last Commit At */
@@ -628,6 +810,18 @@ export interface components {
             base_url?: string | null;
             /** Name */
             name: string;
+        };
+        /** CreateMemberExclusion */
+        CreateMemberExclusion: {
+            /** Pattern */
+            pattern: string;
+            /** Reason */
+            reason?: string | null;
+            /**
+             * Is Bot
+             * @default false
+             */
+            is_bot: boolean;
         };
         /** DailyCommitCount */
         DailyCommitCount: {
@@ -726,6 +920,42 @@ export interface components {
             secret_count: number;
             /** Health Score */
             health_score?: number | null;
+            /** Test Count */
+            test_count?: number | null;
+            /** Test File Count */
+            test_file_count?: number | null;
+            /** Test To Code Ratio */
+            test_to_code_ratio?: number | null;
+            /** Assertion Density */
+            assertion_density?: number | null;
+            /** Test Frameworks */
+            test_frameworks?: string | null;
+            /** Test Coverage Pct */
+            test_coverage_pct?: number | null;
+            /** Lint Issue Count */
+            lint_issue_count?: number | null;
+            /** Sast Issue Count */
+            sast_issue_count?: number | null;
+            /** Sast High */
+            sast_high?: number | null;
+            /** Sast Medium */
+            sast_medium?: number | null;
+            /** Sast Low */
+            sast_low?: number | null;
+            /** Dead Code Count */
+            dead_code_count?: number | null;
+            /** Bus Factor */
+            bus_factor?: number | null;
+            /** Top Author Share */
+            top_author_share?: number | null;
+            /** Active Contributor Count */
+            active_contributor_count?: number | null;
+            /** Commits Last 90D */
+            commits_last_90d?: number | null;
+            /** Days Since Last Commit */
+            days_since_last_commit?: number | null;
+            /** Maintenance Status */
+            maintenance_status?: string | null;
             ratings?: components["schemas"]["Ratings"];
         };
         /** FactsResult */
@@ -837,6 +1067,112 @@ export interface components {
             /** Pct */
             pct: number;
         };
+        /** MemberDetailResult */
+        MemberDetailResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Email */
+            email: string;
+            /** Anonymized */
+            anonymized: boolean;
+            /** Commits */
+            commits: number;
+            /** Lines Added */
+            lines_added: number;
+            /** Lines Removed */
+            lines_removed: number;
+            /** Files Touched */
+            files_touched: number;
+            /** First Active At */
+            first_active_at: string | null;
+            /** Last Active At */
+            last_active_at: string | null;
+            /** Status */
+            status: string;
+            /** Repositories */
+            repositories: components["schemas"]["MemberRepositoryBreakdownResult"][];
+        };
+        /** MemberExclusionResult */
+        MemberExclusionResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Pattern */
+            pattern: string;
+            /** Reason */
+            reason: string | null;
+            /** Is Bot */
+            is_bot: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** MemberRepositoryBreakdownResult */
+        MemberRepositoryBreakdownResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Repository Name */
+            repository_name: string;
+            /** Commits */
+            commits: number;
+            /** Lines Added */
+            lines_added: number;
+            /** Lines Removed */
+            lines_removed: number;
+            /** Files Touched */
+            files_touched: number;
+        };
+        /**
+         * MemberSummaryResult
+         * @description One aggregated identity across all repos (name/email pseudonymized when anonymized).
+         */
+        MemberSummaryResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Email */
+            email: string;
+            /** Anonymized */
+            anonymized: boolean;
+            /** Commits */
+            commits: number;
+            /** Lines Added */
+            lines_added: number;
+            /** Lines Removed */
+            lines_removed: number;
+            /** Files Touched */
+            files_touched: number;
+            /** Repository Count */
+            repository_count: number;
+            /** First Active At */
+            first_active_at: string | null;
+            /** Last Active At */
+            last_active_at: string | null;
+            /** Status */
+            status: string;
+        };
+        /** MembersOverviewResult */
+        MembersOverviewResult: {
+            health: components["schemas"]["PortfolioHealthResult"];
+            /** Members */
+            members: components["schemas"]["MemberSummaryResult"][];
+        };
         /** Page[ConnectionResult] */
         Page_ConnectionResult_: {
             /** Items */
@@ -862,6 +1198,24 @@ export interface components {
             page_size: number;
             /** Total Pages */
             total_pages: number;
+        };
+        /**
+         * PortfolioHealthResult
+         * @description Fleet-wide collaboration health — the headline, framed around resilience not ranking.
+         */
+        PortfolioHealthResult: {
+            /** Member Count */
+            member_count: number;
+            /** Active Member Count */
+            active_member_count: number;
+            /** Dormant Member Count */
+            dormant_member_count: number;
+            /** Repository Count */
+            repository_count: number;
+            /** Single Member Repositories */
+            single_member_repositories: number;
+            /** Knowledge Concentration */
+            knowledge_concentration: number;
         };
         /**
          * Rating
@@ -950,8 +1304,27 @@ export interface components {
             account?: string | null;
         };
         /**
+         * ToolLogResult
+         * @description Raw findings log for one tool's latest run (lint/SAST/dead-code/secret locations).
+         */
+        ToolLogResult: {
+            /** Tool */
+            tool: string;
+            /** Log */
+            log?: string | null;
+            /**
+             * Line Count
+             * @default 0
+             */
+            line_count: number;
+        };
+        /**
          * ToolRun
          * @description Which external tool ran for an analysis and whether it contributed data.
+         *
+         *     `log` holds the tool's raw findings text (lint violations, SAST hits, dead code, secret
+         *     locations). It's excluded from API serialization to keep the analysis payload lean — fetch it
+         *     on demand via the tool-log endpoint.
          */
         ToolRun: {
             /** Name */
@@ -981,6 +1354,10 @@ export interface components {
             category: string;
             /** Kind */
             kind: string;
+            /** Language */
+            language: string;
+            /** Synced At */
+            synced_at?: string | null;
         };
         /**
          * UpdateConnection
@@ -1224,26 +1601,6 @@ export interface operations {
             };
         };
     };
-    external_tools_api_v1_tools_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ToolStatusResult"][];
-                };
-            };
-        };
-    };
     run_tool_on_demand_api_v1_repositories__repository_id__tools__tool__run_post: {
         parameters: {
             query?: never;
@@ -1263,6 +1620,133 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AnalysisResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tool_log_api_v1_repositories__repository_id__tools__tool__log_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+                tool: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToolLogResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    linked_integrations_api_v1_repositories__repository_id__integrations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    link_integration_api_v1_repositories__repository_id__integrations__tool_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+                tool_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unlink_integration_api_v1_repositories__repository_id__integrations__tool_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+                tool_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
                 };
             };
             /** @description Validation Error */
@@ -1737,6 +2221,192 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TestConnectionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_tools_api_v1_tools_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToolStatusResult"][];
+                };
+            };
+        };
+    };
+    sync_tools_api_v1_tools_sync_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToolStatusResult"][];
+                };
+            };
+        };
+    };
+    members_overview_api_v1_members_get: {
+        parameters: {
+            query?: {
+                anonymize?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MembersOverviewResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_exclusions_api_v1_members_exclusions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberExclusionResult"][];
+                };
+            };
+        };
+    };
+    add_exclusion_api_v1_members_exclusions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMemberExclusion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberExclusionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_exclusion_api_v1_members_exclusions__exclusion_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                exclusion_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    member_detail_api_v1_members__identity_id__get: {
+        parameters: {
+            query?: {
+                anonymize?: boolean;
+            };
+            header?: never;
+            path: {
+                identity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberDetailResult"];
                 };
             };
             /** @description Validation Error */

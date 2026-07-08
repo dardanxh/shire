@@ -23,6 +23,7 @@ export type CouplingOut = components["schemas"]["CouplingResult"];
 export type CouplingPair = components["schemas"]["CouplingPair"];
 export type CodeMapOut = components["schemas"]["CodeMapResult"];
 export type ToolStatusOut = components["schemas"]["ToolStatusResult"];
+export type ToolLogOut = components["schemas"]["ToolLogResult"];
 export type RepositoriesPage = components["schemas"]["Page_RepositoryResult_"];
 export type ConnectionOut = components["schemas"]["ConnectionResult"];
 export type ConnectionsPage = components["schemas"]["Page_ConnectionResult_"];
@@ -48,6 +49,13 @@ export type Contributor = components["schemas"]["Contributor"];
 export type Facts = components["schemas"]["FactsResult"];
 export type CommitActivity = components["schemas"]["DailyCommitCount"];
 export type CiCdConfig = components["schemas"]["CiCdConfig"];
+export type MembersOverviewOut = components["schemas"]["MembersOverviewResult"];
+export type MemberSummaryOut = components["schemas"]["MemberSummaryResult"];
+export type PortfolioHealthOut = components["schemas"]["PortfolioHealthResult"];
+export type MemberDetailOut = components["schemas"]["MemberDetailResult"];
+export type MemberRepositoryBreakdownOut =
+  components["schemas"]["MemberRepositoryBreakdownResult"];
+export type MemberExclusionOut = components["schemas"]["MemberExclusionResult"];
 
 /** Repository lifecycle status (backend types it as a bare string). */
 export type RepositoryStatus =
@@ -66,6 +74,11 @@ export const TOOL_NAMES = [
   "osv-scanner",
   "gitleaks",
   "scorecard",
+  "test-metrics",
+  "ruff",
+  "bandit",
+  "vulture",
+  "ownership",
 ] as const;
 
 export type ToolName = (typeof TOOL_NAMES)[number];

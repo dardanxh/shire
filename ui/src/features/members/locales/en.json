@@ -1,0 +1,69 @@
+{
+  "members": {
+    "list": {
+      "title": "Members",
+      "subtitle": "Collaboration across {{repositories}} repositories",
+      "loading": "Loading…",
+      "empty": "No members yet. Analyze a repository to see who's contributing.",
+      "anonymize_on": "Anonymized",
+      "anonymize_off": "Anonymize",
+      "manage_exclusions": "Manage exclusions",
+      "col_member": "Member",
+      "col_repositories": "Repositories",
+      "col_commits": "Commits",
+      "col_churn": "Lines (+/−)",
+      "col_files": "Files",
+      "col_last_active": "Last active",
+      "col_status": "Status",
+      "status_active": "active",
+      "status_dormant": "dormant"
+    },
+    "ethics": {
+      "title": "About these metrics",
+      "body": "This view measures the project's resilience and how knowledge is spread — not individual performance. It is not a leaderboard or a productivity tracker. Members can be anonymized or excluded on request."
+    },
+    "health": {
+      "members": "Members",
+      "active": "Active (90d)",
+      "repositories": "Repositories",
+      "single_maintainer": "Single-maintainer repos",
+      "single_maintainer_hint": "Repositories with only one member — a bus-factor risk.",
+      "concentration": "Knowledge concentration",
+      "concentration_hint": "Share of all commits by the single most active member. Higher means knowledge is concentrated."
+    },
+    "detail": {
+      "title": "Member",
+      "commits": "Commits",
+      "lines_added": "Lines added",
+      "lines_removed": "Lines removed",
+      "files": "Files touched",
+      "first_active": "First active",
+      "last_active": "Last active",
+      "by_repository": "By repository",
+      "commits_by_repository": "Commits by repository",
+      "col_repository": "Repository",
+      "col_commits": "Commits",
+      "col_churn": "Lines (+/−)",
+      "col_files": "Files",
+      "close": "Close"
+    },
+    "exclusions": {
+      "title": "Member exclusions",
+      "description": "Hide bots or people who've asked not to be measured. A pattern matches a member's email or name (e.g. an exact address, or a glob like *[bot]*). Built-in bot filters always apply.",
+      "pattern_label": "Email or pattern",
+      "pattern_placeholder": "someone@example.com or *[bot]*",
+      "pattern_required": "Enter an email or pattern",
+      "reason_label": "Reason (optional)",
+      "reason_placeholder": "e.g. CI bot, opt-out request",
+      "is_bot": "This is a bot",
+      "add": "Add exclusion",
+      "empty": "No custom exclusions. Built-in bot filters still apply.",
+      "col_pattern": "Pattern",
+      "col_reason": "Reason",
+      "col_bot": "Bot",
+      "remove": "Remove",
+      "added": "Exclusion added",
+      "removed": "Exclusion removed"
+    }
+  }
+}

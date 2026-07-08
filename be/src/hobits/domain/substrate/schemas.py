@@ -20,7 +20,6 @@ from hobits.domain.substrate.domain import (
     ToolRun,
     Vulnerability,
 )
-from hobits.integrations.external_tools.base import ToolStatus
 
 
 class FactsResult(BaseModel):
@@ -88,20 +87,24 @@ class AnalysisResult(BaseModel):
         )
 
 
-class ToolStatusResult(BaseModel):
-    name: str
-    available: bool
-    version: str | None
-    purpose: str
-    install: str
-    homepage: str
-    id: str
-    category: str
-    kind: str
+class RepositoryContributorsResult(BaseModel):
+    """One repository's contributors from its latest analysis — the cross-repo read seam.
 
-    @classmethod
-    def of(cls, status: ToolStatus) -> ToolStatusResult:
-        return cls(**vars(status))
+    Consumed by the contributors bounded context to aggregate people across the whole fleet
+    without reaching into the substrate's tables directly (service-to-service).
+    """
+
+    repository_id: uuid.UUID
+    repository_name: str
+    contributors: list[Contributor]
+
+
+class ToolLogResult(BaseModel):
+    """Raw findings log for one tool's latest run (lint/SAST/dead-code/secret locations)."""
+
+    tool: str
+    log: str | None = None
+    line_count: int = 0
 
 
 class DependencyUsageResult(BaseModel):

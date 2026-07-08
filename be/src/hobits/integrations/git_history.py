@@ -7,18 +7,33 @@ from pathlib import Path
 
 from git import GitCommandError, Repo
 
-from hobits.domain.substrate.domain import CommitInfo, ScanContext
+from hobits.domain.substrate.domain import CommitInfo, FileChange, ScanContext
 
 _REC = "\x1e"  # record separator between commits
 _UNIT = "\x1f"  # unit separator between header fields
 _PRETTY = f"{_REC}%H{_UNIT}%an{_UNIT}%ae{_UNIT}%aI"
 
 
+def _parse_numstat_line(line: str) -> FileChange | None:
+    """A `--numstat` body line is `<added>\\t<deleted>\\t<path>` (binary files use `-` counts)."""
+    parts = line.split("\t")
+    if len(parts) != 3:
+        return None
+    added_raw, deleted_raw, path = parts
+    path = path.strip()
+    if not path:
+        return None
+    added = int(added_raw) if added_raw.isdigit() else 0
+    deleted = int(deleted_raw) if deleted_raw.isdigit() else 0
+    return FileChange(path=path, additions=added, deletions=deleted)
+
+
 def build_scan_context(clone_path: Path, head_sha: str, repo_url: str | None = None) -> ScanContext:
     repo = Repo(clone_path)
     commits: list[CommitInfo] = []
     try:
-        raw = repo.git.log("HEAD", f"--pretty=format:{_PRETTY}", "--name-only")
+        # `--numstat` yields per-file added/deleted line counts, a superset of `--name-only`.
+        raw = repo.git.log("HEAD", f"--pretty=format:{_PRETTY}", "--numstat")
     except GitCommandError:
         raw = ""
 
@@ -31,7 +46,9 @@ def build_scan_context(clone_path: Path, head_sha: str, repo_url: str | None = N
         if len(parts) != 4:
             continue
         sha, name, email, iso = parts
-        files = tuple(line.strip() for line in body.splitlines() if line.strip())
+        files = tuple(
+            fc for line in body.splitlines() if (fc := _parse_numstat_line(line)) is not None
+        )
         commits.append(
             CommitInfo(
                 sha=sha,
