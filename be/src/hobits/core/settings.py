@@ -37,6 +37,11 @@ class Settings(BaseSettings):
     # Optional GitHub token for richer metadata + higher rate limits + private repos.
     github_token: str | None = Field(default=None)
 
+    # Key used to encrypt connection credentials at rest (Fernet). A urlsafe-base64 32-byte
+    # Fernet key is used directly; any other string is stretched via SHA-256. If unset, an
+    # insecure dev key is derived (a warning is logged) so local dev works without config.
+    secret_key: str | None = Field(default=None)
+
     # Embedding dimension reserved for the (Phase-1-scaffolded) semantic index.
     embedding_dim: int = Field(default=384)
 

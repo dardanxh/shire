@@ -16,6 +16,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 /**
  * Shared RHF field components. They read `control` from `useFormContext<T>()`
@@ -47,6 +53,49 @@ export function TextField<T extends FieldValues>({
           <FormControl>
             <Input {...field} {...inputProps} />
           </FormControl>
+          {description ? (
+            <FormDescription>{description}</FormDescription>
+          ) : null}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+export function SelectField<T extends FieldValues>({
+  name,
+  label,
+  description,
+  placeholder,
+  disabled,
+  children,
+}: BaseFieldProps<T> & {
+  placeholder?: string;
+  disabled?: boolean;
+  /** The `<SelectItem>` options, rendered by the caller. */
+  children: ReactNode;
+}) {
+  const { control } = useFormContext<T>();
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>{label}</FormLabel>
+          <Select<string>
+            value={field.value ?? ""}
+            onValueChange={(value) => field.onChange(value)}
+            disabled={disabled}
+          >
+            <FormControl>
+              <SelectTrigger onBlur={field.onBlur}>
+                <SelectValue placeholder={placeholder} />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>{children}</SelectContent>
+          </Select>
           {description ? (
             <FormDescription>{description}</FormDescription>
           ) : null}

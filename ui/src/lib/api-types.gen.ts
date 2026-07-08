@@ -296,6 +296,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Connections */
+        get: operations["list_connections_api_v1_connections_get"];
+        put?: never;
+        /**
+         * Create Connection
+         * @description Store a named credential set for a git provider.
+         */
+        post: operations["create_connection_api_v1_connections_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/connections/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Test Connection
+         * @description Validate unsaved credentials against the provider (used by the create/edit form).
+         */
+        post: operations["test_connection_api_v1_connections_test_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/connections/{connection_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Connection */
+        get: operations["get_connection_api_v1_connections__connection_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Connection */
+        delete: operations["delete_connection_api_v1_connections__connection_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Connection */
+        patch: operations["update_connection_api_v1_connections__connection_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/connections/{connection_id}/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Test Existing Connection
+         * @description Validate a stored connection's credentials against the provider.
+         */
+        post: operations["test_existing_connection_api_v1_connections__connection_id__test_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -357,6 +437,11 @@ export interface components {
             /** Tool Runs */
             tool_runs: components["schemas"]["ToolRun"][];
         };
+        /**
+         * AuthMethod
+         * @enum {string}
+         */
+        AuthMethod: "token" | "basic";
         /** CiCdConfig */
         CiCdConfig: {
             system: components["schemas"]["CiCdSystem"];
@@ -438,6 +523,39 @@ export interface components {
              */
             viewer_available: boolean;
         };
+        /**
+         * ConnectionResult
+         * @description Result schema — never carries the secret, only a redacted hint.
+         */
+        ConnectionResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Provider */
+            provider: string;
+            /** Auth Method */
+            auth_method: string;
+            /** Username */
+            username: string | null;
+            /** Base Url */
+            base_url: string | null;
+            /** Secret Hint */
+            secret_hint: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
         /** Contributor */
         Contributor: {
             /**
@@ -494,6 +612,22 @@ export interface components {
              * @default false
              */
             tool_available: boolean;
+        };
+        /**
+         * CreateConnection
+         * @description Create input: a named credential set.
+         */
+        CreateConnection: {
+            provider: components["schemas"]["GitProvider"];
+            auth_method: components["schemas"]["AuthMethod"];
+            /** Username */
+            username?: string | null;
+            /** Secret */
+            secret?: string | null;
+            /** Base Url */
+            base_url?: string | null;
+            /** Name */
+            name: string;
         };
         /** DailyCommitCount */
         DailyCommitCount: {
@@ -620,6 +754,11 @@ export interface components {
             dependency_count: number;
         };
         /**
+         * GitProvider
+         * @enum {string}
+         */
+        GitProvider: "github" | "gitlab" | "bitbucket" | "generic";
+        /**
          * GraphResult
          * @description State of a repository's codebase graph (emerge) artifact.
          *
@@ -679,11 +818,13 @@ export interface components {
         };
         /**
          * IngestRepositoryRequest
-         * @description Create input: a git URL to clone + analyze.
+         * @description Create input: a git URL to clone + analyze, optionally via a stored connection.
          */
         IngestRepositoryRequest: {
             /** Url */
             url: string;
+            /** Connection Id */
+            connection_id?: string | null;
         };
         /** LanguageStat */
         LanguageStat: {
@@ -695,6 +836,19 @@ export interface components {
             files: number;
             /** Pct */
             pct: number;
+        };
+        /** Page[ConnectionResult] */
+        Page_ConnectionResult_: {
+            /** Items */
+            items: components["schemas"]["ConnectionResult"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
         };
         /** Page[RepositoryResult] */
         Page_RepositoryResult_: {
@@ -746,6 +900,8 @@ export interface components {
             slug: string;
             /** Url */
             url: string;
+            /** Connection Id */
+            connection_id: string | null;
             /** Default Branch */
             default_branch: string;
             /** Status */
@@ -766,6 +922,32 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+        };
+        /**
+         * TestConnectionRequest
+         * @description Test unsaved credentials (from the form, before persisting).
+         */
+        TestConnectionRequest: {
+            provider: components["schemas"]["GitProvider"];
+            auth_method: components["schemas"]["AuthMethod"];
+            /** Username */
+            username?: string | null;
+            /** Secret */
+            secret?: string | null;
+            /** Base Url */
+            base_url?: string | null;
+        };
+        /**
+         * TestConnectionResult
+         * @description Result of a live credential check. `ok=False` is a normal outcome, not an error.
+         */
+        TestConnectionResult: {
+            /** Ok */
+            ok: boolean;
+            /** Message */
+            message: string;
+            /** Account */
+            account?: string | null;
         };
         /**
          * ToolRun
@@ -799,6 +981,20 @@ export interface components {
             category: string;
             /** Kind */
             kind: string;
+        };
+        /**
+         * UpdateConnection
+         * @description Edit input. A blank/omitted `secret` keeps the existing one.
+         */
+        UpdateConnection: {
+            /** Name */
+            name: string;
+            /** Username */
+            username?: string | null;
+            /** Secret */
+            secret?: string | null;
+            /** Base Url */
+            base_url?: string | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -1315,6 +1511,232 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CodeMapResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_connections_api_v1_connections_get: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ConnectionResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_connection_api_v1_connections_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateConnection"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    test_connection_api_v1_connections_test_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TestConnectionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestConnectionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_connection_api_v1_connections__connection_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                connection_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_connection_api_v1_connections__connection_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                connection_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_connection_api_v1_connections__connection_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                connection_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateConnection"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    test_existing_connection_api_v1_connections__connection_id__test_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                connection_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestConnectionResult"];
                 };
             };
             /** @description Validation Error */

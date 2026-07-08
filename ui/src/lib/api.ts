@@ -24,6 +24,17 @@ export type CouplingPair = components["schemas"]["CouplingPair"];
 export type CodeMapOut = components["schemas"]["CodeMapResult"];
 export type ToolStatusOut = components["schemas"]["ToolStatusResult"];
 export type RepositoriesPage = components["schemas"]["Page_RepositoryResult_"];
+export type ConnectionOut = components["schemas"]["ConnectionResult"];
+export type ConnectionsPage = components["schemas"]["Page_ConnectionResult_"];
+export type TestConnectionOut = components["schemas"]["TestConnectionResult"];
+
+/** Git providers that support credential connections. */
+export const CONNECTION_PROVIDERS = ["github", "gitlab", "bitbucket"] as const;
+export type ConnectionProvider = (typeof CONNECTION_PROVIDERS)[number];
+
+/** How a connection authenticates. */
+export const CONNECTION_AUTH_METHODS = ["token", "basic"] as const;
+export type ConnectionAuthMethod = (typeof CONNECTION_AUTH_METHODS)[number];
 export type ToolRun = components["schemas"]["ToolRun"];
 export type Enrichment = components["schemas"]["Enrichment"];
 export type Ratings = components["schemas"]["Ratings"];

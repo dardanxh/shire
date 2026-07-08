@@ -66,9 +66,15 @@ export function useAnalysisQuery(id: string) {
 export function useIngestRepositoryMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (url: string): Promise<RepositoryOut> => {
+    mutationFn: async ({
+      url,
+      connectionId,
+    }: {
+      url: string;
+      connectionId?: string | null;
+    }): Promise<RepositoryOut> => {
       const { data, error } = await api.POST("/api/v1/repositories", {
-        body: { url },
+        body: { url, connection_id: connectionId || null },
       });
       if (error) throw error;
       return data;

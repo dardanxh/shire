@@ -24,6 +24,7 @@ def _to_domain(row: RepositoryRow) -> Repository:
             provider=GitProvider(row.provider), owner=row.owner, name=row.name
         ),
         url=RepoUrl(value=row.url),
+        connection_id=row.connection_id,
         default_branch=row.default_branch,
         clone_path=row.clone_path,
         status=IngestionStatus(row.status),
@@ -41,6 +42,7 @@ def _apply(row: RepositoryRow, repo: Repository) -> None:
     row.owner = repo.coordinates.owner
     row.name = repo.coordinates.name
     row.url = repo.url.value
+    row.connection_id = repo.connection_id
     row.default_branch = repo.default_branch
     row.clone_path = repo.clone_path
     row.status = repo.status.value

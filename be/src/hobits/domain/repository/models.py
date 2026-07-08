@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, String, UniqueConstraint, Uuid
+from sqlalchemy import DateTime, ForeignKey, String, UniqueConstraint, Uuid
 from sqlalchemy.orm import Mapped, mapped_column
 
 from hobits.core.db import Base
@@ -20,6 +20,9 @@ class RepositoryRow(Base):
     owner: Mapped[str] = mapped_column(String(255))
     name: Mapped[str] = mapped_column(String(255))
     url: Mapped[str] = mapped_column(String(1024))
+    connection_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("connections.id", ondelete="SET NULL"), nullable=True
+    )
     default_branch: Mapped[str] = mapped_column(String(255), default="main")
     clone_path: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     status: Mapped[str] = mapped_column(String(32))
