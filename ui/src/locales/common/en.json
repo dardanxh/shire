@@ -1,0 +1,34 @@
+{
+  "common": {
+    "app": {
+      "name": "Hobits",
+      "tagline": "repository insights"
+    },
+    "nav": {
+      "modules": "Modules",
+      "repositories": "Repositories",
+      "tools": "Tools",
+      "connectors": "Connectors"
+    },
+    "actions": {
+      "add": "Add",
+      "cancel": "Cancel",
+      "refresh": "Refresh",
+      "retry": "Retry",
+      "back": "Back"
+    },
+    "states": {
+      "loading": "Loading…",
+      "error_title": "Something went wrong",
+      "error_body": "An unexpected error occurred. Please try again.",
+      "api_unreachable": "Could not reach the API: {{message}}",
+      "dash": "—"
+    },
+    "pagination": {
+      "rows_per_page": "Rows per page",
+      "page_of": "Page {{page}} of {{count}}",
+      "previous": "Previous",
+      "next": "Next"
+    }
+  }
+}
