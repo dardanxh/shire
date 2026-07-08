@@ -1,0 +1,90 @@
+{
+  "connectors": {
+    "title": "Connectors",
+    "subtitle": "Connect Hobits to your git providers to analyze private repositories.",
+    "provider": {
+      "github": "GitHub",
+      "gitlab": "GitLab",
+      "bitbucket": "Bitbucket"
+    },
+    "auth_method": {
+      "token": "Token",
+      "basic": "Username & password"
+    },
+    "tabs": {
+      "connectors": "Connectors",
+      "connections": "Connections"
+    },
+    "catalog": {
+      "count_one": "{{count}} connection",
+      "count_other": "{{count}} connections",
+      "connect": "Connect",
+      "blurb": {
+        "github": "Personal access token or GitHub app password.",
+        "gitlab": "Personal/project access token, or self-hosted.",
+        "bitbucket": "Access token or username + app password."
+      }
+    },
+    "connections": {
+      "test": "Test",
+      "col_name": "Name",
+      "col_provider": "Provider",
+      "col_auth": "Auth",
+      "col_secret": "Secret",
+      "empty_title": "No connections yet",
+      "empty_body": "Pick a connector above to add your first connection."
+    },
+    "dialog": {
+      "new_title": "Connect to {{provider}}",
+      "edit_title": "Edit {{name}}",
+      "description": "Credentials are encrypted at rest and never shown again.",
+      "create": "Create connection",
+      "save": "Save changes",
+      "toast_created": "Connection \"{{name}}\" created.",
+      "toast_saved": "Connection \"{{name}}\" saved."
+    },
+    "delete": {
+      "title": "Delete connection",
+      "body": "Delete \"{{name}}\"? Repositories using it will keep working but lose their stored credentials.",
+      "confirm": "Delete",
+      "toast_deleted": "Connection \"{{name}}\" deleted."
+    },
+    "form": {
+      "name": {
+        "label": "Name",
+        "placeholder": "e.g. Work account",
+        "required": "A name is required."
+      },
+      "auth_method": {
+        "label": "Authentication"
+      },
+      "username": {
+        "label": "Username",
+        "required": "A username is required for username & password auth."
+      },
+      "password": {
+        "label": "Password / app password"
+      },
+      "token": {
+        "label": "Access token",
+        "description": "A personal access token with repo read access."
+      },
+      "secret": {
+        "required": "A token or password is required.",
+        "keep": "Leave blank to keep the current secret"
+      },
+      "base_url": {
+        "label": "Base URL (optional)",
+        "description": "For self-hosted instances. Leave blank to use the public host.",
+        "placeholder": "https://gitlab.example.com"
+      },
+      "test": {
+        "button": "Test connection",
+        "ok": "Connection works — authenticated as {{account}}.",
+        "account_unknown": "the provider",
+        "failed": "Connection test failed",
+        "needs_secret": "Enter a token or password before testing."
+      }
+    }
+  }
+}

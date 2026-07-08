@@ -23,6 +23,11 @@
         "required": "A git URL is required.",
         "invalid": "Enter a valid URL."
       },
+      "connection": {
+        "label": "Connection",
+        "description": "Use a saved connection to clone a private repository.",
+        "none": "None (public)"
+      },
       "toast_added": "Added {{slug}}",
       "toast_added_desc": "Repository cloned and analyzed.",
       "toast_failed": "Analysis failed for {{slug}}",

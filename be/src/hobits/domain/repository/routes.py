@@ -20,7 +20,7 @@ def ingest_repository(
     body: IngestRepositoryRequest, session: Session = Depends(get_session)
 ) -> RepositoryResult:
     """Clone and analyze a repository from a git URL (blocking)."""
-    return RepositoryService(session).ingest(body.url)
+    return RepositoryService(session).ingest(body.url, body.connection_id)
 
 
 @router.get("", response_model=Page[RepositoryResult])

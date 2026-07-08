@@ -11,9 +11,10 @@ from hobits.domain.repository.domain import Repository
 
 
 class IngestRepositoryRequest(BaseModel):
-    """Create input: a git URL to clone + analyze."""
+    """Create input: a git URL to clone + analyze, optionally via a stored connection."""
 
     url: str
+    connection_id: uuid.UUID | None = None
 
 
 class RepositoryResult(BaseModel):
@@ -25,6 +26,7 @@ class RepositoryResult(BaseModel):
     name: str
     slug: str
     url: str
+    connection_id: uuid.UUID | None
     default_branch: str
     status: str
     last_analyzed_commit: str | None
@@ -42,6 +44,7 @@ class RepositoryResult(BaseModel):
             name=repo.coordinates.name,
             slug=repo.coordinates.slug,
             url=repo.url.value,
+            connection_id=repo.connection_id,
             default_branch=repo.default_branch,
             status=repo.status.value,
             last_analyzed_commit=repo.last_analyzed_commit,

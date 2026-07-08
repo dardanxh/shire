@@ -13,6 +13,9 @@ export function makeIngestSchema(t: TFunction) {
       .trim()
       .min(1, t("repositories.ingest.url.required"))
       .url(t("repositories.ingest.url.invalid")),
+    // Optional connection to authenticate the clone. "none" (the default) means
+    // a public, unauthenticated clone. Normalized to a real id in the submit.
+    connectionId: z.string().optional(),
   });
 }
 

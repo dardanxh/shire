@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ToolsRouteImport } from './routes/tools'
+import { Route as ConnectorsRouteImport } from './routes/connectors'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RepositoriesIdRouteImport } from './routes/repositories.$id'
 
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
   path: '/tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnectorsRoute = ConnectorsRouteImport.update({
+  id: '/connectors',
+  path: '/connectors',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -31,30 +37,34 @@ const RepositoriesIdRoute = RepositoriesIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/connectors': typeof ConnectorsRoute
   '/tools': typeof ToolsRoute
   '/repositories/$id': typeof RepositoriesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/connectors': typeof ConnectorsRoute
   '/tools': typeof ToolsRoute
   '/repositories/$id': typeof RepositoriesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/connectors': typeof ConnectorsRoute
   '/tools': typeof ToolsRoute
   '/repositories/$id': typeof RepositoriesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/tools' | '/repositories/$id'
+  fullPaths: '/' | '/connectors' | '/tools' | '/repositories/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/tools' | '/repositories/$id'
-  id: '__root__' | '/' | '/tools' | '/repositories/$id'
+  to: '/' | '/connectors' | '/tools' | '/repositories/$id'
+  id: '__root__' | '/' | '/connectors' | '/tools' | '/repositories/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConnectorsRoute: typeof ConnectorsRoute
   ToolsRoute: typeof ToolsRoute
   RepositoriesIdRoute: typeof RepositoriesIdRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/tools'
       fullPath: '/tools'
       preLoaderRoute: typeof ToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connectors': {
+      id: '/connectors'
+      path: '/connectors'
+      fullPath: '/connectors'
+      preLoaderRoute: typeof ConnectorsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConnectorsRoute: ConnectorsRoute,
   ToolsRoute: ToolsRoute,
   RepositoriesIdRoute: RepositoriesIdRoute,
 }

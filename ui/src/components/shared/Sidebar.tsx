@@ -1,5 +1,10 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { FolderGitIcon, type LucideIcon, WrenchIcon } from "lucide-react";
+import {
+  FolderGitIcon,
+  type LucideIcon,
+  PlugIcon,
+  WrenchIcon,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
@@ -24,6 +29,12 @@ const ITEMS: NavItem[] = [
     labelKey: "common.nav.tools",
     icon: WrenchIcon,
     match: (p) => p === "/tools" || p.startsWith("/tools/"),
+  },
+  {
+    to: "/connectors",
+    labelKey: "common.nav.connectors",
+    icon: PlugIcon,
+    match: (p) => p === "/connectors" || p.startsWith("/connectors/"),
   },
 ];
 

@@ -7,7 +7,8 @@
     "nav": {
       "modules": "Modules",
       "repositories": "Repositories",
-      "tools": "Tools"
+      "tools": "Tools",
+      "connectors": "Connectors"
     },
     "actions": {
       "add": "Add",

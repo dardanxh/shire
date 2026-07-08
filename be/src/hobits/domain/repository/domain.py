@@ -96,6 +96,7 @@ class Repository(AggregateRoot):
 
     coordinates: RepoCoordinates
     url: RepoUrl
+    connection_id: uuid.UUID | None = None
     default_branch: str = "main"
     clone_path: str | None = None
     status: IngestionStatus = IngestionStatus.registered
