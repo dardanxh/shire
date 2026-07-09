@@ -86,7 +86,32 @@ class SqlRepositoryHobitRepository:
         )
         return (self._session.scalar(stmt) or 0) > 0
 
+    def assignment_map(
+        self, repository_id: uuid.UUID
+    ) -> dict[str, tuple[str, datetime | None]]:
+        """slug -> (cadence, last_checked_at) for every hobit assigned to this repo."""
+        stmt = select(
+            RepositoryHobitRow.hobit_slug,
+            RepositoryHobitRow.cadence,
+            RepositoryHobitRow.last_checked_at,
+        ).where(RepositoryHobitRow.repository_id == repository_id)
+        return {
+            slug: (cadence, last_checked)
+            for slug, cadence, last_checked in self._session.execute(stmt)
+        }
+
     def set_all(self, repository_id: uuid.UUID, slugs: set[str]) -> None:
+        # Preserve cadence/last_checked for hobits that stay assigned across the replace, so
+        # re-saving the allow-list doesn't silently reset a hobit's schedule.
+        kept = {
+            row.hobit_slug: row
+            for row in self._session.scalars(
+                select(RepositoryHobitRow).where(
+                    RepositoryHobitRow.repository_id == repository_id
+                )
+            )
+            if row.hobit_slug in slugs
+        }
         self._session.execute(
             delete(RepositoryHobitRow).where(
                 RepositoryHobitRow.repository_id == repository_id
@@ -95,9 +120,30 @@ class SqlRepositoryHobitRepository:
         self._session.flush()
         now = datetime.now(UTC)
         self._session.add_all(
-            RepositoryHobitRow(repository_id=repository_id, hobit_slug=slug, linked_at=now)
+            RepositoryHobitRow(
+                repository_id=repository_id,
+                hobit_slug=slug,
+                linked_at=now,
+                cadence=kept[slug].cadence if slug in kept else "manual",
+                last_checked_at=kept[slug].last_checked_at if slug in kept else None,
+            )
             for slug in slugs
         )
+
+    def set_cadence(self, repository_id: uuid.UUID, slug: str, cadence: str) -> bool:
+        """Set an assignment's run cadence. Returns False if the hobit isn't assigned."""
+        row = self._session.get(RepositoryHobitRow, (repository_id, slug))
+        if row is None:
+            return False
+        row.cadence = cadence
+        return True
+
+    def mark_checked(self, repository_id: uuid.UUID, slug: str) -> None:
+        """Record that the scheduler just evaluated this assignment. No-op if unassigned
+        (e.g. a Foundational hobit that isn't in the repo's allow-list)."""
+        row = self._session.get(RepositoryHobitRow, (repository_id, slug))
+        if row is not None:
+            row.last_checked_at = datetime.now(UTC)
 
 
 class SqlHobitRunRepository:
@@ -127,6 +173,23 @@ class SqlHobitRunRepository:
         )
         return [_to_record(r) for r in self._session.scalars(stmt)]
 
+    def latest_result_for(self, repository_id: uuid.UUID, slug: str) -> HobitRunRecord | None:
+        """Newest run of one hobit on one repo that actually produced a result (completed or
+        parse_failed) — the baseline the change gate compares the current commit against. Error
+        and skip rows are ignored so a failed/skipped run doesn't wedge the gate."""
+        stmt = (
+            select(HobitRunRow)
+            .where(
+                HobitRunRow.repository_id == repository_id,
+                HobitRunRow.hobit_slug == slug,
+                HobitRunRow.status.in_(("completed", "parse_failed")),
+            )
+            .order_by(HobitRunRow.started_at.desc())
+            .limit(1)
+        )
+        row = self._session.scalars(stmt).first()
+        return _to_record(row) if row else None
+
     def latest_for_hobit(self, slug: str) -> HobitRunRecord | None:
         stmt = (
             select(HobitRunRow)
@@ -148,6 +211,7 @@ def _to_row(r: HobitRunRecord) -> HobitRunRow:
         repository_id=r.repository_id,
         hobit_slug=r.hobit_slug,
         status=r.status,
+        trigger=r.trigger,
         commit_sha=r.commit_sha,
         headline=r.headline,
         narrative=r.narrative,
@@ -169,6 +233,7 @@ def _to_record(row: HobitRunRow) -> HobitRunRecord:
         repository_id=row.repository_id,
         hobit_slug=row.hobit_slug,
         status=row.status,
+        trigger=row.trigger,
         commit_sha=row.commit_sha,
         headline=row.headline,
         narrative=row.narrative,

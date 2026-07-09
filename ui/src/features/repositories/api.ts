@@ -226,6 +226,54 @@ export function useRunRepoHobitMutation(id: string) {
   });
 }
 
+/** Set how often an assigned hobit runs on this repo (manual | hourly | daily | weekly | cron:<expr>). */
+export function useSetCadenceMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      slug,
+      cadence,
+    }: {
+      slug: string;
+      cadence: string;
+    }): Promise<HobitOut[]> => {
+      const { data, error } = await api.PUT(
+        "/api/v1/repositories/{repository_id}/hobits/{slug}/cadence",
+        { params: { path: { repository_id: id, slug } }, body: { cadence } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(repositoryKeys.hobits(id), data);
+    },
+  });
+}
+
+/**
+ * Change-gated run of an assigned hobit: runs only if the repo moved since the last result,
+ * otherwise records a skip — the same logic the scheduler applies. Blocking when it runs.
+ */
+export function useRefreshHobitMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (slug: string): Promise<HobitRunOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/hobits/{slug}/refresh",
+        { params: { path: { repository_id: id, slug } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.hobitRuns(id) });
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.hobits(id) });
+      queryClient.invalidateQueries({ queryKey: ["hobits"] });
+      queryClient.invalidateQueries({ queryKey: ["briefing"] });
+    },
+  });
+}
+
 /** Ingest a new repository by git URL (clone + analyze, blocking). */
 export function useIngestRepositoryMutation() {
   const queryClient = useQueryClient();

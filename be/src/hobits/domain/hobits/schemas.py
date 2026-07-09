@@ -23,6 +23,7 @@ class HobitRunResult(BaseModel):
     repository_id: uuid.UUID
     hobit_slug: str
     status: str
+    trigger: str = "manual"
     commit_sha: str | None
     headline: str | None
     tier: str | None
@@ -43,6 +44,7 @@ class HobitRunResult(BaseModel):
             repository_id=r.repository_id,
             hobit_slug=r.hobit_slug,
             status=r.status,
+            trigger=r.trigger,
             commit_sha=r.commit_sha,
             headline=r.headline,
             tier=r.tier,
@@ -86,6 +88,10 @@ class HobitResult(BaseModel):
     tags: list[str]
     unread_count: int
     last_run: HobitRunResult | None
+    # Populated only for the per-repository view (a hobit's assignment to that repo): its run
+    # cadence and when the scheduler last evaluated it. None in the global roster listing.
+    cadence: str | None = None
+    last_checked_at: datetime | None = None
 
 
 class HobitConfigUpdate(BaseModel):
@@ -103,3 +109,9 @@ class SetRepoHobitsRequest(BaseModel):
     """The hobit slugs to assign to a repository (replaces the current set)."""
 
     slugs: list[str]
+
+
+class SetCadenceRequest(BaseModel):
+    """A hobit assignment's run cadence: manual | hourly | daily | weekly | cron:<expr>."""
+
+    cadence: str

@@ -13,6 +13,7 @@ from hobits.domain.hobits.schemas import (
     HobitResult,
     HobitRunDetailResult,
     HobitRunResult,
+    SetCadenceRequest,
     SetRepoHobitsRequest,
 )
 from hobits.domain.hobits.services import HobitService
@@ -62,6 +63,20 @@ def set_repo_hobits(
     return HobitService(session).set_repo_hobits(repository_id, body.slugs)
 
 
+@router.put(
+    "/repositories/{repository_id}/hobits/{slug}/cadence",
+    response_model=list[HobitResult],
+)
+def set_hobit_cadence(
+    repository_id: uuid.UUID,
+    slug: str,
+    body: SetCadenceRequest,
+    session: Session = Depends(get_session),
+) -> list[HobitResult]:
+    """Set how often a hobit runs on this repo (manual | hourly | daily | weekly | cron:<expr>)."""
+    return HobitService(session).set_cadence(repository_id, slug, body.cadence)
+
+
 @router.post(
     "/repositories/{repository_id}/hobits/{slug}/run", response_model=HobitRunResult
 )
@@ -70,6 +85,17 @@ def run_hobit(
 ) -> HobitRunResult:
     """Run a hobit against a repository (blocking — the agent explores the clone)."""
     return HobitService(session).run_hobit(repository_id, slug)
+
+
+@router.post(
+    "/repositories/{repository_id}/hobits/{slug}/refresh", response_model=HobitRunResult
+)
+def refresh_hobit(
+    repository_id: uuid.UUID, slug: str, session: Session = Depends(get_session)
+) -> HobitRunResult:
+    """Run the change gate on demand: run only if the repo moved since the last result, else skip
+    (the same logic the scheduler applies). Blocking when it does run."""
+    return HobitService(session).run_if_stale(repository_id, slug)
 
 
 @router.get(

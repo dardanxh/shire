@@ -51,6 +51,16 @@ class Settings(BaseSettings):
     claude_model: str = Field(default="sonnet")
     claude_timeout_seconds: float = Field(default=180.0)
 
+    # Orchestration (Phase 2.5) — scheduled, change-gated hobit runs via Prefect. Off by default so
+    # the app runs standalone; flip on once the Prefect server + worker are up (see
+    # docs/running-phase-2.5.md). When off, assignment saves never reach out to Prefect and the
+    # startup schedule-reconcile is skipped. `prefect_api_url` mirrors Prefect's own PREFECT_API_URL
+    # so the app and CLI point at the same server; `prefect_work_pool` is the process pool the
+    # worker polls.
+    scheduler_enabled: bool = Field(default=False)
+    prefect_api_url: str | None = Field(default=None)
+    prefect_work_pool: str = Field(default="hobits-pool")
+
     def ensure_dirs(self) -> None:
         self.clone_root.mkdir(parents=True, exist_ok=True)
         self.graph_root.mkdir(parents=True, exist_ok=True)

@@ -22,6 +22,8 @@ class HobitRunStatus(StrEnum):
     agent_unavailable = "agent_unavailable"
     timeout = "timeout"
     error = "error"
+    # A scheduled check found the repo unchanged since the last result — no work was done.
+    skipped_unchanged = "skipped_unchanged"
 
 
 class SelfScore(BaseModel):
@@ -131,3 +133,5 @@ class HobitRunRecord:
     duration_seconds: float | None
     started_at: datetime
     finished_at: datetime | None
+    # How the run was initiated: "manual" (user click) or "scheduled" (cadence tick).
+    trigger: str = "manual"

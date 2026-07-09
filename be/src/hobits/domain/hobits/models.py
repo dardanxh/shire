@@ -38,6 +38,12 @@ class RepositoryHobitRow(Base):
     )
     hobit_slug: Mapped[str] = mapped_column(String(64), primary_key=True)
     linked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    # Run cadence for this assignment: "manual" | "hourly" | "daily" | "weekly" | "cron:<expr>".
+    cadence: Mapped[str] = mapped_column(String(64), default="manual", server_default="manual")
+    # When the scheduler last evaluated this assignment (ran or skipped-as-unchanged).
+    last_checked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
 
 class HobitRunRow(Base):
@@ -51,6 +57,7 @@ class HobitRunRow(Base):
     )
     hobit_slug: Mapped[str] = mapped_column(String(64), index=True)
     status: Mapped[str] = mapped_column(String(20))
+    trigger: Mapped[str] = mapped_column(String(16), default="manual", server_default="manual")
     commit_sha: Mapped[str | None] = mapped_column(String(64), nullable=True)
     headline: Mapped[str | None] = mapped_column(String(500), nullable=True)
     narrative: Mapped[str | None] = mapped_column(Text, nullable=True)

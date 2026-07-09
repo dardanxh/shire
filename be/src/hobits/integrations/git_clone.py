@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from git import GitCommandError, Repo
+from git import Git, GitCommandError, Repo
 
 from hobits.domain.repository.domain import CloneOutcome, RepoCoordinates
 
@@ -17,6 +17,21 @@ class GitCloneService:
 
     def _dest(self, coordinates: RepoCoordinates) -> Path:
         return self._clone_root / coordinates.provider.value / coordinates.owner / coordinates.name
+
+    def remote_head(self, url: str, branch: str | None = None) -> str | None:
+        """The current HEAD commit of `branch` on the remote, without cloning (a network-only
+        `git ls-remote`). This is the cheap left-hand side of the change gate. Returns None when
+        offline or the ref can't be resolved, so callers fall back to running rather than skipping.
+        """
+        try:
+            out = Git().ls_remote(url, branch or "HEAD")
+            if not out.strip() and branch:
+                out = Git().ls_remote(url, "HEAD")  # branch not found remotely — fall back to HEAD
+            first = out.strip().split("\n", 1)[0]
+            sha = first.split("\t", 1)[0].strip()
+            return sha or None
+        except GitCommandError:
+            return None
 
     def clone(self, url: str, coordinates: RepoCoordinates) -> CloneOutcome:
         dest = self._dest(coordinates)

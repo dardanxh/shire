@@ -40,7 +40,9 @@ from hobits.domain.hobits.schemas import (
     HobitRunDetailResult,
     HobitRunResult,
 )
+from hobits.domain.repository.services import RepositoryService
 from hobits.integrations.claude_agent import ClaudeAgent
+from hobits.orchestration.schedule_sync import PrefectScheduleSync, validate_cadence
 
 # Neutral self-score used when the agent produced prose but no parseable structured block.
 _FALLBACK_SCORE = SelfScore(importance=50, confidence=20, urgency=30)
@@ -48,6 +50,7 @@ _FALLBACK_SCORE = SelfScore(importance=50, confidence=20, urgency=30)
 
 class HobitService:
     def __init__(self, session: Session, *, agent: ClaudeAgent | None = None) -> None:
+        self._session = session
         self._context = ContextService(session)
         self._configs = SqlHobitConfigRepository(session)
         self._runs = SqlHobitRunRepository(session)
@@ -57,19 +60,35 @@ class HobitService:
 
     # --- per-repo access ------------------------------------------------------
     def list_repo_hobits(self, repository_id: uuid.UUID) -> list[HobitResult]:
-        """The hobits assigned to a repository (its allow-list)."""
-        assigned = self._access.linked_slugs(repository_id)
+        """The hobits assigned to a repository (its allow-list), each with its run cadence."""
+        assignments = self._access.assignment_map(repository_id)
         counts = self._briefing.unread_counts()
         return [
-            self._to_result(spec, counts.get(spec.slug, 0))
+            self._to_result(spec, counts.get(spec.slug, 0), assignment=assignments[spec.slug])
             for spec in all_specs()
-            if spec.slug in assigned
+            if spec.slug in assignments
         ]
 
     def set_repo_hobits(self, repository_id: uuid.UUID, slugs: list[str]) -> list[HobitResult]:
         """Replace a repository's assigned hobits (validated against the registry)."""
         valid = {s for s in slugs if get_hobit(s) is not None}
         self._access.set_all(repository_id, valid)
+        # Converge Prefect: unassigned hobits lose their deployment, retained ones keep theirs.
+        PrefectScheduleSync(self._session).sync_repo(repository_id)
+        return self.list_repo_hobits(repository_id)
+
+    def set_cadence(
+        self, repository_id: uuid.UUID, slug: str, cadence: str
+    ) -> list[HobitResult]:
+        """Set one assignment's run cadence and reconcile its Prefect deployment."""
+        _require_spec(slug)
+        try:
+            validate_cadence(cadence)
+        except ValueError as exc:
+            raise ConflictError(str(exc)) from exc
+        if not self._access.set_cadence(repository_id, slug, cadence):
+            raise ConflictError(f"Hobit '{slug}' is not assigned to this repository.")
+        PrefectScheduleSync(self._session).sync_assignment(repository_id, slug, cadence)
         return self.list_repo_hobits(repository_id)
 
     # --- config / listing -----------------------------------------------------
@@ -108,7 +127,9 @@ class HobitService:
         return HobitRunDetailResult.of_detail(record)
 
     # --- the run lifecycle ----------------------------------------------------
-    def run_hobit(self, repository_id: uuid.UUID, slug: str) -> HobitRunResult:
+    def run_hobit(
+        self, repository_id: uuid.UUID, slug: str, *, trigger: str = "manual"
+    ) -> HobitRunResult:
         hobit = get_hobit(slug)
         if hobit is None:
             raise NotFoundError(f"Unknown hobit: {slug}")
@@ -141,6 +162,7 @@ class HobitService:
                 _run_record(
                     repository_id, slug, HobitRunStatus.agent_unavailable, pack.identity.commit_sha,
                     started=started, error="The `claude` CLI is not available on the server.",
+                    trigger=trigger,
                 ),
                 writes_narrative=hobit.spec.writes_narrative,
             )
@@ -157,8 +179,47 @@ class HobitService:
             system=config.charter,
             cwd=ctx.clone_path,
         )
-        record = self._interpret(hobit, agent_run, repository_id, slug, pack, started)
+        record = self._interpret(hobit, agent_run, repository_id, slug, pack, started, trigger)
         return self._finish(record, writes_narrative=hobit.spec.writes_narrative)
+
+    def run_if_stale(
+        self, repository_id: uuid.UUID, slug: str, *, force: bool = False
+    ) -> HobitRunResult:
+        """The scheduled entry point: run the hobit only IF the repo moved since its last result.
+
+        Cheap change gate — compare the remote's current HEAD (a network-only `ls-remote`) to the
+        commit the hobit last produced a result on. Unchanged → record a `skipped_unchanged` run
+        and spend no tokens. Changed (or `force`, or the remote is unreachable) → refresh the
+        substrate to the new commit, then run the hobit normally. Either way, stamp the assignment's
+        `last_checked_at`. This is the "deterministic-first, LLM-on-deltas" gate from NFR #1.
+        """
+        hobit = get_hobit(slug)
+        if hobit is None:
+            raise NotFoundError(f"Unknown hobit: {slug}")
+
+        repos = RepositoryService(self._session)
+        remote_sha = repos.remote_head(repository_id)
+        last = self._runs.latest_result_for(repository_id, slug)
+        unchanged = (
+            not force
+            and remote_sha is not None
+            and last is not None
+            and last.commit_sha == remote_sha
+        )
+
+        self._access.mark_checked(repository_id, slug)
+        if unchanged:
+            record = _run_record(
+                repository_id, slug, HobitRunStatus.skipped_unchanged, remote_sha,
+                started=datetime.now(UTC), trigger="scheduled",
+            )
+            self._runs.add(record)
+            return HobitRunResult.of(record)
+
+        # The repo moved (or we couldn't tell): bring the substrate up to the new commit so the
+        # hobit reasons over fresh context, then run it.
+        repos.refresh(repository_id)
+        return self.run_hobit(repository_id, slug, trigger="scheduled")
 
     # --- internals ------------------------------------------------------------
     def _interpret(
@@ -169,6 +230,7 @@ class HobitService:
         slug: str,
         pack,
         started: datetime,
+        trigger: str = "manual",
     ) -> HobitRunRecord:
         commit = pack.identity.commit_sha
         if not agent_run.ok:
@@ -180,7 +242,7 @@ class HobitService:
             return _run_record(
                 repository_id, slug, status, commit, started=started,
                 error=agent_run.error, raw_output=agent_run.raw_stdout or None,
-                duration=agent_run.duration_seconds,
+                duration=agent_run.duration_seconds, trigger=trigger,
             )
 
         output = hobit.parse_output(agent_run.text)
@@ -193,7 +255,7 @@ class HobitService:
                 repository_id, slug, HobitRunStatus.parse_failed, commit, started=started,
                 headline=headline, narrative=agent_run.text or None, score=score, tier=tier,
                 raw_output=agent_run.raw_stdout or None, duration=agent_run.duration_seconds,
-                error="Could not parse the hobit's structured output.",
+                error="Could not parse the hobit's structured output.", trigger=trigger,
             )
 
         tier = derive_tier(
@@ -203,7 +265,7 @@ class HobitService:
             repository_id, slug, HobitRunStatus.completed, commit, started=started,
             headline=output.headline, narrative=output.narrative, score=output.self_score,
             tier=tier, raw_output=agent_run.raw_stdout or None,
-            duration=agent_run.duration_seconds,
+            duration=agent_run.duration_seconds, trigger=trigger,
         )
 
     def _finish(
@@ -220,10 +282,16 @@ class HobitService:
     def _effective_config(self, spec: HobitSpec) -> HobitConfig:
         return _merge_config(spec, self._configs.get(spec.slug))
 
-    def _to_result(self, spec: HobitSpec, unread_count: int) -> HobitResult:
+    def _to_result(
+        self,
+        spec: HobitSpec,
+        unread_count: int,
+        assignment: tuple[str, datetime | None] | None = None,
+    ) -> HobitResult:
         config = self._effective_config(spec)
         latest = self._runs.latest_for_hobit(spec.slug)
         last = HobitRunResult.of(latest) if latest else None
+        cadence, last_checked_at = assignment if assignment is not None else (None, None)
         return HobitResult(
             slug=spec.slug,
             name=spec.name,
@@ -237,6 +305,8 @@ class HobitService:
             tags=config.tags,
             unread_count=unread_count,
             last_run=last,
+            cadence=cadence,
+            last_checked_at=last_checked_at,
         )
 
 
@@ -285,12 +355,14 @@ def _run_record(
     raw_output: str | None = None,
     error: str | None = None,
     duration: float | None = None,
+    trigger: str = "manual",
 ) -> HobitRunRecord:
     return HobitRunRecord(
         id=uuid.uuid4(),
         repository_id=repository_id,
         hobit_slug=slug,
         status=status.value,
+        trigger=trigger,
         commit_sha=commit_sha,
         headline=headline,
         narrative=narrative,

@@ -23,6 +23,7 @@ dependencies = [
     "vulture>=2.16",
     "mcp>=1.2",
     "packaging>=24.0",
+    "prefect>=3.7.7",
 ]
 
 [dependency-groups]

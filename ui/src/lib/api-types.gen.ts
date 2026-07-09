@@ -796,6 +796,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/repositories/{repository_id}/hobits/{slug}/cadence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set Hobit Cadence
+         * @description Set how often a hobit runs on this repo (manual | hourly | daily | weekly | cron:<expr>).
+         */
+        put: operations["set_hobit_cadence_api_v1_repositories__repository_id__hobits__slug__cadence_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/repositories/{repository_id}/hobits/{slug}/run": {
         parameters: {
             query?: never;
@@ -810,6 +830,27 @@ export interface paths {
          * @description Run a hobit against a repository (blocking — the agent explores the clone).
          */
         post: operations["run_hobit_api_v1_repositories__repository_id__hobits__slug__run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/hobits/{slug}/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Refresh Hobit
+         * @description Run the change gate on demand: run only if the repo moved since the last result, else skip
+         *     (the same logic the scheduler applies). Blocking when it does run.
+         */
+        post: operations["refresh_hobit_api_v1_repositories__repository_id__hobits__slug__refresh_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1838,6 +1879,10 @@ export interface components {
             /** Unread Count */
             unread_count: number;
             last_run: components["schemas"]["HobitRunResult"] | null;
+            /** Cadence */
+            cadence?: string | null;
+            /** Last Checked At */
+            last_checked_at?: string | null;
         };
         /**
          * HobitRunDetailResult
@@ -1858,6 +1903,11 @@ export interface components {
             hobit_slug: string;
             /** Status */
             status: string;
+            /**
+             * Trigger
+             * @default manual
+             */
+            trigger: string;
             /** Commit Sha */
             commit_sha: string | null;
             /** Headline */
@@ -1900,6 +1950,11 @@ export interface components {
             hobit_slug: string;
             /** Status */
             status: string;
+            /**
+             * Trigger
+             * @default manual
+             */
+            trigger: string;
             /** Commit Sha */
             commit_sha: string | null;
             /** Headline */
@@ -2198,6 +2253,14 @@ export interface components {
             confidence: number;
             /** Urgency */
             urgency: number;
+        };
+        /**
+         * SetCadenceRequest
+         * @description A hobit assignment's run cadence: manual | hourly | daily | weekly | cron:<expr>.
+         */
+        SetCadenceRequest: {
+            /** Cadence */
+            cadence: string;
         };
         /**
          * SetRepoHobitsRequest
@@ -3851,7 +3914,75 @@ export interface operations {
             };
         };
     };
+    set_hobit_cadence_api_v1_repositories__repository_id__hobits__slug__cadence_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetCadenceRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     run_hobit_api_v1_repositories__repository_id__hobits__slug__run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitRunResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    refresh_hobit_api_v1_repositories__repository_id__hobits__slug__refresh_post: {
         parameters: {
             query?: never;
             header?: never;

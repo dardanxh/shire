@@ -62,8 +62,34 @@
       "run": "Run",
       "running": "Running…",
       "run_done": "Run finished: {{status}}",
+      "refresh": "Refresh",
+      "refresh_hint": "Run only if the repo changed since the last result",
+      "refresh_done": "Refresh: {{status}}",
       "save": "Save",
-      "saved": "Hobit access updated"
+      "saved": "Hobit access updated",
+      "status": {
+        "completed": "completed",
+        "parse_failed": "needs review",
+        "agent_unavailable": "agent unavailable",
+        "timeout": "timed out",
+        "error": "error",
+        "skipped_unchanged": "up to date"
+      },
+      "freshness": {
+        "fresh": "Up to date",
+        "stale": "Due soon",
+        "overdue": "Overdue"
+      },
+      "cadence": {
+        "manual": "Manual",
+        "hourly": "Hourly",
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "custom": "Custom cron",
+        "apply": "Apply",
+        "cron_label": "Cron expression",
+        "saved": "Cadence updated"
+      }
     },
     "status": {
       "registered": "registered",

@@ -66,6 +66,15 @@ class RepositoryService:
         repo = self._ingest(url, connection_id, tool_ids)
         return RepositoryResult.of(repo)
 
+    def remote_head(self, repository_id: uuid.UUID) -> str | None:
+        """The remote's current HEAD commit for this repo's default branch (cheap `ls-remote`,
+        no clone), using the same auth path as ingestion. None if offline/unresolvable."""
+        repo = self._repos.get(repository_id)
+        if repo is None:
+            raise NotFoundError("Repository not found")
+        clone_url, _ = self._authenticate(repo.url.value, repo.connection_id)
+        return self._clone.remote_head(clone_url, repo.default_branch)
+
     def refresh(self, repository_id: uuid.UUID) -> RepositoryResult:
         existing = self._repos.get(repository_id)
         if existing is None:

@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from hobits.domain.repository.domain import GitProvider, RepoUrl
+from hobits.integrations.git_clone import GitCloneService
 from hobits.integrations.git_history import build_scan_context
 from hobits.integrations.scanners import default_scanners
 
@@ -90,6 +91,29 @@ def test_full_pipeline(sample_repo: Path) -> None:
     assert merged["bus_factor"] == 1
     assert merged["top_author_share"] == 1.0
     assert merged["maintenance_status"] == "active"
+
+
+def test_remote_head_reads_current_commit(sample_repo: Path, tmp_path: Path) -> None:
+    """The change gate's cheap side: `ls-remote` against a local repo returns its HEAD, which the
+    scheduler compares to a hobit's last-analyzed commit to decide whether to spend a run."""
+    head = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=sample_repo,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+    svc = GitCloneService(tmp_path / "clones")
+    assert svc.remote_head(str(sample_repo), "main") == head
+    # A branch that doesn't exist falls back to HEAD rather than erroring.
+    assert svc.remote_head(str(sample_repo), "no-such-branch") == head
+
+
+def test_remote_head_returns_none_when_unreachable(tmp_path: Path) -> None:
+    """Offline / bad URL → None, so the scheduler runs rather than wrongly skipping as unchanged."""
+    svc = GitCloneService(tmp_path / "clones")
+    assert svc.remote_head(str(tmp_path / "does-not-exist"), "main") is None
 
 
 def test_repo_url_parsing() -> None:

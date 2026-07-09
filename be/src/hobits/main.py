@@ -6,6 +6,9 @@ that render every error as `{detail, code}`.
 
 from __future__ import annotations
 
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -29,7 +32,27 @@ from hobits.integrations.external_tools.codecharta import resolve_viewer_dir
 
 API_V1_PREFIX = "/api/v1"
 
-app = FastAPI(title="Hobits — Substrate API", version="0.1.0")
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """On startup, converge Prefect deployments to the stored cadences (no-op unless the scheduler
+    is enabled). Best-effort: a Prefect outage must never block the API from serving."""
+    settings = get_settings()
+    if settings.scheduler_enabled:
+        from hobits.core.db import unit_of_work
+        from hobits.orchestration.schedule_sync import PrefectScheduleSync
+
+        try:
+            with unit_of_work() as session:
+                PrefectScheduleSync(session).sync_all()
+        except Exception:
+            logger.warning("Startup schedule reconcile failed.", exc_info=True)
+    yield
+
+
+app = FastAPI(title="Hobits — Substrate API", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
