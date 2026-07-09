@@ -6,6 +6,7 @@
       "empty": "No hobits registered.",
       "col_name": "Hobit",
       "col_category": "Category",
+      "col_tags": "Tags",
       "col_unread": "Unread",
       "col_model": "Model",
       "col_status": "Enabled",
@@ -47,7 +48,14 @@
         "label": "Timeout (seconds)",
         "invalid": "Must be a positive number"
       },
+      "tags": {
+        "label": "Tags",
+        "desc": "Comma-separated. Shown in the table and used to filter hobits when assigning them."
+      },
       "save": "Save"
+    },
+    "tags": {
+      "clear_filter": "Clear"
     },
     "run": {
       "title": "Mental model (Repo-Onboarding hobit)",

@@ -90,6 +90,7 @@ class HobitService:
             charter=update.charter,
             instructions=update.instructions,
             timeout_seconds=update.timeout_seconds,
+            tags=update.tags,
         )
         return self.get_hobit_result(slug)
 
@@ -233,6 +234,7 @@ class HobitService:
             charter=config.charter,
             instructions=config.instructions,
             timeout_seconds=config.timeout_seconds,
+            tags=config.tags,
             unread_count=unread_count,
             last_run=last,
         )
@@ -253,6 +255,11 @@ def _merge_config(spec: HobitSpec, override: HobitConfigOverride | None) -> Hobi
             override.timeout_seconds
             if override and override.timeout_seconds
             else spec.default_timeout_seconds
+        ),
+        tags=(
+            override.tags
+            if override and override.tags is not None
+            else spec.default_tags
         ),
     )
 

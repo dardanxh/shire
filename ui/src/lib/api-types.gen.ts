@@ -300,6 +300,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/repositories/{repository_id}/dependency-freshness": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dependency Freshness
+         * @description Cached latest-version / upgrade-gap check for the repo's dependencies (Python/pip).
+         */
+        get: operations["dependency_freshness_api_v1_repositories__repository_id__dependency_freshness_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/dependency-freshness/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate Dependency Freshness
+         * @description Fetch latest versions from PyPI, compute gaps, and summarize upgrade gains (blocking).
+         */
+        post: operations["generate_dependency_freshness_api_v1_repositories__repository_id__dependency_freshness_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/repositories/{repository_id}/code-map": {
         parameters: {
             query?: never;
@@ -1368,6 +1408,45 @@ export interface components {
              */
             is_dev: boolean;
         };
+        /** DependencyFreshnessItem */
+        DependencyFreshnessItem: {
+            /** Name */
+            name: string;
+            /** Ecosystem */
+            ecosystem: string;
+            /** Current */
+            current: string | null;
+            /** Latest */
+            latest: string | null;
+            /** Latest Released At */
+            latest_released_at: string | null;
+            /** Gap */
+            gap: string;
+            /** Gain */
+            gain?: string | null;
+            /** Latest Url */
+            latest_url?: string | null;
+        };
+        /**
+         * DependencyFreshnessResult
+         * @description On-demand check of each dependency's latest version + upgrade gap (Python/pip).
+         */
+        DependencyFreshnessResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Generated */
+            generated: boolean;
+            /** Generated At */
+            generated_at?: string | null;
+            /**
+             * Items
+             * @default []
+             */
+            items: components["schemas"]["DependencyFreshnessItem"][];
+        };
         /** DependencyUsageResult */
         DependencyUsageResult: {
             /**
@@ -1567,6 +1646,8 @@ export interface components {
             instructions: string;
             /** Timeout Seconds */
             timeout_seconds: number;
+            /** Tags */
+            tags: string[];
         };
         /**
          * HobitResult
@@ -1591,6 +1672,8 @@ export interface components {
             instructions: string;
             /** Timeout Seconds */
             timeout_seconds: number;
+            /** Tags */
+            tags: string[];
             /** Unread Count */
             unread_count: number;
             last_run: components["schemas"]["HobitRunResult"] | null;
@@ -2619,6 +2702,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CouplingResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dependency_freshness_api_v1_repositories__repository_id__dependency_freshness_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DependencyFreshnessResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_dependency_freshness_api_v1_repositories__repository_id__dependency_freshness_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DependencyFreshnessResult"];
                 };
             };
             /** @description Validation Error */

@@ -23,6 +23,8 @@ export const repositoryKeys = {
   graph: (id: string) => [...repositoryKeys.detail(id), "graph"] as const,
   codeAge: (id: string) => [...repositoryKeys.detail(id), "code-age"] as const,
   coupling: (id: string) => [...repositoryKeys.detail(id), "coupling"] as const,
+  dependencyFreshness: (id: string) =>
+    [...repositoryKeys.detail(id), "dependency-freshness"] as const,
   codeMap: (id: string) => [...repositoryKeys.detail(id), "code-map"] as const,
   integrations: (id: string) =>
     [...repositoryKeys.detail(id), "integrations"] as const,

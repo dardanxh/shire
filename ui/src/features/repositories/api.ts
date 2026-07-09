@@ -7,6 +7,7 @@ import {
   type CodeMapOut,
   type ContextMarkdownOut,
   type CouplingOut,
+  type DependencyFreshnessOut,
   type GraphOut,
   type HobitOut,
   type HobitRunOut,
@@ -370,6 +371,39 @@ export function useGenerateCouplingMutation(id: string) {
     },
     onSuccess: (data) =>
       queryClient.setQueryData(repositoryKeys.coupling(id), data),
+  });
+}
+
+/** Cached dependency-freshness (latest versions + upgrade gaps + AI gains). */
+export function useDependencyFreshnessQuery(id: string) {
+  return useQuery<DependencyFreshnessOut>({
+    queryKey: repositoryKeys.dependencyFreshness(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/dependency-freshness",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+  });
+}
+
+/** Fetch latest versions from PyPI, compute gaps, summarize gains (blocking). */
+export function useGenerateDependencyFreshnessMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (): Promise<DependencyFreshnessOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/dependency-freshness/run",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) =>
+      queryClient.setQueryData(repositoryKeys.dependencyFreshness(id), data),
   });
 }
 

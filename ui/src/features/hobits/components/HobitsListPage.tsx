@@ -47,6 +47,20 @@ export function HobitsListPage() {
         ),
       },
       {
+        id: "tags",
+        header: t("hobits.list.col_tags"),
+        enableSorting: false,
+        cell: ({ row }) => (
+          <div className="flex flex-wrap gap-1">
+            {row.original.tags.map((tag) => (
+              <Badge key={tag} variant="secondary" className="text-[10px]">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        ),
+      },
+      {
         accessorKey: "unread_count",
         header: t("hobits.list.col_unread"),
         cell: ({ row }) =>
@@ -177,5 +191,6 @@ function configOf(h: HobitOut) {
     charter: h.charter,
     instructions: h.instructions,
     timeout_seconds: h.timeout_seconds,
+    tags: h.tags,
   };
 }

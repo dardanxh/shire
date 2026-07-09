@@ -39,6 +39,7 @@ import { useAnalysisQuery, useRepositoryQuery } from "../api";
 import type { RepositoryTab } from "../tabs";
 import { CommitsChart } from "./CommitsChart";
 import { ContextPanel } from "./ContextPanel";
+import { DependenciesPanel } from "./DependenciesPanel";
 import { EnrichmentCards } from "./EnrichmentCards";
 import { FactCard } from "./FactCard";
 import { HobitsPanel } from "./HobitsPanel";
@@ -378,78 +379,10 @@ export function RepositoryViewPage({
 
             {/* Dependencies */}
             <TabsContent value="dependencies">
-              <Card className="overflow-hidden p-0">
-                <CardHeader className="p-6 pb-0">
-                  <CardTitle>
-                    {t("repositories.view.dependencies_title")}
-                    {analysis.dependencies.length > 0 ? (
-                      <span className="ml-2 text-sm font-normal text-muted-foreground">
-                        ({analysis.dependencies.length})
-                      </span>
-                    ) : null}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0 pt-4">
-                  {analysis.dependencies.length === 0 ? (
-                    <EmptyRow
-                      text={t("repositories.view.dependencies_empty")}
-                    />
-                  ) : (
-                    <div className="max-h-[36rem] overflow-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>
-                              {t("repositories.view.dep_name")}
-                            </TableHead>
-                            <TableHead>
-                              {t("repositories.view.dep_version")}
-                            </TableHead>
-                            <TableHead>
-                              {t("repositories.view.dep_ecosystem")}
-                            </TableHead>
-                            <TableHead>
-                              {t("repositories.view.dep_scope")}
-                            </TableHead>
-                            <TableHead>
-                              {t("repositories.view.dep_manifest")}
-                            </TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {analysis.dependencies.map((dep, i) => (
-                            <TableRow
-                              key={`${dep.name}-${dep.manifest_file}-${i}`}
-                            >
-                              <TableCell className="font-medium">
-                                {dep.name}
-                              </TableCell>
-                              <TableCell className="font-mono text-xs text-muted-foreground">
-                                {dep.version ?? "—"}
-                              </TableCell>
-                              <TableCell className="text-muted-foreground">
-                                {dep.ecosystem}
-                              </TableCell>
-                              <TableCell>
-                                <Badge
-                                  variant={dep.is_dev ? "secondary" : "outline"}
-                                >
-                                  {dep.is_dev
-                                    ? t("repositories.view.dep_dev")
-                                    : t("repositories.view.dep_prod")}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="font-mono text-xs text-muted-foreground">
-                                {dep.manifest_file ?? "—"}
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <DependenciesPanel
+                repoId={repo.id}
+                dependencies={analysis.dependencies}
+              />
             </TabsContent>
 
             {/* Security — secrets, vulnerabilities, health */}

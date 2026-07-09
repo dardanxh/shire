@@ -30,12 +30,20 @@ export function HobitConfigForm({ hobit }: { hobit: HobitOut }) {
       charter: hobit.charter,
       instructions: hobit.instructions,
       timeout_seconds: String(hobit.timeout_seconds),
+      tags: hobit.tags.join(", "),
     },
   });
 
   const onSubmit = (values: HobitConfigFormValues) => {
     save(
-      { ...values, timeout_seconds: Number(values.timeout_seconds) },
+      {
+        ...values,
+        timeout_seconds: Number(values.timeout_seconds),
+        tags: values.tags
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
+      },
       { onSuccess: () => toast.success(t("hobits.view.saved_toast")) },
     );
   };
@@ -79,6 +87,13 @@ export function HobitConfigForm({ hobit }: { hobit: HobitOut }) {
           name="timeout_seconds"
           type="number"
           label={t("hobits.form.timeout.label")}
+          disabled={isPending}
+        />
+        <TextField<HobitConfigFormValues>
+          name="tags"
+          label={t("hobits.form.tags.label")}
+          description={t("hobits.form.tags.desc")}
+          placeholder="data engineering, streaming"
           disabled={isPending}
         />
         <FormFooter submitLabel={t("hobits.form.save")} isPending={isPending} />

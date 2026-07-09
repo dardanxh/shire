@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-import { CheckboxList } from "@/components/shared/CheckboxList";
+import { HobitMultiSelect } from "@/components/shared/HobitMultiSelect";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -115,11 +115,15 @@ function AssignEditor({
   return (
     <Editor
       key={assignedSlugs}
-      repoId={repoId}
       initial={new Set(assigned.map((h) => h.slug))}
-      items={(all ?? [])
+      hobits={(all ?? [])
         .filter((h) => h.category !== "Foundational")
-        .map((h) => ({ value: h.slug, label: h.name, hint: h.category }))}
+        .map((h) => ({
+          slug: h.slug,
+          name: h.name,
+          category: h.category,
+          tags: h.tags,
+        }))}
       isPending={isPending}
       onSave={(slugs) =>
         save(
@@ -133,13 +137,12 @@ function AssignEditor({
 
 function Editor({
   initial,
-  items,
+  hobits,
   isPending,
   onSave,
 }: {
-  repoId: string;
   initial: Set<string>;
-  items: { value: string; label: string; hint: string }[];
+  hobits: { slug: string; name: string; category: string; tags: string[] }[];
   isPending: boolean;
   onSave: (slugs: string[]) => void;
 }) {
@@ -152,8 +155,8 @@ function Editor({
         <CardTitle>{t("repositories.hobits.manage_title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <CheckboxList
-          items={items}
+        <HobitMultiSelect
+          hobits={hobits}
           selected={selected}
           onToggle={(v) =>
             setSelected((s) => {

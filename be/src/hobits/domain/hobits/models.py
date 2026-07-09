@@ -22,6 +22,8 @@ class HobitConfigRow(Base):
     charter: Mapped[str | None] = mapped_column(Text, nullable=True)
     instructions: Mapped[str | None] = mapped_column(Text, nullable=True)
     timeout_seconds: Mapped[float | None] = mapped_column(Float, nullable=True)
+    # Comma-joined tag override. NULL = use the spec's default tags.
+    tags: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 

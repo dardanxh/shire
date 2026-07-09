@@ -83,6 +83,7 @@ class HobitResult(BaseModel):
     charter: str
     instructions: str
     timeout_seconds: float
+    tags: list[str]
     unread_count: int
     last_run: HobitRunResult | None
 
@@ -95,6 +96,7 @@ class HobitConfigUpdate(BaseModel):
     charter: str
     instructions: str
     timeout_seconds: float
+    tags: list[str]
 
 
 class SetRepoHobitsRequest(BaseModel):

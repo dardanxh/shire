@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { CheckboxList } from "@/components/shared/CheckboxList";
+import { HobitMultiSelect } from "@/components/shared/HobitMultiSelect";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -72,11 +73,16 @@ export function IngestRepositoryDialog() {
       })),
     [toolCatalog, t],
   );
-  const hobitItems = useMemo(
+  const hobitOptions = useMemo(
     () =>
       (hobitCatalog ?? [])
         .filter((h) => h.category !== "Foundational")
-        .map((h) => ({ value: h.slug, label: h.name, hint: h.category })),
+        .map((h) => ({
+          slug: h.slug,
+          name: h.name,
+          category: h.category,
+          tags: h.tags,
+        })),
     [hobitCatalog],
   );
 
@@ -229,8 +235,8 @@ export function IngestRepositoryDialog() {
               emptyLabel={t("repositories.wizard.tools_empty")}
             />
           ) : step === 2 ? (
-            <CheckboxList
-              items={hobitItems}
+            <HobitMultiSelect
+              hobits={hobitOptions}
               selected={hobits}
               onToggle={(v) => setHobits((s) => toggle(s, v))}
               emptyLabel={t("repositories.wizard.hobits_empty")}

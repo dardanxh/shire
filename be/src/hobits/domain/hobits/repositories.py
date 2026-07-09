@@ -31,6 +31,7 @@ class SqlHobitConfigRepository:
             charter=row.charter,
             instructions=row.instructions,
             timeout_seconds=row.timeout_seconds,
+            tags=_parse_tags(row.tags),
         )
 
     def upsert(
@@ -42,6 +43,7 @@ class SqlHobitConfigRepository:
         charter: str,
         instructions: str,
         timeout_seconds: float,
+        tags: list[str],
     ) -> None:
         now = datetime.now(UTC)
         row = self._session.get(HobitConfigRow, slug)
@@ -53,7 +55,15 @@ class SqlHobitConfigRepository:
         row.charter = charter
         row.instructions = instructions
         row.timeout_seconds = timeout_seconds
+        row.tags = ",".join(t.strip() for t in tags if t.strip())
         row.updated_at = now
+
+
+def _parse_tags(value: str | None) -> list[str] | None:
+    """None (never saved) -> None (use spec default); a saved string -> the tag list (maybe [])."""
+    if value is None:
+        return None
+    return [t.strip() for t in value.split(",") if t.strip()]
 
 
 class SqlRepositoryHobitRepository:

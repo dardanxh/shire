@@ -28,6 +28,10 @@ export type GraphOut = components["schemas"]["GraphResult"];
 export type CodeAgeOut = components["schemas"]["CodeAgeResult"];
 export type CouplingOut = components["schemas"]["CouplingResult"];
 export type CouplingPair = components["schemas"]["CouplingPair"];
+export type DependencyFreshnessOut =
+  components["schemas"]["DependencyFreshnessResult"];
+export type DependencyFreshnessItem =
+  components["schemas"]["DependencyFreshnessItem"];
 export type CodeMapOut = components["schemas"]["CodeMapResult"];
 export type ToolStatusOut = components["schemas"]["ToolStatusResult"];
 export type ToolLogOut = components["schemas"]["ToolLogResult"];

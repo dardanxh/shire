@@ -13,6 +13,7 @@ from hobits.domain.substrate.schemas import (
     CodeAgeResult,
     CodeMapResult,
     CouplingResult,
+    DependencyFreshnessResult,
     DependencyUsageResult,
     GraphResult,
     ToolLogResult,
@@ -118,6 +119,28 @@ def generate_coupling(
 ) -> CouplingResult:
     """(Re)compute temporal coupling (code-maat) from the current clone's git history."""
     return AnalysisService(session).generate_coupling(repository_id)
+
+
+@router.get(
+    "/repositories/{repository_id}/dependency-freshness",
+    response_model=DependencyFreshnessResult,
+)
+def dependency_freshness(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> DependencyFreshnessResult:
+    """Cached latest-version / upgrade-gap check for the repo's dependencies (Python/pip)."""
+    return AnalysisService(session).dependency_freshness_status(repository_id)
+
+
+@router.post(
+    "/repositories/{repository_id}/dependency-freshness/run",
+    response_model=DependencyFreshnessResult,
+)
+def generate_dependency_freshness(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> DependencyFreshnessResult:
+    """Fetch latest versions from PyPI, compute gaps, and summarize upgrade gains (blocking)."""
+    return AnalysisService(session).generate_dependency_freshness(repository_id)
 
 
 @router.get("/repositories/{repository_id}/code-map", response_model=CodeMapResult)

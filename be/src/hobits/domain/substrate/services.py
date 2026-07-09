@@ -8,6 +8,7 @@ ingestion (service-to-service).
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import uuid
 from collections.abc import Iterable
@@ -22,6 +23,7 @@ from hobits.domain.repository.repositories import SqlRepositoryRepository
 from hobits.domain.substrate.domain import (
     Analysis,
     AnalysisStatus,
+    Ecosystem,
     Enrichment,
     Rating,
     Ratings,
@@ -40,11 +42,15 @@ from hobits.domain.substrate.schemas import (
     CodeMapResult,
     CouplingPair,
     CouplingResult,
+    DependencyFreshnessItem,
+    DependencyFreshnessResult,
     DependencyUsageResult,
     GraphResult,
     RepositoryContributorsResult,
     ToolLogResult,
 )
+from hobits.integrations import pypi
+from hobits.integrations.claude_agent import ClaudeAgent
 from hobits.integrations.external_tools import tool_languages
 from hobits.integrations.external_tools.code_maat import CodeMaatAdapter
 from hobits.integrations.external_tools.codecharta import CodeChartaAdapter
@@ -396,6 +402,72 @@ class AnalysisService:
         (out_dir / "coupling.json").write_text(json.dumps(rows))
         return self.coupling_status(repository_id)
 
+    # --- dependency freshness (PyPI latest vs. declared) ----------------------
+    def dependency_freshness_status(
+        self, repository_id: uuid.UUID
+    ) -> DependencyFreshnessResult:
+        """The cached freshness check, if one has been run."""
+        cache = self._artifact_dir("dependency-freshness", repository_id) / "freshness.json"
+        if not cache.is_file():
+            return DependencyFreshnessResult(repository_id=repository_id, generated=False)
+        try:
+            items = [DependencyFreshnessItem(**i) for i in json.loads(cache.read_text())]
+        except (OSError, json.JSONDecodeError, ValueError, TypeError):
+            items = []
+        return DependencyFreshnessResult(
+            repository_id=repository_id,
+            generated=True,
+            generated_at=_mtime(cache),
+            items=items,
+        )
+
+    def generate_dependency_freshness(
+        self, repository_id: uuid.UUID
+    ) -> DependencyFreshnessResult:
+        """Fetch each pip dependency's latest version from PyPI, compute the gap, and (if the agent
+        is available) summarize what upgrading gets you. Cached to disk."""
+        analysis = self.latest_result(repository_id)  # raises if the repo has no analysis
+        pip_names = sorted(
+            {d.name for d in analysis.dependencies if d.ecosystem == Ecosystem.pip}
+        )
+        latest_map = pypi.latest_many(pip_names)
+
+        items: list[DependencyFreshnessItem] = []
+        for dep in analysis.dependencies:
+            if dep.ecosystem != Ecosystem.pip:
+                items.append(
+                    DependencyFreshnessItem(
+                        name=dep.name, ecosystem=dep.ecosystem.value, current=dep.version,
+                        latest=None, latest_released_at=None, gap="unknown",
+                    )
+                )
+                continue
+            found = latest_map.get(dep.name)
+            latest_v, released, url = found if found else (None, None, None)
+            base = pypi.base_version(dep.version)
+            items.append(
+                DependencyFreshnessItem(
+                    name=dep.name, ecosystem=dep.ecosystem.value, current=dep.version,
+                    latest=latest_v, latest_released_at=released, latest_url=url,
+                    gap=pypi.compute_gap(base, latest_v),
+                )
+            )
+
+        outdated = [i for i in items if i.gap in ("patch", "minor", "major")]
+        repo = self._repos.get(repository_id)
+        if outdated and repo and repo.clone_path:
+            gains = _dependency_gains(outdated, repo.clone_path)
+            for item in items:
+                if item.name in gains:
+                    item.gain = gains[item.name]
+
+        out_dir = self._artifact_dir("dependency-freshness", repository_id)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "freshness.json").write_text(
+            json.dumps([i.model_dump() for i in items])
+        )
+        return self.dependency_freshness_status(repository_id)
+
     # --- code city (CodeCharta) -----------------------------------------------
     def code_map_status(self, repository_id: uuid.UUID) -> CodeMapResult:
         adapter = CodeChartaAdapter()
@@ -451,6 +523,56 @@ class AnalysisService:
 
 def _mtime(path: Path) -> datetime:
     return datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)
+
+
+def _dependency_gains(
+    outdated: list[DependencyFreshnessItem], cwd: str
+) -> dict[str, str]:
+    """One `claude -p` call → {package: one-line 'what you gain by upgrading'}. Empty on any failure
+    (the deterministic columns still populate)."""
+    agent = ClaudeAgent(
+        binary=get_settings().claude_binary,
+        model=get_settings().claude_model,
+        timeout_seconds=get_settings().claude_timeout_seconds,
+    )
+    if not agent.available():
+        return {}
+    listing = "\n".join(
+        f"- {i.name}: {i.current} -> {i.latest} ({i.gap})" for i in outdated
+    )
+    prompt = (
+        "These Python packages are behind their latest release. For each, give ONE concise line on "
+        "the most notable reasons to upgrade to the latest version (key fixes, features, security, "
+        "performance) from your knowledge. Be specific but brief; if unsure, say 'general fixes "
+        "and improvements'.\n\n"
+        f"{listing}\n\n"
+        "Return ONLY a single fenced json object mapping each package name to its one-line gain, "
+        "nothing else:\n"
+        '```json\n{"requests": "...", "pandas": "..."}\n```'
+    )
+    run = agent.run(prompt, cwd=cwd)
+    if not run.ok:
+        return {}
+    block = _extract_json_object(run.text)
+    if block is None:
+        return {}
+    try:
+        data = json.loads(block)
+    except (json.JSONDecodeError, ValueError):
+        return {}
+    return {str(k): str(v) for k, v in data.items()} if isinstance(data, dict) else {}
+
+
+def _extract_json_object(text: str) -> str | None:
+    """Pull the final fenced ```json {...}``` object out of the agent's text (else a bare {...})."""
+    marker = text.rfind("```json")
+    if marker != -1:
+        after = text.find("\n", marker)
+        close = text.rfind("```")
+        if after != -1 and close > after:
+            return text[after:close].strip()
+    match = re.search(r"\{.*\}", text, re.DOTALL)
+    return match.group(0) if match else None
 
 
 def _merge(contributions: Iterable[ScanContribution]) -> ScanContribution:

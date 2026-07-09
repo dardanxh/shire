@@ -26,6 +26,47 @@ _GROUND = (
 )
 
 
+# Default tags per hobit (discipline + topics). Editable per-hobit via config; shown/filterable in
+# the UI. A hobit can carry several; keep them short and lower-case.
+TAGS: dict[str, list[str]] = {
+    "repo-onboarding": ["software engineering", "onboarding"],
+    # theoreticians — data engineering
+    "streaming": ["data engineering", "streaming"],
+    "data-modeling": ["data engineering", "modeling"],
+    "lakehouse": ["data engineering", "storage"],
+    "idempotency": ["data engineering", "reliability"],
+    "backfill": ["data engineering", "reliability"],
+    "data-quality": ["data engineering", "quality"],
+    "data-governance": ["data engineering", "governance"],
+    "data-privacy": ["data engineering", "security", "governance"],
+    "data-observability": ["data engineering", "observability"],
+    "dataops": ["data engineering", "devops"],
+    "metadata": ["data engineering", "governance"],
+    "data-mesh": ["data engineering", "architecture"],
+    "data-product": ["data engineering", "architecture"],
+    "data-ingestion": ["data engineering", "ingestion"],
+    # theoreticians — software engineering
+    "scalability": ["software engineering", "performance"],
+    "cost": ["software engineering", "cost"],
+    "security": ["software engineering", "security"],
+    "code-quality": ["software engineering", "quality"],
+    "testing": ["software engineering", "testing"],
+    "tech-debt": ["software engineering", "maintainability"],
+    "dependency-strategy": ["software engineering", "dependencies"],
+    "performance": ["software engineering", "performance"],
+    # technology experts
+    "kafka": ["data engineering", "streaming"],
+    "flink": ["data engineering", "streaming"],
+    "spark": ["data engineering", "streaming", "batch"],
+    "dbt": ["data engineering", "transformation"],
+    "iceberg": ["data engineering", "storage"],
+    "hudi": ["data engineering", "storage"],
+    "airflow": ["data engineering", "orchestration"],
+    "bigquery": ["data engineering", "warehouse"],
+    "snowflake": ["data engineering", "warehouse"],
+}
+
+
 def _spec(
     slug: str,
     name: str,
@@ -46,6 +87,7 @@ def _spec(
         default_model="sonnet",
         default_timeout_seconds=180.0,
         writes_narrative=writes_narrative,
+        default_tags=TAGS.get(slug, []),
     )
 
 

@@ -112,6 +112,26 @@ class DependencyUsageResult(BaseModel):
     versions: list[str]
 
 
+class DependencyFreshnessItem(BaseModel):
+    name: str
+    ecosystem: str
+    current: str | None
+    latest: str | None
+    latest_released_at: str | None
+    gap: str  # up-to-date | patch | minor | major | unknown
+    gain: str | None = None  # AI one-liner on what upgrading gets you
+    latest_url: str | None = None  # changelog / release page for the latest version
+
+
+class DependencyFreshnessResult(BaseModel):
+    """On-demand check of each dependency's latest version + upgrade gap (Python/pip)."""
+
+    repository_id: uuid.UUID
+    generated: bool
+    generated_at: datetime | None = None
+    items: list[DependencyFreshnessItem] = []
+
+
 class GraphResult(BaseModel):
     """State of a repository's codebase graph (emerge) artifact.
 

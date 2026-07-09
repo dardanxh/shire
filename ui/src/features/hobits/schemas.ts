@@ -18,6 +18,7 @@ export function makeHobitConfigSchema(t: TFunction) {
     timeout_seconds: z
       .string()
       .refine((v) => Number(v) > 0, t("hobits.form.timeout.invalid")),
+    tags: z.string(), // comma-separated; split in the submit handler
   });
 }
 

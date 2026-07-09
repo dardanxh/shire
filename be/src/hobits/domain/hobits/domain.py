@@ -8,7 +8,7 @@ the structured result the agent must return; `HobitRunRecord` is the persisted r
 from __future__ import annotations
 
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import StrEnum
 from typing import Protocol
@@ -75,6 +75,7 @@ class HobitSpec:
     # When True, the run's document is also written to the repo's context pack as its L3 narrative
     # (only the onboarding hobit). Other hobits surface via their run + a briefing post only.
     writes_narrative: bool = False
+    default_tags: list[str] = field(default_factory=list)
 
 
 class Hobit(Protocol):
@@ -96,6 +97,7 @@ class HobitConfigOverride:
     charter: str | None
     instructions: str | None
     timeout_seconds: float | None
+    tags: list[str] | None
 
 
 @dataclass(frozen=True)
@@ -107,6 +109,7 @@ class HobitConfig:
     model: str
     charter: str
     instructions: str
+    tags: list[str]
     timeout_seconds: float
 
 
