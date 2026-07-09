@@ -340,6 +340,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/repositories/{repository_id}/architecture": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Architecture
+         * @description The architecture-diagram catalog with any previously generated Mermaid diagrams.
+         */
+        get: operations["architecture_api_v1_repositories__repository_id__architecture_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/architecture/{kind}/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate Architecture Diagram
+         * @description Generate one Mermaid architecture diagram (a hobit explores the clone; blocking).
+         */
+        post: operations["generate_architecture_diagram_api_v1_repositories__repository_id__architecture__kind__run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/repositories/{repository_id}/code-map": {
         parameters: {
             query?: never;
@@ -890,6 +930,52 @@ export interface components {
             health_checks: components["schemas"]["HealthCheck"][];
             /** Tool Runs */
             tool_runs: components["schemas"]["ToolRun"][];
+        };
+        /**
+         * ArchitectureDiagram
+         * @description One diagram in the catalog. Always present; `mermaid` is filled once generated.
+         */
+        ArchitectureDiagram: {
+            /** Kind */
+            kind: string;
+            /** Title */
+            title: string;
+            /** Description */
+            description: string;
+            /** Category */
+            category: string;
+            /** Mermaid Type */
+            mermaid_type: string;
+            /**
+             * Generated
+             * @default false
+             */
+            generated: boolean;
+            /** Generated At */
+            generated_at?: string | null;
+            /** Mermaid */
+            mermaid?: string | null;
+        };
+        /**
+         * ArchitectureResult
+         * @description The architecture-diagram catalog for a repository, with any cached diagrams filled in.
+         */
+        ArchitectureResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /**
+             * Diagrams
+             * @default []
+             */
+            diagrams: components["schemas"]["ArchitectureDiagram"][];
+            /**
+             * Agent Available
+             * @default true
+             */
+            agent_available: boolean;
         };
         /**
          * AuthMethod
@@ -2764,6 +2850,69 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DependencyFreshnessResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    architecture_api_v1_repositories__repository_id__architecture_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArchitectureResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_architecture_diagram_api_v1_repositories__repository_id__architecture__kind__run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+                kind: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArchitectureResult"];
                 };
             };
             /** @description Validation Error */

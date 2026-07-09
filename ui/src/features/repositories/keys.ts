@@ -25,6 +25,8 @@ export const repositoryKeys = {
   coupling: (id: string) => [...repositoryKeys.detail(id), "coupling"] as const,
   dependencyFreshness: (id: string) =>
     [...repositoryKeys.detail(id), "dependency-freshness"] as const,
+  architecture: (id: string) =>
+    [...repositoryKeys.detail(id), "architecture"] as const,
   codeMap: (id: string) => [...repositoryKeys.detail(id), "code-map"] as const,
   integrations: (id: string) =>
     [...repositoryKeys.detail(id), "integrations"] as const,

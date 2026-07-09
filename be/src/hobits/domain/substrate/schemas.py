@@ -132,6 +132,27 @@ class DependencyFreshnessResult(BaseModel):
     items: list[DependencyFreshnessItem] = []
 
 
+class ArchitectureDiagram(BaseModel):
+    """One diagram in the catalog. Always present; `mermaid` is filled once generated."""
+
+    kind: str
+    title: str
+    description: str
+    category: str  # Structural | Behavioral | Data
+    mermaid_type: str
+    generated: bool = False
+    generated_at: datetime | None = None
+    mermaid: str | None = None
+
+
+class ArchitectureResult(BaseModel):
+    """The architecture-diagram catalog for a repository, with any cached diagrams filled in."""
+
+    repository_id: uuid.UUID
+    diagrams: list[ArchitectureDiagram] = []
+    agent_available: bool = True
+
+
 class GraphResult(BaseModel):
     """State of a repository's codebase graph (emerge) artifact.
 

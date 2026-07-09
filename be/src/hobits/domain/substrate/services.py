@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session
 from hobits.core.exceptions import ConflictError, NotFoundError
 from hobits.core.settings import get_settings
 from hobits.domain.repository.repositories import SqlRepositoryRepository
+from hobits.domain.substrate import architecture
 from hobits.domain.substrate.domain import (
     Analysis,
     AnalysisStatus,
@@ -37,6 +38,8 @@ from hobits.domain.substrate.repositories import (
 )
 from hobits.domain.substrate.schemas import (
     AnalysisResult,
+    ArchitectureDiagram,
+    ArchitectureResult,
     CodeAgeCohort,
     CodeAgeResult,
     CodeMapResult,
@@ -468,6 +471,59 @@ class AnalysisService:
         )
         return self.dependency_freshness_status(repository_id)
 
+    # --- architecture diagrams (Mermaid via claude -p) ------------------------
+    def architecture_status(self, repository_id: uuid.UUID) -> ArchitectureResult:
+        """The diagram catalog, with any previously generated Mermaid filled in from disk cache."""
+        out_dir = self._artifact_dir("architecture", repository_id)
+        diagrams: list[ArchitectureDiagram] = []
+        for kind in architecture.CATALOG:
+            entry = ArchitectureDiagram(
+                kind=kind.slug,
+                title=kind.title,
+                description=kind.description,
+                category=kind.category,
+                mermaid_type=kind.mermaid_type,
+            )
+            cache = out_dir / f"{kind.slug}.json"
+            if cache.is_file():
+                try:
+                    mermaid = json.loads(cache.read_text()).get("mermaid")
+                except (OSError, json.JSONDecodeError, ValueError, TypeError):
+                    mermaid = None
+                if mermaid:
+                    entry.mermaid = str(mermaid)
+                    entry.generated = True
+                    entry.generated_at = _mtime(cache)
+            diagrams.append(entry)
+        return ArchitectureResult(
+            repository_id=repository_id,
+            diagrams=diagrams,
+            agent_available=_new_agent().available(),
+        )
+
+    def generate_architecture_diagram(
+        self, repository_id: uuid.UUID, kind_slug: str
+    ) -> ArchitectureResult:
+        """Have a hobit explore the clone and emit one Mermaid diagram of the requested kind."""
+        kind = architecture.CATALOG_BY_SLUG.get(kind_slug)
+        if kind is None:
+            raise NotFoundError(f"Unknown architecture diagram: {kind_slug}")
+        repo = self._require_cloned_repo(repository_id)
+        agent = _new_agent()
+        if not agent.available():
+            raise ConflictError("The Claude CLI is not available to generate diagrams.")
+        prompt = architecture.build_prompt(kind, repo.coordinates.slug)
+        run = agent.run(prompt, cwd=repo.clone_path)
+        if not run.ok:
+            raise ConflictError(run.error or "Diagram generation failed.")
+        mermaid = _extract_mermaid_block(run.text)
+        if not mermaid:
+            raise ConflictError("The agent did not return a valid Mermaid diagram.")
+        out_dir = self._artifact_dir("architecture", repository_id)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / f"{kind.slug}.json").write_text(json.dumps({"mermaid": mermaid}))
+        return self.architecture_status(repository_id)
+
     # --- code city (CodeCharta) -----------------------------------------------
     def code_map_status(self, repository_id: uuid.UUID) -> CodeMapResult:
         adapter = CodeChartaAdapter()
@@ -525,16 +581,43 @@ def _mtime(path: Path) -> datetime:
     return datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)
 
 
+def _new_agent() -> ClaudeAgent:
+    """A ClaudeAgent configured from settings (read-only tools, Max subscription, no API key)."""
+    settings = get_settings()
+    return ClaudeAgent(
+        binary=settings.claude_binary,
+        model=settings.claude_model,
+        timeout_seconds=settings.claude_timeout_seconds,
+    )
+
+
+def _extract_mermaid_block(text: str) -> str | None:
+    """Pull the Mermaid diagram out of the agent's text — the last ```mermaid fence, else a bare
+    diagram that starts with a known Mermaid keyword."""
+    marker = text.rfind("```mermaid")
+    if marker != -1:
+        after = text.find("\n", marker)
+        close = text.find("```", after + 1) if after != -1 else -1
+        if after != -1 and close > after:
+            block = text[after:close].strip()
+            return block or None
+    # No fence — accept a raw diagram if the text itself looks like Mermaid.
+    stripped = text.strip()
+    keywords = (
+        "flowchart", "graph", "sequenceDiagram", "stateDiagram", "erDiagram",
+        "classDiagram", "journey", "gantt", "C4Context",
+    )
+    if stripped.startswith(keywords):
+        return stripped
+    return None
+
+
 def _dependency_gains(
     outdated: list[DependencyFreshnessItem], cwd: str
 ) -> dict[str, str]:
     """One `claude -p` call → {package: one-line 'what you gain by upgrading'}. Empty on any failure
     (the deterministic columns still populate)."""
-    agent = ClaudeAgent(
-        binary=get_settings().claude_binary,
-        model=get_settings().claude_model,
-        timeout_seconds=get_settings().claude_timeout_seconds,
-    )
+    agent = _new_agent()
     if not agent.available():
         return {}
     listing = "\n".join(

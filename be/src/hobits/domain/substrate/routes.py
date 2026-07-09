@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from hobits.core.db import get_session
 from hobits.domain.substrate.schemas import (
     AnalysisResult,
+    ArchitectureResult,
     CodeAgeResult,
     CodeMapResult,
     CouplingResult,
@@ -141,6 +142,25 @@ def generate_dependency_freshness(
 ) -> DependencyFreshnessResult:
     """Fetch latest versions from PyPI, compute gaps, and summarize upgrade gains (blocking)."""
     return AnalysisService(session).generate_dependency_freshness(repository_id)
+
+
+@router.get("/repositories/{repository_id}/architecture", response_model=ArchitectureResult)
+def architecture(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> ArchitectureResult:
+    """The architecture-diagram catalog with any previously generated Mermaid diagrams."""
+    return AnalysisService(session).architecture_status(repository_id)
+
+
+@router.post(
+    "/repositories/{repository_id}/architecture/{kind}/run",
+    response_model=ArchitectureResult,
+)
+def generate_architecture_diagram(
+    repository_id: uuid.UUID, kind: str, session: Session = Depends(get_session)
+) -> ArchitectureResult:
+    """Generate one Mermaid architecture diagram (a hobit explores the clone; blocking)."""
+    return AnalysisService(session).generate_architecture_diagram(repository_id, kind)
 
 
 @router.get("/repositories/{repository_id}/code-map", response_model=CodeMapResult)

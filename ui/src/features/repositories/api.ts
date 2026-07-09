@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   type AnalysisOut,
+  type ArchitectureOut,
   api,
   type CodeAgeOut,
   type CodeMapOut,
@@ -404,6 +405,39 @@ export function useGenerateDependencyFreshnessMutation(id: string) {
     },
     onSuccess: (data) =>
       queryClient.setQueryData(repositoryKeys.dependencyFreshness(id), data),
+  });
+}
+
+/** Architecture-diagram catalog + any previously generated Mermaid diagrams. */
+export function useArchitectureQuery(id: string) {
+  return useQuery<ArchitectureOut>({
+    queryKey: repositoryKeys.architecture(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/architecture",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+  });
+}
+
+/** Generate one Mermaid diagram of the given kind (a hobit explores the clone; blocking). */
+export function useGenerateArchitectureDiagramMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (kind: string): Promise<ArchitectureOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/architecture/{kind}/run",
+        { params: { path: { repository_id: id, kind } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) =>
+      queryClient.setQueryData(repositoryKeys.architecture(id), data),
   });
 }
 

@@ -216,6 +216,7 @@
       "tabs": {
         "overview": "Overview",
         "code": "Code",
+        "architecture": "Architecture",
         "activity": "Activity",
         "dependencies": "Dependencies",
         "security": "Security",
@@ -235,6 +236,23 @@
         "reset_toast": "Reverted to the generated context",
         "revert": "Discard changes",
         "hint": "Saved as an override — regenerating the analysis won't overwrite it. Reset restores the auto-generated context."
+      },
+      "architecture": {
+        "desc": "Architecture diagrams a hobit draws by exploring the actual code. Pick any diagram below and generate it on demand — each is rendered as Mermaid, with the source available to copy.",
+        "cat_structural": "Structural",
+        "cat_behavioral": "Behavioral",
+        "cat_data": "Data",
+        "generate": "Generate",
+        "regenerate": "Regenerate",
+        "generating": "Generating…",
+        "empty": "Not generated yet.",
+        "view_source": "View source",
+        "copy": "Copy",
+        "copied": "Diagram source copied",
+        "generated_at": "Generated {{when}}",
+        "toast": "{{title}} generated",
+        "render_error": "This diagram couldn't be rendered. View the source below to inspect it.",
+        "unavailable": "The Claude CLI isn't available on the server, so diagrams can't be generated."
       }
     },
     "integrations": {

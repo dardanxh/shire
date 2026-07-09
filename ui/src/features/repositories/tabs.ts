@@ -10,6 +10,7 @@
 export const REPOSITORY_TAB_VALUES = [
   "overview",
   "code",
+  "architecture",
   "activity",
   "dependencies",
   "security",
