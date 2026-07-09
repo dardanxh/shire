@@ -58,6 +58,9 @@ class SqlHobitRunRepository:
 
     def add(self, run: HobitRunRecord) -> None:
         self._session.add(_to_row(run))
+        # Flush now so a dependent briefing_items insert (FK → hobit_runs.id) in the same
+        # transaction sees the row, regardless of autoflush timing.
+        self._session.flush()
 
     def list_for_repository(self, repository_id: uuid.UUID) -> list[HobitRunRecord]:
         stmt = (

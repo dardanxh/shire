@@ -715,11 +715,51 @@ export interface paths {
         };
         /**
          * Get Briefing
-         * @description All briefing items grouped by tier (NOW / DAILY / WEEKLY), newest first.
+         * @description The briefing feed — every hobit post, newest first. Optionally filtered to one hobit.
          */
         get: operations["get_briefing_api_v1_briefing_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/briefing/{item_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark Post Read
+         * @description Mark a single post read.
+         */
+        post: operations["mark_post_read_api_v1_briefing__item_id__read_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/briefing/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark Read
+         * @description Mark all posts read (or all of one hobit's posts when `hobit_slug` is given).
+         */
+        post: operations["mark_read_api_v1_briefing_read_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -792,7 +832,10 @@ export interface components {
          * @enum {string}
          */
         AuthMethod: "token" | "basic";
-        /** BriefingItemResult */
+        /**
+         * BriefingItemResult
+         * @description One post in the briefing feed — authored by a hobit, about a repository.
+         */
         BriefingItemResult: {
             /**
              * Id
@@ -804,6 +847,8 @@ export interface components {
              * Format: uuid
              */
             repository_id: string;
+            /** Repository Slug */
+            repository_slug: string;
             /**
              * Hobit Run Id
              * Format: uuid
@@ -826,6 +871,8 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+            /** Read At */
+            read_at: string | null;
         };
         /** CiCdConfig */
         CiCdConfig: {
@@ -1520,6 +1567,8 @@ export interface components {
             instructions: string;
             /** Timeout Seconds */
             timeout_seconds: number;
+            /** Unread Count */
+            unread_count: number;
             last_run: components["schemas"]["HobitRunResult"] | null;
         };
         /**
@@ -1634,6 +1683,14 @@ export interface components {
             files: number;
             /** Pct */
             pct: number;
+        };
+        /**
+         * MarkReadRequest
+         * @description Mark all posts read — scoped to one hobit when `hobit_slug` is set, else the whole feed.
+         */
+        MarkReadRequest: {
+            /** Hobit Slug */
+            hobit_slug?: string | null;
         };
         /** MemberDetailResult */
         MemberDetailResult: {
@@ -1894,18 +1951,6 @@ export interface components {
             message: string;
             /** Account */
             account?: string | null;
-        };
-        /**
-         * TieredBriefingResult
-         * @description Briefing items grouped by tier — the shape the UI renders as three sections.
-         */
-        TieredBriefingResult: {
-            /** Now */
-            now: components["schemas"]["BriefingItemResult"][];
-            /** Daily */
-            daily: components["schemas"]["BriefingItemResult"][];
-            /** Weekly */
-            weekly: components["schemas"]["BriefingItemResult"][];
         };
         /**
          * ToolLogResult
@@ -3369,7 +3414,9 @@ export interface operations {
     };
     get_briefing_api_v1_briefing_get: {
         parameters: {
-            query?: never;
+            query?: {
+                hobit_slug?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -3382,7 +3429,76 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TieredBriefingResult"];
+                    "application/json": components["schemas"]["BriefingItemResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_post_read_api_v1_briefing__item_id__read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_read_api_v1_briefing_read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MarkReadRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

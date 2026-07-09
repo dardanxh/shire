@@ -30,3 +30,7 @@ class BriefingItemRow(Base):
     confidence: Mapped[int] = mapped_column(Integer)
     urgency: Mapped[int] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    # When the user marked this post seen. NULL = unread (drives the per-hobit unread count).
+    read_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, index=True
+    )

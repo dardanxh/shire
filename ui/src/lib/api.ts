@@ -23,7 +23,6 @@ export type HobitOut = components["schemas"]["HobitResult"];
 export type HobitConfigUpdate = components["schemas"]["HobitConfigUpdate"];
 export type HobitRunOut = components["schemas"]["HobitRunResult"];
 export type HobitRunDetailOut = components["schemas"]["HobitRunDetailResult"];
-export type TieredBriefingOut = components["schemas"]["TieredBriefingResult"];
 export type BriefingItemOut = components["schemas"]["BriefingItemResult"];
 export type GraphOut = components["schemas"]["GraphResult"];
 export type CodeAgeOut = components["schemas"]["CodeAgeResult"];

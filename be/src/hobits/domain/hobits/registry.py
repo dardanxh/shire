@@ -1,19 +1,19 @@
 """The code registry of hobit definitions (mirrors the external-tools registry).
 
-Hobit *behavior* lives in code; only *config* is data. Add a hobit by appending an instance here.
+Hobit *behavior* lives in code (the generic RepoHobit engine); a hobit is defined by its `HobitSpec`
+in `roster.py`. Only *config* (charter, instructions, model, ...) is data.
 """
 
 from __future__ import annotations
 
 from hobits.domain.hobits.domain import Hobit, HobitSpec
-from hobits.domain.hobits.repo_onboarding import RepoOnboardingHobit
+from hobits.domain.hobits.roster import HOBITS
 
-_HOBITS: list[Hobit] = [RepoOnboardingHobit()]
-_BY_SLUG: dict[str, Hobit] = {h.spec.slug: h for h in _HOBITS}
+_BY_SLUG: dict[str, Hobit] = {h.spec.slug: h for h in HOBITS}
 
 
 def all_specs() -> list[HobitSpec]:
-    return [h.spec for h in _HOBITS]
+    return [h.spec for h in HOBITS]
 
 
 def get_hobit(slug: str) -> Hobit | None:

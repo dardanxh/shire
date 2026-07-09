@@ -2,9 +2,16 @@ import {
   type ColumnDef,
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
+  type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import type { ReactNode } from "react";
+import {
+  ChevronDownIcon,
+  ChevronsUpDownIcon,
+  ChevronUpIcon,
+} from "lucide-react";
+import { type ReactNode, useState } from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -49,10 +56,14 @@ export function DataTable<TData>({
   onRowClick,
   skeletonRows = 6,
 }: DataTableProps<TData>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
   const table = useReactTable({
     data,
     columns,
+    state: { sorting },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   return (
@@ -65,12 +76,24 @@ export function DataTable<TData>({
                 key={header.id}
                 className={header.column.columnDef.meta?.className}
               >
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(
+                {header.isPlaceholder ? null : header.column.getCanSort() ? (
+                  <button
+                    type="button"
+                    onClick={header.column.getToggleSortingHandler()}
+                    className="inline-flex items-center gap-1 transition-colors hover:text-foreground"
+                  >
+                    {flexRender(
                       header.column.columnDef.header,
                       header.getContext(),
                     )}
+                    <SortIcon direction={header.column.getIsSorted()} />
+                  </button>
+                ) : (
+                  flexRender(
+                    header.column.columnDef.header,
+                    header.getContext(),
+                  )
+                )}
               </TableHead>
             ))}
           </TableRow>
@@ -128,4 +151,10 @@ export function DataTable<TData>({
       </TableBody>
     </Table>
   );
+}
+
+function SortIcon({ direction }: { direction: false | "asc" | "desc" }) {
+  if (direction === "asc") return <ChevronUpIcon className="size-3.5" />;
+  if (direction === "desc") return <ChevronDownIcon className="size-3.5" />;
+  return <ChevronsUpDownIcon className="size-3.5 text-muted-foreground/50" />;
 }

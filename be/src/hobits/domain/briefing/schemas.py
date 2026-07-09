@@ -9,8 +9,11 @@ from pydantic import BaseModel
 
 
 class BriefingItemResult(BaseModel):
+    """One post in the briefing feed — authored by a hobit, about a repository."""
+
     id: uuid.UUID
     repository_id: uuid.UUID
+    repository_slug: str
     hobit_run_id: uuid.UUID
     hobit_slug: str
     tier: str
@@ -19,11 +22,4 @@ class BriefingItemResult(BaseModel):
     confidence: int
     urgency: int
     created_at: datetime
-
-
-class TieredBriefingResult(BaseModel):
-    """Briefing items grouped by tier — the shape the UI renders as three sections."""
-
-    now: list[BriefingItemResult]
-    daily: list[BriefingItemResult]
-    weekly: list[BriefingItemResult]
+    read_at: datetime | None

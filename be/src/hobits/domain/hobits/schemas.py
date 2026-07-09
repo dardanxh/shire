@@ -83,6 +83,7 @@ class HobitResult(BaseModel):
     charter: str
     instructions: str
     timeout_seconds: float
+    unread_count: int
     last_run: HobitRunResult | None
 
 

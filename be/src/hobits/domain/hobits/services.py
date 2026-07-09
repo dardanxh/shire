@@ -55,10 +55,12 @@ class HobitService:
 
     # --- config / listing -----------------------------------------------------
     def list_hobits(self) -> list[HobitResult]:
-        return [self._to_result(spec) for spec in all_specs()]
+        counts = self._briefing.unread_counts()
+        return [self._to_result(spec, counts.get(spec.slug, 0)) for spec in all_specs()]
 
     def get_hobit_result(self, slug: str) -> HobitResult:
-        return self._to_result(_require_spec(slug))
+        spec = _require_spec(slug)
+        return self._to_result(spec, self._briefing.unread_count(slug))
 
     def update_config(self, slug: str, update: HobitConfigUpdate) -> HobitResult:
         _require_spec(slug)
@@ -112,7 +114,8 @@ class HobitService:
                 _run_record(
                     repository_id, slug, HobitRunStatus.agent_unavailable, pack.identity.commit_sha,
                     started=started, error="The `claude` CLI is not available on the server.",
-                )
+                ),
+                writes_narrative=hobit.spec.writes_narrative,
             )
 
         ctx = HobitContext(
@@ -128,7 +131,7 @@ class HobitService:
             cwd=ctx.clone_path,
         )
         record = self._interpret(hobit, agent_run, repository_id, slug, pack, started)
-        return self._finish(record)
+        return self._finish(record, writes_narrative=hobit.spec.writes_narrative)
 
     # --- internals ------------------------------------------------------------
     def _interpret(
@@ -176,10 +179,13 @@ class HobitService:
             duration=agent_run.duration_seconds,
         )
 
-    def _finish(self, record: HobitRunRecord) -> HobitRunResult:
-        """Persist the run and, when it produced a narrative/score, emit the overlays."""
+    def _finish(
+        self, record: HobitRunRecord, *, writes_narrative: bool
+    ) -> HobitRunResult:
+        """Persist the run and emit its overlays: a briefing post always; the context-pack
+        narrative only for hobits that own it (onboarding)."""
         self._runs.add(record)
-        if record.narrative is not None:
+        if writes_narrative and record.narrative is not None:
             self._context.set_narrative(record.repository_id, record.narrative)
         self._briefing.create_from_run(record)  # no-op for unscored runs
         return HobitRunResult.of(record)
@@ -187,7 +193,7 @@ class HobitService:
     def _effective_config(self, spec: HobitSpec) -> HobitConfig:
         return _merge_config(spec, self._configs.get(spec.slug))
 
-    def _to_result(self, spec: HobitSpec) -> HobitResult:
+    def _to_result(self, spec: HobitSpec, unread_count: int) -> HobitResult:
         config = self._effective_config(spec)
         latest = self._runs.latest_for_hobit(spec.slug)
         last = HobitRunResult.of(latest) if latest else None
@@ -201,6 +207,7 @@ class HobitService:
             charter=config.charter,
             instructions=config.instructions,
             timeout_seconds=config.timeout_seconds,
+            unread_count=unread_count,
             last_run=last,
         )
 

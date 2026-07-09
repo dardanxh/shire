@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowLeftIcon } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { DataTable } from "@/components/shared/DataTable";
@@ -14,15 +14,43 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { extractErrorMessage, type HobitRunOut } from "@/lib/api";
+import {
+  BriefingFeed,
+  BriefingPostDialog,
+  useBriefingQuery,
+  useMarkHobitPostsReadMutation,
+  useMarkPostReadMutation,
+} from "@/features/briefing";
+import {
+  type BriefingItemOut,
+  extractErrorMessage,
+  type HobitRunOut,
+} from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
 import { useHobitQuery, useHobitRunsQuery } from "../api";
 import { HobitConfigForm } from "./HobitConfigForm";
+import { HobitRunner } from "./HobitRunner";
 
 export function HobitViewPage({ slug }: { slug: string }) {
   const { t } = useTranslation();
   const { data: hobit, isPending, isError, error } = useHobitQuery(slug);
   const { data: runs } = useHobitRunsQuery(slug);
+  const { data: posts } = useBriefingQuery(slug);
+  const { mutate: markAllRead } = useMarkHobitPostsReadMutation();
+  const { mutate: markRead } = useMarkPostReadMutation();
+  const [selectedPost, setSelectedPost] = useState<BriefingItemOut | null>(
+    null,
+  );
+
+  // Opening a hobit marks its posts seen (clears its unread count).
+  useEffect(() => {
+    markAllRead(slug);
+  }, [slug, markAllRead]);
+
+  const openPost = (post: BriefingItemOut) => {
+    setSelectedPost(post);
+    if (!post.read_at) markRead(post.id);
+  };
 
   const columns = useMemo<ColumnDef<HobitRunOut>[]>(
     () => [
@@ -102,6 +130,28 @@ export function HobitViewPage({ slug }: { slug: string }) {
           <HobitConfigForm hobit={hobit} />
         </CardContent>
       </Card>
+
+      <HobitRunner slug={hobit.slug} />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("hobits.view.timeline_title")}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {(posts?.length ?? 0) === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {t("briefing.hobit_timeline_empty")}
+            </p>
+          ) : (
+            <BriefingFeed items={posts ?? []} onSelect={openPost} />
+          )}
+        </CardContent>
+      </Card>
+
+      <BriefingPostDialog
+        post={selectedPost}
+        onClose={() => setSelectedPost(null)}
+      />
 
       <Card className="overflow-hidden p-0">
         <CardHeader className="p-6 pb-0">

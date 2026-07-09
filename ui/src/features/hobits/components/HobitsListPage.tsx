@@ -6,8 +6,17 @@ import { useTranslation } from "react-i18next";
 import { DataTable } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { extractErrorMessage, type HobitOut } from "@/lib/api";
-import { useHobitsQuery } from "../api";
+import { useHobitsQuery, useUpdateHobitMutation } from "../api";
+
+const MODEL_OPTIONS = ["sonnet", "opus", "haiku"];
 
 export function HobitsListPage() {
   const { t } = useTranslation();
@@ -29,37 +38,31 @@ export function HobitsListPage() {
         ),
       },
       {
-        accessorKey: "layer",
-        header: t("hobits.list.col_layer"),
-        cell: ({ row }) => (
-          <Badge variant="outline" className="font-mono text-xs">
-            {row.original.layer}
-          </Badge>
-        ),
+        accessorKey: "unread_count",
+        header: t("hobits.list.col_unread"),
+        cell: ({ row }) =>
+          row.original.unread_count > 0 ? (
+            <Badge>{row.original.unread_count}</Badge>
+          ) : (
+            <span className="text-xs text-muted-foreground">—</span>
+          ),
       },
       {
         accessorKey: "model",
         header: t("hobits.list.col_model"),
-        cell: ({ row }) => (
-          <span className="font-mono text-xs text-muted-foreground">
-            {row.original.model}
-          </span>
-        ),
+        meta: { isAction: true },
+        cell: ({ row }) => <ModelCell hobit={row.original} />,
       },
       {
         accessorKey: "enabled",
         header: t("hobits.list.col_status"),
-        cell: ({ row }) => (
-          <Badge variant={row.original.enabled ? "secondary" : "outline"}>
-            {row.original.enabled
-              ? t("hobits.status.enabled")
-              : t("hobits.status.disabled")}
-          </Badge>
-        ),
+        meta: { isAction: true },
+        cell: ({ row }) => <StatusCell hobit={row.original} />,
       },
       {
         id: "last_run",
         header: t("hobits.list.col_last_run"),
+        enableSorting: false,
         cell: ({ row }) =>
           row.original.last_run ? (
             <span className="text-xs text-muted-foreground">
@@ -108,4 +111,62 @@ export function HobitsListPage() {
       </Card>
     </div>
   );
+}
+
+/** Inline model picker — saves the full config with only `model` changed. */
+function ModelCell({ hobit }: { hobit: HobitOut }) {
+  const { mutate: save, isPending } = useUpdateHobitMutation(hobit.slug);
+  return (
+    <Select
+      value={hobit.model}
+      onValueChange={(model) => model && save({ ...configOf(hobit), model })}
+      disabled={isPending}
+    >
+      <SelectTrigger className="h-7 w-28 text-xs">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {MODEL_OPTIONS.map((m) => (
+          <SelectItem key={m} value={m}>
+            {m}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+/** Inline enabled/disabled toggle. */
+function StatusCell({ hobit }: { hobit: HobitOut }) {
+  const { t } = useTranslation();
+  const { mutate: save, isPending } = useUpdateHobitMutation(hobit.slug);
+  return (
+    <label className="inline-flex cursor-pointer items-center gap-2 text-xs">
+      <input
+        type="checkbox"
+        checked={hobit.enabled}
+        disabled={isPending}
+        onChange={(e) =>
+          save({ ...configOf(hobit), enabled: e.target.checked })
+        }
+        className="size-4 rounded border border-input accent-primary"
+      />
+      <span className="text-muted-foreground">
+        {hobit.enabled
+          ? t("hobits.status.enabled")
+          : t("hobits.status.disabled")}
+      </span>
+    </label>
+  );
+}
+
+/** The editable config fields carried on a row, as a HobitConfigUpdate body. */
+function configOf(h: HobitOut) {
+  return {
+    enabled: h.enabled,
+    model: h.model,
+    charter: h.charter,
+    instructions: h.instructions,
+    timeout_seconds: h.timeout_seconds,
+  };
 }

@@ -72,6 +72,9 @@ class HobitSpec:
     default_instructions: str
     default_model: str
     default_timeout_seconds: float
+    # When True, the run's document is also written to the repo's context pack as its L3 narrative
+    # (only the onboarding hobit). Other hobits surface via their run + a briefing post only.
+    writes_narrative: bool = False
 
 
 class Hobit(Protocol):
