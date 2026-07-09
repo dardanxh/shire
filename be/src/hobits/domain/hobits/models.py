@@ -26,6 +26,18 @@ class HobitConfigRow(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
+class RepositoryHobitRow(Base):
+    """Per-repo hobit access allow-list — which hobits may run on a repository."""
+
+    __tablename__ = "repository_hobits"
+
+    repository_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("repositories.id", ondelete="CASCADE"), primary_key=True
+    )
+    hobit_slug: Mapped[str] = mapped_column(String(64), primary_key=True)
+    linked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
 class HobitRunRow(Base):
     """One hobit run against one repository (append-only history)."""
 

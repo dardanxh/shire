@@ -33,6 +33,38 @@
       "toast_failed": "Analysis failed for {{slug}}",
       "toast_failed_desc": "The repository could not be analyzed."
     },
+    "wizard": {
+      "title": "Add a repository",
+      "step_details_desc": "Where is the repository?",
+      "step_tools_desc": "Which tools should run on this repository?",
+      "step_hobits_desc": "Which hobits should get access to this repository?",
+      "step_confirm_desc": "Review and start onboarding.",
+      "tools_empty": "No tools available.",
+      "hobits_empty": "No hobits available.",
+      "tool_missing": "not installed",
+      "analyzing": "Cloning and analyzing… this can take a minute.",
+      "sum_url": "Repository",
+      "sum_tools": "Tools",
+      "sum_hobits": "Hobits",
+      "count_selected": "{{count}} selected",
+      "none": "None",
+      "back": "Back",
+      "next": "Next",
+      "finish": "Add & analyze"
+    },
+    "hobits": {
+      "assigned_title": "Assigned hobits",
+      "assigned_empty": "No hobits assigned yet. Use the panel below to grant access.",
+      "manage_title": "Manage access",
+      "none_available": "No hobits available.",
+      "last_run": "Last run: {{status}} · {{when}}",
+      "never": "Not run on this repo yet",
+      "run": "Run",
+      "running": "Running…",
+      "run_done": "Run finished: {{status}}",
+      "save": "Save",
+      "saved": "Hobit access updated"
+    },
     "status": {
       "registered": "registered",
       "cloning": "cloning",
@@ -177,7 +209,8 @@
         "dependencies": "Dependencies",
         "security": "Security",
         "integrations": "Integrations",
-        "context": "Context"
+        "context": "Context",
+        "hobits": "Hobits"
       },
       "context": {
         "intro": "The precomputed context an AI agent reads first — every tool's findings folded into one Markdown snapshot, so it needn't call a dozen endpoints. Edit it to add your own notes; your version is saved as an override and becomes what the agent reads.",

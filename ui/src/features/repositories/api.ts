@@ -8,6 +8,7 @@ import {
   type ContextMarkdownOut,
   type CouplingOut,
   type GraphOut,
+  type HobitOut,
   type HobitRunOut,
   type RepositoryOut,
   type ToolLogOut,
@@ -161,6 +162,67 @@ export function useRunOnboardingMutation(id: string) {
   });
 }
 
+/** The hobits assigned to this repository (its access allow-list). */
+export function useRepoHobitsQuery(id: string) {
+  return useQuery<HobitOut[]>({
+    queryKey: repositoryKeys.hobits(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/hobits",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+  });
+}
+
+/** Replace the hobits assigned to a repository (id in the variables — the wizard only knows it
+ * after ingest). */
+export function useSetRepoHobitsMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      slugs,
+    }: {
+      id: string;
+      slugs: string[];
+    }): Promise<HobitOut[]> => {
+      const { data, error } = await api.PUT(
+        "/api/v1/repositories/{repository_id}/hobits",
+        { params: { path: { repository_id: id } }, body: { slugs } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data, vars) => {
+      queryClient.setQueryData(repositoryKeys.hobits(vars.id), data);
+    },
+  });
+}
+
+/** Run an assigned hobit against this repository (blocking). */
+export function useRunRepoHobitMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (slug: string): Promise<HobitRunOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/hobits/{slug}/run",
+        { params: { path: { repository_id: id, slug } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.hobitRuns(id) });
+      queryClient.invalidateQueries({ queryKey: ["hobits"] });
+      queryClient.invalidateQueries({ queryKey: ["briefing"] });
+    },
+  });
+}
+
 /** Ingest a new repository by git URL (clone + analyze, blocking). */
 export function useIngestRepositoryMutation() {
   const queryClient = useQueryClient();
@@ -168,12 +230,18 @@ export function useIngestRepositoryMutation() {
     mutationFn: async ({
       url,
       connectionId,
+      toolIds,
     }: {
       url: string;
       connectionId?: string | null;
+      toolIds?: string[] | null;
     }): Promise<RepositoryOut> => {
       const { data, error } = await api.POST("/api/v1/repositories", {
-        body: { url, connection_id: connectionId || null },
+        body: {
+          url,
+          connection_id: connectionId || null,
+          tool_ids: toolIds ?? null,
+        },
       });
       if (error) throw error;
       return data;

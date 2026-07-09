@@ -95,3 +95,9 @@ class HobitConfigUpdate(BaseModel):
     charter: str
     instructions: str
     timeout_seconds: float
+
+
+class SetRepoHobitsRequest(BaseModel):
+    """The hobit slugs to assign to a repository (replaces the current set)."""
+
+    slugs: list[str]

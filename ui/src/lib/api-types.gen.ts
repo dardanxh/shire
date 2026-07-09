@@ -652,6 +652,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/repositories/{repository_id}/hobits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Repo Hobits
+         * @description The hobits assigned to this repository (its access allow-list).
+         */
+        get: operations["list_repo_hobits_api_v1_repositories__repository_id__hobits_get"];
+        /**
+         * Set Repo Hobits
+         * @description Replace the hobits assigned to this repository.
+         */
+        put: operations["set_repo_hobits_api_v1_repositories__repository_id__hobits_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/repositories/{repository_id}/hobits/{slug}/run": {
         parameters: {
             query?: never;
@@ -1666,12 +1690,17 @@ export interface components {
         /**
          * IngestRepositoryRequest
          * @description Create input: a git URL to clone + analyze, optionally via a stored connection.
+         *
+         *     `tool_ids` (when provided) pins exactly which integrations run — bypassing the language-based
+         *     auto-link. `None` keeps the auto-link default.
          */
         IngestRepositoryRequest: {
             /** Url */
             url: string;
             /** Connection Id */
             connection_id?: string | null;
+            /** Tool Ids */
+            tool_ids?: string[] | null;
         };
         /** LanguageStat */
         LanguageStat: {
@@ -1925,6 +1954,14 @@ export interface components {
             confidence: number;
             /** Urgency */
             urgency: number;
+        };
+        /**
+         * SetRepoHobitsRequest
+         * @description The hobit slugs to assign to a repository (replaces the current set).
+         */
+        SetRepoHobitsRequest: {
+            /** Slugs */
+            slugs: string[];
         };
         /**
          * TestConnectionRequest
@@ -3304,6 +3341,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HobitRunResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_repo_hobits_api_v1_repositories__repository_id__hobits_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_repo_hobits_api_v1_repositories__repository_id__hobits_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetRepoHobitsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitResult"][];
                 };
             };
             /** @description Validation Error */

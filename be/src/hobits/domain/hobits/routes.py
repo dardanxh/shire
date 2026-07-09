@@ -13,6 +13,7 @@ from hobits.domain.hobits.schemas import (
     HobitResult,
     HobitRunDetailResult,
     HobitRunResult,
+    SetRepoHobitsRequest,
 )
 from hobits.domain.hobits.services import HobitService
 
@@ -41,6 +42,24 @@ def update_hobit(
 def list_hobit_runs(slug: str, session: Session = Depends(get_session)) -> list[HobitRunResult]:
     """This hobit's runs across every repository, newest first."""
     return HobitService(session).list_hobit_runs(slug)
+
+
+@router.get("/repositories/{repository_id}/hobits", response_model=list[HobitResult])
+def list_repo_hobits(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> list[HobitResult]:
+    """The hobits assigned to this repository (its access allow-list)."""
+    return HobitService(session).list_repo_hobits(repository_id)
+
+
+@router.put("/repositories/{repository_id}/hobits", response_model=list[HobitResult])
+def set_repo_hobits(
+    repository_id: uuid.UUID,
+    body: SetRepoHobitsRequest,
+    session: Session = Depends(get_session),
+) -> list[HobitResult]:
+    """Replace the hobits assigned to this repository."""
+    return HobitService(session).set_repo_hobits(repository_id, body.slugs)
 
 
 @router.post(

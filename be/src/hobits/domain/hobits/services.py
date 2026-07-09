@@ -32,6 +32,7 @@ from hobits.domain.hobits.registry import all_specs, get_hobit
 from hobits.domain.hobits.repositories import (
     SqlHobitConfigRepository,
     SqlHobitRunRepository,
+    SqlRepositoryHobitRepository,
 )
 from hobits.domain.hobits.schemas import (
     HobitConfigUpdate,
@@ -50,8 +51,26 @@ class HobitService:
         self._context = ContextService(session)
         self._configs = SqlHobitConfigRepository(session)
         self._runs = SqlHobitRunRepository(session)
+        self._access = SqlRepositoryHobitRepository(session)
         self._briefing = BriefingService(session)
         self._agent_override = agent  # injectable for tests; else built per-run from config
+
+    # --- per-repo access ------------------------------------------------------
+    def list_repo_hobits(self, repository_id: uuid.UUID) -> list[HobitResult]:
+        """The hobits assigned to a repository (its allow-list)."""
+        assigned = self._access.linked_slugs(repository_id)
+        counts = self._briefing.unread_counts()
+        return [
+            self._to_result(spec, counts.get(spec.slug, 0))
+            for spec in all_specs()
+            if spec.slug in assigned
+        ]
+
+    def set_repo_hobits(self, repository_id: uuid.UUID, slugs: list[str]) -> list[HobitResult]:
+        """Replace a repository's assigned hobits (validated against the registry)."""
+        valid = {s for s in slugs if get_hobit(s) is not None}
+        self._access.set_all(repository_id, valid)
+        return self.list_repo_hobits(repository_id)
 
     # --- config / listing -----------------------------------------------------
     def list_hobits(self) -> list[HobitResult]:
@@ -92,6 +111,13 @@ class HobitService:
         hobit = get_hobit(slug)
         if hobit is None:
             raise NotFoundError(f"Unknown hobit: {slug}")
+        # Access gate: Foundational hobits (repo-onboarding) are always allowed; others must be
+        # assigned to the repository.
+        if (
+            hobit.spec.category != "Foundational"
+            and slug not in self._access.linked_slugs(repository_id)
+        ):
+            raise ConflictError(f"Hobit '{slug}' is not assigned to this repository.")
         config = self._effective_config(hobit.spec)
         if not config.enabled:
             raise ConflictError(f"Hobit '{slug}' is disabled.")

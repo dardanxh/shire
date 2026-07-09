@@ -19,6 +19,7 @@ export const repositoryKeys = {
   context: (id: string) => [...repositoryKeys.detail(id), "context"] as const,
   hobitRuns: (id: string) =>
     [...repositoryKeys.detail(id), "hobit-runs"] as const,
+  hobits: (id: string) => [...repositoryKeys.detail(id), "hobits"] as const,
   graph: (id: string) => [...repositoryKeys.detail(id), "graph"] as const,
   codeAge: (id: string) => [...repositoryKeys.detail(id), "code-age"] as const,
   coupling: (id: string) => [...repositoryKeys.detail(id), "coupling"] as const,

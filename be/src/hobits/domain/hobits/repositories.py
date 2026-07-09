@@ -5,11 +5,15 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from hobits.domain.hobits.domain import HobitConfigOverride, HobitRunRecord
-from hobits.domain.hobits.models import HobitConfigRow, HobitRunRow
+from hobits.domain.hobits.models import (
+    HobitConfigRow,
+    HobitRunRow,
+    RepositoryHobitRow,
+)
 
 
 class SqlHobitConfigRepository:
@@ -50,6 +54,40 @@ class SqlHobitConfigRepository:
         row.instructions = instructions
         row.timeout_seconds = timeout_seconds
         row.updated_at = now
+
+
+class SqlRepositoryHobitRepository:
+    """Per-repo hobit access allow-list (mirrors SqlRepositoryToolRepository)."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def linked_slugs(self, repository_id: uuid.UUID) -> set[str]:
+        stmt = select(RepositoryHobitRow.hobit_slug).where(
+            RepositoryHobitRow.repository_id == repository_id
+        )
+        return set(self._session.scalars(stmt))
+
+    def has_any(self, repository_id: uuid.UUID) -> bool:
+        stmt = (
+            select(func.count())
+            .select_from(RepositoryHobitRow)
+            .where(RepositoryHobitRow.repository_id == repository_id)
+        )
+        return (self._session.scalar(stmt) or 0) > 0
+
+    def set_all(self, repository_id: uuid.UUID, slugs: set[str]) -> None:
+        self._session.execute(
+            delete(RepositoryHobitRow).where(
+                RepositoryHobitRow.repository_id == repository_id
+            )
+        )
+        self._session.flush()
+        now = datetime.now(UTC)
+        self._session.add_all(
+            RepositoryHobitRow(repository_id=repository_id, hobit_slug=slug, linked_at=now)
+            for slug in slugs
+        )
 
 
 class SqlHobitRunRepository:

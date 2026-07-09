@@ -213,6 +213,10 @@ class AnalysisService:
     def linked_integrations(self, repository_id: uuid.UUID) -> list[str]:
         return sorted(self._links.linked_ids(repository_id))
 
+    def set_integrations(self, repository_id: uuid.UUID, tool_ids: set[str]) -> None:
+        """Pin the repo's linked tools (used at ingest to bypass the language auto-link)."""
+        self._links.set_all(repository_id, {t for t in tool_ids if t in tool_languages()})
+
     def link_integration(self, repository_id: uuid.UUID, tool_id: str) -> list[str]:
         if tool_id not in tool_languages():
             raise NotFoundError(f"Unknown tool: {tool_id}")
@@ -238,7 +242,7 @@ class AnalysisService:
         analysis = self._analyses.get_latest_for_repository(repository_id)
         if analysis is None:
             return
-        updates: dict = {field: None for field in _SCALAR_FIELDS.get(tool_id, ())}
+        updates: dict = dict.fromkeys(_SCALAR_FIELDS.get(tool_id, ()))
         if tool_id == "gitleaks":
             updates["secret_count"] = 0  # non-nullable count column
         if tool_id == "osv-scanner":

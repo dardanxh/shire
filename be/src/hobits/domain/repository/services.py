@@ -57,8 +57,13 @@ class RepositoryService:
         return RepositoryResult.of(repo)
 
     # --- ingestion ------------------------------------------------------------
-    def ingest(self, url: str, connection_id: uuid.UUID | None = None) -> RepositoryResult:
-        repo = self._ingest(url, connection_id)
+    def ingest(
+        self,
+        url: str,
+        connection_id: uuid.UUID | None = None,
+        tool_ids: list[str] | None = None,
+    ) -> RepositoryResult:
+        repo = self._ingest(url, connection_id, tool_ids)
         return RepositoryResult.of(repo)
 
     def refresh(self, repository_id: uuid.UUID) -> RepositoryResult:
@@ -68,7 +73,12 @@ class RepositoryService:
         repo = self._ingest(existing.url.value, existing.connection_id)
         return RepositoryResult.of(repo)
 
-    def _ingest(self, url: str, connection_id: uuid.UUID | None = None) -> Repository:
+    def _ingest(
+        self,
+        url: str,
+        connection_id: uuid.UUID | None = None,
+        tool_ids: list[str] | None = None,
+    ) -> Repository:
         """Register → clone → analyze → ready. On failure, persist the error state (no raise)."""
         repo_url, coordinates = RepoUrl.parse(url)
         repository = self._repos.get_by_coordinates(coordinates)
@@ -94,6 +104,10 @@ class RepositoryService:
             repository.mark_cloned(outcome.clone_path, default_branch)
             repository.mark_analyzing()
             self._repos.save(repository)
+
+            # Pin the chosen tools before analysis so the language auto-link is bypassed.
+            if tool_ids is not None:
+                self._analysis.set_integrations(repository.id, set(tool_ids))
 
             ctx = self._build_context(Path(outcome.clone_path), outcome.head_sha, url)
             self._analysis.analyze(repository.id, ctx)
