@@ -252,7 +252,14 @@
         "generated_at": "Generated {{when}}",
         "toast": "{{title}} generated",
         "render_error": "This diagram couldn't be rendered. View the source below to inspect it.",
-        "unavailable": "The Claude CLI isn't available on the server, so diagrams can't be generated."
+        "unavailable": "The Claude CLI isn't available on the server, so diagrams can't be generated.",
+        "crumb": "Diagram",
+        "open": "Open",
+        "back": "Back to architecture",
+        "loading": "Loading diagram…",
+        "zoom_in": "Zoom in",
+        "zoom_out": "Zoom out",
+        "zoom_reset": "Reset zoom"
       }
     },
     "integrations": {

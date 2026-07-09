@@ -18,6 +18,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as HobitsIndexRouteImport } from './routes/hobits.index'
 import { Route as RepositoriesIdRouteImport } from './routes/repositories.$id'
 import { Route as HobitsSlugRouteImport } from './routes/hobits.$slug'
+import { Route as DiagramRepoIdKindRouteImport } from './routes/diagram.$repoId.$kind'
 
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
@@ -64,6 +65,11 @@ const HobitsSlugRoute = HobitsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => HobitsRoute,
 } as any)
+const DiagramRepoIdKindRoute = DiagramRepoIdKindRouteImport.update({
+  id: '/diagram/$repoId/$kind',
+  path: '/diagram/$repoId/$kind',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/hobits/$slug': typeof HobitsSlugRoute
   '/repositories/$id': typeof RepositoriesIdRoute
   '/hobits/': typeof HobitsIndexRoute
+  '/diagram/$repoId/$kind': typeof DiagramRepoIdKindRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/hobits/$slug': typeof HobitsSlugRoute
   '/repositories/$id': typeof RepositoriesIdRoute
   '/hobits': typeof HobitsIndexRoute
+  '/diagram/$repoId/$kind': typeof DiagramRepoIdKindRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/hobits/$slug': typeof HobitsSlugRoute
   '/repositories/$id': typeof RepositoriesIdRoute
   '/hobits/': typeof HobitsIndexRoute
+  '/diagram/$repoId/$kind': typeof DiagramRepoIdKindRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/hobits/$slug'
     | '/repositories/$id'
     | '/hobits/'
+    | '/diagram/$repoId/$kind'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/hobits/$slug'
     | '/repositories/$id'
     | '/hobits'
+    | '/diagram/$repoId/$kind'
   id:
     | '__root__'
     | '/'
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/hobits/$slug'
     | '/repositories/$id'
     | '/hobits/'
+    | '/diagram/$repoId/$kind'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   MembersRoute: typeof MembersRoute
   ToolsRoute: typeof ToolsRoute
   RepositoriesIdRoute: typeof RepositoriesIdRoute
+  DiagramRepoIdKindRoute: typeof DiagramRepoIdKindRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -208,6 +221,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HobitsSlugRouteImport
       parentRoute: typeof HobitsRoute
     }
+    '/diagram/$repoId/$kind': {
+      id: '/diagram/$repoId/$kind'
+      path: '/diagram/$repoId/$kind'
+      fullPath: '/diagram/$repoId/$kind'
+      preLoaderRoute: typeof DiagramRepoIdKindRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -232,6 +252,7 @@ const rootRouteChildren: RootRouteChildren = {
   MembersRoute: MembersRoute,
   ToolsRoute: ToolsRoute,
   RepositoriesIdRoute: RepositoriesIdRoute,
+  DiagramRepoIdKindRoute: DiagramRepoIdKindRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

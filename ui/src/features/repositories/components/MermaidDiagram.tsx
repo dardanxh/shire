@@ -2,6 +2,8 @@ import mermaid from "mermaid";
 import { useEffect, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { cn } from "@/lib/utils";
+
 let initialized = false;
 function ensureInitialized() {
   if (initialized) return;
@@ -19,7 +21,13 @@ function ensureInitialized() {
  * library that parses + renders asynchronously and throws on invalid syntax —
  * a genuine side effect, so it lives in an effect keyed on the source.
  */
-export function MermaidDiagram({ code }: { code: string }) {
+export function MermaidDiagram({
+  code,
+  className,
+}: {
+  code: string;
+  className?: string;
+}) {
   const { t } = useTranslation();
   // Mermaid needs a DOM-id-safe handle; React's useId yields colons we must strip.
   const domId = `mermaid-${useId().replace(/:/g, "")}`;
@@ -56,7 +64,10 @@ export function MermaidDiagram({ code }: { code: string }) {
   if (!svg) return null;
   return (
     <div
-      className="mermaid-diagram overflow-auto [&_svg]:mx-auto [&_svg]:h-auto [&_svg]:max-w-full"
+      className={cn(
+        "mermaid-diagram overflow-auto [&_svg]:mx-auto [&_svg]:h-auto [&_svg]:max-w-full",
+        className,
+      )}
       // biome-ignore lint/security/noDangerouslySetInnerHtml: SVG is produced by Mermaid (securityLevel: strict) from our own generated source.
       dangerouslySetInnerHTML={{ __html: svg }}
     />

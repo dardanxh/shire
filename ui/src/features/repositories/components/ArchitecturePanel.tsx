@@ -1,4 +1,10 @@
-import { CopyIcon, Loader2Icon, SparklesIcon } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import {
+  CopyIcon,
+  Loader2Icon,
+  Maximize2Icon,
+  SparklesIcon,
+} from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -68,6 +74,7 @@ export function ArchitecturePanel({ repoId }: { repoId: string }) {
             {group.diagrams.map((diagram) => (
               <DiagramCard
                 key={diagram.kind}
+                repoId={repoId}
                 diagram={diagram}
                 busy={isPending && generatingKind === diagram.kind}
                 disabled={isPending || !agentAvailable}
@@ -91,11 +98,13 @@ export function ArchitecturePanel({ repoId }: { repoId: string }) {
 }
 
 function DiagramCard({
+  repoId,
   diagram,
   busy,
   disabled,
   onGenerate,
 }: {
+  repoId: string;
   diagram: ArchitectureDiagram;
   busy: boolean;
   disabled: boolean;
@@ -131,9 +140,21 @@ function DiagramCard({
       <CardContent className="flex-1">
         {diagram.mermaid ? (
           <div className="flex flex-col gap-3">
-            <div className="rounded-md border border-border bg-muted/30 p-3">
-              <MermaidDiagram code={diagram.mermaid} />
-            </div>
+            <Link
+              to="/diagram/$repoId/$kind"
+              params={{ repoId, kind: diagram.kind }}
+              title={t("repositories.view.architecture.open")}
+              className="group relative block rounded-md border border-border bg-muted/30 p-3 transition-colors hover:border-primary/40 hover:bg-muted/50"
+            >
+              <span className="pointer-events-none absolute right-2 top-2 z-10 flex items-center gap-1 rounded bg-background/80 px-1.5 py-0.5 text-[10px] text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
+                <Maximize2Icon className="size-3" />
+                {t("repositories.view.architecture.open")}
+              </span>
+              {/* Non-interactive preview: the Link owns the click; pan/zoom lives on the full page. */}
+              <div className="pointer-events-none max-h-72 overflow-hidden">
+                <MermaidDiagram code={diagram.mermaid} />
+              </div>
+            </Link>
             <DiagramSource code={diagram.mermaid} />
             {diagram.generated_at ? (
               <p className="text-xs text-muted-foreground">
