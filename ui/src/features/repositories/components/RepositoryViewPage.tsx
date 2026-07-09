@@ -181,6 +181,8 @@ export function RepositoryViewPage({
 
             {/* Overview — the headline scorecard */}
             <TabsContent value="overview" className="space-y-6">
+              <CodebaseOverviewPanel repoId={repo.id} />
+
               <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <RatingBadge
                   label={t("repositories.view.ratings.maintainability")}
@@ -241,8 +243,6 @@ export function RepositoryViewPage({
 
             {/* Code — metrics, languages, hotspots */}
             <TabsContent value="code" className="space-y-6">
-              <CodebaseOverviewPanel repoId={repo.id} />
-
               <EnrichmentCards enrichment={analysis.enrichment} />
 
               <Card>

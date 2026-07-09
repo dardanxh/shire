@@ -1,4 +1,5 @@
-import { Loader2Icon, SparklesIcon } from "lucide-react";
+import { ChevronDownIcon, Loader2Icon, SparklesIcon } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -6,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDateTime } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import {
   useCodebaseOverviewQuery,
   useGenerateCodebaseOverviewMutation,
@@ -16,6 +18,7 @@ export function CodebaseOverviewPanel({ repoId }: { repoId: string }) {
   const { data } = useCodebaseOverviewQuery(repoId);
   const { mutate: generate, isPending } =
     useGenerateCodebaseOverviewMutation(repoId);
+  const [open, setOpen] = useState(true);
 
   const run = () =>
     generate(undefined, {
@@ -25,12 +28,20 @@ export function CodebaseOverviewPanel({ repoId }: { repoId: string }) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-4">
-        <div className="space-y-1">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="flex flex-1 items-start gap-2 text-left"
+        >
+          <ChevronDownIcon
+            className={cn(
+              "mt-1 size-4 shrink-0 text-muted-foreground transition-transform",
+              !open && "-rotate-90",
+            )}
+          />
           <CardTitle>{t("repositories.view.overview.title")}</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {t("repositories.view.overview.subtitle")}
-          </p>
-        </div>
+        </button>
         <Button
           size="sm"
           variant={data?.generated ? "outline" : "default"}
@@ -49,7 +60,7 @@ export function CodebaseOverviewPanel({ repoId }: { repoId: string }) {
               : t("repositories.view.overview.generate")}
         </Button>
       </CardHeader>
-      <CardContent>
+      <CardContent className={cn(!open && "hidden")}>
         {data?.generated ? (
           <div className="space-y-5">
             {data.kind || data.domain ? (
