@@ -380,6 +380,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/repositories/{repository_id}/codebase-overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Codebase Overview
+         * @description The cached big-picture overview of what this codebase is.
+         */
+        get: operations["codebase_overview_api_v1_repositories__repository_id__codebase_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/codebase-overview/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate Codebase Overview
+         * @description Have a hobit investigate the clone and write a crisp big-picture overview (blocking).
+         */
+        post: operations["generate_codebase_overview_api_v1_repositories__repository_id__codebase_overview_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/repositories/{repository_id}/code-map": {
         parameters: {
             query?: never;
@@ -1104,6 +1144,41 @@ export interface components {
              * @default false
              */
             viewer_available: boolean;
+        };
+        /**
+         * CodebaseOverviewResult
+         * @description A crisp, big-picture summary of what a codebase is — generated on demand by a hobit.
+         */
+        CodebaseOverviewResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Generated */
+            generated: boolean;
+            /** Generated At */
+            generated_at?: string | null;
+            /**
+             * Agent Available
+             * @default true
+             */
+            agent_available: boolean;
+            /** Summary */
+            summary?: string | null;
+            /** Kind */
+            kind?: string | null;
+            /** Domain */
+            domain?: string | null;
+            /** Problem */
+            problem?: string | null;
+            /**
+             * Features
+             * @default []
+             */
+            features: string[];
+            /** Audience */
+            audience?: string | null;
         };
         /**
          * ConnectionResult
@@ -2913,6 +2988,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ArchitectureResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    codebase_overview_api_v1_repositories__repository_id__codebase_overview_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodebaseOverviewResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_codebase_overview_api_v1_repositories__repository_id__codebase_overview_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodebaseOverviewResult"];
                 };
             };
             /** @description Validation Error */

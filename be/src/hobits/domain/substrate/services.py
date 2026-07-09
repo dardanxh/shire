@@ -42,6 +42,7 @@ from hobits.domain.substrate.schemas import (
     ArchitectureResult,
     CodeAgeCohort,
     CodeAgeResult,
+    CodebaseOverviewResult,
     CodeMapResult,
     CouplingPair,
     CouplingResult,
@@ -524,6 +525,50 @@ class AnalysisService:
         (out_dir / f"{kind.slug}.json").write_text(json.dumps({"mermaid": mermaid}))
         return self.architecture_status(repository_id)
 
+    # --- codebase overview (big-picture summary via claude -p) ----------------
+    def codebase_overview_status(self, repository_id: uuid.UUID) -> CodebaseOverviewResult:
+        """The cached big-picture overview, if one has been generated."""
+        cache = self._artifact_dir("codebase-overview", repository_id) / "overview.json"
+        if not cache.is_file():
+            return CodebaseOverviewResult(
+                repository_id=repository_id,
+                generated=False,
+                agent_available=_new_agent().available(),
+            )
+        try:
+            data = json.loads(cache.read_text())
+        except (OSError, json.JSONDecodeError, ValueError):
+            data = {}
+        return CodebaseOverviewResult(
+            repository_id=repository_id,
+            generated=True,
+            generated_at=_mtime(cache),
+            agent_available=True,
+            summary=data.get("summary"),
+            kind=data.get("kind"),
+            domain=data.get("domain"),
+            problem=data.get("problem"),
+            features=data.get("features") or [],
+            audience=data.get("audience"),
+        )
+
+    def generate_codebase_overview(self, repository_id: uuid.UUID) -> CodebaseOverviewResult:
+        """Have a hobit investigate the clone and write a crisp big-picture overview."""
+        repo = self._require_cloned_repo(repository_id)
+        agent = _new_agent()
+        if not agent.available():
+            raise ConflictError("The Claude CLI is not available to generate an overview.")
+        run = agent.run(_OVERVIEW_PROMPT.format(repo=repo.coordinates.slug), cwd=repo.clone_path)
+        if not run.ok:
+            raise ConflictError(run.error or "Overview generation failed.")
+        overview = _parse_overview(run.text)
+        if overview is None:
+            raise ConflictError("The agent did not return a usable overview.")
+        out_dir = self._artifact_dir("codebase-overview", repository_id)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "overview.json").write_text(json.dumps(overview))
+        return self.codebase_overview_status(repository_id)
+
     # --- code city (CodeCharta) -----------------------------------------------
     def code_map_status(self, repository_id: uuid.UUID) -> CodeMapResult:
         adapter = CodeChartaAdapter()
@@ -610,6 +655,57 @@ def _extract_mermaid_block(text: str) -> str | None:
     if stripped.startswith(keywords):
         return stripped
     return None
+
+
+_OVERVIEW_PROMPT = """\
+You are investigating the repository **{repo}** to write a crisp, big-picture overview for someone \
+seeing it for the first time. Explore the real code — the README, entrypoints, package manifests \
+and the main modules — with your Read, Grep and Glob tools before you conclude anything.
+
+Write a BIG-PICTURE overview only — no file-by-file walkthrough, no setup steps, no code. Base \
+every claim on what the code actually is. Answer, concisely:
+- What is this, in a single sentence?
+- What KIND of software is it (a library, a backend/API service, a CLI tool, a data pipeline / \
+orchestration system, an ML/AI system, a frontend app, an infra/DevOps tool, an SDK, ...)?
+- What DOMAIN does it serve (e.g. data engineering, web/SaaS, machine learning, fintech, devops, \
+general-purpose developer tooling, ...)?
+- WHY does it exist — what problem does it solve?
+- Its MAIN business-logic capabilities/features (the handful that matter, not every function).
+- WHO is it for?
+
+Return ONLY a single fenced json object as the very last thing, nothing else:
+```json
+{{
+  "summary": "one sentence: what it is",
+  "kind": "e.g. Backend service",
+  "domain": "e.g. Data engineering",
+  "problem": "2-4 sentences: why it exists and what problems it solves",
+  "features": ["key capability", "another key capability"],
+  "audience": "who uses it"
+}}
+```"""
+
+
+def _parse_overview(text: str) -> dict | None:
+    """Parse the agent's fenced json overview into a clean dict, or None if unusable."""
+    block = _extract_json_object(text)
+    if block is None:
+        return None
+    try:
+        data = json.loads(block)
+    except (json.JSONDecodeError, ValueError):
+        return None
+    if not isinstance(data, dict) or not data.get("summary"):
+        return None
+    features = data.get("features")
+    return {
+        "summary": str(data["summary"]),
+        "kind": str(data["kind"]) if data.get("kind") else None,
+        "domain": str(data["domain"]) if data.get("domain") else None,
+        "problem": str(data["problem"]) if data.get("problem") else None,
+        "features": [str(f) for f in features] if isinstance(features, list) else [],
+        "audience": str(data["audience"]) if data.get("audience") else None,
+    }
 
 
 def _dependency_gains(

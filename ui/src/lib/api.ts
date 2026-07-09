@@ -34,6 +34,8 @@ export type DependencyFreshnessItem =
   components["schemas"]["DependencyFreshnessItem"];
 export type ArchitectureOut = components["schemas"]["ArchitectureResult"];
 export type ArchitectureDiagram = components["schemas"]["ArchitectureDiagram"];
+export type CodebaseOverviewOut =
+  components["schemas"]["CodebaseOverviewResult"];
 export type CodeMapOut = components["schemas"]["CodeMapResult"];
 export type ToolStatusOut = components["schemas"]["ToolStatusResult"];
 export type ToolLogOut = components["schemas"]["ToolLogResult"];

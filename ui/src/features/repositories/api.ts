@@ -5,6 +5,7 @@ import {
   type ArchitectureOut,
   api,
   type CodeAgeOut,
+  type CodebaseOverviewOut,
   type CodeMapOut,
   type ContextMarkdownOut,
   type CouplingOut,
@@ -438,6 +439,39 @@ export function useGenerateArchitectureDiagramMutation(id: string) {
     },
     onSuccess: (data) =>
       queryClient.setQueryData(repositoryKeys.architecture(id), data),
+  });
+}
+
+/** Cached big-picture codebase overview (what it is, why, key capabilities). */
+export function useCodebaseOverviewQuery(id: string) {
+  return useQuery<CodebaseOverviewOut>({
+    queryKey: repositoryKeys.codebaseOverview(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/codebase-overview",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+  });
+}
+
+/** Have a hobit investigate the clone and write a crisp big-picture overview (blocking). */
+export function useGenerateCodebaseOverviewMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (): Promise<CodebaseOverviewOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/codebase-overview/run",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) =>
+      queryClient.setQueryData(repositoryKeys.codebaseOverview(id), data),
   });
 }
 

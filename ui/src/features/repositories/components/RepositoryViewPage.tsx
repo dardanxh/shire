@@ -39,6 +39,7 @@ import {
 import { useAnalysisQuery, useRepositoryQuery } from "../api";
 import type { RepositoryTab } from "../tabs";
 import { ArchitecturePanel } from "./ArchitecturePanel";
+import { CodebaseOverviewPanel } from "./CodebaseOverviewPanel";
 import { CommitsChart } from "./CommitsChart";
 import { ContextPanel } from "./ContextPanel";
 import { DependenciesPanel } from "./DependenciesPanel";
@@ -240,6 +241,8 @@ export function RepositoryViewPage({
 
             {/* Code — metrics, languages, hotspots */}
             <TabsContent value="code" className="space-y-6">
+              <CodebaseOverviewPanel repoId={repo.id} />
+
               <EnrichmentCards enrichment={analysis.enrichment} />
 
               <Card>

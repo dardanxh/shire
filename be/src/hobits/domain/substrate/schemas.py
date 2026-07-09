@@ -153,6 +153,21 @@ class ArchitectureResult(BaseModel):
     agent_available: bool = True
 
 
+class CodebaseOverviewResult(BaseModel):
+    """A crisp, big-picture summary of what a codebase is — generated on demand by a hobit."""
+
+    repository_id: uuid.UUID
+    generated: bool
+    generated_at: datetime | None = None
+    agent_available: bool = True
+    summary: str | None = None  # one sentence — what it is
+    kind: str | None = None  # library | backend service | CLI | data pipeline | ML system | ...
+    domain: str | None = None  # data engineering | web/SaaS | machine learning | devops | ...
+    problem: str | None = None  # why it exists / what problems it solves
+    features: list[str] = []  # main business-logic capabilities
+    audience: str | None = None  # who it is for
+
+
 class GraphResult(BaseModel):
     """State of a repository's codebase graph (emerge) artifact.
 

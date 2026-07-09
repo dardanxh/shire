@@ -12,6 +12,7 @@ from hobits.domain.substrate.schemas import (
     AnalysisResult,
     ArchitectureResult,
     CodeAgeResult,
+    CodebaseOverviewResult,
     CodeMapResult,
     CouplingResult,
     DependencyFreshnessResult,
@@ -161,6 +162,28 @@ def generate_architecture_diagram(
 ) -> ArchitectureResult:
     """Generate one Mermaid architecture diagram (a hobit explores the clone; blocking)."""
     return AnalysisService(session).generate_architecture_diagram(repository_id, kind)
+
+
+@router.get(
+    "/repositories/{repository_id}/codebase-overview",
+    response_model=CodebaseOverviewResult,
+)
+def codebase_overview(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> CodebaseOverviewResult:
+    """The cached big-picture overview of what this codebase is."""
+    return AnalysisService(session).codebase_overview_status(repository_id)
+
+
+@router.post(
+    "/repositories/{repository_id}/codebase-overview/run",
+    response_model=CodebaseOverviewResult,
+)
+def generate_codebase_overview(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> CodebaseOverviewResult:
+    """Have a hobit investigate the clone and write a crisp big-picture overview (blocking)."""
+    return AnalysisService(session).generate_codebase_overview(repository_id)
 
 
 @router.get("/repositories/{repository_id}/code-map", response_model=CodeMapResult)
