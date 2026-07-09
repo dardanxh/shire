@@ -67,7 +67,7 @@ class HobitSpec:
     slug: str
     name: str
     description: str
-    layer: str  # e.g. "L3"
+    category: str  # "Theoretician" | "Technology Expert" | "Foundational"
     default_charter: str
     default_instructions: str
     default_model: str

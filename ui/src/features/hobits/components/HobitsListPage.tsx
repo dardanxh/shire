@@ -38,6 +38,15 @@ export function HobitsListPage() {
         ),
       },
       {
+        accessorKey: "category",
+        header: t("hobits.list.col_category"),
+        cell: ({ row }) => (
+          <Badge variant="outline" className="text-xs">
+            {row.original.category}
+          </Badge>
+        ),
+      },
+      {
         accessorKey: "unread_count",
         header: t("hobits.list.col_unread"),
         cell: ({ row }) =>

@@ -1555,8 +1555,8 @@ export interface components {
             name: string;
             /** Description */
             description: string;
-            /** Layer */
-            layer: string;
+            /** Category */
+            category: string;
             /** Enabled */
             enabled: boolean;
             /** Model */

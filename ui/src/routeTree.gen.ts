@@ -12,8 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as MembersRouteImport } from './routes/members'
 import { Route as HobitsRouteImport } from './routes/hobits'
+import { Route as FeedRouteImport } from './routes/feed'
 import { Route as ConnectorsRouteImport } from './routes/connectors'
-import { Route as BriefingRouteImport } from './routes/briefing'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HobitsIndexRouteImport } from './routes/hobits.index'
 import { Route as RepositoriesIdRouteImport } from './routes/repositories.$id'
@@ -34,14 +34,14 @@ const HobitsRoute = HobitsRouteImport.update({
   path: '/hobits',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeedRoute = FeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConnectorsRoute = ConnectorsRouteImport.update({
   id: '/connectors',
   path: '/connectors',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BriefingRoute = BriefingRouteImport.update({
-  id: '/briefing',
-  path: '/briefing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -67,8 +67,8 @@ const HobitsSlugRoute = HobitsSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/briefing': typeof BriefingRoute
   '/connectors': typeof ConnectorsRoute
+  '/feed': typeof FeedRoute
   '/hobits': typeof HobitsRouteWithChildren
   '/members': typeof MembersRoute
   '/tools': typeof ToolsRoute
@@ -78,8 +78,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/briefing': typeof BriefingRoute
   '/connectors': typeof ConnectorsRoute
+  '/feed': typeof FeedRoute
   '/members': typeof MembersRoute
   '/tools': typeof ToolsRoute
   '/hobits/$slug': typeof HobitsSlugRoute
@@ -89,8 +89,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/briefing': typeof BriefingRoute
   '/connectors': typeof ConnectorsRoute
+  '/feed': typeof FeedRoute
   '/hobits': typeof HobitsRouteWithChildren
   '/members': typeof MembersRoute
   '/tools': typeof ToolsRoute
@@ -102,8 +102,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/briefing'
     | '/connectors'
+    | '/feed'
     | '/hobits'
     | '/members'
     | '/tools'
@@ -113,8 +113,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/briefing'
     | '/connectors'
+    | '/feed'
     | '/members'
     | '/tools'
     | '/hobits/$slug'
@@ -123,8 +123,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/briefing'
     | '/connectors'
+    | '/feed'
     | '/hobits'
     | '/members'
     | '/tools'
@@ -135,8 +135,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  BriefingRoute: typeof BriefingRoute
   ConnectorsRoute: typeof ConnectorsRoute
+  FeedRoute: typeof FeedRoute
   HobitsRoute: typeof HobitsRouteWithChildren
   MembersRoute: typeof MembersRoute
   ToolsRoute: typeof ToolsRoute
@@ -166,18 +166,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HobitsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/feed': {
+      id: '/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof FeedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/connectors': {
       id: '/connectors'
       path: '/connectors'
       fullPath: '/connectors'
       preLoaderRoute: typeof ConnectorsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/briefing': {
-      id: '/briefing'
-      path: '/briefing'
-      fullPath: '/briefing'
-      preLoaderRoute: typeof BriefingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -226,8 +226,8 @@ const HobitsRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  BriefingRoute: BriefingRoute,
   ConnectorsRoute: ConnectorsRoute,
+  FeedRoute: FeedRoute,
   HobitsRoute: HobitsRouteWithChildren,
   MembersRoute: MembersRoute,
   ToolsRoute: ToolsRoute,

@@ -1,11 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import {
-  api,
-  type HobitConfigUpdate,
-  type HobitOut,
-  type HobitRunOut,
-} from "@/lib/api";
+import { api, type HobitConfigUpdate, type HobitOut } from "@/lib/api";
 import { hobitKeys } from "./keys";
 
 /** All registered hobits, merged with their effective config + last run. */
@@ -65,25 +60,6 @@ export function useUpdateHobitMutation(slug: string) {
     onSuccess: (data) => {
       queryClient.setQueryData(hobitKeys.detail(slug), data);
       queryClient.invalidateQueries({ queryKey: hobitKeys.lists() });
-    },
-  });
-}
-
-/** Run this hobit against a chosen repository (blocking). Refreshes runs + the briefing. */
-export function useRunHobitMutation(slug: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (repoId: string): Promise<HobitRunOut> => {
-      const { data, error } = await api.POST(
-        "/api/v1/repositories/{repository_id}/hobits/{slug}/run",
-        { params: { path: { repository_id: repoId, slug } } },
-      );
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: hobitKeys.runs(slug) });
-      queryClient.invalidateQueries({ queryKey: ["briefing"] });
     },
   });
 }

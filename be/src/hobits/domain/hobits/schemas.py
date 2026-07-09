@@ -77,7 +77,7 @@ class HobitResult(BaseModel):
     slug: str
     name: str
     description: str
-    layer: str
+    category: str
     enabled: bool
     model: str
     charter: str

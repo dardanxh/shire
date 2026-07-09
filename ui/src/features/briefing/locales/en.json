@@ -1,6 +1,6 @@
 {
   "briefing": {
-    "title": "Briefing",
+    "title": "Feed",
     "subtitle": "A feed of what your hobits surfaced, newest first. Click a post to read it.",
     "empty": "No briefing items yet. Run a hobit on a repository to populate this.",
     "scores": "importance {{importance}} · confidence {{confidence}} · urgency {{urgency}}",

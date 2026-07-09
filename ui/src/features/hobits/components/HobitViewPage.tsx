@@ -29,7 +29,6 @@ import {
 import { formatDateTime } from "@/lib/format";
 import { useHobitQuery, useHobitRunsQuery } from "../api";
 import { HobitConfigForm } from "./HobitConfigForm";
-import { HobitRunner } from "./HobitRunner";
 
 export function HobitViewPage({ slug }: { slug: string }) {
   const { t } = useTranslation();
@@ -116,8 +115,8 @@ export function HobitViewPage({ slug }: { slug: string }) {
             {hobit.description}
           </p>
         </div>
-        <Badge variant="outline" className="font-mono text-xs">
-          {hobit.layer}
+        <Badge variant="outline" className="text-xs">
+          {hobit.category}
         </Badge>
       </div>
 
@@ -130,8 +129,6 @@ export function HobitViewPage({ slug }: { slug: string }) {
           <HobitConfigForm hobit={hobit} />
         </CardContent>
       </Card>
-
-      <HobitRunner slug={hobit.slug} />
 
       <Card>
         <CardHeader>

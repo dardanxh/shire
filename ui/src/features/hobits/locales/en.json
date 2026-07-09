@@ -5,6 +5,7 @@
       "subtitle": "Configurable agents that reason over your repositories.",
       "empty": "No hobits registered.",
       "col_name": "Hobit",
+      "col_category": "Category",
       "col_unread": "Unread",
       "col_model": "Model",
       "col_status": "Enabled",
@@ -47,14 +48,6 @@
         "invalid": "Must be a positive number"
       },
       "save": "Save"
-    },
-    "run_on": {
-      "title": "Run on a repository",
-      "desc": "Run this hobit against a repository (blocking — it explores the clone with Claude, which can take a minute).",
-      "placeholder": "Select a repository…",
-      "run": "Run",
-      "running": "Running…",
-      "toast_done": "Run finished: {{status}}"
     },
     "run": {
       "title": "Mental model (Repo-Onboarding hobit)",

@@ -201,7 +201,7 @@ class HobitService:
             slug=spec.slug,
             name=spec.name,
             description=spec.description,
-            layer=spec.layer,
+            category=spec.category,
             enabled=config.enabled,
             model=config.model,
             charter=config.charter,
