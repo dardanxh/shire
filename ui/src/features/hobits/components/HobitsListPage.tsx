@@ -1,0 +1,181 @@
+import { useNavigate } from "@tanstack/react-router";
+import type { ColumnDef } from "@tanstack/react-table";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+
+import { DataTable } from "@/components/shared/DataTable";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { extractErrorMessage, type HobitOut } from "@/lib/api";
+import { useHobitsQuery, useUpdateHobitMutation } from "../api";
+
+const MODEL_OPTIONS = ["sonnet", "opus", "haiku"];
+
+export function HobitsListPage() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { data: hobits, isPending, isError, error } = useHobitsQuery();
+
+  const columns = useMemo<ColumnDef<HobitOut>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: t("hobits.list.col_name"),
+        cell: ({ row }) => (
+          <div className="space-y-0.5">
+            <span className="font-medium">{row.original.name}</span>
+            <p className="max-w-md truncate text-xs text-muted-foreground">
+              {row.original.description}
+            </p>
+          </div>
+        ),
+      },
+      {
+        accessorKey: "category",
+        header: t("hobits.list.col_category"),
+        cell: ({ row }) => (
+          <Badge variant="outline" className="text-xs">
+            {row.original.category}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: "unread_count",
+        header: t("hobits.list.col_unread"),
+        cell: ({ row }) =>
+          row.original.unread_count > 0 ? (
+            <Badge>{row.original.unread_count}</Badge>
+          ) : (
+            <span className="text-xs text-muted-foreground">—</span>
+          ),
+      },
+      {
+        accessorKey: "model",
+        header: t("hobits.list.col_model"),
+        meta: { isAction: true },
+        cell: ({ row }) => <ModelCell hobit={row.original} />,
+      },
+      {
+        accessorKey: "enabled",
+        header: t("hobits.list.col_status"),
+        meta: { isAction: true },
+        cell: ({ row }) => <StatusCell hobit={row.original} />,
+      },
+      {
+        id: "last_run",
+        header: t("hobits.list.col_last_run"),
+        enableSorting: false,
+        cell: ({ row }) =>
+          row.original.last_run ? (
+            <span className="text-xs text-muted-foreground">
+              {row.original.last_run.status}
+              {row.original.last_run.tier
+                ? ` · ${row.original.last_run.tier}`
+                : ""}
+            </span>
+          ) : (
+            <span className="text-xs text-muted-foreground">—</span>
+          ),
+      },
+    ],
+    [t],
+  );
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {t("hobits.list.title")}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {t("hobits.list.subtitle")}
+        </p>
+      </div>
+
+      <Card className="overflow-hidden p-0">
+        <DataTable
+          columns={columns}
+          data={hobits ?? []}
+          isPending={isPending}
+          isError={isError}
+          errorMessage={t("common.states.api_unreachable", {
+            message: error ? extractErrorMessage(error) : "",
+          })}
+          onRowClick={(row) =>
+            navigate({ to: "/hobits/$slug", params: { slug: row.slug } })
+          }
+          emptyState={
+            <div className="p-12 text-center text-sm text-muted-foreground">
+              {t("hobits.list.empty")}
+            </div>
+          }
+        />
+      </Card>
+    </div>
+  );
+}
+
+/** Inline model picker — saves the full config with only `model` changed. */
+function ModelCell({ hobit }: { hobit: HobitOut }) {
+  const { mutate: save, isPending } = useUpdateHobitMutation(hobit.slug);
+  return (
+    <Select
+      value={hobit.model}
+      onValueChange={(model) => model && save({ ...configOf(hobit), model })}
+      disabled={isPending}
+    >
+      <SelectTrigger className="h-7 w-28 text-xs">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {MODEL_OPTIONS.map((m) => (
+          <SelectItem key={m} value={m}>
+            {m}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+/** Inline enabled/disabled toggle. */
+function StatusCell({ hobit }: { hobit: HobitOut }) {
+  const { t } = useTranslation();
+  const { mutate: save, isPending } = useUpdateHobitMutation(hobit.slug);
+  return (
+    <label className="inline-flex cursor-pointer items-center gap-2 text-xs">
+      <input
+        type="checkbox"
+        checked={hobit.enabled}
+        disabled={isPending}
+        onChange={(e) =>
+          save({ ...configOf(hobit), enabled: e.target.checked })
+        }
+        className="size-4 rounded border border-input accent-primary"
+      />
+      <span className="text-muted-foreground">
+        {hobit.enabled
+          ? t("hobits.status.enabled")
+          : t("hobits.status.disabled")}
+      </span>
+    </label>
+  );
+}
+
+/** The editable config fields carried on a row, as a HobitConfigUpdate body. */
+function configOf(h: HobitOut) {
+  return {
+    enabled: h.enabled,
+    model: h.model,
+    charter: h.charter,
+    instructions: h.instructions,
+    timeout_seconds: h.timeout_seconds,
+  };
+}

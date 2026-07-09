@@ -149,6 +149,9 @@ class ContextMarkdownResult(BaseModel):
     edited: str | None
     effective: str
     is_edited: bool
+    # The L3 mental model (hobit-authored), surfaced on its own — always visible even when the pack
+    # Markdown is overridden. None until a Repo-Onboarding run completes.
+    narrative: str | None
 
 
 class ContextMarkdownUpdate(BaseModel):

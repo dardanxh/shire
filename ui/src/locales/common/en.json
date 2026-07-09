@@ -7,6 +7,8 @@
     "nav": {
       "modules": "Modules",
       "repositories": "Repositories",
+      "hobits": "Hobits",
+      "feed": "Feed",
       "tools": "Tools",
       "connectors": "Connectors",
       "members": "Members"

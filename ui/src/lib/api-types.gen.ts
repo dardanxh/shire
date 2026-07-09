@@ -594,6 +594,202 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/hobits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Hobits */
+        get: operations["list_hobits_api_v1_hobits_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/hobits/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Hobit */
+        get: operations["get_hobit_api_v1_hobits__slug__get"];
+        /**
+         * Update Hobit
+         * @description Save the hobit's config (model, charter, timeout, enabled) as overrides.
+         */
+        put: operations["update_hobit_api_v1_hobits__slug__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/hobits/{slug}/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Hobit Runs
+         * @description This hobit's runs across every repository, newest first.
+         */
+        get: operations["list_hobit_runs_api_v1_hobits__slug__runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/hobits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Repo Hobits
+         * @description The hobits assigned to this repository (its access allow-list).
+         */
+        get: operations["list_repo_hobits_api_v1_repositories__repository_id__hobits_get"];
+        /**
+         * Set Repo Hobits
+         * @description Replace the hobits assigned to this repository.
+         */
+        put: operations["set_repo_hobits_api_v1_repositories__repository_id__hobits_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/hobits/{slug}/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Hobit
+         * @description Run a hobit against a repository (blocking — the agent explores the clone).
+         */
+        post: operations["run_hobit_api_v1_repositories__repository_id__hobits__slug__run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/hobits/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Repo Runs */
+        get: operations["list_repo_runs_api_v1_repositories__repository_id__hobits_runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/hobits/runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run */
+        get: operations["get_run_api_v1_repositories__repository_id__hobits_runs__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/briefing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Briefing
+         * @description The briefing feed — every hobit post, newest first. Optionally filtered to one hobit.
+         */
+        get: operations["get_briefing_api_v1_briefing_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/briefing/{item_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark Post Read
+         * @description Mark a single post read.
+         */
+        post: operations["mark_post_read_api_v1_briefing__item_id__read_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/briefing/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark Read
+         * @description Mark all posts read (or all of one hobit's posts when `hobit_slug` is given).
+         */
+        post: operations["mark_read_api_v1_briefing_read_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -660,6 +856,48 @@ export interface components {
          * @enum {string}
          */
         AuthMethod: "token" | "basic";
+        /**
+         * BriefingItemResult
+         * @description One post in the briefing feed — authored by a hobit, about a repository.
+         */
+        BriefingItemResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Repository Slug */
+            repository_slug: string;
+            /**
+             * Hobit Run Id
+             * Format: uuid
+             */
+            hobit_run_id: string;
+            /** Hobit Slug */
+            hobit_slug: string;
+            /** Tier */
+            tier: string;
+            /** Headline */
+            headline: string;
+            /** Importance */
+            importance: number;
+            /** Confidence */
+            confidence: number;
+            /** Urgency */
+            urgency: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Read At */
+            read_at: string | null;
+        };
         /** CiCdConfig */
         CiCdConfig: {
             system: components["schemas"]["CiCdSystem"];
@@ -854,6 +1092,8 @@ export interface components {
             effective: string;
             /** Is Edited */
             is_edited: boolean;
+            /** Narrative */
+            narrative: string | null;
         };
         /**
          * ContextMarkdownUpdate
@@ -1313,6 +1553,127 @@ export interface components {
             reason: string;
         };
         /**
+         * HobitConfigUpdate
+         * @description Full effective config sent by the config form; stored as overrides.
+         */
+        HobitConfigUpdate: {
+            /** Enabled */
+            enabled: boolean;
+            /** Model */
+            model: string;
+            /** Charter */
+            charter: string;
+            /** Instructions */
+            instructions: string;
+            /** Timeout Seconds */
+            timeout_seconds: number;
+        };
+        /**
+         * HobitResult
+         * @description A hobit: registry identity merged with its effective config + last-run summary.
+         */
+        HobitResult: {
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /** Category */
+            category: string;
+            /** Enabled */
+            enabled: boolean;
+            /** Model */
+            model: string;
+            /** Charter */
+            charter: string;
+            /** Instructions */
+            instructions: string;
+            /** Timeout Seconds */
+            timeout_seconds: number;
+            /** Unread Count */
+            unread_count: number;
+            last_run: components["schemas"]["HobitRunResult"] | null;
+        };
+        /**
+         * HobitRunDetailResult
+         * @description A run with its full output — for the detail endpoint.
+         */
+        HobitRunDetailResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Hobit Slug */
+            hobit_slug: string;
+            /** Status */
+            status: string;
+            /** Commit Sha */
+            commit_sha: string | null;
+            /** Headline */
+            headline: string | null;
+            /** Tier */
+            tier: string | null;
+            self_score: components["schemas"]["SelfScoreResult"] | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Finished At */
+            finished_at: string | null;
+            /** Narrative */
+            narrative: string | null;
+            /** Raw Output */
+            raw_output: string | null;
+            /** Error */
+            error: string | null;
+        };
+        /**
+         * HobitRunResult
+         * @description A run in list/summary form (no narrative/raw_output).
+         */
+        HobitRunResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Hobit Slug */
+            hobit_slug: string;
+            /** Status */
+            status: string;
+            /** Commit Sha */
+            commit_sha: string | null;
+            /** Headline */
+            headline: string | null;
+            /** Tier */
+            tier: string | null;
+            self_score: components["schemas"]["SelfScoreResult"] | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /**
          * Hotspot
          * @description A risk zone: changes often (churn) AND is large (size).
          */
@@ -1329,12 +1690,17 @@ export interface components {
         /**
          * IngestRepositoryRequest
          * @description Create input: a git URL to clone + analyze, optionally via a stored connection.
+         *
+         *     `tool_ids` (when provided) pins exactly which integrations run — bypassing the language-based
+         *     auto-link. `None` keeps the auto-link default.
          */
         IngestRepositoryRequest: {
             /** Url */
             url: string;
             /** Connection Id */
             connection_id?: string | null;
+            /** Tool Ids */
+            tool_ids?: string[] | null;
         };
         /** LanguageStat */
         LanguageStat: {
@@ -1346,6 +1712,14 @@ export interface components {
             files: number;
             /** Pct */
             pct: number;
+        };
+        /**
+         * MarkReadRequest
+         * @description Mark all posts read — scoped to one hobit when `hobit_slug` is set, else the whole feed.
+         */
+        MarkReadRequest: {
+            /** Hobit Slug */
+            hobit_slug?: string | null;
         };
         /** MemberDetailResult */
         MemberDetailResult: {
@@ -1571,6 +1945,23 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+        };
+        /** SelfScoreResult */
+        SelfScoreResult: {
+            /** Importance */
+            importance: number;
+            /** Confidence */
+            confidence: number;
+            /** Urgency */
+            urgency: number;
+        };
+        /**
+         * SetRepoHobitsRequest
+         * @description The hobit slugs to assign to a repository (replaces the current set).
+         */
+        SetRepoHobitsRequest: {
+            /** Slugs */
+            slugs: string[];
         };
         /**
          * TestConnectionRequest
@@ -2834,6 +3225,375 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ContextMarkdownResult"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_hobits_api_v1_hobits_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitResult"][];
+                };
+            };
+        };
+    };
+    get_hobit_api_v1_hobits__slug__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_hobit_api_v1_hobits__slug__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HobitConfigUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_hobit_runs_api_v1_hobits__slug__runs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitRunResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_repo_hobits_api_v1_repositories__repository_id__hobits_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_repo_hobits_api_v1_repositories__repository_id__hobits_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetRepoHobitsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_hobit_api_v1_repositories__repository_id__hobits__slug__run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitRunResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_repo_runs_api_v1_repositories__repository_id__hobits_runs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitRunResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_run_api_v1_repositories__repository_id__hobits_runs__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitRunDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_briefing_api_v1_briefing_get: {
+        parameters: {
+            query?: {
+                hobit_slug?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BriefingItemResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_post_read_api_v1_briefing__item_id__read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_read_api_v1_briefing_read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MarkReadRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

@@ -11,9 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as MembersRouteImport } from './routes/members'
+import { Route as HobitsRouteImport } from './routes/hobits'
+import { Route as FeedRouteImport } from './routes/feed'
 import { Route as ConnectorsRouteImport } from './routes/connectors'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HobitsIndexRouteImport } from './routes/hobits.index'
 import { Route as RepositoriesIdRouteImport } from './routes/repositories.$id'
+import { Route as HobitsSlugRouteImport } from './routes/hobits.$slug'
 
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
@@ -23,6 +27,16 @@ const ToolsRoute = ToolsRouteImport.update({
 const MembersRoute = MembersRouteImport.update({
   id: '/members',
   path: '/members',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HobitsRoute = HobitsRouteImport.update({
+  id: '/hobits',
+  path: '/hobits',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedRoute = FeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConnectorsRoute = ConnectorsRouteImport.update({
@@ -35,51 +49,95 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HobitsIndexRoute = HobitsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => HobitsRoute,
+} as any)
 const RepositoriesIdRoute = RepositoriesIdRouteImport.update({
   id: '/repositories/$id',
   path: '/repositories/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HobitsSlugRoute = HobitsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => HobitsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/connectors': typeof ConnectorsRoute
+  '/feed': typeof FeedRoute
+  '/hobits': typeof HobitsRouteWithChildren
   '/members': typeof MembersRoute
   '/tools': typeof ToolsRoute
+  '/hobits/$slug': typeof HobitsSlugRoute
   '/repositories/$id': typeof RepositoriesIdRoute
+  '/hobits/': typeof HobitsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/connectors': typeof ConnectorsRoute
+  '/feed': typeof FeedRoute
   '/members': typeof MembersRoute
   '/tools': typeof ToolsRoute
+  '/hobits/$slug': typeof HobitsSlugRoute
   '/repositories/$id': typeof RepositoriesIdRoute
+  '/hobits': typeof HobitsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/connectors': typeof ConnectorsRoute
+  '/feed': typeof FeedRoute
+  '/hobits': typeof HobitsRouteWithChildren
   '/members': typeof MembersRoute
   '/tools': typeof ToolsRoute
+  '/hobits/$slug': typeof HobitsSlugRoute
   '/repositories/$id': typeof RepositoriesIdRoute
+  '/hobits/': typeof HobitsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/connectors' | '/members' | '/tools' | '/repositories/$id'
+  fullPaths:
+    | '/'
+    | '/connectors'
+    | '/feed'
+    | '/hobits'
+    | '/members'
+    | '/tools'
+    | '/hobits/$slug'
+    | '/repositories/$id'
+    | '/hobits/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/connectors' | '/members' | '/tools' | '/repositories/$id'
+  to:
+    | '/'
+    | '/connectors'
+    | '/feed'
+    | '/members'
+    | '/tools'
+    | '/hobits/$slug'
+    | '/repositories/$id'
+    | '/hobits'
   id:
     | '__root__'
     | '/'
     | '/connectors'
+    | '/feed'
+    | '/hobits'
     | '/members'
     | '/tools'
+    | '/hobits/$slug'
     | '/repositories/$id'
+    | '/hobits/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConnectorsRoute: typeof ConnectorsRoute
+  FeedRoute: typeof FeedRoute
+  HobitsRoute: typeof HobitsRouteWithChildren
   MembersRoute: typeof MembersRoute
   ToolsRoute: typeof ToolsRoute
   RepositoriesIdRoute: typeof RepositoriesIdRoute
@@ -101,6 +159,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MembersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hobits': {
+      id: '/hobits'
+      path: '/hobits'
+      fullPath: '/hobits'
+      preLoaderRoute: typeof HobitsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed': {
+      id: '/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof FeedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/connectors': {
       id: '/connectors'
       path: '/connectors'
@@ -115,6 +187,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hobits/': {
+      id: '/hobits/'
+      path: '/'
+      fullPath: '/hobits/'
+      preLoaderRoute: typeof HobitsIndexRouteImport
+      parentRoute: typeof HobitsRoute
+    }
     '/repositories/$id': {
       id: '/repositories/$id'
       path: '/repositories/$id'
@@ -122,12 +201,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RepositoriesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hobits/$slug': {
+      id: '/hobits/$slug'
+      path: '/$slug'
+      fullPath: '/hobits/$slug'
+      preLoaderRoute: typeof HobitsSlugRouteImport
+      parentRoute: typeof HobitsRoute
+    }
   }
 }
+
+interface HobitsRouteChildren {
+  HobitsSlugRoute: typeof HobitsSlugRoute
+  HobitsIndexRoute: typeof HobitsIndexRoute
+}
+
+const HobitsRouteChildren: HobitsRouteChildren = {
+  HobitsSlugRoute: HobitsSlugRoute,
+  HobitsIndexRoute: HobitsIndexRoute,
+}
+
+const HobitsRouteWithChildren =
+  HobitsRoute._addFileChildren(HobitsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConnectorsRoute: ConnectorsRoute,
+  FeedRoute: FeedRoute,
+  HobitsRoute: HobitsRouteWithChildren,
   MembersRoute: MembersRoute,
   ToolsRoute: ToolsRoute,
   RepositoriesIdRoute: RepositoriesIdRoute,

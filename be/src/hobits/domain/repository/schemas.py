@@ -11,10 +11,15 @@ from hobits.domain.repository.domain import Repository
 
 
 class IngestRepositoryRequest(BaseModel):
-    """Create input: a git URL to clone + analyze, optionally via a stored connection."""
+    """Create input: a git URL to clone + analyze, optionally via a stored connection.
+
+    `tool_ids` (when provided) pins exactly which integrations run — bypassing the language-based
+    auto-link. `None` keeps the auto-link default.
+    """
 
     url: str
     connection_id: uuid.UUID | None = None
+    tool_ids: list[str] | None = None
 
 
 class RepositoryResult(BaseModel):

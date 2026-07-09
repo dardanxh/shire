@@ -1,0 +1,64 @@
+{
+  "hobits": {
+    "list": {
+      "title": "Hobits",
+      "subtitle": "Configurable agents that reason over your repositories.",
+      "empty": "No hobits registered.",
+      "col_name": "Hobit",
+      "col_category": "Category",
+      "col_unread": "Unread",
+      "col_model": "Model",
+      "col_status": "Enabled",
+      "col_last_run": "Last run"
+    },
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "view": {
+      "crumb": "Hobit",
+      "back": "All hobits",
+      "config_title": "Configuration",
+      "config_desc": "Saved as overrides. The charter is passed as the agent's persona.",
+      "timeline_title": "Timeline",
+      "runs_title": "Run history",
+      "runs_empty": "No runs yet.",
+      "run_repo": "Repository",
+      "run_status": "Status",
+      "run_tier": "Tier",
+      "run_headline": "Headline",
+      "run_when": "Started",
+      "saved_toast": "Hobit saved"
+    },
+    "form": {
+      "enabled": { "label": "Enabled" },
+      "model": { "label": "Model", "required": "Model is required" },
+      "charter": {
+        "label": "Charter (persona)",
+        "desc": "Who the hobit is — passed as the agent's system prompt.",
+        "required": "Charter is required"
+      },
+      "instructions": {
+        "label": "Instructions (task)",
+        "desc": "What the hobit should do and produce. Change this to change its behavior. The context snapshot and the required JSON output format are added automatically.",
+        "required": "Instructions are required"
+      },
+      "timeout": {
+        "label": "Timeout (seconds)",
+        "invalid": "Must be a positive number"
+      },
+      "save": "Save"
+    },
+    "run": {
+      "title": "Mental model (Repo-Onboarding hobit)",
+      "desc": "Run the Repo-Onboarding hobit to write an L3 mental model into this repo's context. It explores the clone with Claude — this can take a minute.",
+      "trigger": "Generate mental model",
+      "regenerate": "Regenerate",
+      "running": "Generating…",
+      "toast_done": "Mental model generated",
+      "toast_status": "Run finished: {{status}}",
+      "last_run": "Last run: {{status}} · {{when}}",
+      "never": "Not run yet"
+    }
+  }
+}

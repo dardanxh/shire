@@ -33,3 +33,6 @@ class ContextPackRow(Base):
     # User-authored Markdown override. Preserved across regenerations; when present it's the
     # effective context the UI shows and the agent reads. NULL = fall back to generated Markdown.
     edited_markdown: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # L3 "mental model" written by the Repo-Onboarding hobit. An overlay (like edited_markdown):
+    # preserved across regeneration, surfaced at the top of the pack + Markdown. NULL until a run.
+    narrative: Mapped[str | None] = mapped_column(Text, nullable=True)

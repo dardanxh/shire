@@ -1,0 +1,16 @@
+{
+  "briefing": {
+    "title": "Feed",
+    "subtitle": "A feed of what your hobits surfaced, newest first. Click a post to read it.",
+    "empty": "No briefing items yet. Run a hobit on a repository to populate this.",
+    "scores": "importance {{importance}} · confidence {{confidence}} · urgency {{urgency}}",
+    "no_detail": "No detail available for this post.",
+    "unread": "Unread",
+    "hobit_timeline_empty": "This hobit hasn't posted anything yet.",
+    "tiers": {
+      "now": "Now",
+      "daily": "Daily",
+      "weekly": "Weekly"
+    }
+  }
+}

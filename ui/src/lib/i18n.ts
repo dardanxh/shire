@@ -1,6 +1,8 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import briefing from "@/features/briefing/locales/en.json";
 import connectors from "@/features/connectors/locales/en.json";
+import hobits from "@/features/hobits/locales/en.json";
 import members from "@/features/members/locales/en.json";
 import repositories from "@/features/repositories/locales/en.json";
 import tools from "@/features/tools/locales/en.json";
@@ -17,6 +19,8 @@ const en = {
   ...tools,
   ...connectors,
   ...members,
+  ...hobits,
+  ...briefing,
 };
 
 i18n.use(initReactI18next).init({

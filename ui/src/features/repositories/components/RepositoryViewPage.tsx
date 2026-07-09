@@ -3,6 +3,7 @@ import {
   ActivityIcon,
   ArrowLeftIcon,
   BookOpenIcon,
+  BotIcon,
   CodeIcon,
   ExternalLinkIcon,
   GaugeIcon,
@@ -40,6 +41,7 @@ import { CommitsChart } from "./CommitsChart";
 import { ContextPanel } from "./ContextPanel";
 import { EnrichmentCards } from "./EnrichmentCards";
 import { FactCard } from "./FactCard";
+import { HobitsPanel } from "./HobitsPanel";
 import { IntegrationsPanel } from "./integrations/IntegrationsPanel";
 import { LanguageBars } from "./LanguageBars";
 import { RatingBadge } from "./RatingBadge";
@@ -162,6 +164,10 @@ export function RepositoryViewPage({
               <TabsTrigger value="context">
                 <BookOpenIcon />
                 {t("repositories.view.tabs.context")}
+              </TabsTrigger>
+              <TabsTrigger value="hobits">
+                <BotIcon />
+                {t("repositories.view.tabs.hobits")}
               </TabsTrigger>
             </TabsList>
 
@@ -536,6 +542,11 @@ export function RepositoryViewPage({
             {/* Context — the precomputed, agent-ready snapshot of the repo */}
             <TabsContent value="context">
               <ContextPanel repoId={repo.id} />
+            </TabsContent>
+
+            {/* Hobits — the agents assigned to this repo, with run controls */}
+            <TabsContent value="hobits">
+              <HobitsPanel repoId={repo.id} />
             </TabsContent>
           </Tabs>
 

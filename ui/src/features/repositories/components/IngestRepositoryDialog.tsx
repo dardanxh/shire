@@ -1,53 +1,112 @@
-import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-import {
-  FormFooter,
-  SelectField,
-  TextField,
-} from "@/components/shared/form-fields";
+import { CheckboxList } from "@/components/shared/CheckboxList";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Form } from "@/components/ui/form";
-import { SelectItem } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useConnectionsQuery } from "@/features/connectors/api";
-import { useIngestRepositoryMutation } from "../api";
-import { type IngestFormValues, makeIngestSchema } from "../schemas";
+import { useHobitsQuery } from "@/features/hobits/api";
+import { useToolsQuery } from "@/features/tools/api";
+import { useIngestRepositoryMutation, useSetRepoHobitsMutation } from "../api";
 
 const NO_CONNECTION = "none";
+const STEPS = ["details", "tools", "hobits", "confirm"] as const;
+
+function toggle(set: Set<string>, value: string): Set<string> {
+  const next = new Set(set);
+  if (next.has(value)) next.delete(value);
+  else next.add(value);
+  return next;
+}
 
 export function IngestRepositoryDialog() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const { mutate: ingest, isPending } = useIngestRepositoryMutation();
+  const [step, setStep] = useState(0);
+  const [url, setUrl] = useState("");
+  const [urlError, setUrlError] = useState(false);
+  const [connectionId, setConnectionId] = useState(NO_CONNECTION);
+  const [tools, setTools] = useState<Set<string>>(new Set());
+  const [hobits, setHobits] = useState<Set<string>>(new Set());
+
   const { data: connections } = useConnectionsQuery({
     page: 1,
     page_size: 100,
   });
+  const { data: toolCatalog } = useToolsQuery();
+  const { data: hobitCatalog } = useHobitsQuery();
+  const { mutate: ingest, isPending } = useIngestRepositoryMutation();
+  const setRepoHobits = useSetRepoHobitsMutation();
 
-  const form = useForm<IngestFormValues>({
-    resolver: standardSchemaResolver(makeIngestSchema(t)),
-    defaultValues: { url: "", connectionId: NO_CONNECTION },
-  });
+  const toolItems = useMemo(
+    () =>
+      (toolCatalog ?? []).map((tool) => ({
+        value: tool.id,
+        label: tool.name,
+        disabled: !tool.available,
+        hint: tool.available
+          ? tool.language
+          : t("repositories.wizard.tool_missing"),
+      })),
+    [toolCatalog, t],
+  );
+  const hobitItems = useMemo(
+    () =>
+      (hobitCatalog ?? [])
+        .filter((h) => h.category !== "Foundational")
+        .map((h) => ({ value: h.slug, label: h.name, hint: h.category })),
+    [hobitCatalog],
+  );
 
-  const handleSubmit = (values: IngestFormValues) => {
-    const connectionId =
-      values.connectionId && values.connectionId !== NO_CONNECTION
-        ? values.connectionId
-        : null;
+  const reset = () => {
+    setStep(0);
+    setUrl("");
+    setUrlError(false);
+    setConnectionId(NO_CONNECTION);
+    setTools(new Set());
+    setHobits(new Set());
+  };
+
+  const next = () => {
+    if (step === 0) {
+      const ok = /^https?:\/\/|^git@/.test(url.trim());
+      if (!ok) {
+        setUrlError(true);
+        return;
+      }
+    }
+    setStep((s) => Math.min(s + 1, STEPS.length - 1));
+  };
+
+  const finish = () => {
     ingest(
-      { url: values.url, connectionId },
+      {
+        url: url.trim(),
+        connectionId: connectionId !== NO_CONNECTION ? connectionId : null,
+        toolIds: [...tools],
+      },
       {
         onSuccess: (repo) => {
           if (repo.status === "failed") {
@@ -58,16 +117,27 @@ export function IngestRepositoryDialog() {
                   repo.error ?? t("repositories.ingest.toast_failed_desc"),
               },
             );
-          } else {
-            toast.success(
-              t("repositories.ingest.toast_added", { slug: repo.slug }),
-              {
-                description: t("repositories.ingest.toast_added_desc"),
-              },
-            );
+            setOpen(false);
+            reset();
+            return;
           }
-          form.reset({ url: "", connectionId: NO_CONNECTION });
+          // Assign the chosen hobits (they don't run during ingest).
+          if (hobits.size > 0) {
+            setRepoHobits.mutate({ id: repo.id, slugs: [...hobits] });
+          }
+          toast.success(
+            t("repositories.ingest.toast_added", { slug: repo.slug }),
+            {
+              description: t("repositories.ingest.toast_added_desc"),
+            },
+          );
           setOpen(false);
+          reset();
+          navigate({
+            to: "/repositories/$id",
+            params: { id: repo.id },
+            search: { tab: "overview" },
+          });
         },
       },
     );
@@ -77,9 +147,9 @@ export function IngestRepositoryDialog() {
     <Dialog
       open={open}
       onOpenChange={(o) => {
-        // Don't allow closing while a blocking ingest is in flight.
-        if (isPending) return;
+        if (isPending) return; // lock during the blocking ingest
         setOpen(o);
+        if (!o) reset();
       }}
     >
       <DialogTrigger
@@ -90,55 +160,179 @@ export function IngestRepositoryDialog() {
           </Button>
         }
       />
-      <DialogContent className="sm:max-w-md">
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
-            <DialogHeader>
-              <DialogTitle>{t("repositories.ingest.title")}</DialogTitle>
-              <DialogDescription>
-                {t("repositories.ingest.description")}
-              </DialogDescription>
-            </DialogHeader>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t("repositories.wizard.title")}</DialogTitle>
+          <DialogDescription>
+            {t(`repositories.wizard.step_${STEPS[step]}_desc`)}
+          </DialogDescription>
+        </DialogHeader>
 
-            <TextField<IngestFormValues>
-              name="url"
-              label={t("repositories.ingest.url.label")}
-              type="url"
-              autoFocus
-              placeholder={t("repositories.ingest.placeholder")}
-              disabled={isPending}
+        <StepDots steps={STEPS} active={step} />
+
+        <div className="min-h-[16rem] py-2">
+          {isPending ? (
+            <p className="py-16 text-center text-sm text-muted-foreground">
+              {t("repositories.wizard.analyzing")}
+            </p>
+          ) : step === 0 ? (
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="wiz-url">
+                  {t("repositories.ingest.url.label")}
+                </Label>
+                <Input
+                  id="wiz-url"
+                  type="url"
+                  autoFocus
+                  value={url}
+                  onChange={(e) => {
+                    setUrl(e.target.value);
+                    setUrlError(false);
+                  }}
+                  placeholder={t("repositories.ingest.placeholder")}
+                  aria-invalid={urlError}
+                />
+                {urlError ? (
+                  <p className="text-xs text-destructive">
+                    {t("repositories.ingest.url.invalid")}
+                  </p>
+                ) : null}
+              </div>
+              <div className="space-y-1.5">
+                <Label>{t("repositories.ingest.connection.label")}</Label>
+                <Select
+                  value={connectionId}
+                  onValueChange={(v) => setConnectionId(v ?? NO_CONNECTION)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NO_CONNECTION}>
+                      {t("repositories.ingest.connection.none")}
+                    </SelectItem>
+                    {(connections?.items ?? []).map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          ) : step === 1 ? (
+            <CheckboxList
+              items={toolItems}
+              selected={tools}
+              onToggle={(v) => setTools((s) => toggle(s, v))}
+              emptyLabel={t("repositories.wizard.tools_empty")}
             />
-
-            <SelectField<IngestFormValues>
-              name="connectionId"
-              label={t("repositories.ingest.connection.label")}
-              description={t("repositories.ingest.connection.description")}
-              disabled={isPending}
-            >
-              <SelectItem value={NO_CONNECTION}>
-                {t("repositories.ingest.connection.none")}
-              </SelectItem>
-              {(connections?.items ?? []).map((connection) => (
-                <SelectItem key={connection.id} value={connection.id}>
-                  {connection.name}
-                </SelectItem>
-              ))}
-            </SelectField>
-
-            <FormFooter
-              submitLabel={
-                isPending
-                  ? t("repositories.ingest.submitting")
-                  : t("repositories.ingest.submit")
-              }
-              isPending={isPending}
+          ) : step === 2 ? (
+            <CheckboxList
+              items={hobitItems}
+              selected={hobits}
+              onToggle={(v) => setHobits((s) => toggle(s, v))}
+              emptyLabel={t("repositories.wizard.hobits_empty")}
             />
-          </form>
-        </Form>
+          ) : (
+            <dl className="space-y-3 text-sm">
+              <Summary
+                label={t("repositories.wizard.sum_url")}
+                value={url}
+                mono
+              />
+              <Summary
+                label={t("repositories.wizard.sum_tools")}
+                value={
+                  tools.size
+                    ? t("repositories.wizard.count_selected", {
+                        count: tools.size,
+                      })
+                    : t("repositories.wizard.none")
+                }
+              />
+              <Summary
+                label={t("repositories.wizard.sum_hobits")}
+                value={
+                  hobits.size ? (
+                    <div className="flex flex-wrap gap-1">
+                      {[...hobits].map((s) => (
+                        <Badge
+                          key={s}
+                          variant="secondary"
+                          className="font-mono text-xs"
+                        >
+                          {s}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    t("repositories.wizard.none")
+                  )
+                }
+              />
+            </dl>
+          )}
+        </div>
+
+        <DialogFooter>
+          {step > 0 && !isPending ? (
+            <Button variant="outline" onClick={() => setStep((s) => s - 1)}>
+              {t("repositories.wizard.back")}
+            </Button>
+          ) : null}
+          {step < STEPS.length - 1 ? (
+            <Button onClick={next}>{t("repositories.wizard.next")}</Button>
+          ) : (
+            <Button onClick={finish} disabled={isPending}>
+              {isPending
+                ? t("repositories.ingest.submitting")
+                : t("repositories.wizard.finish")}
+            </Button>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function StepDots({
+  steps,
+  active,
+}: {
+  steps: readonly string[];
+  active: number;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      {steps.map((name, i) => (
+        <span
+          key={name}
+          className={`h-1.5 flex-1 rounded-full ${
+            i <= active ? "bg-primary" : "bg-muted"
+          }`}
+        />
+      ))}
+    </div>
+  );
+}
+
+function Summary({
+  label,
+  value,
+  mono,
+}: {
+  label: string;
+  value: React.ReactNode;
+  mono?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        {label}
+      </dt>
+      <dd className={mono ? "break-all font-mono text-xs" : ""}>{value}</dd>
+    </div>
   );
 }
