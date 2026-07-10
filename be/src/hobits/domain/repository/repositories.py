@@ -92,3 +92,11 @@ class SqlRepositoryRepository:
 
     def count(self) -> int:
         return self._session.scalar(select(func.count()).select_from(RepositoryRow)) or 0
+
+    def delete(self, repository_id: uuid.UUID) -> None:
+        """Delete the repository row. FK-cascaded children (context pack, tool links, hobit
+        assignments + runs, briefing items) go with it; analysis snapshots are removed separately
+        (they have no FK to repositories)."""
+        row = self._session.get(RepositoryRow, repository_id)
+        if row is not None:
+            self._session.delete(row)

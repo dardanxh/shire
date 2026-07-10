@@ -8,6 +8,7 @@ another domain's repository).
 from __future__ import annotations
 
 import logging
+import shutil
 import uuid
 from pathlib import Path
 
@@ -28,6 +29,15 @@ from hobits.integrations.git_providers.registry import get_connector
 from hobits.integrations.github import GithubProviderClient
 
 logger = logging.getLogger(__name__)
+
+
+def _within(path: Path, root: Path) -> bool:
+    """True if `path` is inside `root` — a guard so we only delete clones we created."""
+    try:
+        path.resolve().relative_to(root.resolve())
+        return True
+    except (ValueError, OSError):
+        return False
 
 
 class RepositoryService:
@@ -81,6 +91,25 @@ class RepositoryService:
             raise NotFoundError("Repository not found")
         repo = self._ingest(existing.url.value, existing.connection_id)
         return RepositoryResult.of(repo)
+
+    def delete(self, repository_id: uuid.UUID) -> None:
+        """Delete a repository and everything derived from it: analysis snapshots + on-disk
+        artifacts (via the substrate service), the FK-cascaded rows (context, tool links, hobit
+        assignments/runs, briefing items), and the clone we created. A *local* repo's own working
+        tree is never touched — only clones under our clone_root are removed."""
+        repo = self._repos.get(repository_id)
+        if repo is None:
+            raise NotFoundError("Repository not found")
+
+        if (
+            repo.coordinates.provider is not GitProvider.local
+            and repo.clone_path
+            and _within(Path(repo.clone_path), get_settings().clone_root)
+        ):
+            shutil.rmtree(repo.clone_path, ignore_errors=True)
+
+        self._analysis.delete_for_repository(repository_id)
+        self._repos.delete(repository_id)
 
     def _ingest(
         self,

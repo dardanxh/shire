@@ -44,3 +44,12 @@ def refresh_repository(
 ) -> RepositoryResult:
     """Pull the latest from the remote and re-run the full analysis."""
     return RepositoryService(session).refresh(repository_id)
+
+
+@router.delete("/{repository_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_repository(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> None:
+    """Delete a repository and everything derived from it (analysis, artifacts, hobit runs,
+    briefing items, and the clone). A local repo's own files are left untouched."""
+    RepositoryService(session).delete(repository_id)

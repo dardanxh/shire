@@ -321,6 +321,29 @@ export function useRefreshRepositoryMutation(id: string) {
   });
 }
 
+/** Delete a repository and everything derived from it (analysis, artifacts, hobit runs, briefing
+ * items, and the clone). A local repo's own files are left untouched. */
+export function useDeleteRepositoryMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string): Promise<void> => {
+      const { error } = await api.DELETE(
+        "/api/v1/repositories/{repository_id}",
+        {
+          params: { path: { repository_id: id } },
+        },
+      );
+      if (error) throw error;
+    },
+    onSuccess: (_data, id) => {
+      queryClient.removeQueries({ queryKey: repositoryKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["hobits"] });
+      queryClient.invalidateQueries({ queryKey: ["briefing"] });
+    },
+  });
+}
+
 /**
  * Codebase-graph (emerge) status for a repository: whether an artifact exists
  * and the URL to iframe. Cheap poll target; independent of the analysis query.

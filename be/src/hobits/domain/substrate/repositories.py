@@ -305,6 +305,13 @@ class SqlAnalysisRepository:
         row = self._session.get(AnalysisRow, analysis_id)
         return _to_domain(row) if row else None
 
+    def delete_for_repository(self, repository_id: uuid.UUID) -> None:
+        """Delete every analysis snapshot for a repo. Child rows (contributors, hotspots, tool
+        runs, code chunks, …) cascade via their FK to analyses.id."""
+        self._session.execute(
+            delete(AnalysisRow).where(AnalysisRow.repository_id == repository_id)
+        )
+
     def get_latest_for_repository(self, repository_id: uuid.UUID) -> Analysis | None:
         stmt = (
             select(AnalysisRow)

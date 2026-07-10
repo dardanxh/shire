@@ -118,7 +118,7 @@ export function RepositoryViewPage({
               <span className="font-mono text-xs">{repo.default_branch}</span>
             </div>
           </div>
-          <RepositoryActions id={repo.id} />
+          <RepositoryActions id={repo.id} slug={repo.slug} />
         </div>
         {repo.status === "failed" && repo.error ? (
           <Card className="border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">

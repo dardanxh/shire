@@ -175,6 +175,16 @@ class AnalysisService:
             raise NotFoundError("No completed analysis for this repository")
         return AnalysisResult.of(analysis)
 
+    def delete_for_repository(self, repository_id: uuid.UUID) -> None:
+        """Purge a repository's substrate: analysis snapshots (child rows cascade) and every
+        generated on-disk artifact (codebase graph + visualization outputs)."""
+        self._analyses.delete_for_repository(repository_id)
+        settings = get_settings()
+        shutil.rmtree(settings.graph_root / str(repository_id), ignore_errors=True)
+        if settings.artifacts_root.exists():
+            for tool_dir in settings.artifacts_root.iterdir():
+                shutil.rmtree(tool_dir / str(repository_id), ignore_errors=True)
+
     def tool_log(self, repository_id: uuid.UUID, tool_name: str) -> ToolLogResult:
         """Raw findings log for a tool's latest run — None when it hasn't run or produced none."""
         analysis = self._analyses.get_latest_for_repository(repository_id)
