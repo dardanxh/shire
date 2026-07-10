@@ -134,3 +134,24 @@ def test_repo_url_parsing() -> None:
     # A relative path is not a valid source (must be absolute).
     with pytest.raises(ValueError):
         RepoUrl.parse("some/relative/path")
+
+
+def test_author_identity_merges_split_git_identities() -> None:
+    """One person under two emails (or two name spellings) resolves to a single identity, so
+    Top Contributors / bus factor count people, not git identities."""
+    from types import SimpleNamespace
+
+    from hobits.integrations.scanners.git import _author_key_resolver
+
+    commits = [
+        SimpleNamespace(author_name="Khalil Sharkawi", author_email="khalil@work.com"),
+        SimpleNamespace(author_name="Khalil Sharkawi", author_email="khalil@personal.com"),
+        SimpleNamespace(author_name="K. Sharkawi", author_email="khalil@work.com"),
+        SimpleNamespace(author_name="Someone Else", author_email="else@example.com"),
+    ]
+    key = _author_key_resolver(commits)
+    keys = [key(c) for c in commits]
+    # Shared name links the two emails; the shared work email links the name variant → all one.
+    assert keys[0] == keys[1] == keys[2]
+    assert keys[3] != keys[0]
+    assert len(set(keys)) == 2
