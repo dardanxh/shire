@@ -10,11 +10,18 @@
       "col_unread": "Unread",
       "col_model": "Model",
       "col_status": "Enabled",
-      "col_last_run": "Last run"
+      "col_last_run": "Last run",
+      "new_hobit": "New hobit"
     },
     "status": {
       "enabled": "Enabled",
       "disabled": "Disabled"
+    },
+    "delete": {
+      "title": "Delete hobit",
+      "body": "Delete \"{{name}}\" and all of its runs, briefing items, and repository assignments? This can't be undone.",
+      "confirm": "Delete hobit",
+      "toast_deleted": "Deleted {{name}}"
     },
     "view": {
       "crumb": "Hobit",
@@ -32,6 +39,27 @@
       "saved_toast": "Hobit saved"
     },
     "form": {
+      "new_title": "New hobit",
+      "edit_title": "Edit {{name}}",
+      "dialog_desc": "Custom hobits run through the same engine as the built-in roster — a charter (persona) plus instructions.",
+      "create": "Create hobit",
+      "created": "Hobit created",
+      "saved": "Hobit saved",
+      "edit": "Edit",
+      "name": {
+        "label": "Name",
+        "placeholder": "e.g. Latency Hawk",
+        "required": "A name is required"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "One line on what this hobit looks for",
+        "required": "A description is required"
+      },
+      "category": {
+        "label": "Category",
+        "required": "A category is required"
+      },
       "enabled": { "label": "Enabled" },
       "model": { "label": "Model", "required": "Model is required" },
       "charter": {

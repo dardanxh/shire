@@ -21,6 +21,8 @@ export type RepoContextOut = components["schemas"]["RepoContextResult"];
 export type ContextMarkdownOut = components["schemas"]["ContextMarkdownResult"];
 export type HobitOut = components["schemas"]["HobitResult"];
 export type HobitConfigUpdate = components["schemas"]["HobitConfigUpdate"];
+/** Create/edit body for a user-authored hobit (create and edit share the same shape). */
+export type HobitInput = components["schemas"]["CreateHobit"];
 export type HobitRunOut = components["schemas"]["HobitRunResult"];
 export type HobitRunDetailOut = components["schemas"]["HobitRunDetailResult"];
 export type BriefingItemOut = components["schemas"]["BriefingItemResult"];

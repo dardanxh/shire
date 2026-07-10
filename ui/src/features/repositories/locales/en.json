@@ -111,7 +111,14 @@
       "tool_muted_title": "{{tool}} did not contribute to the current analysis",
       "refreshed": "Refreshed",
       "refresh_failed": "Refresh failed for {{slug}}",
-      "tool_ran": "{{tool}} ran"
+      "tool_ran": "{{tool}} ran",
+      "delete_button": "Delete"
+    },
+    "delete": {
+      "title": "Delete repository",
+      "body": "Delete \"{{slug}}\" and everything derived from it — analysis, visualizations, hobit runs, and briefing items? This can't be undone. Your local files (for a local repo) are not touched.",
+      "confirm": "Delete repository",
+      "toast_deleted": "Deleted {{slug}}"
     },
     "view": {
       "crumb": "Repository",

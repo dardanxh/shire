@@ -8,8 +8,14 @@ from datetime import UTC, datetime
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
-from hobits.domain.hobits.domain import HobitConfigOverride, HobitRunRecord
+from hobits.domain.hobits.domain import (
+    CustomHobit,
+    HobitConfigOverride,
+    HobitRunRecord,
+    HobitSpec,
+)
 from hobits.domain.hobits.models import (
+    CustomHobitRow,
     HobitConfigRow,
     HobitRunRow,
     RepositoryHobitRow,
@@ -58,12 +64,78 @@ class SqlHobitConfigRepository:
         row.tags = ",".join(t.strip() for t in tags if t.strip())
         row.updated_at = now
 
+    def delete(self, slug: str) -> None:
+        self._session.execute(delete(HobitConfigRow).where(HobitConfigRow.slug == slug))
+
 
 def _parse_tags(value: str | None) -> list[str] | None:
     """None (never saved) -> None (use spec default); a saved string -> the tag list (maybe [])."""
     if value is None:
         return None
     return [t.strip() for t in value.split(",") if t.strip()]
+
+
+def _to_custom(row: CustomHobitRow) -> CustomHobit:
+    return CustomHobit(
+        spec=HobitSpec(
+            slug=row.slug,
+            name=row.name,
+            description=row.description,
+            category=row.category,
+            default_charter=row.charter,
+            default_instructions=row.instructions,
+            default_model=row.model,
+            default_timeout_seconds=row.timeout_seconds,
+            writes_narrative=False,
+            default_tags=_parse_tags(row.tags) or [],
+        ),
+        enabled=row.enabled,
+        created_at=row.created_at,
+        updated_at=row.updated_at,
+    )
+
+
+class SqlCustomHobitRepository:
+    """Data access for user-authored hobits (the `custom_hobits` table)."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def list(self) -> list[CustomHobit]:
+        rows = self._session.scalars(
+            select(CustomHobitRow).order_by(CustomHobitRow.created_at)
+        )
+        return [_to_custom(r) for r in rows]
+
+    def get(self, slug: str) -> CustomHobit | None:
+        row = self._session.get(CustomHobitRow, slug)
+        return _to_custom(row) if row else None
+
+    def slugs(self) -> set[str]:
+        return set(self._session.scalars(select(CustomHobitRow.slug)))
+
+    def upsert(self, custom: CustomHobit) -> None:
+        now = datetime.now(UTC)
+        spec = custom.spec
+        row = self._session.get(CustomHobitRow, spec.slug)
+        if row is None:
+            row = CustomHobitRow(slug=spec.slug, created_at=custom.created_at or now)
+            self._session.add(row)
+        row.name = spec.name
+        row.description = spec.description
+        row.category = spec.category
+        row.charter = spec.default_charter
+        row.instructions = spec.default_instructions
+        row.model = spec.default_model
+        row.timeout_seconds = spec.default_timeout_seconds
+        row.tags = ",".join(t.strip() for t in spec.default_tags if t.strip())
+        row.enabled = custom.enabled
+        row.updated_at = now
+
+    def delete(self, slug: str) -> None:
+        row = self._session.get(CustomHobitRow, slug)
+        if row is not None:
+            self._session.delete(row)
 
 
 class SqlRepositoryHobitRepository:
@@ -138,6 +210,12 @@ class SqlRepositoryHobitRepository:
         row.cadence = cadence
         return True
 
+    def remove_hobit(self, slug: str) -> None:
+        """Unassign a hobit from every repository (used when the hobit is deleted)."""
+        self._session.execute(
+            delete(RepositoryHobitRow).where(RepositoryHobitRow.hobit_slug == slug)
+        )
+
     def mark_checked(self, repository_id: uuid.UUID, slug: str) -> None:
         """Record that the scheduler just evaluated this assignment. No-op if unassigned
         (e.g. a Foundational hobit that isn't in the repo's allow-list)."""
@@ -203,6 +281,10 @@ class SqlHobitRunRepository:
     def get(self, run_id: uuid.UUID) -> HobitRunRecord | None:
         row = self._session.get(HobitRunRow, run_id)
         return _to_record(row) if row else None
+
+    def delete_for_hobit(self, slug: str) -> None:
+        """Delete every run of a hobit (its briefing items cascade via the FK)."""
+        self._session.execute(delete(HobitRunRow).where(HobitRunRow.hobit_slug == slug))
 
 
 def _to_row(r: HobitRunRecord) -> HobitRunRow:

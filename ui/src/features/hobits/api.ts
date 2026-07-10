@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { api, type HobitConfigUpdate, type HobitOut } from "@/lib/api";
+import {
+  api,
+  type HobitConfigUpdate,
+  type HobitInput,
+  type HobitOut,
+} from "@/lib/api";
 import { hobitKeys } from "./keys";
 
 /** All registered hobits, merged with their effective config + last run. */
@@ -60,6 +65,61 @@ export function useUpdateHobitMutation(slug: string) {
     onSuccess: (data) => {
       queryClient.setQueryData(hobitKeys.detail(slug), data);
       queryClient.invalidateQueries({ queryKey: hobitKeys.lists() });
+    },
+  });
+}
+
+/** Create a user-authored (custom) hobit. */
+export function useCreateHobitMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: HobitInput): Promise<HobitOut> => {
+      const { data, error } = await api.POST("/api/v1/hobits", { body });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: hobitKeys.lists() });
+    },
+  });
+}
+
+/** Fully edit a custom hobit (identity + config). */
+export function useUpdateHobitDefinitionMutation(slug: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: HobitInput): Promise<HobitOut> => {
+      const { data, error } = await api.PUT(
+        "/api/v1/hobits/{slug}/definition",
+        {
+          params: { path: { slug } },
+          body,
+        },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(hobitKeys.detail(slug), data);
+      queryClient.invalidateQueries({ queryKey: hobitKeys.lists() });
+    },
+  });
+}
+
+/** Delete a custom hobit and everything tied to it. */
+export function useDeleteHobitMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (slug: string): Promise<void> => {
+      const { error } = await api.DELETE("/api/v1/hobits/{slug}", {
+        params: { path: { slug } },
+      });
+      if (error) throw error;
+    },
+    onSuccess: (_data, slug) => {
+      queryClient.removeQueries({ queryKey: hobitKeys.detail(slug) });
+      queryClient.invalidateQueries({ queryKey: hobitKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ["briefing"] });
     },
   });
 }

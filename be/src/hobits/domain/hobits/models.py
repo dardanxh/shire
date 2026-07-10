@@ -11,6 +11,26 @@ from sqlalchemy.orm import Mapped, mapped_column
 from hobits.core.db import Base
 
 
+class CustomHobitRow(Base):
+    """A user-authored hobit, stored in full (identity + config). Unlike the code roster, these
+    are created/edited/deleted at runtime; they drive the same RepoHobit engine via their spec."""
+
+    __tablename__ = "custom_hobits"
+
+    slug: Mapped[str] = mapped_column(String(64), primary_key=True)
+    name: Mapped[str] = mapped_column(String(120))
+    description: Mapped[str] = mapped_column(Text)
+    category: Mapped[str] = mapped_column(String(64))
+    charter: Mapped[str] = mapped_column(Text)
+    instructions: Mapped[str] = mapped_column(Text)
+    model: Mapped[str] = mapped_column(String(64))
+    timeout_seconds: Mapped[float] = mapped_column(Float)
+    tags: Mapped[str] = mapped_column(Text, default="", server_default="")
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
 class HobitConfigRow(Base):
     """User overrides for a code-defined hobit (keyed by its registry slug). NULL = use default."""
 

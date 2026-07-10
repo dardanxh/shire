@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from hobits.domain.hobits.domain import HobitRunRecord
 
@@ -88,6 +88,8 @@ class HobitResult(BaseModel):
     tags: list[str]
     unread_count: int
     last_run: HobitRunResult | None
+    # True for user-authored hobits (fully editable + deletable); False for the built-in roster.
+    custom: bool = False
     # Populated only for the per-repository view (a hobit's assignment to that repo): its run
     # cadence and when the scheduler last evaluated it. None in the global roster listing.
     cadence: str | None = None
@@ -103,6 +105,24 @@ class HobitConfigUpdate(BaseModel):
     instructions: str
     timeout_seconds: float
     tags: list[str]
+
+
+class CreateHobit(BaseModel):
+    """Create a user-authored hobit (its full definition)."""
+
+    name: str
+    description: str
+    category: str = "Custom"
+    charter: str
+    instructions: str
+    model: str = "sonnet"
+    timeout_seconds: float = 180.0
+    tags: list[str] = Field(default_factory=list)
+    enabled: bool = True
+
+
+class UpdateHobit(CreateHobit):
+    """Edit a user-authored hobit's full definition (same shape as create; slug is immutable)."""
 
 
 class SetRepoHobitsRequest(BaseModel):

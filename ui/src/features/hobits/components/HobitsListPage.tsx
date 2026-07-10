@@ -1,10 +1,12 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
+import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { DataTable } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   Select,
@@ -15,6 +17,8 @@ import {
 } from "@/components/ui/select";
 import { extractErrorMessage, type HobitOut } from "@/lib/api";
 import { useHobitsQuery, useUpdateHobitMutation } from "../api";
+import { DeleteHobitDialog } from "./DeleteHobitDialog";
+import { HobitFormDialog } from "./HobitFormDialog";
 
 const MODEL_OPTIONS = ["sonnet", "opus", "haiku"];
 
@@ -98,19 +102,37 @@ export function HobitsListPage() {
             <span className="text-xs text-muted-foreground">—</span>
           ),
       },
+      {
+        id: "actions",
+        header: "",
+        enableSorting: false,
+        meta: { isAction: true },
+        cell: ({ row }) =>
+          row.original.custom ? <CustomActions hobit={row.original} /> : null,
+      },
     ],
     [t],
   );
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {t("hobits.list.title")}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("hobits.list.subtitle")}
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {t("hobits.list.title")}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t("hobits.list.subtitle")}
+          </p>
+        </div>
+        <HobitFormDialog
+          trigger={
+            <Button size="sm">
+              <PlusIcon className="size-4" />
+              {t("hobits.list.new_hobit")}
+            </Button>
+          }
+        />
       </div>
 
       <Card className="overflow-hidden p-0">
@@ -132,6 +154,37 @@ export function HobitsListPage() {
           }
         />
       </Card>
+    </div>
+  );
+}
+
+/** Edit + delete actions for a custom (user-authored) hobit. */
+function CustomActions({ hobit }: { hobit: HobitOut }) {
+  const { t } = useTranslation();
+  return (
+    <div className="flex items-center justify-end gap-1">
+      <HobitFormDialog
+        hobit={hobit}
+        trigger={
+          <Button size="icon-sm" variant="ghost" title={t("hobits.form.edit")}>
+            <PencilIcon className="size-3.5" />
+          </Button>
+        }
+      />
+      <DeleteHobitDialog
+        slug={hobit.slug}
+        name={hobit.name}
+        trigger={
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            className="text-destructive hover:text-destructive"
+            title={t("hobits.delete.confirm")}
+          >
+            <Trash2Icon className="size-3.5" />
+          </Button>
+        }
+      />
     </div>
   );
 }

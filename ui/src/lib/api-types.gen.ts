@@ -36,7 +36,12 @@ export interface paths {
         get: operations["get_repository_api_v1_repositories__repository_id__get"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete Repository
+         * @description Delete a repository and everything derived from it (analysis, artifacts, hobit runs,
+         *     briefing items, and the clone). A local repo's own files are left untouched.
+         */
+        delete: operations["delete_repository_api_v1_repositories__repository_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -724,7 +729,11 @@ export interface paths {
         /** List Hobits */
         get: operations["list_hobits_api_v1_hobits_get"];
         put?: never;
-        post?: never;
+        /**
+         * Create Hobit
+         * @description Create a user-authored (custom) hobit.
+         */
+        post: operations["create_hobit_api_v1_hobits_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -741,10 +750,36 @@ export interface paths {
         /** Get Hobit */
         get: operations["get_hobit_api_v1_hobits__slug__get"];
         /**
-         * Update Hobit
-         * @description Save the hobit's config (model, charter, timeout, enabled) as overrides.
+         * Update Hobit Config
+         * @description Save the hobit's config (model, charter, timeout, enabled). For a built-in hobit this is
+         *     stored as an override; for a custom hobit it edits the hobit directly.
          */
-        put: operations["update_hobit_api_v1_hobits__slug__put"];
+        put: operations["update_hobit_config_api_v1_hobits__slug__put"];
+        post?: never;
+        /**
+         * Delete Hobit
+         * @description Delete a custom hobit and everything tied to it (runs, briefing items, assignments).
+         *     Built-in hobits can't be deleted — disable them instead.
+         */
+        delete: operations["delete_hobit_api_v1_hobits__slug__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/hobits/{slug}/definition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Hobit Definition
+         * @description Fully edit a custom hobit (name, description, category + config). Custom hobits only.
+         */
+        put: operations["update_hobit_definition_api_v1_hobits__slug__definition_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -1574,6 +1609,42 @@ export interface components {
             /** Name */
             name: string;
         };
+        /**
+         * CreateHobit
+         * @description Create a user-authored hobit (its full definition).
+         */
+        CreateHobit: {
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /**
+             * Category
+             * @default Custom
+             */
+            category: string;
+            /** Charter */
+            charter: string;
+            /** Instructions */
+            instructions: string;
+            /**
+             * Model
+             * @default sonnet
+             */
+            model: string;
+            /**
+             * Timeout Seconds
+             * @default 180
+             */
+            timeout_seconds: number;
+            /** Tags */
+            tags?: string[];
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+        };
         /** CreateMemberExclusion */
         CreateMemberExclusion: {
             /** Pattern */
@@ -1880,6 +1951,11 @@ export interface components {
             /** Unread Count */
             unread_count: number;
             last_run: components["schemas"]["HobitRunResult"] | null;
+            /**
+             * Custom
+             * @default false
+             */
+            custom: boolean;
             /** Cadence */
             cadence?: string | null;
             /** Last Checked At */
@@ -2368,6 +2444,42 @@ export interface components {
             /** Base Url */
             base_url?: string | null;
         };
+        /**
+         * UpdateHobit
+         * @description Edit a user-authored hobit's full definition (same shape as create; slug is immutable).
+         */
+        UpdateHobit: {
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /**
+             * Category
+             * @default Custom
+             */
+            category: string;
+            /** Charter */
+            charter: string;
+            /** Instructions */
+            instructions: string;
+            /**
+             * Model
+             * @default sonnet
+             */
+            model: string;
+            /**
+             * Timeout Seconds
+             * @default 180
+             */
+            timeout_seconds: number;
+            /** Tags */
+            tags?: string[];
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -2491,6 +2603,35 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["RepositoryResult"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_repository_api_v1_repositories__repository_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
@@ -3753,6 +3894,39 @@ export interface operations {
             };
         };
     };
+    create_hobit_api_v1_hobits_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateHobit"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_hobit_api_v1_hobits__slug__get: {
         parameters: {
             query?: never;
@@ -3784,7 +3958,7 @@ export interface operations {
             };
         };
     };
-    update_hobit_api_v1_hobits__slug__put: {
+    update_hobit_config_api_v1_hobits__slug__put: {
         parameters: {
             query?: never;
             header?: never;
@@ -3796,6 +3970,70 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["HobitConfigUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_hobit_api_v1_hobits__slug__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_hobit_definition_api_v1_hobits__slug__definition_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateHobit"];
             };
         };
         responses: {

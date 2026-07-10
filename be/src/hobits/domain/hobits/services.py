@@ -8,6 +8,7 @@ repository directly (the one exception mirrors ContextService: a cross-domain re
 
 from __future__ import annotations
 
+import re
 import uuid
 from datetime import UTC, datetime
 
@@ -19,6 +20,7 @@ from hobits.domain.briefing.domain import derive_tier
 from hobits.domain.briefing.services import BriefingService
 from hobits.domain.context.services import ContextService
 from hobits.domain.hobits.domain import (
+    CustomHobit,
     Hobit,
     HobitConfig,
     HobitConfigOverride,
@@ -29,16 +31,20 @@ from hobits.domain.hobits.domain import (
     SelfScore,
 )
 from hobits.domain.hobits.registry import all_specs, get_hobit
+from hobits.domain.hobits.repo_hobit import RepoHobit
 from hobits.domain.hobits.repositories import (
+    SqlCustomHobitRepository,
     SqlHobitConfigRepository,
     SqlHobitRunRepository,
     SqlRepositoryHobitRepository,
 )
 from hobits.domain.hobits.schemas import (
+    CreateHobit,
     HobitConfigUpdate,
     HobitResult,
     HobitRunDetailResult,
     HobitRunResult,
+    UpdateHobit,
 )
 from hobits.domain.repository.services import RepositoryService
 from hobits.integrations.claude_agent import ClaudeAgent
@@ -53,25 +59,50 @@ class HobitService:
         self._session = session
         self._context = ContextService(session)
         self._configs = SqlHobitConfigRepository(session)
+        self._custom = SqlCustomHobitRepository(session)
         self._runs = SqlHobitRunRepository(session)
         self._access = SqlRepositoryHobitRepository(session)
         self._briefing = BriefingService(session)
         self._agent_override = agent  # injectable for tests; else built per-run from config
+
+    # --- registry resolution (code roster + user-authored custom hobits) ------
+    def _resolve(self, slug: str) -> Hobit | None:
+        """A hobit by slug from either source: the code roster or a custom DB row."""
+        hobit = get_hobit(slug)
+        if hobit is not None:
+            return hobit
+        custom = self._custom.get(slug)
+        return RepoHobit(custom.spec) if custom is not None else None
+
+    def _require_spec(self, slug: str) -> HobitSpec:
+        hobit = self._resolve(slug)
+        if hobit is None:
+            raise NotFoundError(f"Unknown hobit: {slug}")
+        return hobit.spec
+
+    def _all_specs(self) -> list[HobitSpec]:
+        return all_specs() + [c.spec for c in self._custom.list()]
 
     # --- per-repo access ------------------------------------------------------
     def list_repo_hobits(self, repository_id: uuid.UUID) -> list[HobitResult]:
         """The hobits assigned to a repository (its allow-list), each with its run cadence."""
         assignments = self._access.assignment_map(repository_id)
         counts = self._briefing.unread_counts()
+        customs = {c.spec.slug: c for c in self._custom.list()}
         return [
-            self._to_result(spec, counts.get(spec.slug, 0), assignment=assignments[spec.slug])
-            for spec in all_specs()
+            self._to_result(
+                spec,
+                counts.get(spec.slug, 0),
+                assignment=assignments[spec.slug],
+                custom=customs.get(spec.slug),
+            )
+            for spec in self._all_specs()
             if spec.slug in assignments
         ]
 
     def set_repo_hobits(self, repository_id: uuid.UUID, slugs: list[str]) -> list[HobitResult]:
         """Replace a repository's assigned hobits (validated against the registry)."""
-        valid = {s for s in slugs if get_hobit(s) is not None}
+        valid = {s for s in slugs if self._resolve(s) is not None}
         self._access.set_all(repository_id, valid)
         # Converge Prefect: unassigned hobits lose their deployment, retained ones keep theirs.
         PrefectScheduleSync(self._session).sync_repo(repository_id)
@@ -81,7 +112,7 @@ class HobitService:
         self, repository_id: uuid.UUID, slug: str, cadence: str
     ) -> list[HobitResult]:
         """Set one assignment's run cadence and reconcile its Prefect deployment."""
-        _require_spec(slug)
+        self._require_spec(slug)
         try:
             validate_cadence(cadence)
         except ValueError as exc:
@@ -94,14 +125,42 @@ class HobitService:
     # --- config / listing -----------------------------------------------------
     def list_hobits(self) -> list[HobitResult]:
         counts = self._briefing.unread_counts()
-        return [self._to_result(spec, counts.get(spec.slug, 0)) for spec in all_specs()]
+        customs = {c.spec.slug: c for c in self._custom.list()}
+        return [
+            self._to_result(spec, counts.get(spec.slug, 0), custom=customs.get(spec.slug))
+            for spec in self._all_specs()
+        ]
 
     def get_hobit_result(self, slug: str) -> HobitResult:
-        spec = _require_spec(slug)
-        return self._to_result(spec, self._briefing.unread_count(slug))
+        spec = self._require_spec(slug)
+        return self._to_result(
+            spec, self._briefing.unread_count(slug), custom=self._custom.get(slug)
+        )
 
     def update_config(self, slug: str, update: HobitConfigUpdate) -> HobitResult:
-        _require_spec(slug)
+        custom = self._custom.get(slug)
+        if custom is not None:
+            # A custom hobit stores its config in-row; keep its identity, replace the config fields.
+            self._custom.upsert(
+                CustomHobit(
+                    spec=HobitSpec(
+                        slug=slug,
+                        name=custom.spec.name,
+                        description=custom.spec.description,
+                        category=custom.spec.category,
+                        default_charter=update.charter,
+                        default_instructions=update.instructions,
+                        default_model=update.model,
+                        default_timeout_seconds=update.timeout_seconds,
+                        default_tags=update.tags,
+                    ),
+                    enabled=update.enabled,
+                    created_at=custom.created_at,
+                    updated_at=custom.updated_at,
+                )
+            )
+            return self.get_hobit_result(slug)
+        self._require_spec(slug)  # built-in: 404 if unknown, else store an override
         self._configs.upsert(
             slug,
             enabled=update.enabled,
@@ -113,11 +172,56 @@ class HobitService:
         )
         return self.get_hobit_result(slug)
 
+    # --- custom hobit CRUD ----------------------------------------------------
+    def create_hobit(self, data: CreateHobit) -> HobitResult:
+        """Create a user-authored hobit. The slug is derived from the name and made unique."""
+        slug = self._new_slug(data.name)
+        self._custom.upsert(
+            CustomHobit(
+                spec=self._spec_from(slug, data),
+                enabled=data.enabled,
+                created_at=None,
+                updated_at=None,
+            )
+        )
+        return self.get_hobit_result(slug)
+
+    def update_hobit(self, slug: str, data: UpdateHobit) -> HobitResult:
+        """Fully edit a custom hobit (identity + config). Built-in hobits aren't editable here."""
+        custom = self._custom.get(slug)
+        if custom is None:
+            if get_hobit(slug) is not None:
+                raise ConflictError(
+                    "Built-in hobits can't be edited — adjust their config instead."
+                )
+            raise NotFoundError(f"Unknown hobit: {slug}")
+        self._custom.upsert(
+            CustomHobit(
+                spec=self._spec_from(slug, data),
+                enabled=data.enabled,
+                created_at=custom.created_at,
+                updated_at=custom.updated_at,
+            )
+        )
+        return self.get_hobit_result(slug)
+
+    def delete_hobit(self, slug: str) -> None:
+        """Delete a custom hobit and everything tied to it (runs, briefing items, assignments,
+        config override). Built-in hobits can't be deleted — disable them instead."""
+        if self._custom.get(slug) is None:
+            if get_hobit(slug) is not None:
+                raise ConflictError("Built-in hobits can't be deleted — disable them instead.")
+            raise NotFoundError(f"Unknown hobit: {slug}")
+        self._runs.delete_for_hobit(slug)  # briefing items cascade via FK
+        self._access.remove_hobit(slug)
+        self._configs.delete(slug)
+        self._custom.delete(slug)
+
     def list_runs(self, repository_id: uuid.UUID) -> list[HobitRunResult]:
         return [HobitRunResult.of(r) for r in self._runs.list_for_repository(repository_id)]
 
     def list_hobit_runs(self, slug: str) -> list[HobitRunResult]:
-        _require_spec(slug)
+        self._require_spec(slug)
         return [HobitRunResult.of(r) for r in self._runs.list_for_hobit(slug)]
 
     def get_run(self, run_id: uuid.UUID) -> HobitRunDetailResult:
@@ -130,7 +234,7 @@ class HobitService:
     def run_hobit(
         self, repository_id: uuid.UUID, slug: str, *, trigger: str = "manual"
     ) -> HobitRunResult:
-        hobit = get_hobit(slug)
+        hobit = self._resolve(slug)
         if hobit is None:
             raise NotFoundError(f"Unknown hobit: {slug}")
         # Access gate: Foundational hobits (repo-onboarding) are always allowed; others must be
@@ -193,7 +297,7 @@ class HobitService:
         substrate to the new commit, then run the hobit normally. Either way, stamp the assignment's
         `last_checked_at`. This is the "deterministic-first, LLM-on-deltas" gate from NFR #1.
         """
-        hobit = get_hobit(slug)
+        hobit = self._resolve(slug)
         if hobit is None:
             raise NotFoundError(f"Unknown hobit: {slug}")
 
@@ -279,16 +383,53 @@ class HobitService:
         self._briefing.create_from_run(record)  # no-op for unscored runs
         return HobitRunResult.of(record)
 
-    def _effective_config(self, spec: HobitSpec) -> HobitConfig:
+    def _effective_config(
+        self, spec: HobitSpec, custom: CustomHobit | None = None
+    ) -> HobitConfig:
+        custom = custom if custom is not None else self._custom.get(spec.slug)
+        if custom is not None:
+            # A custom hobit's spec already holds its live config; enabled lives on the record.
+            return HobitConfig(
+                slug=spec.slug,
+                enabled=custom.enabled,
+                model=spec.default_model,
+                charter=spec.default_charter,
+                instructions=spec.default_instructions,
+                tags=spec.default_tags,
+                timeout_seconds=spec.default_timeout_seconds,
+            )
         return _merge_config(spec, self._configs.get(spec.slug))
+
+    def _spec_from(self, slug: str, data: CreateHobit) -> HobitSpec:
+        return HobitSpec(
+            slug=slug,
+            name=data.name,
+            description=data.description,
+            category=data.category,
+            default_charter=data.charter,
+            default_instructions=data.instructions,
+            default_model=data.model,
+            default_timeout_seconds=data.timeout_seconds,
+            default_tags=data.tags,
+        )
+
+    def _new_slug(self, name: str) -> str:
+        """A URL-safe slug from the name, unique across the code roster and custom hobits."""
+        base = re.sub(r"[^a-z0-9]+", "-", name.strip().lower()).strip("-") or "hobit"
+        taken = self._custom.slugs()
+        candidate, n = base, 2
+        while get_hobit(candidate) is not None or candidate in taken:
+            candidate, n = f"{base}-{n}", n + 1
+        return candidate
 
     def _to_result(
         self,
         spec: HobitSpec,
         unread_count: int,
         assignment: tuple[str, datetime | None] | None = None,
+        custom: CustomHobit | None = None,
     ) -> HobitResult:
-        config = self._effective_config(spec)
+        config = self._effective_config(spec, custom)
         latest = self._runs.latest_for_hobit(spec.slug)
         last = HobitRunResult.of(latest) if latest else None
         cadence, last_checked_at = assignment if assignment is not None else (None, None)
@@ -307,6 +448,7 @@ class HobitService:
             last_run=last,
             cadence=cadence,
             last_checked_at=last_checked_at,
+            custom=custom is not None,
         )
 
 
@@ -332,13 +474,6 @@ def _merge_config(spec: HobitSpec, override: HobitConfigOverride | None) -> Hobi
             else spec.default_tags
         ),
     )
-
-
-def _require_spec(slug: str) -> HobitSpec:
-    hobit = get_hobit(slug)
-    if hobit is None:
-        raise NotFoundError(f"Unknown hobit: {slug}")
-    return hobit.spec
 
 
 def _run_record(

@@ -4,17 +4,19 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from hobits.core.db import get_session
 from hobits.domain.hobits.schemas import (
+    CreateHobit,
     HobitConfigUpdate,
     HobitResult,
     HobitRunDetailResult,
     HobitRunResult,
     SetCadenceRequest,
     SetRepoHobitsRequest,
+    UpdateHobit,
 )
 from hobits.domain.hobits.services import HobitService
 
@@ -26,17 +28,41 @@ def list_hobits(session: Session = Depends(get_session)) -> list[HobitResult]:
     return HobitService(session).list_hobits()
 
 
+@router.post("/hobits", response_model=HobitResult, status_code=status.HTTP_201_CREATED)
+def create_hobit(
+    body: CreateHobit, session: Session = Depends(get_session)
+) -> HobitResult:
+    """Create a user-authored (custom) hobit."""
+    return HobitService(session).create_hobit(body)
+
+
 @router.get("/hobits/{slug}", response_model=HobitResult)
 def get_hobit(slug: str, session: Session = Depends(get_session)) -> HobitResult:
     return HobitService(session).get_hobit_result(slug)
 
 
 @router.put("/hobits/{slug}", response_model=HobitResult)
-def update_hobit(
+def update_hobit_config(
     slug: str, body: HobitConfigUpdate, session: Session = Depends(get_session)
 ) -> HobitResult:
-    """Save the hobit's config (model, charter, timeout, enabled) as overrides."""
+    """Save the hobit's config (model, charter, timeout, enabled). For a built-in hobit this is
+    stored as an override; for a custom hobit it edits the hobit directly."""
     return HobitService(session).update_config(slug, body)
+
+
+@router.put("/hobits/{slug}/definition", response_model=HobitResult)
+def update_hobit_definition(
+    slug: str, body: UpdateHobit, session: Session = Depends(get_session)
+) -> HobitResult:
+    """Fully edit a custom hobit (name, description, category + config). Custom hobits only."""
+    return HobitService(session).update_hobit(slug, body)
+
+
+@router.delete("/hobits/{slug}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_hobit(slug: str, session: Session = Depends(get_session)) -> None:
+    """Delete a custom hobit and everything tied to it (runs, briefing items, assignments).
+    Built-in hobits can't be deleted — disable them instead."""
+    HobitService(session).delete_hobit(slug)
 
 
 @router.get("/hobits/{slug}/runs", response_model=list[HobitRunResult])

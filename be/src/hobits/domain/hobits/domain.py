@@ -116,6 +116,17 @@ class HobitConfig:
 
 
 @dataclass(frozen=True)
+class CustomHobit:
+    """A user-authored hobit stored entirely in the DB (identity + config in one place, no override
+    row). Its `spec` drives the same RepoHobit engine; `enabled` lives here."""
+
+    spec: HobitSpec
+    enabled: bool
+    created_at: datetime
+    updated_at: datetime
+
+
+@dataclass(frozen=True)
 class HobitRunRecord:
     id: uuid.UUID
     repository_id: uuid.UUID
