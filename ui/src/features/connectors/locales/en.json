@@ -5,7 +5,8 @@
     "provider": {
       "github": "GitHub",
       "gitlab": "GitLab",
-      "bitbucket": "Bitbucket"
+      "bitbucket": "Bitbucket",
+      "local": "Local"
     },
     "auth_method": {
       "token": "Token",
@@ -22,7 +23,8 @@
       "blurb": {
         "github": "Personal access token or GitHub app password.",
         "gitlab": "Personal/project access token, or self-hosted.",
-        "bitbucket": "Access token or username + app password."
+        "bitbucket": "Access token or username + app password.",
+        "local": "A repository already on your machine — analyzed in place."
       }
     },
     "connections": {
@@ -50,6 +52,7 @@
       "toast_deleted": "Connection \"{{name}}\" deleted."
     },
     "form": {
+      "local_note": "Local connections need no credentials. Add a repository from the Repositories page and paste its absolute path (a folder with a .git).",
       "name": {
         "label": "Name",
         "placeholder": "e.g. Work account",

@@ -1563,6 +1563,7 @@ export interface components {
          */
         CreateConnection: {
             provider: components["schemas"]["GitProvider"];
+            /** @default token */
             auth_method: components["schemas"]["AuthMethod"];
             /** Username */
             username?: string | null;
@@ -1788,7 +1789,7 @@ export interface components {
          * GitProvider
          * @enum {string}
          */
-        GitProvider: "github" | "gitlab" | "bitbucket" | "generic";
+        GitProvider: "github" | "gitlab" | "bitbucket" | "generic" | "local";
         /**
          * GraphResult
          * @description State of a repository's codebase graph (emerge) artifact.
@@ -2276,6 +2277,7 @@ export interface components {
          */
         TestConnectionRequest: {
             provider: components["schemas"]["GitProvider"];
+            /** @default token */
             auth_method: components["schemas"]["AuthMethod"];
             /** Username */
             username?: string | null;

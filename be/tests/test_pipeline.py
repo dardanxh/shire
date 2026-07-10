@@ -124,3 +124,13 @@ def test_repo_url_parsing() -> None:
     _url, ssh_coords = RepoUrl.parse("git@gitlab.com:group/proj.git")
     assert ssh_coords.provider is GitProvider.gitlab
     assert ssh_coords.slug == "group/proj"
+
+    # An absolute local path is its own provider; owner/name come from the path tail.
+    local_url, local_coords = RepoUrl.parse("/Users/me/code/myrepo")
+    assert local_coords.provider is GitProvider.local
+    assert local_coords.slug == "code/myrepo"
+    assert local_url.value == "/Users/me/code/myrepo"
+
+    # A relative path is not a valid source (must be absolute).
+    with pytest.raises(ValueError):
+        RepoUrl.parse("some/relative/path")

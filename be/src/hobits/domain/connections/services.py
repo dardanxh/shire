@@ -49,7 +49,7 @@ class ConnectionService:
             name=data.name,
             provider=data.provider,
             auth_method=data.auth_method,
-            secret=data.secret,  # type: ignore[arg-type]  # validated non-empty by the schema
+            secret=data.secret or "",  # local connections carry no secret
             username=data.username,
             base_url=data.base_url,
         )

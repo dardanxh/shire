@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-import { CheckboxList } from "@/components/shared/CheckboxList";
 import { HobitMultiSelect } from "@/components/shared/HobitMultiSelect";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,6 +29,7 @@ import { useConnectionsQuery } from "@/features/connectors/api";
 import { useHobitsQuery } from "@/features/hobits/api";
 import { useToolsQuery } from "@/features/tools/api";
 import { useIngestRepositoryMutation, useSetRepoHobitsMutation } from "../api";
+import { ToolPicker } from "./ToolPicker";
 
 const NO_CONNECTION = "none";
 const STEPS = ["details", "tools", "hobits", "confirm"] as const;
@@ -61,18 +61,6 @@ export function IngestRepositoryDialog() {
   const { mutate: ingest, isPending } = useIngestRepositoryMutation();
   const setRepoHobits = useSetRepoHobitsMutation();
 
-  const toolItems = useMemo(
-    () =>
-      (toolCatalog ?? []).map((tool) => ({
-        value: tool.id,
-        label: tool.name,
-        disabled: !tool.available,
-        hint: tool.available
-          ? tool.language
-          : t("repositories.wizard.tool_missing"),
-      })),
-    [toolCatalog, t],
-  );
   const hobitOptions = useMemo(
     () =>
       (hobitCatalog ?? [])
@@ -97,7 +85,8 @@ export function IngestRepositoryDialog() {
 
   const next = () => {
     if (step === 0) {
-      const ok = /^https?:\/\/|^git@/.test(url.trim());
+      // A git URL (https / git@) OR an absolute local path (/…, ~/…, or C:\…).
+      const ok = /^https?:\/\/|^git@|^~?\/|^[A-Za-z]:[\\/]/.test(url.trim());
       if (!ok) {
         setUrlError(true);
         return;
@@ -189,7 +178,7 @@ export function IngestRepositoryDialog() {
                 </Label>
                 <Input
                   id="wiz-url"
-                  type="url"
+                  type="text"
                   autoFocus
                   value={url}
                   onChange={(e) => {
@@ -212,7 +201,15 @@ export function IngestRepositoryDialog() {
                   onValueChange={(v) => setConnectionId(v ?? NO_CONNECTION)}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue>
+                      {(value) =>
+                        value === NO_CONNECTION
+                          ? t("repositories.ingest.connection.none")
+                          : ((connections?.items ?? []).find(
+                              (c) => c.id === value,
+                            )?.name ?? String(value))
+                      }
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={NO_CONNECTION}>
@@ -228,8 +225,8 @@ export function IngestRepositoryDialog() {
               </div>
             </div>
           ) : step === 1 ? (
-            <CheckboxList
-              items={toolItems}
+            <ToolPicker
+              tools={toolCatalog ?? []}
               selected={tools}
               onToggle={(v) => setTools((s) => toggle(s, v))}
               emptyLabel={t("repositories.wizard.tools_empty")}

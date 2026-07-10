@@ -8,11 +8,13 @@ from hobits.domain.repository.domain import GitProvider
 from hobits.integrations.git_providers.bitbucket import BitbucketConnector
 from hobits.integrations.git_providers.github import GithubConnector
 from hobits.integrations.git_providers.gitlab import GitlabConnector
+from hobits.integrations.git_providers.local import LocalConnector
 
 _CONNECTORS: dict[GitProvider, GitProviderConnector] = {
     GitProvider.github: GithubConnector(),
     GitProvider.gitlab: GitlabConnector(),
     GitProvider.bitbucket: BitbucketConnector(),
+    GitProvider.local: LocalConnector(),
 }
 
 

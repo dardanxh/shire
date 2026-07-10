@@ -66,6 +66,8 @@ export function ConnectionFormDialog({
   const isEdit = Boolean(connection);
   const activeProvider =
     (connection?.provider as ConnectionProvider | undefined) ?? provider;
+  // A local connection points at on-disk repos — no auth fields, no live test.
+  const isLocal = activeProvider === "local";
 
   const { mutate: createConnection, isPending: isCreating } =
     useCreateConnectionMutation();
@@ -190,75 +192,87 @@ export function ConnectionFormDialog({
               disabled={isPending}
             />
 
-            <SelectField<ConnectionFormValues>
-              name="authMethod"
-              label={t("connectors.form.auth_method.label")}
-              disabled={isPending || isEdit}
-            >
-              {CONNECTION_AUTH_METHODS.map((m) => (
-                <SelectItem key={m} value={m}>
-                  {t(`connectors.auth_method.${m}`)}
-                </SelectItem>
-              ))}
-            </SelectField>
-
-            {authMethod === "basic" ? (
-              <>
-                <TextField<ConnectionFormValues>
-                  name="username"
-                  label={t("connectors.form.username.label")}
-                  autoComplete="off"
-                  disabled={isPending}
-                />
-                <TextField<ConnectionFormValues>
-                  name="secret"
-                  type="password"
-                  label={t("connectors.form.password.label")}
-                  placeholder={
-                    isEdit ? t("connectors.form.secret.keep") : undefined
-                  }
-                  autoComplete="new-password"
-                  disabled={isPending}
-                />
-              </>
+            {isLocal ? (
+              <p className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
+                {t("connectors.form.local_note")}
+              </p>
             ) : (
-              <TextField<ConnectionFormValues>
-                name="secret"
-                type="password"
-                label={t("connectors.form.token.label")}
-                description={t("connectors.form.token.description")}
-                placeholder={
-                  isEdit ? t("connectors.form.secret.keep") : undefined
-                }
-                autoComplete="off"
-                disabled={isPending}
-              />
+              <>
+                <SelectField<ConnectionFormValues>
+                  name="authMethod"
+                  label={t("connectors.form.auth_method.label")}
+                  disabled={isPending || isEdit}
+                >
+                  {CONNECTION_AUTH_METHODS.map((m) => (
+                    <SelectItem key={m} value={m}>
+                      {t(`connectors.auth_method.${m}`)}
+                    </SelectItem>
+                  ))}
+                </SelectField>
+
+                {authMethod === "basic" ? (
+                  <>
+                    <TextField<ConnectionFormValues>
+                      name="username"
+                      label={t("connectors.form.username.label")}
+                      autoComplete="off"
+                      disabled={isPending}
+                    />
+                    <TextField<ConnectionFormValues>
+                      name="secret"
+                      type="password"
+                      label={t("connectors.form.password.label")}
+                      placeholder={
+                        isEdit ? t("connectors.form.secret.keep") : undefined
+                      }
+                      autoComplete="new-password"
+                      disabled={isPending}
+                    />
+                  </>
+                ) : (
+                  <TextField<ConnectionFormValues>
+                    name="secret"
+                    type="password"
+                    label={t("connectors.form.token.label")}
+                    description={t("connectors.form.token.description")}
+                    placeholder={
+                      isEdit ? t("connectors.form.secret.keep") : undefined
+                    }
+                    autoComplete="off"
+                    disabled={isPending}
+                  />
+                )}
+
+                {activeProvider !== "github" ? (
+                  <TextField<ConnectionFormValues>
+                    name="baseUrl"
+                    label={t("connectors.form.base_url.label")}
+                    description={t("connectors.form.base_url.description")}
+                    placeholder={t("connectors.form.base_url.placeholder")}
+                    disabled={isPending}
+                  />
+                ) : null}
+              </>
             )}
 
-            {activeProvider !== "github" ? (
-              <TextField<ConnectionFormValues>
-                name="baseUrl"
-                label={t("connectors.form.base_url.label")}
-                description={t("connectors.form.base_url.description")}
-                placeholder={t("connectors.form.base_url.placeholder")}
-                disabled={isPending}
-              />
-            ) : null}
-
             <div className="flex items-center justify-between gap-2 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleTest}
-                disabled={isTesting || isPending}
-              >
-                {isTesting ? (
-                  <Loader2Icon className="size-4 animate-spin" />
-                ) : (
-                  <PlugZapIcon className="size-4" />
-                )}
-                {t("connectors.form.test.button")}
-              </Button>
+              {isLocal ? (
+                <span />
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleTest}
+                  disabled={isTesting || isPending}
+                >
+                  {isTesting ? (
+                    <Loader2Icon className="size-4 animate-spin" />
+                  ) : (
+                    <PlugZapIcon className="size-4" />
+                  )}
+                  {t("connectors.form.test.button")}
+                </Button>
+              )}
 
               <FormFooter
                 submitLabel={

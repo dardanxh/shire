@@ -20,13 +20,16 @@ class _CredentialFields(BaseModel):
     """Shared credential inputs + cross-field validation for create/test."""
 
     provider: GitProvider
-    auth_method: AuthMethod
+    auth_method: AuthMethod = AuthMethod.token
     username: str | None = None
     secret: str | None = None
     base_url: str | None = None
 
     @model_validator(mode="after")
     def _validate_credentials(self) -> _CredentialFields:
+        # A local connection points at on-disk repos — it holds no credentials to validate.
+        if self.provider is GitProvider.local:
+            return self
         if self.provider not in CONNECTABLE_PROVIDERS:
             supported = ", ".join(p.value for p in CONNECTABLE_PROVIDERS)
             raise ValueError(f"Provider must be one of: {supported}.")

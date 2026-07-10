@@ -14,14 +14,14 @@
     "ingest": {
       "trigger": "Add repository",
       "title": "Add a repository",
-      "description": "Paste a git URL. Hobits clones and analyzes it — this can take a few seconds.",
-      "placeholder": "https://github.com/owner/repo",
+      "description": "Paste a git URL, or an absolute path to a local repo. Hobits analyzes it — this can take a few seconds.",
+      "placeholder": "https://github.com/owner/repo  ·  or  /Users/me/code/repo",
       "submit": "Add & analyze",
       "submitting": "Analyzing…",
       "url": {
-        "label": "Repository URL",
-        "required": "A git URL is required.",
-        "invalid": "Enter a valid URL."
+        "label": "Repository URL or local path",
+        "required": "A git URL or local path is required.",
+        "invalid": "Enter a git URL (https:// or git@) or an absolute local path."
       },
       "connection": {
         "label": "Connection",
@@ -40,6 +40,9 @@
       "step_hobits_desc": "Which hobits should get access to this repository?",
       "step_confirm_desc": "Review and start onboarding.",
       "tools_empty": "No tools available.",
+      "tools_search": "Search tools…",
+      "tools_all": "All",
+      "tools_none_match": "No tools match your filter.",
       "hobits_empty": "No hobits available.",
       "tool_missing": "not installed",
       "analyzing": "Cloning and analyzing… this can take a minute.",

@@ -25,10 +25,14 @@ export function makeConnectionSchema(t: TFunction, requireSecret: boolean) {
       path: ["username"],
       message: t("connectors.form.username.required"),
     })
-    .refine((v) => !requireSecret || !!v.secret?.trim(), {
-      path: ["secret"],
-      message: t("connectors.form.secret.required"),
-    });
+    .refine(
+      // Local connections hold no credentials, so a secret is never required.
+      (v) => v.provider === "local" || !requireSecret || !!v.secret?.trim(),
+      {
+        path: ["secret"],
+        message: t("connectors.form.secret.required"),
+      },
+    );
 }
 
 export type ConnectionFormValues = z.infer<

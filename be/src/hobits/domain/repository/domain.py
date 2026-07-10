@@ -22,6 +22,8 @@ class GitProvider(StrEnum):
     gitlab = "gitlab"
     bitbucket = "bitbucket"
     generic = "generic"
+    # A repository already on disk (has a .git), analyzed in place — no clone, no credentials.
+    local = "local"
 
 
 class IngestionStatus(StrEnum):
@@ -41,6 +43,8 @@ _HOST_TO_PROVIDER = {
 # https://host/owner/name(.git)  |  git@host:owner/name(.git)
 _HTTPS_RE = re.compile(r"^https?://(?P<host>[^/]+)/(?P<path>.+?)(?:\.git)?/?$")
 _SSH_RE = re.compile(r"^git@(?P<host>[^:]+):(?P<path>.+?)(?:\.git)?/?$")
+# An absolute filesystem path: POSIX ("/Users/me/repo") or Windows ("C:\code\repo").
+_LOCAL_PATH_RE = re.compile(r"^(?:/|~/|[A-Za-z]:[\\/])")
 
 
 class RepoCoordinates(ValueObject):
@@ -63,6 +67,8 @@ class RepoUrl(ValueObject):
     @classmethod
     def parse(cls, raw: str) -> tuple[RepoUrl, RepoCoordinates]:
         raw = raw.strip()
+        if _LOCAL_PATH_RE.match(raw):
+            return cls._parse_local(raw)
         match = _HTTPS_RE.match(raw) or _SSH_RE.match(raw)
         if not match:
             raise ValueError(f"Unrecognized git URL: {raw!r}")
@@ -77,6 +83,19 @@ class RepoUrl(ValueObject):
         owner, name = segments[-2], segments[-1]
         coordinates = RepoCoordinates(provider=provider, owner=owner, name=name)
         return cls(value=raw), coordinates
+
+    @classmethod
+    def _parse_local(cls, raw: str) -> tuple[RepoUrl, RepoCoordinates]:
+        """Coordinates for a local repo path. `name` is the repo directory, `owner` its parent
+        (or "local" at the filesystem root) — enough for a stable natural key + display slug."""
+        path = raw.rstrip("/\\")
+        segments = [s for s in re.split(r"[\\/]+", path) if s and not s.endswith(":")]
+        if not segments:
+            raise ValueError(f"Cannot derive a repository name from path: {raw!r}")
+        name = segments[-1]
+        owner = segments[-2] if len(segments) >= 2 else "local"
+        coordinates = RepoCoordinates(provider=GitProvider.local, owner=owner, name=name)
+        return cls(value=path), coordinates
 
 
 # --- aggregate ----------------------------------------------------------------

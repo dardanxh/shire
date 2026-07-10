@@ -1,12 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { api, type ConnectionOut, type TestConnectionOut } from "@/lib/api";
+import {
+  api,
+  type ConnectionOut,
+  type ConnectionProvider,
+  type TestConnectionOut,
+} from "@/lib/api";
 import { type ConnectionListParams, connectionKeys } from "./keys";
 
 /** The API request body for creating/testing a connection (snake_case). */
 export interface ConnectionInput {
   name?: string;
-  provider: "github" | "gitlab" | "bitbucket";
+  provider: ConnectionProvider;
   auth_method: "token" | "basic";
   username?: string | null;
   secret?: string | null;

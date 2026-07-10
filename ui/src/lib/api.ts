@@ -44,8 +44,14 @@ export type ConnectionOut = components["schemas"]["ConnectionResult"];
 export type ConnectionsPage = components["schemas"]["Page_ConnectionResult_"];
 export type TestConnectionOut = components["schemas"]["TestConnectionResult"];
 
-/** Git providers that support credential connections. */
-export const CONNECTION_PROVIDERS = ["github", "gitlab", "bitbucket"] as const;
+/** Sources you can connect. The first three hold credentials; "local" points at an on-disk repo
+ * (absolute path, analyzed in place — no credentials). */
+export const CONNECTION_PROVIDERS = [
+  "github",
+  "gitlab",
+  "bitbucket",
+  "local",
+] as const;
 export type ConnectionProvider = (typeof CONNECTION_PROVIDERS)[number];
 
 /** How a connection authenticates. */
