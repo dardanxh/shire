@@ -5,6 +5,7 @@ import {
   Link2Icon,
   Link2OffIcon,
   Loader2Icon,
+  PlusIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,6 +14,14 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SyncToolsButton, useToolsQuery } from "@/features/tools";
 import type { ToolStatusOut } from "@/lib/api";
@@ -187,14 +196,20 @@ export function IntegrationsPanel({
       a.id.localeCompare(b.id),
   );
 
-  // Categories present in the catalog, in display order — drives the filter bar.
-  const categories = [...new Set(sorted.map((tool) => tool.category))];
-  const visible =
-    category === LINKED_FILTER
-      ? sorted.filter((tool) => linked.has(tool.id))
-      : category
-        ? sorted.filter((tool) => tool.category === category)
-        : sorted;
+  // Only the integrations picked for this repo (during onboarding or added later) are shown; the
+  // rest live behind "Add integration". Category chips filter within that linked set.
+  const linkedTools = sorted.filter((tool) => linked.has(tool.id));
+  const unlinkedTools = sorted.filter((tool) => !linked.has(tool.id));
+  const categories = [...new Set(linkedTools.map((tool) => tool.category))];
+  const visible = category
+    ? linkedTools.filter((tool) => tool.category === category)
+    : linkedTools;
+
+  const linkTool = (id: string) =>
+    link(id, {
+      onSuccess: () =>
+        toast.success(t("repositories.integrations.linked", { tool: id })),
+    });
 
   return (
     <div className="space-y-4">
@@ -204,11 +219,6 @@ export function IntegrationsPanel({
             label={t("repositories.integrations.filter_all")}
             active={category === null}
             onClick={() => setCategory(null)}
-          />
-          <FilterChip
-            label={t("repositories.integrations.filter_linked")}
-            active={category === LINKED_FILTER}
-            onClick={() => setCategory(LINKED_FILTER)}
           />
           {categories.map((c) => (
             <FilterChip
@@ -220,39 +230,130 @@ export function IntegrationsPanel({
             />
           ))}
         </div>
-        <SyncToolsButton />
+        <div className="flex items-center gap-2">
+          <AddIntegrationDialog
+            tools={unlinkedTools}
+            linking={linking}
+            onLink={linkTool}
+          />
+          <SyncToolsButton />
+        </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {visible.map((tool) => (
-          <IntegrationCard
-            key={tool.id}
-            tool={tool}
-            state={vizState[tool.id]}
-            linked={linked.has(tool.id)}
-            linking={linking}
-            toolRunContributed={
-              analysis?.tool_runs.find(
-                (r) => r.name === tool.id || r.name === tool.name,
-              )?.contributed
-            }
-            onClick={() => onSelectTool(tool.id)}
-            onLink={() =>
-              link(tool.id, {
-                onSuccess: () =>
-                  toast.success(
-                    t("repositories.integrations.linked", { tool: tool.id }),
-                  ),
-              })
-            }
-          />
-        ))}
-      </div>
+      {linkedTools.length === 0 ? (
+        <Card className="flex flex-col items-start gap-3 p-6">
+          <div>
+            <p className="font-medium">
+              {t("repositories.integrations.linked_empty_title")}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t("repositories.integrations.linked_empty_body")}
+            </p>
+          </div>
+        </Card>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {visible.map((tool) => (
+            <IntegrationCard
+              key={tool.id}
+              tool={tool}
+              state={vizState[tool.id]}
+              linked={linked.has(tool.id)}
+              linking={linking}
+              toolRunContributed={
+                analysis?.tool_runs.find(
+                  (r) => r.name === tool.id || r.name === tool.name,
+                )?.contributed
+              }
+              onClick={() => onSelectTool(tool.id)}
+              onLink={() => linkTool(tool.id)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-const LINKED_FILTER = "__linked__";
+/** "Add integration" — a dialog listing the tools not yet linked to this repo, each linkable
+ * inline. Stays open after a link so several can be added in a row. */
+function AddIntegrationDialog({
+  tools,
+  linking,
+  onLink,
+}: {
+  tools: ToolStatusOut[];
+  linking: boolean;
+  onLink: (id: string) => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <Dialog>
+      <DialogTrigger
+        render={
+          <Button size="sm" variant="outline">
+            <PlusIcon className="size-4" />
+            {t("repositories.integrations.add_integration")}
+          </Button>
+        }
+      />
+      <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t("repositories.integrations.add_title")}</DialogTitle>
+          <DialogDescription>
+            {t("repositories.integrations.add_body")}
+          </DialogDescription>
+        </DialogHeader>
+        {tools.length === 0 ? (
+          <p className="py-6 text-center text-sm text-muted-foreground">
+            {t("repositories.integrations.add_empty")}
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {tools.map((tool) => {
+              const Icon = integrationIcon(tool.id);
+              return (
+                <li
+                  key={tool.id}
+                  className="flex items-center gap-3 rounded-lg border border-border p-3"
+                >
+                  <Icon className="size-4 shrink-0 text-muted-foreground" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{tool.id}</span>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "capitalize",
+                          categoryStyle(tool.category),
+                        )}
+                      >
+                        {tool.category}
+                      </Badge>
+                    </div>
+                    <p className="line-clamp-1 text-xs text-muted-foreground">
+                      {tool.purpose}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={linking}
+                    className="h-7 shrink-0"
+                    onClick={() => onLink(tool.id)}
+                  >
+                    <Link2Icon className="size-3.5" />
+                    {t("repositories.integrations.link")}
+                  </Button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function FilterChip({
   label,
