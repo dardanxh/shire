@@ -1,11 +1,12 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { DataTable } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -28,10 +29,13 @@ import {
 } from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
 import { useHobitQuery, useHobitRunsQuery } from "../api";
+import { DeleteHobitDialog } from "./DeleteHobitDialog";
 import { HobitConfigForm } from "./HobitConfigForm";
+import { HobitFormDialog } from "./HobitFormDialog";
 
 export function HobitViewPage({ slug }: { slug: string }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { data: hobit, isPending, isError, error } = useHobitQuery(slug);
   const { data: runs } = useHobitRunsQuery(slug);
   const { data: posts } = useBriefingQuery(slug);
@@ -115,9 +119,39 @@ export function HobitViewPage({ slug }: { slug: string }) {
             {hobit.description}
           </p>
         </div>
-        <Badge variant="outline" className="text-xs">
-          {hobit.category}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="text-xs">
+            {hobit.category}
+          </Badge>
+          {hobit.custom ? (
+            <>
+              <HobitFormDialog
+                hobit={hobit}
+                trigger={
+                  <Button size="sm" variant="outline">
+                    <PencilIcon className="size-3.5" />
+                    {t("hobits.form.edit")}
+                  </Button>
+                }
+              />
+              <DeleteHobitDialog
+                slug={hobit.slug}
+                name={hobit.name}
+                onDeleted={() => navigate({ to: "/hobits" })}
+                trigger={
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2Icon className="size-3.5" />
+                    {t("hobits.delete.confirm")}
+                  </Button>
+                }
+              />
+            </>
+          ) : null}
+        </div>
       </div>
 
       <Card>
