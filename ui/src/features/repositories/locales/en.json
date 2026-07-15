@@ -282,7 +282,9 @@
         "security": "Security",
         "integrations": "Integrations",
         "context": "Context",
-        "hobits": "Hobits"
+        "hobits": "Hobits",
+        "ask": "Ask",
+        "jobs": "Jobs"
       },
       "overview": {
         "title": "Codebase Overview for Humans",
@@ -407,6 +409,16 @@
       "switching": "Switching…",
       "switched": "Switched to {{branch}}",
       "switch_failed": "Switch to {{branch}} failed"
+    },
+    "ask": {
+      "placeholder": "Ask anything about this repository — architecture, where things live, how a flow works…",
+      "hint": "Answered by the engine exploring the actual code (read-only). ⌘↵ to send.",
+      "submit": "Ask",
+      "answering": "Exploring the code…",
+      "no_answer": "No answer was produced.",
+      "empty_title": "No questions yet",
+      "empty_body": "Ask your first question — the engine reads the code before answering, so answers cite real files.",
+      "meta": "{{seconds}}s · {{tokens}} tokens"
     }
   }
 }

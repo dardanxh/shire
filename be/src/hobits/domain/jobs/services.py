@@ -96,10 +96,20 @@ class JobService:
         )
         return row
 
-    def list(self, params: PaginationParams, status: str | None = None) -> Page[JobResult]:
-        total = self._jobs.count(status=status, repository_id=None)
+    def list(
+        self,
+        params: PaginationParams,
+        status: str | None = None,
+        repository_id: uuid.UUID | None = None,
+        kind: str | None = None,
+    ) -> Page[JobResult]:
+        total = self._jobs.count(status=status, repository_id=repository_id, kind=kind)
         rows = self._jobs.list(
-            status=status, repository_id=None, limit=params.limit, offset=params.offset
+            status=status,
+            repository_id=repository_id,
+            kind=kind,
+            limit=params.limit,
+            offset=params.offset,
         )
         return Page.create([JobResult.of(row) for row in rows], total, params)
 

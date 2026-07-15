@@ -33,20 +33,31 @@ class SqlJobRepository:
         repository_id: uuid.UUID | None,
         limit: int,
         offset: int,
+        kind: str | None = None,
     ) -> list[JobRow]:
         stmt = select(JobRow).order_by(JobRow.created_at.desc())
         if status is not None:
             stmt = stmt.where(JobRow.status == status)
         if repository_id is not None:
             stmt = stmt.where(JobRow.repository_id == repository_id)
+        if kind is not None:
+            stmt = stmt.where(JobRow.kind == kind)
         return list(self._session.scalars(stmt.limit(limit).offset(offset)))
 
-    def count(self, *, status: str | None, repository_id: uuid.UUID | None) -> int:
+    def count(
+        self,
+        *,
+        status: str | None,
+        repository_id: uuid.UUID | None,
+        kind: str | None = None,
+    ) -> int:
         stmt = select(func.count()).select_from(JobRow)
         if status is not None:
             stmt = stmt.where(JobRow.status == status)
         if repository_id is not None:
             stmt = stmt.where(JobRow.repository_id == repository_id)
+        if kind is not None:
+            stmt = stmt.where(JobRow.kind == kind)
         return self._session.scalar(stmt) or 0
 
     def unapplied_settled(self, limit: int = 50) -> list[JobRow]:

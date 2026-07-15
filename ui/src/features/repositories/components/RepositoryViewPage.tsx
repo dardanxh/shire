@@ -11,6 +11,8 @@ import {
   GitCommitHorizontalIcon,
   GitPullRequestIcon,
   KeyRoundIcon,
+  ListChecksIcon,
+  MessageCircleQuestionIcon,
   NetworkIcon,
   PackageIcon,
   PuzzleIcon,
@@ -31,6 +33,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RepoJobsPanel } from "@/features/jobs";
 import { RepoMergeReviewsPanel } from "@/features/merge-reviews";
 import { extractErrorMessage } from "@/lib/api";
 import {
@@ -42,6 +45,7 @@ import {
 import { useAnalysisQuery, useRepositoryQuery } from "../api";
 import type { RepositoryTab } from "../tabs";
 import { ArchitecturePanel } from "./ArchitecturePanel";
+import { AskPanel } from "./AskPanel";
 import { BranchesPanel } from "./BranchesPanel";
 import { BranchSwitcher } from "./BranchSwitcher";
 import { CodebaseOverviewPanel } from "./CodebaseOverviewPanel";
@@ -155,6 +159,10 @@ export function RepositoryViewPage({
                 <GaugeIcon />
                 {t("repositories.view.tabs.overview")}
               </TabsTrigger>
+              <TabsTrigger value="ask">
+                <MessageCircleQuestionIcon />
+                {t("repositories.view.tabs.ask")}
+              </TabsTrigger>
               <TabsTrigger value="code">
                 <CodeIcon />
                 {t("repositories.view.tabs.code")}
@@ -195,7 +203,19 @@ export function RepositoryViewPage({
                 <BotIcon />
                 {t("repositories.view.tabs.hobits")}
               </TabsTrigger>
+              <TabsTrigger value="jobs">
+                <ListChecksIcon />
+                {t("repositories.view.tabs.jobs")}
+              </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="ask">
+              <AskPanel repoId={repo.id} />
+            </TabsContent>
+
+            <TabsContent value="jobs">
+              <RepoJobsPanel repositoryId={repo.id} />
+            </TabsContent>
 
             {/* Overview — the headline scorecard */}
             <TabsContent value="overview" className="space-y-6">

@@ -22,7 +22,14 @@ from hobits.domain.substrate.jobs import (
     handle_dependency_gains,
 )
 
+
+def _no_op(job: JobRow) -> None:
+    """Kinds whose entire output lives on the job row itself (e.g. repo questions — the
+    answer IS the result) need no domain side effects."""
+
+
 HANDLERS: dict[str, Callable[[JobRow], None]] = {
+    kinds.REPO_QUESTION: _no_op,
     kinds.MR_CLASSIFICATION: handle_mr_classification,
     kinds.MR_OVERVIEW: handle_mr_overview,
     kinds.MR_HOBIT_REVIEW: handle_mr_hobit_review,

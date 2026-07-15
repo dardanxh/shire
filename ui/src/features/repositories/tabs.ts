@@ -9,6 +9,7 @@
  */
 export const REPOSITORY_TAB_VALUES = [
   "overview",
+  "ask",
   "code",
   "architecture",
   "activity",
@@ -19,6 +20,7 @@ export const REPOSITORY_TAB_VALUES = [
   "integrations",
   "context",
   "hobits",
+  "jobs",
 ] as const;
 
 export type RepositoryTab = (typeof REPOSITORY_TAB_VALUES)[number];

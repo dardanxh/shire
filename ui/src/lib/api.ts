@@ -64,6 +64,7 @@ export type JobUsageOut = components["schemas"]["JobUsage"];
 export type EngineConfigOut = components["schemas"]["EngineConfigResult"];
 export type UpdateEngineConfigIn = components["schemas"]["UpdateEngineConfig"];
 export type JobStatsOut = components["schemas"]["JobStatsResult"];
+export type QuestionOut = components["schemas"]["QuestionResult"];
 
 /** Job lifecycle statuses (backend types the column as a bare string). */
 export const JOB_STATUSES = [

@@ -17,6 +17,7 @@ import {
   type HobitOut,
   type HobitRunOut,
   type JobOut,
+  type QuestionOut,
   type RepositoryOut,
   type ToolLogOut,
   type ToolName,
@@ -372,6 +373,49 @@ export function useIngestRepositoryMutation() {
 }
 
 /** Pull the latest commits and re-run the full analysis (blocking). */
+const QUESTION_SETTLED = new Set(["succeeded", "failed", "cancelled"]);
+
+/**
+ * Asked questions with their answers, newest first. Polls while any answer is
+ * still being worked on by the engine, then stops on its own.
+ */
+export function useRepoQuestionsQuery(id: string) {
+  return useQuery<QuestionOut[]>({
+    queryKey: repositoryKeys.questions(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/questions",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+    refetchInterval: (query) =>
+      query.state.data?.some((q) => !QUESTION_SETTLED.has(q.status))
+        ? 2500
+        : false,
+  });
+}
+
+/** Ask a free-form question about the repository (answered by an engine job). */
+export function useAskQuestionMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (question: string): Promise<QuestionOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/questions",
+        { params: { path: { repository_id: id } }, body: { question } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.questions(id) });
+    },
+  });
+}
+
 /** Switch the active branch: checkout + pull + full re-analysis; generated artifacts are
  * cleared and regenerate on demand (blocking, like refresh). */
 export function useSwitchBranchMutation(id: string) {

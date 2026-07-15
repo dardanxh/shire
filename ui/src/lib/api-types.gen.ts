@@ -107,6 +107,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/repositories/{repository_id}/questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Repository Questions
+         * @description Asked questions with their answers, newest first (the Ask tab's poll target).
+         */
+        get: operations["list_repository_questions_api_v1_repositories__repository_id__questions_get"];
+        put?: never;
+        /**
+         * Ask Repository Question
+         * @description Ask a free-form question about the repository — answered by an engine job that explores
+         *     the clone (non-blocking; poll the questions list).
+         */
+        post: operations["ask_repository_question_api_v1_repositories__repository_id__questions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/repositories/{repository_id}/branch": {
         parameters: {
             query?: never;
@@ -1139,7 +1164,8 @@ export interface paths {
         };
         /**
          * List Jobs
-         * @description All engine jobs, newest first (the Jobs page's poll target).
+         * @description All engine jobs, newest first (the Jobs page's poll target); optionally scoped to one
+         *     repository and/or job kind (the repo view's Jobs tab).
          */
         get: operations["list_jobs_api_v1_jobs_get"];
         put?: never;
@@ -1361,6 +1387,14 @@ export interface components {
              * @default true
              */
             agent_available: boolean;
+        };
+        /**
+         * AskQuestionRequest
+         * @description Ask a free-form question about this repository (answered by an engine job).
+         */
+        AskQuestionRequest: {
+            /** Question */
+            question: string;
         };
         /**
          * AuthMethod
@@ -3107,6 +3141,36 @@ export interface components {
             knowledge_concentration: number;
         };
         /**
+         * QuestionResult
+         * @description One asked question and its (possibly still pending) answer, backed by a job row.
+         */
+        QuestionResult: {
+            /**
+             * Job Id
+             * Format: uuid
+             */
+            job_id: string;
+            /** Question */
+            question: string;
+            /** Answer */
+            answer: string | null;
+            /** Status */
+            status: string;
+            /** Error */
+            error: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /** Total Tokens */
+            total_tokens: number | null;
+        };
+        /**
          * Rating
          * @enum {string}
          */
@@ -3651,6 +3715,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RepositoryResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_repository_questions_api_v1_repositories__repository_id__questions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuestionResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ask_repository_question_api_v1_repositories__repository_id__questions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AskQuestionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuestionResult"];
                 };
             };
             /** @description Validation Error */
@@ -5631,6 +5761,8 @@ export interface operations {
         parameters: {
             query?: {
                 status?: string | null;
+                repository_id?: string | null;
+                kind?: string | null;
                 /** @description 1-based page number */
                 page?: number;
                 /** @description Items per page */

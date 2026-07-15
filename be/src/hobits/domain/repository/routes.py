@@ -10,9 +10,11 @@ from sqlalchemy.orm import Session
 from hobits.core.db import get_session
 from hobits.core.pagination import Page, PaginationParams
 from hobits.domain.repository.schemas import (
+    AskQuestionRequest,
     BranchesResult,
     BranchNamesResult,
     IngestRepositoryRequest,
+    QuestionResult,
     RepositoryResult,
     SwitchBranchRequest,
 )
@@ -66,6 +68,29 @@ def refresh_repository(
 ) -> RepositoryResult:
     """Pull the latest from the remote and re-run the full analysis."""
     return RepositoryService(session).refresh(repository_id)
+
+
+@router.post(
+    "/{repository_id}/questions",
+    response_model=QuestionResult,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+def ask_repository_question(
+    repository_id: uuid.UUID,
+    body: AskQuestionRequest,
+    session: Session = Depends(get_session),
+) -> QuestionResult:
+    """Ask a free-form question about the repository — answered by an engine job that explores
+    the clone (non-blocking; poll the questions list)."""
+    return RepositoryService(session).ask_question(repository_id, body.question)
+
+
+@router.get("/{repository_id}/questions", response_model=list[QuestionResult])
+def list_repository_questions(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> list[QuestionResult]:
+    """Asked questions with their answers, newest first (the Ask tab's poll target)."""
+    return RepositoryService(session).list_questions(repository_id)
 
 
 @router.post("/{repository_id}/branch", response_model=RepositoryResult)

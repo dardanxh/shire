@@ -6,6 +6,7 @@ export interface JobListParams {
   page: number;
   page_size: number;
   status?: string;
+  repository_id?: string;
 }
 
 export const jobKeys = {

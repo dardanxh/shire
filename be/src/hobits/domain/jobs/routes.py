@@ -29,11 +29,14 @@ router = APIRouter(tags=["jobs"])
 @router.get("/jobs", response_model=Page[JobResult])
 def list_jobs(
     status: str | None = None,
+    repository_id: uuid.UUID | None = None,
+    kind: str | None = None,
     params: PaginationParams = Depends(),
     session: Session = Depends(get_session),
 ) -> Page[JobResult]:
-    """All engine jobs, newest first (the Jobs page's poll target)."""
-    return JobService(session).list(params, status)
+    """All engine jobs, newest first (the Jobs page's poll target); optionally scoped to one
+    repository and/or job kind (the repo view's Jobs tab)."""
+    return JobService(session).list(params, status, repository_id, kind)
 
 
 @router.get("/jobs/config", response_model=EngineConfigResult)

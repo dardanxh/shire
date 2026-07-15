@@ -15,16 +15,22 @@ from pathlib import Path
 from git.exc import InvalidGitRepositoryError, NoSuchPathError
 from sqlalchemy.orm import Session
 
-from hobits.core.exceptions import ConflictError, NotFoundError
+from hobits.core.exceptions import ConflictError, NotFoundError, ValidationError
 from hobits.core.pagination import Page, PaginationParams
 from hobits.core.settings import get_settings
 from hobits.domain.connections.domain import AuthMethod, GitProvider
 from hobits.domain.connections.services import ConnectionService
+from hobits.domain.jobs import kinds as job_kinds
+from hobits.domain.jobs.models import JobRow
+from hobits.domain.jobs.repositories import SqlJobRepository
+from hobits.domain.jobs.schemas import JobUsage
+from hobits.domain.jobs.services import JobService
 from hobits.domain.repository.domain import IngestionStatus, Repository, RepoUrl
 from hobits.domain.repository.repositories import SqlRepositoryRepository
 from hobits.domain.repository.schemas import (
     BranchesResult,
     BranchNamesResult,
+    QuestionResult,
     RepositoryResult,
 )
 from hobits.domain.substrate.services import AnalysisService
@@ -50,12 +56,48 @@ def _within(path: Path, root: Path) -> bool:
         return False
 
 
+_QUESTION_PROMPT = """\
+You are answering a developer's question about the repository **{slug}**. Explore the actual \
+code with your Read, Grep and Glob tools to verify before answering — do not answer from \
+assumptions alone.
+
+## Repository context (precomputed — orientation only, verify against the code)
+{context}
+
+## Question
+{question}
+
+Answer concisely. Ground every claim in code you actually inspected and cite concrete file \
+paths (like `src/module/file.py`) where relevant. Use short paragraphs and bullet lists; no \
+headings. If the repository doesn't contain enough information to answer, say so plainly."""
+
+
+def _question_prompt(slug: str, context_md: str, question: str) -> str:
+    return _QUESTION_PROMPT.format(slug=slug, context=context_md, question=question)
+
+
+def _question_of(row: JobRow) -> QuestionResult:
+    usage = JobUsage.model_validate(row.usage) if row.usage else None
+    return QuestionResult(
+        job_id=row.id,
+        question=(row.payload or {}).get("question", row.title),
+        answer=row.result,
+        status=row.status,
+        error=row.error,
+        created_at=row.created_at,
+        finished_at=row.finished_at,
+        duration_seconds=row.duration_seconds,
+        total_tokens=usage.total_tokens if usage else None,
+    )
+
+
 class RepositoryService:
     """Business logic for repositories. Constructed per request from a DB session."""
 
     def __init__(self, session: Session) -> None:
         settings = get_settings()
         settings.ensure_dirs()
+        self._session = session
         self._repos = SqlRepositoryRepository(session)
         self._clone = GitCloneService(settings.clone_root)
         self._provider = GithubProviderClient(settings.github_token)
@@ -136,6 +178,57 @@ class RepositoryService:
             raise NotFoundError("Repository not found")
         repo = self._ingest(existing.url.value, existing.connection_id)
         return RepositoryResult.of(repo)
+
+    # --- ask ("chat with the repo") --------------------------------------------
+    def ask_question(self, repository_id: uuid.UUID, question: str) -> QuestionResult:
+        """Enqueue a free-form question about this repository. The engine explores the clone
+        (grounded by the context pack) and the answer lands on the job's result — questions
+        need no domain rows of their own."""
+        repo = self._repos.get(repository_id)
+        if repo is None:
+            raise NotFoundError("Repository not found")
+        if not repo.clone_path or not Path(repo.clone_path).is_dir():
+            raise ConflictError("Repository has not been cloned yet")
+        question = question.strip()
+        if not question:
+            raise ValidationError("Question must not be empty")
+
+        from hobits.domain.context.services import ContextService
+
+        try:
+            context_md = ContextService(self._session).get_markdown(repository_id).effective
+        except NotFoundError:
+            context_md = "(no context pack yet — the repository has no completed analysis)"
+
+        jobs = JobService(self._session)
+        model, timeout_seconds = jobs.engine_defaults()
+        row = jobs.enqueue(
+            kind=job_kinds.REPO_QUESTION,
+            title=f"Q: {question[:120]}{'…' if len(question) > 120 else ''}",
+            prompt=_question_prompt(repo.coordinates.slug, context_md, question),
+            payload={
+                "cwd": repo.clone_path,
+                "model": model,
+                "timeout_seconds": timeout_seconds,
+                "repository_id": str(repository_id),
+                "question": question,
+            },
+            repository_id=repository_id,
+        )
+        return _question_of(row)
+
+    def list_questions(self, repository_id: uuid.UUID) -> list[QuestionResult]:
+        """The repo's asked questions, newest first (the Ask tab's poll target)."""
+        if self._repos.get(repository_id) is None:
+            raise NotFoundError("Repository not found")
+        rows = SqlJobRepository(self._session).list(
+            status=None,
+            repository_id=repository_id,
+            kind=job_kinds.REPO_QUESTION,
+            limit=50,
+            offset=0,
+        )
+        return [_question_of(row) for row in rows]
 
     def switch_branch(self, repository_id: uuid.UUID, branch: str) -> RepositoryResult:
         """Make `branch` the repo's active branch: check it out, clear every generated artifact

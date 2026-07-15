@@ -37,4 +37,6 @@ export const repositoryKeys = {
     [...repositoryKeys.detail(id), "integrations"] as const,
   toolLog: (id: string, tool: string) =>
     [...repositoryKeys.detail(id), "tool-log", tool] as const,
+  questions: (id: string) =>
+    [...repositoryKeys.detail(id), "questions"] as const,
 };

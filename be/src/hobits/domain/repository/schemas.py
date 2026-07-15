@@ -69,6 +69,26 @@ class SwitchBranchRequest(BaseModel):
     branch: str
 
 
+class AskQuestionRequest(BaseModel):
+    """Ask a free-form question about this repository (answered by an engine job)."""
+
+    question: str
+
+
+class QuestionResult(BaseModel):
+    """One asked question and its (possibly still pending) answer, backed by a job row."""
+
+    job_id: uuid.UUID
+    question: str
+    answer: str | None
+    status: str
+    error: str | None
+    created_at: datetime
+    finished_at: datetime | None
+    duration_seconds: float | None
+    total_tokens: int | None
+
+
 class BranchResult(BaseModel):
     """One branch tip. `merged` = ancestor check against the default branch (a true merge
     happened — safe to delete); `squash_merged` = patch-equivalence check that also catches

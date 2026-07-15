@@ -95,6 +95,10 @@
         "desc": "Settled jobs older than this are deleted hourly. 0 = keep forever.",
         "invalid": "Must be between 0 and 365."
       }
+    },
+    "repo": {
+      "empty_title": "No jobs for this repository yet",
+      "empty_body": "Engine runs triggered from this repository — analyses, diagrams, hobit runs, questions — will show up here."
     }
   }
 }
