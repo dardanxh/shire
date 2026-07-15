@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from hobits.core.db import get_session
+from hobits.domain.jobs.schemas import JobResult
 from hobits.domain.substrate.schemas import (
     AnalysisResult,
     ArchitectureResult,
@@ -141,7 +142,8 @@ def dependency_freshness(
 def generate_dependency_freshness(
     repository_id: uuid.UUID, session: Session = Depends(get_session)
 ) -> DependencyFreshnessResult:
-    """Fetch latest versions from PyPI, compute gaps, and summarize upgrade gains (blocking)."""
+    """Fetch latest versions from PyPI and compute gaps (fast, synchronous); the AI upgrade-gain
+    lines arrive via an engine job — poll the GET while `gains_pending` is true."""
     return AnalysisService(session).generate_dependency_freshness(repository_id)
 
 
@@ -155,13 +157,14 @@ def architecture(
 
 @router.post(
     "/repositories/{repository_id}/architecture/{kind}/run",
-    response_model=ArchitectureResult,
+    response_model=JobResult,
+    status_code=status.HTTP_202_ACCEPTED,
 )
 def generate_architecture_diagram(
     repository_id: uuid.UUID, kind: str, session: Session = Depends(get_session)
-) -> ArchitectureResult:
-    """Generate one Mermaid architecture diagram (a hobit explores the clone; blocking)."""
-    return AnalysisService(session).generate_architecture_diagram(repository_id, kind)
+) -> JobResult:
+    """Enqueue one Mermaid architecture diagram generation (non-blocking — track the job)."""
+    return AnalysisService(session).enqueue_architecture_diagram(repository_id, kind)
 
 
 @router.get(
@@ -177,13 +180,14 @@ def codebase_overview(
 
 @router.post(
     "/repositories/{repository_id}/codebase-overview/run",
-    response_model=CodebaseOverviewResult,
+    response_model=JobResult,
+    status_code=status.HTTP_202_ACCEPTED,
 )
 def generate_codebase_overview(
     repository_id: uuid.UUID, session: Session = Depends(get_session)
-) -> CodebaseOverviewResult:
-    """Have a hobit investigate the clone and write a crisp big-picture overview (blocking)."""
-    return AnalysisService(session).generate_codebase_overview(repository_id)
+) -> JobResult:
+    """Enqueue the big-picture overview generation (non-blocking — track the job)."""
+    return AnalysisService(session).enqueue_codebase_overview(repository_id)
 
 
 @router.get("/repositories/{repository_id}/code-map", response_model=CodeMapResult)

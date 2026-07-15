@@ -55,8 +55,8 @@ export function MergeReviewViewPage({ id }: { id: string }) {
     <div className="mx-auto max-w-5xl space-y-6">
       <div className="space-y-3">
         <Link
-          to="/merge-reviews"
-          search={{ page: 1, size: 20 }}
+          to="/"
+          search={{ view: "mrs", page: 1, size: 20 }}
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeftIcon className="size-3.5" />
@@ -130,8 +130,8 @@ export function MergeReviewViewPage({ id }: { id: string }) {
               }
               onDeleted={() =>
                 navigate({
-                  to: "/merge-reviews",
-                  search: { page: 1, size: 20 },
+                  to: "/",
+                  search: { view: "mrs", page: 1, size: 20 },
                 })
               }
             />

@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
   CopyIcon,
@@ -5,7 +6,7 @@ import {
   Maximize2Icon,
   SparklesIcon,
 } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -17,12 +18,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useTrackedJob } from "@/features/jobs";
 import type { ArchitectureDiagram } from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
 import {
   useArchitectureQuery,
   useGenerateArchitectureDiagramMutation,
 } from "../api";
+import { repositoryKeys } from "../keys";
 import { MermaidDiagram } from "./MermaidDiagram";
 
 // Display order of the category groups.
@@ -30,12 +33,27 @@ const CATEGORY_ORDER = ["Structural", "Behavioral", "Data"] as const;
 
 export function ArchitecturePanel({ repoId }: { repoId: string }) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const { data } = useArchitectureQuery(repoId);
-  const {
-    mutate: generate,
-    isPending,
-    variables: generatingKind,
-  } = useGenerateArchitectureDiagramMutation(repoId);
+  const { mutate: generate, isPending: isQueueing } =
+    useGenerateArchitectureDiagramMutation(repoId);
+  // Which diagram kind the tracked engine job is generating (drives the per-card spinner).
+  const [generatingKind, setGeneratingKind] = useState<string | null>(null);
+
+  const { track, isTracking } = useTrackedJob((job) => {
+    setGeneratingKind(null);
+    queryClient.invalidateQueries({
+      queryKey: repositoryKeys.architecture(repoId),
+    });
+    if (job.status === "succeeded") {
+      toast.success(t("repositories.view.architecture.toast_done"));
+    } else {
+      toast.error(
+        job.error ?? t("repositories.view.architecture.toast_failed"),
+      );
+    }
+  });
+  const isPending = isQueueing || isTracking;
 
   const grouped = useMemo(() => {
     const diagrams = data?.diagrams ?? [];
@@ -78,16 +96,20 @@ export function ArchitecturePanel({ repoId }: { repoId: string }) {
                 diagram={diagram}
                 busy={isPending && generatingKind === diagram.kind}
                 disabled={isPending || !agentAvailable}
-                onGenerate={() =>
+                onGenerate={() => {
+                  setGeneratingKind(diagram.kind);
                   generate(diagram.kind, {
-                    onSuccess: () =>
+                    onSuccess: (job) => {
                       toast.success(
                         t("repositories.view.architecture.toast", {
                           title: diagram.title,
                         }),
-                      ),
-                  })
-                }
+                      );
+                      track(job.id);
+                    },
+                    onError: () => setGeneratingKind(null),
+                  });
+                }}
               />
             ))}
           </div>

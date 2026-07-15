@@ -3,6 +3,7 @@ import { initReactI18next } from "react-i18next";
 import briefing from "@/features/briefing/locales/en.json";
 import connectors from "@/features/connectors/locales/en.json";
 import hobits from "@/features/hobits/locales/en.json";
+import jobs from "@/features/jobs/locales/en.json";
 import members from "@/features/members/locales/en.json";
 import mergeReviews from "@/features/merge-reviews/locales/en.json";
 import repositories from "@/features/repositories/locales/en.json";
@@ -23,6 +24,7 @@ const en = {
   ...mergeReviews,
   ...hobits,
   ...briefing,
+  ...jobs,
 };
 
 i18n.use(initReactI18next).init({

@@ -1,0 +1,37 @@
+{
+  "jobs": {
+    "list": {
+      "title": "Jobs",
+      "subtitle": "Every engine run: what was asked, what came back, and where it stands.",
+      "col_status": "Status",
+      "col_title": "Job",
+      "col_created": "Created",
+      "col_duration": "Duration",
+      "empty_title": "No jobs yet",
+      "empty_body": "Trigger an analysis — an MR review, a diagram, a hobit run — and it will show up here."
+    },
+    "view": {
+      "crumb": "Job",
+      "back": "All jobs",
+      "not_found": "This job does not exist.",
+      "created": "Created",
+      "started": "Started",
+      "finished": "Finished",
+      "duration": "Duration",
+      "attempts": "Attempts",
+      "worker": "Worker",
+      "repository": "Repository",
+      "repository_link": "Open repository",
+      "error": "Error",
+      "prompt": "Prompt",
+      "result": "Result",
+      "no_result": "No result yet."
+    },
+    "status": {
+      "pending": "Pending",
+      "running": "Running",
+      "succeeded": "Succeeded",
+      "failed": "Failed"
+    }
+  }
+}

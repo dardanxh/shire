@@ -376,7 +376,8 @@ export interface paths {
         put?: never;
         /**
          * Generate Dependency Freshness
-         * @description Fetch latest versions from PyPI, compute gaps, and summarize upgrade gains (blocking).
+         * @description Fetch latest versions from PyPI and compute gaps (fast, synchronous); the AI upgrade-gain
+         *     lines arrive via an engine job — poll the GET while `gains_pending` is true.
          */
         post: operations["generate_dependency_freshness_api_v1_repositories__repository_id__dependency_freshness_run_post"];
         delete?: never;
@@ -416,7 +417,7 @@ export interface paths {
         put?: never;
         /**
          * Generate Architecture Diagram
-         * @description Generate one Mermaid architecture diagram (a hobit explores the clone; blocking).
+         * @description Enqueue one Mermaid architecture diagram generation (non-blocking — track the job).
          */
         post: operations["generate_architecture_diagram_api_v1_repositories__repository_id__architecture__kind__run_post"];
         delete?: never;
@@ -456,7 +457,7 @@ export interface paths {
         put?: never;
         /**
          * Generate Codebase Overview
-         * @description Have a hobit investigate the clone and write a crisp big-picture overview (blocking).
+         * @description Enqueue the big-picture overview generation (non-blocking — track the job).
          */
         post: operations["generate_codebase_overview_api_v1_repositories__repository_id__codebase_overview_run_post"];
         delete?: never;
@@ -1103,6 +1104,46 @@ export interface paths {
          * @description Re-run the whole analysis against the branches' current heads (409 while one is running).
          */
         post: operations["reanalyze_merge_review_api_v1_merge_reviews__review_id__reanalyze_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Jobs
+         * @description All engine jobs, newest first (the Jobs page's poll target).
+         */
+        get: operations["list_jobs_api_v1_jobs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Job
+         * @description One job with its exact prompt and raw engine result.
+         */
+        get: operations["get_job_api_v1_jobs__job_id__get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1951,6 +1992,13 @@ export interface components {
              * @default []
              */
             items: components["schemas"]["DependencyFreshnessItem"][];
+            /**
+             * Gains Pending
+             * @default false
+             */
+            gains_pending: boolean;
+            /** Gains Job Id */
+            gains_job_id?: string | null;
         };
         /** DependencyUsageResult */
         DependencyUsageResult: {
@@ -2407,6 +2455,80 @@ export interface components {
             /** Tool Ids */
             tool_ids?: string[] | null;
         };
+        /**
+         * JobDetailResult
+         * @description Detail shape: adds the exact prompt sent to the engine and the raw result.
+         */
+        JobDetailResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Title */
+            title: string;
+            /** Status */
+            status: string;
+            /** Repository Id */
+            repository_id: string | null;
+            /** Error */
+            error: string | null;
+            /** Attempts */
+            attempts: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Started At */
+            started_at: string | null;
+            /** Finished At */
+            finished_at: string | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /** Prompt */
+            prompt: string;
+            /** Result */
+            result: string | null;
+            /** Worker Id */
+            worker_id: string | null;
+        };
+        /**
+         * JobResult
+         * @description List-item shape: status + identity + timings, no heavy prompt/result payloads.
+         */
+        JobResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Title */
+            title: string;
+            /** Status */
+            status: string;
+            /** Repository Id */
+            repository_id: string | null;
+            /** Error */
+            error: string | null;
+            /** Attempts */
+            attempts: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Started At */
+            started_at: string | null;
+            /** Finished At */
+            finished_at: string | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+        };
         /** LanguageStat */
         LanguageStat: {
             /** Language */
@@ -2737,6 +2859,19 @@ export interface components {
         Page_ConnectionResult_: {
             /** Items */
             items: components["schemas"]["ConnectionResult"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
+        };
+        /** Page[JobResult] */
+        Page_JobResult_: {
+            /** Items */
+            items: components["schemas"]["JobResult"][];
             /** Total */
             total: number;
             /** Page */
@@ -3835,12 +3970,12 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful Response */
-            200: {
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ArchitectureResult"];
+                    "application/json": components["schemas"]["JobResult"];
                 };
             };
             /** @description Validation Error */
@@ -3897,12 +4032,12 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful Response */
-            200: {
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CodebaseOverviewResult"];
+                    "application/json": components["schemas"]["JobResult"];
                 };
             };
             /** @description Validation Error */
@@ -5237,6 +5372,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MergeReviewDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_jobs_api_v1_jobs_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_JobResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_job_api_v1_jobs__job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobDetailResult"];
                 };
             };
             /** @description Validation Error */

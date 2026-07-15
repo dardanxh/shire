@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
-import { MergeReviewsListPage } from "@/features/merge-reviews";
+import { JobsListPage } from "@/features/jobs";
 
 const searchSchema = z.object({
   page: z.coerce.number().int().min(1).catch(1),
   size: z.coerce.number().int().min(1).catch(20),
 });
 
-export const Route = createFileRoute("/merge-reviews/")({
+export const Route = createFileRoute("/jobs/")({
   validateSearch: searchSchema,
   component: RouteComponent,
 });
@@ -18,7 +18,7 @@ function RouteComponent() {
   const navigate = Route.useNavigate();
 
   return (
-    <MergeReviewsListPage
+    <JobsListPage
       page={page}
       size={size}
       onPageChange={(next) =>

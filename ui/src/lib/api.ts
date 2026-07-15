@@ -58,6 +58,9 @@ export type TopFindingOut = components["schemas"]["TopFindingResult"];
 export type RiskBreakdownOut = components["schemas"]["RiskBreakdown"];
 export type ClassificationLabelOut =
   components["schemas"]["ClassificationLabel"];
+export type JobOut = components["schemas"]["JobResult"];
+export type JobDetailOut = components["schemas"]["JobDetailResult"];
+export type JobsPage = components["schemas"]["Page_JobResult_"];
 export type ConnectionOut = components["schemas"]["ConnectionResult"];
 export type ConnectionsPage = components["schemas"]["Page_ConnectionResult_"];
 export type TestConnectionOut = components["schemas"]["TestConnectionResult"];

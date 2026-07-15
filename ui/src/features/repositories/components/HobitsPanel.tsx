@@ -121,7 +121,11 @@ function HobitRow({
 }) {
   const { t } = useTranslation();
   const refresh = useRefreshHobitMutation(repoId);
-  const running = run.isPending && run.variables === hobit.slug;
+  // "Running" spans the whole engine-job window: from the enqueue click until the queued run
+  // settles (the runs query polls while anything is queued).
+  const running =
+    (run.isPending && run.variables === hobit.slug) ||
+    last?.status === "queued";
   const refreshing = refresh.isPending && refresh.variables === hobit.slug;
   const fresh = freshnessOf(hobit, last);
   const statusLabel = (status: string) =>
@@ -181,12 +185,14 @@ function HobitRow({
         </Button>
         <Button
           size="sm"
-          disabled={run.isPending}
+          disabled={run.isPending || running}
           onClick={() =>
             run.mutate(hobit.slug, {
               onSuccess: (data) =>
                 toast.success(
-                  t("repositories.hobits.run_done", { status: data.status }),
+                  t("repositories.hobits.run_done", {
+                    status: statusLabel(data.status),
+                  }),
                 ),
             })
           }

@@ -130,6 +130,10 @@ class DependencyFreshnessResult(BaseModel):
     generated: bool
     generated_at: datetime | None = None
     items: list[DependencyFreshnessItem] = []
+    # The AI "what you gain by upgrading" lines arrive via an engine job after the deterministic
+    # columns; while it's in flight the UI shows the gains column as pending.
+    gains_pending: bool = False
+    gains_job_id: uuid.UUID | None = None
 
 
 class ArchitectureDiagram(BaseModel):

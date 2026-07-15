@@ -15,19 +15,18 @@ import { useRepoHobitRunsQuery, useRunOnboardingMutation } from "../api";
 export function OnboardingRunner({ repoId }: { repoId: string }) {
   const { t } = useTranslation();
   const { data: runs } = useRepoHobitRunsQuery(repoId);
-  const { mutate: run, isPending } = useRunOnboardingMutation(repoId);
+  const { mutate: run, isPending: isQueueing } =
+    useRunOnboardingMutation(repoId);
 
   const last = runs?.find((r) => r.hobit_slug === "repo-onboarding");
   const hasNarrative = last?.status === "completed";
+  // The run is enqueued for the engine service; the runs query polls until it settles and
+  // then refreshes the context pack, so "running" covers the whole queued window.
+  const isPending = isQueueing || last?.status === "queued";
 
   const handleRun = () => {
     run(undefined, {
-      onSuccess: (data) =>
-        data.status === "completed"
-          ? toast.success(t("hobits.run.toast_done"))
-          : toast.success(
-              t("hobits.run.toast_status", { status: data.status }),
-            ),
+      onSuccess: () => toast.success(t("hobits.run.toast_queued")),
     });
   };
 

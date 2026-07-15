@@ -535,7 +535,7 @@ function BackLink({ label }: { label: string }) {
   return (
     <Link
       to="/"
-      search={{ page: 1, size: 20 }}
+      search={{ view: "repositories", page: 1, size: 20 }}
       className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
     >
       <ArrowLeftIcon className="size-4" />

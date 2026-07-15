@@ -53,7 +53,12 @@ export function RepositoryActions({ id, slug }: { id: string; slug: string }) {
       <DeleteRepositoryDialog
         id={id}
         slug={slug}
-        onDeleted={() => navigate({ to: "/", search: { page: 1, size: 20 } })}
+        onDeleted={() =>
+          navigate({
+            to: "/",
+            search: { view: "repositories", page: 1, size: 20 },
+          })
+        }
         trigger={
           <Button
             size="sm"

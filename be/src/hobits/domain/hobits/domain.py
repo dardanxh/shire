@@ -17,6 +17,8 @@ from pydantic import BaseModel, field_validator
 
 
 class HobitRunStatus(StrEnum):
+    # Enqueued for the engine service; the run row settles when the job's handler applies it.
+    queued = "queued"
     completed = "completed"
     parse_failed = "parse_failed"
     agent_unavailable = "agent_unavailable"

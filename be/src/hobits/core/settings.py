@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     # logged-in Max subscription ($0); do NOT set ANTHROPIC_API_KEY or it switches to paid API auth.
     claude_binary: str = Field(default="claude")
     claude_model: str = Field(default="sonnet")
-    claude_timeout_seconds: float = Field(default=180.0)
+    claude_timeout_seconds: float = Field(default=500.0)
 
     # Orchestration (Phase 2.5) — scheduled, change-gated hobit runs via Prefect. Off by default so
     # the app runs standalone; flip on once the Prefect server + worker are up (see

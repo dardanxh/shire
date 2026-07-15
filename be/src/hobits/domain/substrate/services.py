@@ -19,6 +19,10 @@ from sqlalchemy.orm import Session
 
 from hobits.core.exceptions import ConflictError, NotFoundError
 from hobits.core.settings import get_settings
+from hobits.domain.jobs import kinds as job_kinds
+from hobits.domain.jobs.repositories import SqlJobRepository
+from hobits.domain.jobs.schemas import JobResult
+from hobits.domain.jobs.services import JobService
 from hobits.domain.repository.repositories import SqlRepositoryRepository
 from hobits.domain.substrate import architecture
 from hobits.domain.substrate.domain import (
@@ -109,6 +113,7 @@ class AnalysisService:
     """Business logic for the substrate. Constructed per request from a DB session."""
 
     def __init__(self, session: Session) -> None:
+        self._session = session
         self._analyses = SqlAnalysisRepository(session)
         # Cross-domain read (clone path) for on-demand tool runs — tightly coupled to a clone.
         self._repos = SqlRepositoryRepository(session)
@@ -422,8 +427,16 @@ class AnalysisService:
     ) -> DependencyFreshnessResult:
         """The cached freshness check, if one has been run."""
         cache = self._artifact_dir("dependency-freshness", repository_id) / "freshness.json"
+        gains_job = SqlJobRepository(self._session).latest_unsettled(
+            job_kinds.SUBSTRATE_DEPENDENCY_GAINS, repository_id
+        )
         if not cache.is_file():
-            return DependencyFreshnessResult(repository_id=repository_id, generated=False)
+            return DependencyFreshnessResult(
+                repository_id=repository_id,
+                generated=False,
+                gains_pending=gains_job is not None,
+                gains_job_id=gains_job.id if gains_job else None,
+            )
         try:
             items = [DependencyFreshnessItem(**i) for i in json.loads(cache.read_text())]
         except (OSError, json.JSONDecodeError, ValueError, TypeError):
@@ -433,6 +446,8 @@ class AnalysisService:
             generated=True,
             generated_at=_mtime(cache),
             items=items,
+            gains_pending=gains_job is not None,
+            gains_job_id=gains_job.id if gains_job else None,
         )
 
     def generate_dependency_freshness(
@@ -467,19 +482,30 @@ class AnalysisService:
                 )
             )
 
-        outdated = [i for i in items if i.gap in ("patch", "minor", "major")]
-        repo = self._repos.get(repository_id)
-        if outdated and repo and repo.clone_path:
-            gains = _dependency_gains(outdated, repo.clone_path)
-            for item in items:
-                if item.name in gains:
-                    item.gain = gains[item.name]
-
         out_dir = self._artifact_dir("dependency-freshness", repository_id)
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / "freshness.json").write_text(
             json.dumps([i.model_dump() for i in items])
         )
+
+        # The deterministic columns are ready now; the per-package "what you gain" lines are an
+        # engine job — the handler in jobs.py fills them into the cached file when it settles.
+        outdated = [i for i in items if i.gap in ("patch", "minor", "major")]
+        repo = self._repos.get(repository_id)
+        if outdated and repo and repo.clone_path:
+            settings = get_settings()
+            JobService(self._session).enqueue(
+                kind=job_kinds.SUBSTRATE_DEPENDENCY_GAINS,
+                title=f"Dependency upgrade gains — {repo.coordinates.slug}",
+                prompt=_gains_prompt(outdated),
+                payload={
+                    "cwd": repo.clone_path,
+                    "model": settings.claude_model,
+                    "timeout_seconds": settings.claude_timeout_seconds,
+                    "repository_id": str(repository_id),
+                },
+                repository_id=repository_id,
+            )
         return self.dependency_freshness_status(repository_id)
 
     # --- architecture diagrams (Mermaid via claude -p) ------------------------
@@ -512,28 +538,30 @@ class AnalysisService:
             agent_available=_new_agent().available(),
         )
 
-    def generate_architecture_diagram(
+    def enqueue_architecture_diagram(
         self, repository_id: uuid.UUID, kind_slug: str
-    ) -> ArchitectureResult:
-        """Have a hobit explore the clone and emit one Mermaid diagram of the requested kind."""
+    ) -> JobResult:
+        """Enqueue one Mermaid diagram generation for the engine service (non-blocking).
+        The handler in jobs.py writes the artifact when the job settles."""
         kind = architecture.CATALOG_BY_SLUG.get(kind_slug)
         if kind is None:
             raise NotFoundError(f"Unknown architecture diagram: {kind_slug}")
         repo = self._require_cloned_repo(repository_id)
-        agent = _new_agent()
-        if not agent.available():
-            raise ConflictError("The Claude CLI is not available to generate diagrams.")
-        prompt = architecture.build_prompt(kind, repo.coordinates.slug)
-        run = agent.run(prompt, cwd=repo.clone_path)
-        if not run.ok:
-            raise ConflictError(run.error or "Diagram generation failed.")
-        mermaid = _extract_mermaid_block(run.text)
-        if not mermaid:
-            raise ConflictError("The agent did not return a valid Mermaid diagram.")
-        out_dir = self._artifact_dir("architecture", repository_id)
-        out_dir.mkdir(parents=True, exist_ok=True)
-        (out_dir / f"{kind.slug}.json").write_text(json.dumps({"mermaid": mermaid}))
-        return self.architecture_status(repository_id)
+        settings = get_settings()
+        job = JobService(self._session).enqueue(
+            kind=job_kinds.SUBSTRATE_ARCHITECTURE,
+            title=f"Architecture diagram: {kind.title} — {repo.coordinates.slug}",
+            prompt=architecture.build_prompt(kind, repo.coordinates.slug),
+            payload={
+                "cwd": repo.clone_path,
+                "model": settings.claude_model,
+                "timeout_seconds": settings.claude_timeout_seconds,
+                "repository_id": str(repository_id),
+                "kind": kind.slug,
+            },
+            repository_id=repository_id,
+        )
+        return JobResult.of(job)
 
     # --- codebase overview (big-picture summary via claude -p) ----------------
     def codebase_overview_status(self, repository_id: uuid.UUID) -> CodebaseOverviewResult:
@@ -562,22 +590,23 @@ class AnalysisService:
             audience=data.get("audience"),
         )
 
-    def generate_codebase_overview(self, repository_id: uuid.UUID) -> CodebaseOverviewResult:
-        """Have a hobit investigate the clone and write a crisp big-picture overview."""
+    def enqueue_codebase_overview(self, repository_id: uuid.UUID) -> JobResult:
+        """Enqueue the big-picture overview generation for the engine service (non-blocking)."""
         repo = self._require_cloned_repo(repository_id)
-        agent = _new_agent()
-        if not agent.available():
-            raise ConflictError("The Claude CLI is not available to generate an overview.")
-        run = agent.run(_OVERVIEW_PROMPT.format(repo=repo.coordinates.slug), cwd=repo.clone_path)
-        if not run.ok:
-            raise ConflictError(run.error or "Overview generation failed.")
-        overview = _parse_overview(run.text)
-        if overview is None:
-            raise ConflictError("The agent did not return a usable overview.")
-        out_dir = self._artifact_dir("codebase-overview", repository_id)
-        out_dir.mkdir(parents=True, exist_ok=True)
-        (out_dir / "overview.json").write_text(json.dumps(overview))
-        return self.codebase_overview_status(repository_id)
+        settings = get_settings()
+        job = JobService(self._session).enqueue(
+            kind=job_kinds.SUBSTRATE_CODEBASE_OVERVIEW,
+            title=f"Codebase overview — {repo.coordinates.slug}",
+            prompt=_OVERVIEW_PROMPT.format(repo=repo.coordinates.slug),
+            payload={
+                "cwd": repo.clone_path,
+                "model": settings.claude_model,
+                "timeout_seconds": settings.claude_timeout_seconds,
+                "repository_id": str(repository_id),
+            },
+            repository_id=repository_id,
+        )
+        return JobResult.of(job)
 
     # --- code city (CodeCharta) -----------------------------------------------
     def code_map_status(self, repository_id: uuid.UUID) -> CodeMapResult:
@@ -718,18 +747,12 @@ def _parse_overview(text: str) -> dict | None:
     }
 
 
-def _dependency_gains(
-    outdated: list[DependencyFreshnessItem], cwd: str
-) -> dict[str, str]:
-    """One `claude -p` call → {package: one-line 'what you gain by upgrading'}. Empty on any failure
-    (the deterministic columns still populate)."""
-    agent = _new_agent()
-    if not agent.available():
-        return {}
+def _gains_prompt(outdated: list[DependencyFreshnessItem]) -> str:
+    """The one-call prompt: {package: one-line 'what you gain by upgrading'} as fenced json."""
     listing = "\n".join(
         f"- {i.name}: {i.current} -> {i.latest} ({i.gap})" for i in outdated
     )
-    prompt = (
+    return (
         "These Python packages are behind their latest release. For each, give ONE concise line on "
         "the most notable reasons to upgrade to the latest version (key fixes, features, security, "
         "performance) from your knowledge. Be specific but brief; if unsure, say 'general fixes "
@@ -739,10 +762,11 @@ def _dependency_gains(
         "nothing else:\n"
         '```json\n{"requests": "...", "pandas": "..."}\n```'
     )
-    run = agent.run(prompt, cwd=cwd)
-    if not run.ok:
-        return {}
-    block = _extract_json_object(run.text)
+
+
+def parse_gains(text: str) -> dict[str, str]:
+    """Parse the gains job's result. Empty on any failure (the deterministic columns stand)."""
+    block = _extract_json_object(text)
     if block is None:
         return {}
     try:

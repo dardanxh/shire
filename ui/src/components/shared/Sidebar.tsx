@@ -2,7 +2,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import {
   BookOpenIcon,
   FolderGitIcon,
-  GitPullRequestIcon,
+  ListChecksIcon,
   type LucideIcon,
   NewspaperIcon,
   PlugIcon,
@@ -26,7 +26,12 @@ const ITEMS: NavItem[] = [
     to: "/",
     labelKey: "common.nav.repositories",
     icon: FolderGitIcon,
-    match: (p) => p === "/" || p.startsWith("/repositories"),
+    // MR reviews live as a tab of the repositories hub, so their detail
+    // pages keep this module highlighted.
+    match: (p) =>
+      p === "/" ||
+      p.startsWith("/repositories") ||
+      p.startsWith("/merge-reviews"),
   },
   {
     to: "/hobits",
@@ -41,16 +46,16 @@ const ITEMS: NavItem[] = [
     match: (p) => p === "/feed" || p.startsWith("/feed/"),
   },
   {
-    to: "/merge-reviews",
-    labelKey: "common.nav.merge_reviews",
-    icon: GitPullRequestIcon,
-    match: (p) => p === "/merge-reviews" || p.startsWith("/merge-reviews/"),
-  },
-  {
     to: "/members",
     labelKey: "common.nav.members",
     icon: UsersIcon,
     match: (p) => p === "/members" || p.startsWith("/members/"),
+  },
+  {
+    to: "/jobs",
+    labelKey: "common.nav.jobs",
+    icon: ListChecksIcon,
+    match: (p) => p === "/jobs" || p.startsWith("/jobs/"),
   },
   {
     to: "/tools",
@@ -74,7 +79,7 @@ export function Sidebar() {
     <aside className="sticky top-0 flex h-dvh w-60 shrink-0 flex-col border-r border-border bg-background">
       <Link
         to="/"
-        search={{ page: 1, size: 20 }}
+        search={{ view: "repositories", page: 1, size: 20 }}
         className="flex items-center gap-2 px-5 py-5"
         aria-label={`${t("common.app.name")} home`}
       >

@@ -1,9 +1,9 @@
 """Merge-review service: synchronous footprint + CRUD, with AI sections delegated to the
-background pipeline.
+engine job chain.
 
 `create`/`reanalyze` compute the git footprint inline (seconds), persist the review with its AI
-sections pending, **commit**, and then dispatch the daemon-thread pipeline — so the response
-carries the footprint instantly and the UI polls `get` while the AI sections fill in.
+sections pending, and enqueue the first analysis job — so the response carries the footprint
+instantly and the UI polls `get` while the engine service fills the AI sections in (see jobs.py).
 """
 
 from __future__ import annotations
@@ -19,8 +19,8 @@ from hobits.core.pagination import Page, PaginationParams
 from hobits.domain.connections.domain import GitProvider
 from hobits.domain.hobits.services import HobitService
 from hobits.domain.merge_review.domain import CommentSeverity, Footprint, MrComment
+from hobits.domain.merge_review.jobs import enqueue_classification
 from hobits.domain.merge_review.models import MergeReviewRow
-from hobits.domain.merge_review.pipeline import dispatch_pipeline
 from hobits.domain.merge_review.repositories import (
     SqlMergeReviewRepository,
     SqlMrHobitReviewRepository,
@@ -87,10 +87,10 @@ class MergeReviewService:
         self._hobit_reviews.replace_for_review(row.id, data.hobit_slugs)
         review_id = row.id
 
-        # Commit before dispatch so the pipeline thread (own sessions) always sees the row;
-        # the request-scoped unit_of_work commit then becomes a no-op.
+        # Enqueue inside this transaction: the job row and its NOTIFY become visible to the
+        # engine service atomically with the review itself.
+        enqueue_classification(self._session, review_id)
         self._session.commit()
-        dispatch_pipeline(review_id)
         return self.get(review_id)
 
     def reanalyze(self, review_id: uuid.UUID) -> MergeReviewDetailResult:
@@ -119,8 +119,8 @@ class MergeReviewService:
         row.updated_at = datetime.now(UTC)
         self._hobit_reviews.replace_for_review(review_id, list(row.selected_hobit_slugs or []))
 
+        enqueue_classification(self._session, review_id)
         self._session.commit()
-        dispatch_pipeline(review_id)
         return self.get(review_id)
 
     def delete(self, review_id: uuid.UUID) -> None:

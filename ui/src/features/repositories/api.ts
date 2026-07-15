@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 
 import {
   type AnalysisOut,
@@ -15,6 +16,7 @@ import {
   type GraphOut,
   type HobitOut,
   type HobitRunOut,
+  type JobOut,
   type RepositoryOut,
   type ToolLogOut,
   type ToolName,
@@ -169,9 +171,15 @@ export function useResetContextMarkdownMutation(id: string) {
   });
 }
 
-/** This repository's hobit runs, newest first. */
+/**
+ * This repository's hobit runs, newest first. Runs are now enqueued (`queued` status) and
+ * settled by the engine service, so this query polls while any run is queued; when the last
+ * queued run settles it refreshes everything a finished run can touch (assigned-hobit cards,
+ * context narrative, global hobits list, briefing feed).
+ */
 export function useRepoHobitRunsQuery(id: string) {
-  return useQuery<HobitRunOut[]>({
+  const queryClient = useQueryClient();
+  const query = useQuery<HobitRunOut[]>({
     queryKey: repositoryKeys.hobitRuns(id),
     queryFn: async () => {
       const { data, error } = await api.GET(
@@ -182,7 +190,24 @@ export function useRepoHobitRunsQuery(id: string) {
       return data;
     },
     enabled: id !== "",
+    refetchInterval: (q) =>
+      q.state.data?.some((r) => r.status === "queued") ? 2500 : false,
   });
+
+  const hasQueued = query.data?.some((r) => r.status === "queued") ?? false;
+  const hadQueued = useRef(false);
+  // Side effect: on the queued→settled transition, refresh the run's downstream surfaces.
+  useEffect(() => {
+    if (hadQueued.current && !hasQueued) {
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.hobits(id) });
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.context(id) });
+      queryClient.invalidateQueries({ queryKey: ["hobits"] });
+      queryClient.invalidateQueries({ queryKey: ["briefing"] });
+    }
+    hadQueued.current = hasQueued;
+  }, [hasQueued, id, queryClient]);
+
+  return query;
 }
 
 /**
@@ -503,10 +528,15 @@ export function useDependencyFreshnessQuery(id: string) {
       return data;
     },
     enabled: id !== "",
+    // The AI "gain" lines land via an engine job after the deterministic columns; poll while
+    // that job is in flight so the cells fill in, then stop on their own.
+    refetchInterval: (query) =>
+      query.state.data?.gains_pending ? 2500 : false,
   });
 }
 
-/** Fetch latest versions from PyPI, compute gaps, summarize gains (blocking). */
+/** Fetch latest versions from PyPI and compute gaps (fast, synchronous). The AI gain lines
+ * arrive via an engine job — the freshness query above polls while `gains_pending`. */
 export function useGenerateDependencyFreshnessMutation(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -539,11 +569,11 @@ export function useArchitectureQuery(id: string) {
   });
 }
 
-/** Generate one Mermaid diagram of the given kind (a hobit explores the clone; blocking). */
+/** Enqueue one Mermaid diagram generation. Returns the job — the caller tracks it (via
+ * `useTrackedJob`) and invalidates the architecture catalog when it settles. */
 export function useGenerateArchitectureDiagramMutation(id: string) {
-  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (kind: string): Promise<ArchitectureOut> => {
+    mutationFn: async (kind: string): Promise<JobOut> => {
       const { data, error } = await api.POST(
         "/api/v1/repositories/{repository_id}/architecture/{kind}/run",
         { params: { path: { repository_id: id, kind } } },
@@ -551,8 +581,6 @@ export function useGenerateArchitectureDiagramMutation(id: string) {
       if (error) throw error;
       return data;
     },
-    onSuccess: (data) =>
-      queryClient.setQueryData(repositoryKeys.architecture(id), data),
   });
 }
 
@@ -572,11 +600,11 @@ export function useCodebaseOverviewQuery(id: string) {
   });
 }
 
-/** Have a hobit investigate the clone and write a crisp big-picture overview (blocking). */
+/** Enqueue the big-picture overview generation. Returns the job — the caller tracks it and
+ * invalidates the overview when it settles. */
 export function useGenerateCodebaseOverviewMutation(id: string) {
-  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (): Promise<CodebaseOverviewOut> => {
+    mutationFn: async (): Promise<JobOut> => {
       const { data, error } = await api.POST(
         "/api/v1/repositories/{repository_id}/codebase-overview/run",
         { params: { path: { repository_id: id } } },
@@ -584,8 +612,6 @@ export function useGenerateCodebaseOverviewMutation(id: string) {
       if (error) throw error;
       return data;
     },
-    onSuccess: (data) =>
-      queryClient.setQueryData(repositoryKeys.codebaseOverview(id), data),
   });
 }
 

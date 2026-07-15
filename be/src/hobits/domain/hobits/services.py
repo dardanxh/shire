@@ -1,9 +1,10 @@
 """Hobits service: config management + the run lifecycle.
 
-`run_hobit` is the engine loop: wake → load context → work (`claude -p`) → parse structured output →
-self-score → derive tier → persist run → emit narrative overlay + briefing item. It composes other
-services (context, briefing) and the `ClaudeAgent` integration; it never touches another domain's
-repository directly (the one exception mirrors ContextService: a cross-domain read for clone_path).
+`run_hobit` is now non-blocking: wake → load context → build the prompt → persist a `queued` run →
+enqueue an engine job. The completion handler (jobs.py) parses the structured output, self-scores,
+derives the tier, settles the run, and emits the narrative overlay + briefing item. The service
+never touches another domain's repository directly (the one exception mirrors ContextService: a
+cross-domain read for clone_path).
 """
 
 from __future__ import annotations
@@ -15,8 +16,6 @@ from datetime import UTC, datetime
 from sqlalchemy.orm import Session
 
 from hobits.core.exceptions import ConflictError, NotFoundError
-from hobits.core.settings import get_settings
-from hobits.domain.briefing.domain import derive_tier
 from hobits.domain.briefing.services import BriefingService
 from hobits.domain.context.services import ContextService
 from hobits.domain.hobits.domain import (
@@ -46,16 +45,14 @@ from hobits.domain.hobits.schemas import (
     HobitRunResult,
     UpdateHobit,
 )
+from hobits.domain.jobs import kinds as job_kinds
+from hobits.domain.jobs.services import JobService
 from hobits.domain.repository.services import RepositoryService
-from hobits.integrations.claude_agent import ClaudeAgent
 from hobits.orchestration.schedule_sync import PrefectScheduleSync, validate_cadence
-
-# Neutral self-score used when the agent produced prose but no parseable structured block.
-_FALLBACK_SCORE = SelfScore(importance=50, confidence=20, urgency=30)
 
 
 class HobitService:
-    def __init__(self, session: Session, *, agent: ClaudeAgent | None = None) -> None:
+    def __init__(self, session: Session) -> None:
         self._session = session
         self._context = ContextService(session)
         self._configs = SqlHobitConfigRepository(session)
@@ -63,7 +60,6 @@ class HobitService:
         self._runs = SqlHobitRunRepository(session)
         self._access = SqlRepositoryHobitRepository(session)
         self._briefing = BriefingService(session)
-        self._agent_override = agent  # injectable for tests; else built per-run from config
 
     # --- registry resolution (code roster + user-authored custom hobits) ------
     def _resolve(self, slug: str) -> Hobit | None:
@@ -79,6 +75,10 @@ class HobitService:
         hobits through its own diff-scoped engine and must not hit the repo-assignment gate)."""
         hobit = self._resolve(slug)
         return hobit.spec if hobit is not None else None
+
+    def resolve_hobit(self, slug: str) -> Hobit | None:
+        """Public full-hobit lookup (spec + prompt/parse logic) for the jobs completion handler."""
+        return self._resolve(slug)
 
     def effective_config_for(self, spec: HobitSpec) -> HobitConfig:
         """Public effective config (spec defaults ⊕ user override) for out-of-domain runners."""
@@ -242,6 +242,8 @@ class HobitService:
     def run_hobit(
         self, repository_id: uuid.UUID, slug: str, *, trigger: str = "manual"
     ) -> HobitRunResult:
+        """Validate, persist a `queued` run row, and enqueue the engine job — non-blocking.
+        The jobs handler (jobs.py) settles the row and emits the overlays when the job lands."""
         hobit = self._resolve(slug)
         if hobit is None:
             raise NotFoundError(f"Unknown hobit: {slug}")
@@ -261,27 +263,6 @@ class HobitService:
             raise ConflictError("Repository has no local clone yet.")
         context_md = self._context.get_markdown(repository_id).effective
 
-        agent = self._agent_override or ClaudeAgent(
-            binary=get_settings().claude_binary,
-            model=config.model,
-            timeout_seconds=config.timeout_seconds,
-        )
-        started = datetime.now(UTC)
-
-        if self._agent_override is None and not agent.available():
-            return self._finish(
-                _run_record(
-                    repository_id,
-                    slug,
-                    HobitRunStatus.agent_unavailable,
-                    pack.identity.commit_sha,
-                    started=started,
-                    error="The `claude` CLI is not available on the server.",
-                    trigger=trigger,
-                ),
-                writes_narrative=hobit.spec.writes_narrative,
-            )
-
         ctx = HobitContext(
             repository_id=repository_id,
             slug=slug,
@@ -289,13 +270,44 @@ class HobitService:
             clone_path=pack.identity.clone_path,
             context_markdown=context_md,
         )
-        agent_run = agent.run(
-            hobit.build_prompt(ctx, config.instructions),
-            system=config.charter,
-            cwd=ctx.clone_path,
+        record = HobitRunRecord(
+            id=uuid.uuid4(),
+            repository_id=repository_id,
+            hobit_slug=slug,
+            status=HobitRunStatus.queued.value,
+            trigger=trigger,
+            commit_sha=pack.identity.commit_sha,
+            headline=None,
+            narrative=None,
+            importance=None,
+            confidence=None,
+            urgency=None,
+            tier=None,
+            raw_output=None,
+            error=None,
+            duration_seconds=None,
+            started_at=datetime.now(UTC),
+            finished_at=None,
         )
-        record = self._interpret(hobit, agent_run, repository_id, slug, pack, started, trigger)
-        return self._finish(record, writes_narrative=hobit.spec.writes_narrative)
+        self._runs.add(record)
+        JobService(self._session).enqueue(
+            kind=job_kinds.HOBIT_RUN,
+            title=f"Hobit run: {hobit.spec.name} — {pack.identity.slug}",
+            prompt=hobit.build_prompt(ctx, config.instructions),
+            payload={
+                "system": config.charter,
+                "cwd": ctx.clone_path,
+                "model": config.model,
+                "timeout_seconds": config.timeout_seconds,
+                "run_id": str(record.id),
+                "repository_id": str(repository_id),
+                "slug": slug,
+                "writes_narrative": hobit.spec.writes_narrative,
+                "repo_slug": pack.identity.slug,
+            },
+            repository_id=repository_id,
+        )
+        return HobitRunResult.of(record)
 
     def run_if_stale(
         self, repository_id: uuid.UUID, slug: str, *, force: bool = False
@@ -341,84 +353,6 @@ class HobitService:
         return self.run_hobit(repository_id, slug, trigger="scheduled")
 
     # --- internals ------------------------------------------------------------
-    def _interpret(
-        self,
-        hobit: Hobit,
-        agent_run,
-        repository_id: uuid.UUID,
-        slug: str,
-        pack,
-        started: datetime,
-        trigger: str = "manual",
-    ) -> HobitRunRecord:
-        commit = pack.identity.commit_sha
-        if not agent_run.ok:
-            status = (
-                HobitRunStatus.timeout
-                if agent_run.error and "timed out" in agent_run.error
-                else HobitRunStatus.error
-            )
-            return _run_record(
-                repository_id,
-                slug,
-                status,
-                commit,
-                started=started,
-                error=agent_run.error,
-                raw_output=agent_run.raw_stdout or None,
-                duration=agent_run.duration_seconds,
-                trigger=trigger,
-            )
-
-        output = hobit.parse_output(agent_run.text)
-        if output is None:
-            # Keep the prose so the human still gets value; neutral score → quiet briefing item.
-            headline = f"Onboarding notes for {pack.identity.slug} (needs review)"
-            score = _FALLBACK_SCORE
-            tier = derive_tier(score.importance, score.confidence, score.urgency).value
-            return _run_record(
-                repository_id,
-                slug,
-                HobitRunStatus.parse_failed,
-                commit,
-                started=started,
-                headline=headline,
-                narrative=agent_run.text or None,
-                score=score,
-                tier=tier,
-                raw_output=agent_run.raw_stdout or None,
-                duration=agent_run.duration_seconds,
-                error="Could not parse the hobit's structured output.",
-                trigger=trigger,
-            )
-
-        tier = derive_tier(
-            output.self_score.importance, output.self_score.confidence, output.self_score.urgency
-        ).value
-        return _run_record(
-            repository_id,
-            slug,
-            HobitRunStatus.completed,
-            commit,
-            started=started,
-            headline=output.headline,
-            narrative=output.narrative,
-            score=output.self_score,
-            tier=tier,
-            raw_output=agent_run.raw_stdout or None,
-            duration=agent_run.duration_seconds,
-            trigger=trigger,
-        )
-
-    def _finish(self, record: HobitRunRecord, *, writes_narrative: bool) -> HobitRunResult:
-        """Persist the run and emit its overlays: a briefing post always; the context-pack
-        narrative only for hobits that own it (onboarding)."""
-        self._runs.add(record)
-        if writes_narrative and record.narrative is not None:
-            self._context.set_narrative(record.repository_id, record.narrative)
-        self._briefing.create_from_run(record)  # no-op for unscored runs
-        return HobitRunResult.of(record)
-
     def _effective_config(self, spec: HobitSpec, custom: CustomHobit | None = None) -> HobitConfig:
         custom = custom if custom is not None else self._custom.get(spec.slug)
         if custom is not None:

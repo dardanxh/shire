@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { ChevronDownIcon, Loader2Icon, SparklesIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -6,23 +7,41 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTrackedJob } from "@/features/jobs";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
   useCodebaseOverviewQuery,
   useGenerateCodebaseOverviewMutation,
 } from "../api";
+import { repositoryKeys } from "../keys";
 
 export function CodebaseOverviewPanel({ repoId }: { repoId: string }) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const { data } = useCodebaseOverviewQuery(repoId);
-  const { mutate: generate, isPending } =
+  const { mutate: generate, isPending: isQueueing } =
     useGenerateCodebaseOverviewMutation(repoId);
   const [open, setOpen] = useState(true);
 
+  const { track, isTracking } = useTrackedJob((job) => {
+    queryClient.invalidateQueries({
+      queryKey: repositoryKeys.codebaseOverview(repoId),
+    });
+    if (job.status === "succeeded") {
+      toast.success(t("repositories.view.overview.toast_done"));
+    } else {
+      toast.error(job.error ?? t("repositories.view.overview.toast_failed"));
+    }
+  });
+  const isPending = isQueueing || isTracking;
+
   const run = () =>
     generate(undefined, {
-      onSuccess: () => toast.success(t("repositories.view.overview.toast")),
+      onSuccess: (job) => {
+        toast.success(t("repositories.view.overview.toast"));
+        track(job.id);
+      },
     });
 
   return (

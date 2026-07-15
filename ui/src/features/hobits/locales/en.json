@@ -60,8 +60,13 @@
         "label": "Category",
         "required": "A category is required"
       },
-      "enabled": { "label": "Enabled" },
-      "model": { "label": "Model", "required": "Model is required" },
+      "enabled": {
+        "label": "Enabled"
+      },
+      "model": {
+        "label": "Model",
+        "required": "Model is required"
+      },
       "charter": {
         "label": "Charter (persona)",
         "desc": "Who the hobit is — passed as the agent's system prompt.",
@@ -94,7 +99,8 @@
       "toast_done": "Mental model generated",
       "toast_status": "Run finished: {{status}}",
       "last_run": "Last run: {{status}} · {{when}}",
-      "never": "Not run yet"
+      "never": "Not run yet",
+      "toast_queued": "Onboarding run queued — the narrative will appear when it finishes."
     }
   }
 }

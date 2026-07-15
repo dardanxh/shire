@@ -76,7 +76,8 @@
         "agent_unavailable": "agent unavailable",
         "timeout": "timed out",
         "error": "error",
-        "skipped_unchanged": "up to date"
+        "skipped_unchanged": "up to date",
+        "queued": "Queued"
       },
       "freshness": {
         "fresh": "Up to date",
@@ -294,7 +295,9 @@
         "features": "Key capabilities",
         "audience": "Who it's for",
         "generated_at": "Generated {{when}}",
-        "toast": "Codebase overview generated"
+        "toast": "Overview generation queued — track it in Jobs.",
+        "toast_done": "Codebase overview is ready.",
+        "toast_failed": "Overview generation failed."
       },
       "context": {
         "intro": "The precomputed context an AI agent reads first — every tool's findings folded into one Markdown snapshot, so it needn't call a dozen endpoints. Edit it to add your own notes; your version is saved as an override and becomes what the agent reads.",
@@ -322,7 +325,7 @@
         "copy": "Copy",
         "copied": "Diagram source copied",
         "generated_at": "Generated {{when}}",
-        "toast": "{{title}} generated",
+        "toast": "{{title}} generation queued — track it in Jobs.",
         "render_error": "This diagram couldn't be rendered. View the source below to inspect it.",
         "unavailable": "The Claude CLI isn't available on the server, so diagrams can't be generated.",
         "crumb": "Diagram",
@@ -331,7 +334,9 @@
         "loading": "Loading diagram…",
         "zoom_in": "Zoom in",
         "zoom_out": "Zoom out",
-        "zoom_reset": "Reset zoom"
+        "zoom_reset": "Reset zoom",
+        "toast_done": "Diagram generated.",
+        "toast_failed": "Diagram generation failed."
       }
     },
     "integrations": {
