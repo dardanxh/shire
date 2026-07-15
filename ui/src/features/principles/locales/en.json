@@ -1,0 +1,62 @@
+{
+  "principles": {
+    "list": {
+      "new": "New principle",
+      "empty_title": "No principles yet",
+      "empty_body": "Write down what you believe good engineering looks like — the engine will hold every repository to it.",
+      "disabled": "Disabled",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleted": "Principle deleted.",
+      "standing": "{{upheld}} upheld · {{violated}} violated (latest audits)",
+      "never_audited": "Not audited yet"
+    },
+    "form": {
+      "title": "New principle",
+      "edit_title": "Edit principle",
+      "name": {
+        "label": "Name",
+        "placeholder": "e.g. Routes stay thin",
+        "required": "Give the principle a name."
+      },
+      "statement": {
+        "label": "The principle",
+        "desc": "Plain language. Be concrete about what counts as a violation — the auditor enforces exactly what you write.",
+        "required": "Write the principle."
+      },
+      "severity": { "label": "Severity" },
+      "scope": {
+        "label": "Applies to",
+        "desc": "Global principles are checked on every repository.",
+        "all": "All repositories"
+      },
+      "enabled": { "label": "Enabled" },
+      "save": "Save principle",
+      "created": "Principle created.",
+      "saved": "Principle saved."
+    },
+    "severity": {
+      "info": "Info",
+      "warning": "Warning",
+      "critical": "Critical"
+    },
+    "verdict": {
+      "upheld": "Upheld",
+      "violated": "Violated",
+      "pending": "Auditing…",
+      "error": "Error",
+      "never": "Not audited"
+    },
+    "repo": {
+      "run_audit": "Run audit",
+      "auditing": "Auditing…",
+      "audit_queued": "Audit queued — verdicts will land as each check finishes.",
+      "empty_title": "No principles apply to this repository",
+      "empty_body": "Create principles in the Principles module — global ones apply everywhere.",
+      "never_body": "This principle hasn't been checked against this repository yet.",
+      "checking": "The engine is checking the code against this principle…",
+      "error": "The audit failed.",
+      "checked_at": "Checked {{when}}"
+    }
+  }
+}

@@ -13,7 +13,8 @@
       "connectors": "Connectors",
       "members": "Members",
       "merge_reviews": "Merge Requests",
-      "jobs": "Jobs"
+      "jobs": "Jobs",
+      "principles": "Principles"
     },
     "actions": {
       "add": "Add",

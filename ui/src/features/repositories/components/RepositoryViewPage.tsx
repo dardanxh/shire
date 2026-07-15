@@ -16,6 +16,7 @@ import {
   NetworkIcon,
   PackageIcon,
   PuzzleIcon,
+  ScaleIcon,
   ShieldCheckIcon,
   ShieldIcon,
 } from "lucide-react";
@@ -35,6 +36,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RepoJobsPanel } from "@/features/jobs";
 import { RepoMergeReviewsPanel } from "@/features/merge-reviews";
+import { RepoPrinciplesPanel } from "@/features/principles";
 import { extractErrorMessage } from "@/lib/api";
 import {
   formatAge,
@@ -203,6 +205,10 @@ export function RepositoryViewPage({
                 <BotIcon />
                 {t("repositories.view.tabs.hobits")}
               </TabsTrigger>
+              <TabsTrigger value="principles">
+                <ScaleIcon />
+                {t("repositories.view.tabs.principles")}
+              </TabsTrigger>
               <TabsTrigger value="jobs">
                 <ListChecksIcon />
                 {t("repositories.view.tabs.jobs")}
@@ -211,6 +217,10 @@ export function RepositoryViewPage({
 
             <TabsContent value="ask">
               <AskPanel repoId={repo.id} />
+            </TabsContent>
+
+            <TabsContent value="principles">
+              <RepoPrinciplesPanel repositoryId={repo.id} />
             </TabsContent>
 
             <TabsContent value="jobs">

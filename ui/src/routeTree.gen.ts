@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ToolsRouteImport } from './routes/tools'
+import { Route as PrinciplesRouteImport } from './routes/principles'
 import { Route as MergeReviewsRouteImport } from './routes/merge-reviews'
 import { Route as MembersRouteImport } from './routes/members'
 import { Route as JobsRouteImport } from './routes/jobs'
@@ -28,6 +29,11 @@ import { Route as DiagramRepoIdKindRouteImport } from './routes/diagram.$repoId.
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
   path: '/tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrinciplesRoute = PrinciplesRouteImport.update({
+  id: '/principles',
+  path: '/principles',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MergeReviewsRoute = MergeReviewsRouteImport.update({
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/jobs': typeof JobsRouteWithChildren
   '/members': typeof MembersRoute
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
+  '/principles': typeof PrinciplesRoute
   '/tools': typeof ToolsRoute
   '/hobits/$slug': typeof HobitsSlugRoute
   '/jobs/$id': typeof JobsIdRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/feed': typeof FeedRoute
   '/members': typeof MembersRoute
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
+  '/principles': typeof PrinciplesRoute
   '/tools': typeof ToolsRoute
   '/hobits/$slug': typeof HobitsSlugRoute
   '/jobs/$id': typeof JobsIdRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/jobs': typeof JobsRouteWithChildren
   '/members': typeof MembersRoute
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
+  '/principles': typeof PrinciplesRoute
   '/tools': typeof ToolsRoute
   '/hobits/$slug': typeof HobitsSlugRoute
   '/jobs/$id': typeof JobsIdRoute
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/jobs'
     | '/members'
     | '/merge-reviews'
+    | '/principles'
     | '/tools'
     | '/hobits/$slug'
     | '/jobs/$id'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/feed'
     | '/members'
     | '/merge-reviews'
+    | '/principles'
     | '/tools'
     | '/hobits/$slug'
     | '/jobs/$id'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/jobs'
     | '/members'
     | '/merge-reviews'
+    | '/principles'
     | '/tools'
     | '/hobits/$slug'
     | '/jobs/$id'
@@ -211,6 +223,7 @@ export interface RootRouteChildren {
   JobsRoute: typeof JobsRouteWithChildren
   MembersRoute: typeof MembersRoute
   MergeReviewsRoute: typeof MergeReviewsRouteWithChildren
+  PrinciplesRoute: typeof PrinciplesRoute
   ToolsRoute: typeof ToolsRoute
   RepositoriesIdRoute: typeof RepositoriesIdRoute
   DiagramRepoIdKindRoute: typeof DiagramRepoIdKindRoute
@@ -223,6 +236,13 @@ declare module '@tanstack/react-router' {
       path: '/tools'
       fullPath: '/tools'
       preLoaderRoute: typeof ToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/principles': {
+      id: '/principles'
+      path: '/principles'
+      fullPath: '/principles'
+      preLoaderRoute: typeof PrinciplesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/merge-reviews': {
@@ -371,6 +391,7 @@ const rootRouteChildren: RootRouteChildren = {
   JobsRoute: JobsRouteWithChildren,
   MembersRoute: MembersRoute,
   MergeReviewsRoute: MergeReviewsRouteWithChildren,
+  PrinciplesRoute: PrinciplesRoute,
   ToolsRoute: ToolsRoute,
   RepositoriesIdRoute: RepositoriesIdRoute,
   DiagramRepoIdKindRoute: DiagramRepoIdKindRoute,

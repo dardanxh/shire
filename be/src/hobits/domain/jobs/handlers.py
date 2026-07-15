@@ -16,6 +16,7 @@ from hobits.domain.merge_review.jobs import (
     handle_mr_hobit_review,
     handle_mr_overview,
 )
+from hobits.domain.principles.jobs import handle_principle_audit
 from hobits.domain.substrate.jobs import (
     handle_architecture,
     handle_codebase_overview,
@@ -37,4 +38,5 @@ HANDLERS: dict[str, Callable[[JobRow], None]] = {
     kinds.SUBSTRATE_CODEBASE_OVERVIEW: handle_codebase_overview,
     kinds.SUBSTRATE_DEPENDENCY_GAINS: handle_dependency_gains,
     kinds.HOBIT_RUN: handle_hobit_run,
+    kinds.PRINCIPLE_AUDIT: handle_principle_audit,
 }

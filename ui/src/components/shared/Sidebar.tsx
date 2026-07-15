@@ -6,6 +6,7 @@ import {
   type LucideIcon,
   NewspaperIcon,
   PlugIcon,
+  ScaleIcon,
   UsersIcon,
   WrenchIcon,
 } from "lucide-react";
@@ -50,6 +51,12 @@ const ITEMS: NavItem[] = [
     labelKey: "common.nav.members",
     icon: UsersIcon,
     match: (p) => p === "/members" || p.startsWith("/members/"),
+  },
+  {
+    to: "/principles",
+    labelKey: "common.nav.principles",
+    icon: ScaleIcon,
+    match: (p) => p === "/principles" || p.startsWith("/principles/"),
   },
   {
     to: "/jobs",

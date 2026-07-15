@@ -10,6 +10,7 @@ SUBSTRATE_CODEBASE_OVERVIEW = "substrate.codebase_overview"
 SUBSTRATE_DEPENDENCY_GAINS = "substrate.dependency_gains"
 HOBIT_RUN = "hobit.run"
 REPO_QUESTION = "repo.question"
+PRINCIPLE_AUDIT = "principle.audit"
 
 # Models the engine's `claude` CLI accepts: aliases (track the latest version) plus pinned
 # IDs for reproducibility. Curated here so the Config tab's dropdown has one place to update.

@@ -1281,6 +1281,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/principles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Principles
+         * @description Every principle with its fleet standing (upheld/violated repo counts).
+         */
+        get: operations["list_principles_api_v1_principles_get"];
+        put?: never;
+        /** Create Principle */
+        post: operations["create_principle_api_v1_principles_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/principles/{principle_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Principle */
+        put: operations["update_principle_api_v1_principles__principle_id__put"];
+        post?: never;
+        /** Delete Principle */
+        delete: operations["delete_principle_api_v1_principles__principle_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/principles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Repository Principles
+         * @description Each applicable principle with its newest verdict (the repo tab's poll target).
+         */
+        get: operations["repository_principles_api_v1_repositories__repository_id__principles_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/principles/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Audit Repository Principles
+         * @description Audit the repository against every applicable enabled principle (one engine job per
+         *     principle, non-blocking — poll the GET).
+         */
+        post: operations["audit_repository_principles_api_v1_repositories__repository_id__principles_audit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -2067,6 +2147,25 @@ export interface components {
              * @default []
              */
             hobit_slugs: string[];
+        };
+        /** CreatePrinciple */
+        CreatePrinciple: {
+            /** Name */
+            name: string;
+            /** Statement */
+            statement: string;
+            /**
+             * Severity
+             * @default warning
+             */
+            severity: string;
+            /** Repository Id */
+            repository_id?: string | null;
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
         };
         /** DailyCommitCount */
         DailyCommitCount: {
@@ -3141,6 +3240,90 @@ export interface components {
             knowledge_concentration: number;
         };
         /**
+         * PrincipleCheckResult
+         * @description One audit verdict (the newest one doubles as current compliance).
+         */
+        PrincipleCheckResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Principle Id
+             * Format: uuid
+             */
+            principle_id: string;
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Job Id */
+            job_id: string | null;
+            /** Status */
+            status: string;
+            /** Summary */
+            summary: string | null;
+            /** Violations */
+            violations: {
+                [key: string]: unknown;
+            }[];
+            /** Error */
+            error: string | null;
+            /** Commit Sha */
+            commit_sha: string | null;
+            /** Branch */
+            branch: string | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /** PrincipleResult */
+        PrincipleResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Statement */
+            statement: string;
+            /** Severity */
+            severity: string;
+            /** Repository Id */
+            repository_id: string | null;
+            /** Enabled */
+            enabled: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Upheld Count
+             * @default 0
+             */
+            upheld_count: number;
+            /**
+             * Violated Count
+             * @default 0
+             */
+            violated_count: number;
+        };
+        /**
          * QuestionResult
          * @description One asked question and its (possibly still pending) answer, backed by a job row.
          */
@@ -3201,6 +3384,14 @@ export interface components {
             /** Narrative */
             narrative?: string | null;
             drilldown: components["schemas"]["ContextDrilldown"];
+        };
+        /**
+         * RepoPrincipleStatusResult
+         * @description One principle's standing against one repository — the repo tab's row shape.
+         */
+        RepoPrincipleStatusResult: {
+            principle: components["schemas"]["PrincipleResult"];
+            latest_check: components["schemas"]["PrincipleCheckResult"] | null;
         };
         /**
          * RepositoryResult
@@ -3465,6 +3656,28 @@ export interface components {
             timeout_seconds: number;
             /** Tags */
             tags?: string[];
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+        };
+        /**
+         * UpdatePrinciple
+         * @description Full edit — same shape as create.
+         */
+        UpdatePrinciple: {
+            /** Name */
+            name: string;
+            /** Statement */
+            statement: string;
+            /**
+             * Severity
+             * @default warning
+             */
+            severity: string;
+            /** Repository Id */
+            repository_id?: string | null;
             /**
              * Enabled
              * @default true
@@ -5947,6 +6160,185 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JobResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_principles_api_v1_principles_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrincipleResult"][];
+                };
+            };
+        };
+    };
+    create_principle_api_v1_principles_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePrinciple"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrincipleResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_principle_api_v1_principles__principle_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                principle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePrinciple"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrincipleResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_principle_api_v1_principles__principle_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                principle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    repository_principles_api_v1_repositories__repository_id__principles_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepoPrincipleStatusResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    audit_repository_principles_api_v1_repositories__repository_id__principles_audit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepoPrincipleStatusResult"][];
                 };
             };
             /** @description Validation Error */

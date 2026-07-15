@@ -65,6 +65,14 @@ export type EngineConfigOut = components["schemas"]["EngineConfigResult"];
 export type UpdateEngineConfigIn = components["schemas"]["UpdateEngineConfig"];
 export type JobStatsOut = components["schemas"]["JobStatsResult"];
 export type QuestionOut = components["schemas"]["QuestionResult"];
+export type PrincipleOut = components["schemas"]["PrincipleResult"];
+export type PrincipleCheckOut = components["schemas"]["PrincipleCheckResult"];
+export type RepoPrincipleStatusOut =
+  components["schemas"]["RepoPrincipleStatusResult"];
+export type PrincipleIn = components["schemas"]["CreatePrinciple"];
+
+/** Principle severities (backend types the column as a bare string). */
+export const PRINCIPLE_SEVERITIES = ["info", "warning", "critical"] as const;
 
 /** Job lifecycle statuses (backend types the column as a bare string). */
 export const JOB_STATUSES = [

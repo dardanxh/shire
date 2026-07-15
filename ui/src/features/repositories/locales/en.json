@@ -284,7 +284,8 @@
         "context": "Context",
         "hobits": "Hobits",
         "ask": "Ask",
-        "jobs": "Jobs"
+        "jobs": "Jobs",
+        "principles": "Principles"
       },
       "overview": {
         "title": "Codebase Overview for Humans",

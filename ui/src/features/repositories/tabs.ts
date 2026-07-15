@@ -20,6 +20,7 @@ export const REPOSITORY_TAB_VALUES = [
   "integrations",
   "context",
   "hobits",
+  "principles",
   "jobs",
 ] as const;
 
