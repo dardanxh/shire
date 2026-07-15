@@ -338,9 +338,10 @@ def _count_tests(path: Path) -> tuple[int, int]:
                 "test"
             ):
                 tests += 1
-            elif isinstance(node, ast.Assert):
-                assertions += 1
-            elif isinstance(node, ast.Call) and getattr(node.func, "attr", "").startswith("assert"):
+            elif isinstance(node, ast.Assert) or (
+                isinstance(node, ast.Call)
+                and getattr(node.func, "attr", "").startswith("assert")
+            ):
                 assertions += 1
         return tests, assertions
     if suffix in {".js", ".jsx", ".ts", ".tsx"}:

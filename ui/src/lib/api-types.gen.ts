@@ -107,6 +107,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/repositories/{repository_id}/branch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Switch Repository Branch
+         * @description Check out a branch, clear generated artifacts, and re-run the full analysis (blocking).
+         */
+        post: operations["switch_repository_branch_api_v1_repositories__repository_id__branch_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/repositories/{repository_id}/analysis": {
         parameters: {
             query?: never;
@@ -1130,6 +1150,51 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/jobs/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Engine Config
+         * @description The engine's runtime settings + the model choices the CLI accepts.
+         */
+        get: operations["get_engine_config_api_v1_jobs_config_get"];
+        /**
+         * Update Engine Config
+         * @description Save runtime settings. Model/timeout apply to newly enqueued jobs; attempts and
+         *     concurrency are picked up by every engine worker within a few seconds.
+         */
+        put: operations["update_engine_config_api_v1_jobs_config_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Job Stats
+         * @description Aggregate token/cost totals (today / last 7 days / all time).
+         */
+        get: operations["job_stats_api_v1_jobs_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/jobs/{job_id}": {
         parameters: {
             query?: never;
@@ -1144,6 +1209,46 @@ export interface paths {
         get: operations["get_job_api_v1_jobs__job_id__get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/{job_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel Job
+         * @description Cancel a job still waiting in the queue (409 once a worker has claimed it).
+         */
+        post: operations["cancel_job_api_v1_jobs__job_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/{job_id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Retry Job
+         * @description Re-run a failed or cancelled job as a fresh job (MR stages: use Reanalyze instead).
+         */
+        post: operations["retry_job_api_v1_jobs__job_id__retry_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2030,6 +2135,29 @@ export interface components {
          */
         Ecosystem: "pip" | "npm" | "cargo" | "go" | "maven" | "gem" | "composer" | "generic";
         /**
+         * EngineConfigResult
+         * @description The engine's runtime settings + the model choices the CLI accepts.
+         */
+        EngineConfigResult: {
+            /** Timeout Seconds */
+            timeout_seconds: number;
+            /** Model */
+            model: string;
+            /** Max Attempts */
+            max_attempts: number;
+            /** Concurrency */
+            concurrency: number;
+            /** Retention Days */
+            retention_days: number;
+            /** Available Models */
+            available_models: string[];
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
          * Enrichment
          * @description Scalar enrichment bundle embedded on an Analysis (all tool-sourced, best-effort).
          */
@@ -2457,7 +2585,8 @@ export interface components {
         };
         /**
          * JobDetailResult
-         * @description Detail shape: adds the exact prompt sent to the engine and the raw result.
+         * @description Detail shape: adds the exact prompt sent to the engine, the raw result, and the
+         *     full token-usage breakdown.
          */
         JobDetailResult: {
             /**
@@ -2488,12 +2617,19 @@ export interface components {
             finished_at: string | null;
             /** Duration Seconds */
             duration_seconds: number | null;
+            /** Model */
+            model: string | null;
+            /** Total Tokens */
+            total_tokens: number | null;
+            /** Total Cost Usd */
+            total_cost_usd: number | null;
             /** Prompt */
             prompt: string;
             /** Result */
             result: string | null;
             /** Worker Id */
             worker_id: string | null;
+            usage: components["schemas"]["JobUsage"] | null;
         };
         /**
          * JobResult
@@ -2528,6 +2664,51 @@ export interface components {
             finished_at: string | null;
             /** Duration Seconds */
             duration_seconds: number | null;
+            /** Model */
+            model: string | null;
+            /** Total Tokens */
+            total_tokens: number | null;
+            /** Total Cost Usd */
+            total_cost_usd: number | null;
+        };
+        /** JobStatsBucket */
+        JobStatsBucket: {
+            /** Jobs */
+            jobs: number;
+            /** Total Tokens */
+            total_tokens: number;
+            /** Total Cost Usd */
+            total_cost_usd: number;
+        };
+        /**
+         * JobStatsResult
+         * @description Aggregate resource appetite for the Jobs page header.
+         */
+        JobStatsResult: {
+            today: components["schemas"]["JobStatsBucket"];
+            last_7_days: components["schemas"]["JobStatsBucket"];
+            all_time: components["schemas"]["JobStatsBucket"];
+        };
+        /**
+         * JobUsage
+         * @description Session-cumulative token accounting for one engine run (prompt in + result back,
+         *     across every internal turn the agent took).
+         */
+        JobUsage: {
+            /** Input Tokens */
+            input_tokens?: number | null;
+            /** Output Tokens */
+            output_tokens?: number | null;
+            /** Cache Creation Input Tokens */
+            cache_creation_input_tokens?: number | null;
+            /** Cache Read Input Tokens */
+            cache_read_input_tokens?: number | null;
+            /** Total Cost Usd */
+            total_cost_usd?: number | null;
+            /** Num Turns */
+            num_turns?: number | null;
+            /** Models */
+            models?: string[] | null;
         };
         /** LanguageStat */
         LanguageStat: {
@@ -2981,6 +3162,8 @@ export interface components {
             connection_id: string | null;
             /** Default Branch */
             default_branch: string;
+            /** Current Branch */
+            current_branch: string;
             /** Status */
             status: string;
             /** Last Analyzed Commit */
@@ -3046,6 +3229,14 @@ export interface components {
         SetRepoHobitsRequest: {
             /** Slugs */
             slugs: string[];
+        };
+        /**
+         * SwitchBranchRequest
+         * @description Switch the repository's active branch (checkout + pull + full re-analysis).
+         */
+        SwitchBranchRequest: {
+            /** Branch */
+            branch: string;
         };
         /**
          * TestConnectionRequest
@@ -3163,6 +3354,22 @@ export interface components {
             secret?: string | null;
             /** Base Url */
             base_url?: string | null;
+        };
+        /**
+         * UpdateEngineConfig
+         * @description The Config tab's save payload. Bounds keep a typo from wedging the queue.
+         */
+        UpdateEngineConfig: {
+            /** Timeout Seconds */
+            timeout_seconds: number;
+            /** Model */
+            model: string;
+            /** Max Attempts */
+            max_attempts: number;
+            /** Concurrency */
+            concurrency: number;
+            /** Retention Days */
+            retention_days: number;
         };
         /**
          * UpdateHobit
@@ -3436,6 +3643,41 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepositoryResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    switch_repository_branch_api_v1_repositories__repository_id__branch_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SwitchBranchRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -5420,6 +5662,79 @@ export interface operations {
             };
         };
     };
+    get_engine_config_api_v1_jobs_config_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngineConfigResult"];
+                };
+            };
+        };
+    };
+    update_engine_config_api_v1_jobs_config_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateEngineConfig"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngineConfigResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    job_stats_api_v1_jobs_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobStatsResult"];
+                };
+            };
+        };
+    };
     get_job_api_v1_jobs__job_id__get: {
         parameters: {
             query?: never;
@@ -5438,6 +5753,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JobDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_job_api_v1_jobs__job_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    retry_job_api_v1_jobs__job_id__retry_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobResult"];
                 };
             };
             /** @description Validation Error */

@@ -372,6 +372,25 @@ export function useIngestRepositoryMutation() {
 }
 
 /** Pull the latest commits and re-run the full analysis (blocking). */
+/** Switch the active branch: checkout + pull + full re-analysis; generated artifacts are
+ * cleared and regenerate on demand (blocking, like refresh). */
+export function useSwitchBranchMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (branch: string): Promise<RepositoryOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/branch",
+        { params: { path: { repository_id: id } }, body: { branch } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.all });
+    },
+  });
+}
+
 export function useRefreshRepositoryMutation(id: string) {
   const queryClient = useQueryClient();
   return useMutation({

@@ -8,6 +8,7 @@ worker, with no coordination beyond the table itself.
 
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any
 
@@ -38,7 +39,7 @@ RETURNING j.id, j.kind, j.prompt, j.payload;
 _COMPLETE_SQL = """
 UPDATE jobs
 SET status = %(status)s, result = %(result)s, error = %(error)s,
-    finished_at = now(), duration_seconds = %(duration)s
+    finished_at = now(), duration_seconds = %(duration)s, usage = %(usage)s::jsonb
 WHERE id = %(id)s;
 """
 
@@ -71,6 +72,19 @@ def connect(dsn: str) -> psycopg.Connection:
     return psycopg.connect(dsn, autocommit=True, row_factory=dict_row)
 
 
+def fetch_config(dsn: str) -> dict[str, Any] | None:
+    """The shared runtime config the backend's Config tab edits (max_attempts, concurrency).
+    None when the table doesn't exist yet (engine started before the migration) — callers
+    fall back to env-settings defaults."""
+    try:
+        with connect(dsn) as conn:
+            return conn.execute(
+                "SELECT max_attempts, concurrency FROM engine_config LIMIT 1"
+            ).fetchone()
+    except psycopg.errors.UndefinedTable:
+        return None
+
+
 def claim_next(dsn: str, worker_id: str) -> dict[str, Any] | None:
     """Atomically claim the oldest pending job for this worker, or None when the queue is idle."""
     with connect(dsn) as conn:
@@ -79,7 +93,14 @@ def claim_next(dsn: str, worker_id: str) -> dict[str, Any] | None:
 
 
 def complete(
-    dsn: str, job_id: Any, *, ok: bool, text: str, error: str | None, duration: float
+    dsn: str,
+    job_id: Any,
+    *,
+    ok: bool,
+    text: str,
+    error: str | None,
+    duration: float,
+    usage: dict | None = None,
 ) -> None:
     """Settle a job and notify the backend's completion channel."""
     with connect(dsn) as conn:
@@ -91,6 +112,7 @@ def complete(
                 "result": text or None,
                 "error": error,
                 "duration": duration,
+                "usage": json.dumps(usage) if usage is not None else None,
             },
         )
         conn.execute("SELECT pg_notify(%s, %s::text)", (JOBS_DONE_CHANNEL, str(job_id)))

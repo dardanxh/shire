@@ -17,16 +17,18 @@ function TabsList({ className, children, ...props }: TabsPrimitive.List.Props) {
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        // Scrolls horizontally on small screens rather than wrapping into a tall block.
-        "relative flex items-center gap-x-1 overflow-x-auto border-b border-border",
+        // Wraps onto extra rows on narrow screens rather than scrolling horizontally.
+        "relative flex flex-wrap items-center gap-x-1 border-b border-border",
         className,
       )}
       {...props}
     >
       {children}
+      {/* Row-aware underline: positioned from the active tab's own top/height so it stays
+          under that tab even when the list wraps onto multiple rows. */}
       <TabsPrimitive.Indicator
         data-slot="tabs-indicator"
-        className="absolute bottom-0 left-0 h-0.5 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] rounded-full bg-primary transition-all duration-200 ease-out"
+        className="absolute left-0 top-0 h-0.5 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] translate-y-[calc(var(--active-tab-top)+var(--active-tab-height)-2px)] rounded-full bg-primary transition-all duration-200 ease-out"
       />
     </TabsPrimitive.List>
   );

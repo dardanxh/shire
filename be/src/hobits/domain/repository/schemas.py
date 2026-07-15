@@ -33,6 +33,8 @@ class RepositoryResult(BaseModel):
     url: str
     connection_id: uuid.UUID | None
     default_branch: str
+    # The branch all repository data currently reflects (falls back to default_branch).
+    current_branch: str
     status: str
     last_analyzed_commit: str | None
     last_analyzed_at: datetime | None
@@ -51,6 +53,7 @@ class RepositoryResult(BaseModel):
             url=repo.url.value,
             connection_id=repo.connection_id,
             default_branch=repo.default_branch,
+            current_branch=repo.current_branch or repo.default_branch,
             status=repo.status.value,
             last_analyzed_commit=repo.last_analyzed_commit,
             last_analyzed_at=repo.last_analyzed_at,
@@ -58,6 +61,12 @@ class RepositoryResult(BaseModel):
             created_at=repo.created_at,
             updated_at=repo.updated_at,
         )
+
+
+class SwitchBranchRequest(BaseModel):
+    """Switch the repository's active branch (checkout + pull + full re-analysis)."""
+
+    branch: str
 
 
 class BranchResult(BaseModel):

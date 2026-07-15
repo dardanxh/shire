@@ -117,6 +117,9 @@ class Repository(AggregateRoot):
     url: RepoUrl
     connection_id: uuid.UUID | None = None
     default_branch: str = "main"
+    # The branch the clone is checked out on (the "active" branch all analysis reflects).
+    # None on rows predating branch awareness — readers fall back to default_branch.
+    current_branch: str | None = None
     clone_path: str | None = None
     status: IngestionStatus = IngestionStatus.registered
     last_analyzed_commit: str | None = None
@@ -138,9 +141,13 @@ class Repository(AggregateRoot):
         self.error = None
         self._touch()
 
-    def mark_cloned(self, clone_path: str, default_branch: str) -> None:
+    def mark_cloned(
+        self, clone_path: str, default_branch: str, active_branch: str | None = None
+    ) -> None:
         self.clone_path = clone_path
         self.default_branch = default_branch
+        # Self-heals from the clone's actual checkout; a detached HEAD keeps the prior value.
+        self.current_branch = active_branch or self.current_branch or default_branch
         self._touch()
 
     def mark_analyzing(self) -> None:
@@ -177,6 +184,8 @@ class CloneOutcome(ValueObject):
     clone_path: str
     default_branch: str
     head_sha: str
+    # The branch actually checked out after the operation; None on a detached HEAD.
+    active_branch: str | None = None
 
 
 class BranchStatus(StrEnum):
@@ -246,4 +255,6 @@ class GitProviderClient(Protocol):
 class CloneService(Protocol):
     """Clones (or updates) a repository into a local workspace."""
 
-    def clone(self, url: str, coordinates: RepoCoordinates) -> CloneOutcome: ...
+    def clone(
+        self, url: str, coordinates: RepoCoordinates, branch: str | None = None
+    ) -> CloneOutcome: ...

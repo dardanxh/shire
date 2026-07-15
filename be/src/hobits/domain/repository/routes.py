@@ -14,6 +14,7 @@ from hobits.domain.repository.schemas import (
     BranchNamesResult,
     IngestRepositoryRequest,
     RepositoryResult,
+    SwitchBranchRequest,
 )
 from hobits.domain.repository.services import RepositoryService
 
@@ -65,6 +66,16 @@ def refresh_repository(
 ) -> RepositoryResult:
     """Pull the latest from the remote and re-run the full analysis."""
     return RepositoryService(session).refresh(repository_id)
+
+
+@router.post("/{repository_id}/branch", response_model=RepositoryResult)
+def switch_repository_branch(
+    repository_id: uuid.UUID,
+    body: SwitchBranchRequest,
+    session: Session = Depends(get_session),
+) -> RepositoryResult:
+    """Check out a branch, clear generated artifacts, and re-run the full analysis (blocking)."""
+    return RepositoryService(session).switch_branch(repository_id, body.branch)
 
 
 @router.delete("/{repository_id}", status_code=status.HTTP_204_NO_CONTENT)

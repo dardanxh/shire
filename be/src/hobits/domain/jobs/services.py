@@ -16,11 +16,18 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from hobits.core.exceptions import NotFoundError
+from hobits.core.exceptions import ConflictError, NotFoundError
 from hobits.core.pagination import Page, PaginationParams
+from hobits.domain.jobs import kinds
 from hobits.domain.jobs.models import JobRow
-from hobits.domain.jobs.repositories import SqlJobRepository
-from hobits.domain.jobs.schemas import JobDetailResult, JobResult
+from hobits.domain.jobs.repositories import SqlEngineConfigRepository, SqlJobRepository
+from hobits.domain.jobs.schemas import (
+    EngineConfigResult,
+    JobDetailResult,
+    JobResult,
+    JobStatsResult,
+    UpdateEngineConfig,
+)
 
 # BE → engine: "a new job is pending". Engine → BE: "a job settled" (see dispatcher.py).
 JOBS_NEW_CHANNEL = "hobits_jobs_new"
@@ -33,6 +40,29 @@ class JobService:
     def __init__(self, session: Session) -> None:
         self._session = session
         self._jobs = SqlJobRepository(session)
+        self._config = SqlEngineConfigRepository(session)
+
+    # --- engine config ----------------------------------------------------------
+    def get_config(self) -> EngineConfigResult:
+        return EngineConfigResult.of(self._config.get_or_create())
+
+    def update_config(self, data: UpdateEngineConfig) -> EngineConfigResult:
+        if data.model not in kinds.AVAILABLE_MODELS:
+            raise ConflictError(f"Unknown model: {data.model}")
+        row = self._config.get_or_create()
+        row.timeout_seconds = data.timeout_seconds
+        row.model = data.model
+        row.max_attempts = data.max_attempts
+        row.concurrency = data.concurrency
+        row.retention_days = data.retention_days
+        row.updated_at = datetime.now(UTC)
+        return EngineConfigResult.of(row)
+
+    def engine_defaults(self) -> tuple[str, float]:
+        """(model, timeout_seconds) for enqueue sites that don't have a more specific
+        (e.g. per-hobit) configuration."""
+        row = self._config.get_or_create()
+        return row.model, row.timeout_seconds
 
     def enqueue(
         self,
@@ -78,3 +108,59 @@ class JobService:
         if row is None:
             raise NotFoundError("Job not found")
         return JobDetailResult.of_detail(row)
+
+    def stats(self) -> JobStatsResult:
+        return JobStatsResult.model_validate(self._jobs.usage_stats())
+
+    # --- lifecycle actions --------------------------------------------------------
+    def cancel(self, job_id: uuid.UUID) -> JobDetailResult:
+        row = self._jobs.get(job_id)
+        if row is None:
+            raise NotFoundError("Job not found")
+        if not self._jobs.try_cancel(job_id):
+            raise ConflictError("Only pending jobs can be cancelled.")
+        # Wake the dispatcher so the owning domain rows settle immediately.
+        self._session.execute(
+            text("SELECT pg_notify(:channel, :payload)"),
+            {"channel": JOBS_DONE_CHANNEL, "payload": str(job_id)},
+        )
+        self._session.expire(row)
+        return JobDetailResult.of_detail(self._jobs.get(job_id))
+
+    def retry(self, job_id: uuid.UUID) -> JobResult:
+        """Re-run a failed/cancelled job. Substrate jobs re-enqueue as-is (their handlers
+        just rewrite the artifact); hobit runs go back through the run lifecycle so a fresh
+        run row exists; MR-stage jobs must be re-run via the review's Reanalyze."""
+        row = self._jobs.get(job_id)
+        if row is None:
+            raise NotFoundError("Job not found")
+        if row.status not in ("failed", "cancelled"):
+            raise ConflictError("Only failed or cancelled jobs can be retried.")
+        if row.kind.startswith("mr."):
+            raise ConflictError(
+                "MR analysis stages can't be retried individually — use Reanalyze on the "
+                "merge review."
+            )
+        if row.kind == kinds.HOBIT_RUN:
+            # Local import: hobits.services imports JobService (enqueue path).
+            from hobits.domain.hobits.services import HobitService
+
+            HobitService(self._session).run_hobit(
+                uuid.UUID(row.payload["repository_id"]),
+                row.payload["slug"],
+                trigger=row.payload.get("trigger", "manual"),
+            )
+            fresh = self._jobs.list(
+                status="pending", repository_id=row.repository_id, limit=1, offset=0
+            )
+            return JobResult.of(fresh[0]) if fresh else JobResult.of(row)
+
+        payload = {k: v for k, v in (row.payload or {}).items() if k != "prompt"}
+        new_row = self.enqueue(
+            kind=row.kind,
+            title=row.title,
+            prompt=row.prompt,
+            payload=payload,
+            repository_id=row.repository_id,
+        )
+        return JobResult.of(new_row)

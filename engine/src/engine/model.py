@@ -26,6 +26,10 @@ class EngineResult(BaseModel):
     text: str  # the engine's final answer (empty on failure)
     error: str | None = None
     duration_seconds: float = 0.0
+    # Session-cumulative token accounting as reported by the engine (input_tokens,
+    # output_tokens, cache_*_input_tokens, total_cost_usd, num_turns). None when the
+    # engine died before producing an envelope.
+    usage: dict | None = None
 
 
 class Engine(Protocol):

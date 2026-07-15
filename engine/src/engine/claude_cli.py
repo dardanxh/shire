@@ -77,10 +77,28 @@ class ClaudeCliEngine:
             )
 
         text, err = _extract_text(proc.stdout)
-        return EngineResult(ok=err is None, text=text, error=err, duration_seconds=duration)
+        return EngineResult(
+            ok=err is None,
+            text=text,
+            error=err,
+            duration_seconds=duration,
+            usage=_extract_usage(proc.stdout),
+        )
 
     def _build_argv(self, request: EngineRequest) -> list[str]:
-        argv = [self._binary, "-p", request.prompt, "--output-format", "json"]
+        # --setting-sources "" isolates headless runs from ALL Claude Code settings files:
+        # the operator's user-level hooks (a UserPromptSubmit hook would otherwise intercept
+        # engine prompts) and any .claude settings inside the analyzed clone (untrusted input —
+        # a repo must never inject hooks into our runs). Auth is unaffected.
+        argv = [
+            self._binary,
+            "-p",
+            request.prompt,
+            "--output-format",
+            "json",
+            "--setting-sources",
+            "",
+        ]
         if request.model:
             argv += ["--model", request.model]
         if request.system:
@@ -95,6 +113,35 @@ class ClaudeCliEngine:
 
 def _subscription_env() -> dict[str, str]:
     return {k: v for k, v in os.environ.items() if k != "ANTHROPIC_API_KEY"}
+
+
+def _extract_usage(raw_stdout: str) -> dict | None:
+    """Pull the session-cumulative token accounting out of the JSON envelope.
+
+    The envelope's `usage` covers the entire `claude -p` session — every internal turn's
+    prompt and completion — not just the final message. Returns a flat, engine-agnostic
+    dict, or None when the output isn't the expected envelope.
+    """
+    try:
+        envelope = json.loads(raw_stdout.strip())
+    except (json.JSONDecodeError, ValueError):
+        return None
+    if not isinstance(envelope, dict):
+        return None
+    usage = envelope.get("usage")
+    if not isinstance(usage, dict):
+        return None
+    model_usage = envelope.get("modelUsage")
+    return {
+        "input_tokens": usage.get("input_tokens"),
+        "output_tokens": usage.get("output_tokens"),
+        "cache_creation_input_tokens": usage.get("cache_creation_input_tokens"),
+        "cache_read_input_tokens": usage.get("cache_read_input_tokens"),
+        "total_cost_usd": envelope.get("total_cost_usd"),
+        "num_turns": envelope.get("num_turns"),
+        # The resolved model IDs the session actually used (vs. the requested alias).
+        "models": sorted(model_usage.keys()) if isinstance(model_usage, dict) else None,
+    }
 
 
 def _extract_text(raw_stdout: str) -> tuple[str, str | None]:

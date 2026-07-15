@@ -26,7 +26,6 @@ from sqlalchemy.orm import Session
 
 from hobits.core.db import unit_of_work
 from hobits.core.exceptions import NotFoundError
-from hobits.core.settings import get_settings
 from hobits.domain.context.services import ContextService
 from hobits.domain.hobits.domain import HobitConfig
 from hobits.domain.hobits.services import HobitService
@@ -84,19 +83,20 @@ def enqueue_classification(session: Session, review_id: uuid.UUID) -> None:
         )
         return
     ctx = _build_ctx(inputs)
-    settings = get_settings()
+    jobs = JobService(session)
+    model, timeout_seconds = jobs.engine_defaults()
     row = session.get(MergeReviewRow, review_id)
     if row is not None:
         row.classification_status = "running"
         row.updated_at = datetime.now(UTC)
-    JobService(session).enqueue(
+    jobs.enqueue(
         kind=kinds.MR_CLASSIFICATION,
         title=_title("classification", inputs),
         prompt=build_classification_prompt(ctx),
         payload={
             "cwd": inputs.clone_path,
-            "model": settings.claude_model,
-            "timeout_seconds": settings.claude_timeout_seconds,
+            "model": model,
+            "timeout_seconds": timeout_seconds,
             "review_id": str(review_id),
             "analyzed_source_sha": inputs.analyzed_source_sha,
         },
@@ -191,15 +191,16 @@ def _enqueue_overview(review_id: uuid.UUID, analyzed_sha: str | None) -> None:
         if row is not None:
             row.overview_status = "running"
             row.updated_at = datetime.now(UTC)
-        settings = get_settings()
-        JobService(session).enqueue(
+        jobs = JobService(session)
+        model, timeout_seconds = jobs.engine_defaults()
+        jobs.enqueue(
             kind=kinds.MR_OVERVIEW,
             title=_title("overview", inputs),
             prompt=build_overview_prompt(ctx),
             payload={
                 "cwd": inputs.clone_path,
-                "model": settings.claude_model,
-                "timeout_seconds": settings.claude_timeout_seconds,
+                "model": model,
+                "timeout_seconds": timeout_seconds,
                 "review_id": str(review_id),
                 "analyzed_source_sha": inputs.analyzed_source_sha,
             },

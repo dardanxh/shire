@@ -11,6 +11,7 @@ const STATUS_STYLES: Record<string, string> = {
   succeeded:
     "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/25",
   failed: "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/25",
+  cancelled: "bg-muted text-muted-foreground border-foreground/10",
 };
 
 export function JobStatusBadge({

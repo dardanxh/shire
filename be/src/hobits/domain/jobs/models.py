@@ -11,20 +11,44 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text, Uuid
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    Uuid,
+    text,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from hobits.core.db import Base
 
-# Lifecycle: pending → running (engine claims) → succeeded | failed (engine settles).
+# Lifecycle: pending → running (engine claims) → succeeded | failed (engine settles), or
+# pending → cancelled (user, before a worker claims it).
 # `result_applied` is a separate BE-side flag: the completion dispatcher flips it exactly once
 # before running the domain handler, so a settled job is never applied twice.
-JOB_STATUSES = ("pending", "running", "succeeded", "failed")
+JOB_STATUSES = ("pending", "running", "succeeded", "failed", "cancelled")
 
 
 class JobRow(Base):
     __tablename__ = "jobs"
+    __table_args__ = (
+        # Claim scan: engine workers pick the oldest pending job.
+        Index("ix_jobs_status_created_at", "status", "created_at"),
+        # Dispatcher sweep: settled jobs whose domain effects haven't been applied yet.
+        Index(
+            "ix_jobs_unapplied",
+            "finished_at",
+            postgresql_where=text(
+                "status IN ('succeeded','failed','cancelled') AND NOT result_applied"
+            ),
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     kind: Mapped[str] = mapped_column(String(64), index=True)
@@ -43,6 +67,10 @@ class JobRow(Base):
     prompt: Mapped[str] = mapped_column(Text)
     result: Mapped[str | None] = mapped_column(Text, nullable=True)
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Session-cumulative token accounting written by the engine: input_tokens,
+    # output_tokens, cache_creation_input_tokens, cache_read_input_tokens,
+    # total_cost_usd, num_turns.
+    usage: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
 
     attempts: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     worker_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
@@ -53,3 +81,25 @@ class JobRow(Base):
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     duration_seconds: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+
+class EngineConfigRow(Base):
+    """The engine's runtime settings — one row (id=1), edited from the Jobs → Config tab.
+
+    The backend reads it at enqueue time (default model + timeout baked into new payloads);
+    engine workers poll it every few seconds (retry attempts, concurrency), so changes apply
+    to every running instance without restarts. Seeded lazily from env-settings defaults.
+    """
+
+    __tablename__ = "engine_config"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
+    timeout_seconds: Mapped[float] = mapped_column(Float)
+    model: Mapped[str] = mapped_column(String(64))
+    # Attempts a job may consume before the stale sweep fails it (dead-worker recovery).
+    max_attempts: Mapped[int] = mapped_column(Integer)
+    # Jobs each engine instance runs in parallel.
+    concurrency: Mapped[int] = mapped_column(Integer)
+    # Settled jobs older than this are deleted by the hourly cleanup; 0 = keep forever.
+    retention_days: Mapped[int] = mapped_column(Integer)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

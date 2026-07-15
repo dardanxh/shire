@@ -24,6 +24,8 @@ class RepositoryRow(Base):
         Uuid, ForeignKey("connections.id", ondelete="SET NULL"), nullable=True
     )
     default_branch: Mapped[str] = mapped_column(String(255), default="main")
+    # The branch the clone is checked out on; NULL rows fall back to default_branch.
+    current_branch: Mapped[str | None] = mapped_column(String(255), nullable=True)
     clone_path: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     status: Mapped[str] = mapped_column(String(32))
     last_analyzed_commit: Mapped[str | None] = mapped_column(String(64), nullable=True)

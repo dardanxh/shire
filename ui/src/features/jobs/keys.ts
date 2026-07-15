@@ -14,4 +14,6 @@ export const jobKeys = {
   list: (params: JobListParams) => [...jobKeys.lists(), params] as const,
   details: () => [...jobKeys.all, "detail"] as const,
   detail: (id: string) => [...jobKeys.details(), id] as const,
+  config: () => [...jobKeys.all, "config"] as const,
+  stats: () => [...jobKeys.all, "stats"] as const,
 };

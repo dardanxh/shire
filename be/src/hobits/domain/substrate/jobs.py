@@ -16,6 +16,7 @@ from pathlib import Path
 from hobits.core.db import unit_of_work
 from hobits.core.settings import get_settings
 from hobits.domain.jobs.models import JobRow
+from hobits.domain.repository.models import RepositoryRow
 from hobits.domain.substrate.schemas import DependencyFreshnessItem
 from hobits.domain.substrate.services import (
     _extract_mermaid_block,
@@ -26,7 +27,24 @@ from hobits.domain.substrate.services import (
 logger = logging.getLogger(__name__)
 
 
+def _branch_still_active(job: JobRow) -> bool:
+    """Staleness guard: a job enqueued for one branch must not write artifacts after the repo
+    switched to another (the switch wiped the artifact dirs). Pre-branch-awareness jobs
+    (no branch in payload) pass through."""
+    expected = job.payload.get("branch")
+    if expected is None:
+        return True
+    with unit_of_work() as session:
+        row = session.get(RepositoryRow, uuid.UUID(job.payload["repository_id"]))
+        if row is None:
+            return False
+        return (row.current_branch or row.default_branch) == expected
+
+
 def handle_architecture(job: JobRow) -> None:
+    if not _branch_still_active(job):
+        _mark_failed(job.id, "The repository's active branch changed since this job was queued.")
+        return
     if job.status != "succeeded":
         return  # the job row already carries the error
     mermaid = _extract_mermaid_block(job.result or "")
@@ -39,6 +57,9 @@ def handle_architecture(job: JobRow) -> None:
 
 
 def handle_codebase_overview(job: JobRow) -> None:
+    if not _branch_still_active(job):
+        _mark_failed(job.id, "The repository's active branch changed since this job was queued.")
+        return
     if job.status != "succeeded":
         return
     overview = _parse_overview(job.result or "")
@@ -51,6 +72,9 @@ def handle_codebase_overview(job: JobRow) -> None:
 
 
 def handle_dependency_gains(job: JobRow) -> None:
+    if not _branch_still_active(job):
+        _mark_failed(job.id, "The repository's active branch changed since this job was queued.")
+        return
     if job.status != "succeeded":
         return
     gains = parse_gains(job.result or "")

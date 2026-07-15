@@ -20,7 +20,7 @@ from hobits.core.pagination import Page, PaginationParams
 from hobits.core.settings import get_settings
 from hobits.domain.connections.domain import AuthMethod, GitProvider
 from hobits.domain.connections.services import ConnectionService
-from hobits.domain.repository.domain import Repository, RepoUrl
+from hobits.domain.repository.domain import IngestionStatus, Repository, RepoUrl
 from hobits.domain.repository.repositories import SqlRepositoryRepository
 from hobits.domain.repository.schemas import (
     BranchesResult,
@@ -29,7 +29,11 @@ from hobits.domain.repository.schemas import (
 )
 from hobits.domain.substrate.services import AnalysisService
 from hobits.integrations.git_branches import inspect_branches, list_branch_names
-from hobits.integrations.git_clone import GitCloneService
+from hobits.integrations.git_clone import (
+    DirtyWorkingTreeError,
+    GitCloneService,
+    ensure_clean,
+)
 from hobits.integrations.git_history import build_scan_context
 from hobits.integrations.git_providers.registry import get_connector
 from hobits.integrations.github import GithubProviderClient
@@ -116,19 +120,59 @@ class RepositoryService:
         return RepositoryResult.of(repo)
 
     def remote_head(self, repository_id: uuid.UUID) -> str | None:
-        """The remote's current HEAD commit for this repo's default branch (cheap `ls-remote`,
+        """The remote's current HEAD commit for this repo's *active* branch (cheap `ls-remote`,
         no clone), using the same auth path as ingestion. None if offline/unresolvable."""
         repo = self._repos.get(repository_id)
         if repo is None:
             raise NotFoundError("Repository not found")
         clone_url, _ = self._authenticate(repo.url.value, repo.connection_id)
-        return self._clone.remote_head(clone_url, repo.default_branch)
+        return self._clone.remote_head(clone_url, repo.current_branch or repo.default_branch)
 
     def refresh(self, repository_id: uuid.UUID) -> RepositoryResult:
+        """Pull the latest on the active branch and re-analyze. Never checks a branch out —
+        local repos adopt whatever the user has on disk (safe for unattended scheduled runs)."""
         existing = self._repos.get(repository_id)
         if existing is None:
             raise NotFoundError("Repository not found")
         repo = self._ingest(existing.url.value, existing.connection_id)
+        return RepositoryResult.of(repo)
+
+    def switch_branch(self, repository_id: uuid.UUID, branch: str) -> RepositoryResult:
+        """Make `branch` the repo's active branch: check it out, clear every generated artifact
+        (they reflect the old branch), and re-run the full analysis pipeline. Blocking, like
+        refresh. For local-provider repos this moves the user's own checkout — an explicit
+        action, refused while their working tree is dirty."""
+        repo = self._repos.get(repository_id)
+        if repo is None:
+            raise NotFoundError("Repository not found")
+        if repo.status in (IngestionStatus.cloning, IngestionStatus.analyzing):
+            raise ConflictError("Repository is busy (cloning/analyzing) — try again shortly.")
+        if not repo.clone_path or not Path(repo.clone_path).is_dir():
+            raise ConflictError("Repository has not been cloned yet")
+
+        names = list_branch_names(
+            Path(repo.clone_path),
+            provider_is_local=repo.coordinates.provider is GitProvider.local,
+        )
+        if branch not in names:
+            raise NotFoundError(f"Branch '{branch}' not found")
+        if branch == (repo.current_branch or repo.default_branch):
+            return RepositoryResult.of(repo)
+
+        # Pre-flight the dirty check here so the common local-repo failure is a clean 409 that
+        # never flips the repository to `failed`. (The checkout itself re-checks — see git_clone.)
+        if repo.coordinates.provider is GitProvider.local:
+            try:
+                ensure_clean(Path(repo.clone_path))
+            except DirtyWorkingTreeError as exc:
+                raise ConflictError(str(exc)) from exc
+
+        # Everything generated so far describes the old branch.
+        self._analysis.clear_artifacts(repository_id)
+
+        repo.current_branch = branch
+        self._repos.save(repo)
+        repo = self._run_pipeline(repo, repo.url.value, branch=branch)
         return RepositoryResult.of(repo)
 
     def delete(self, repository_id: uuid.UUID) -> None:
@@ -167,18 +211,37 @@ class RepositoryService:
         elif connection_id is not None:
             repository.connection_id = connection_id
 
+        return self._run_pipeline(repository, url, tool_ids=tool_ids)
+
+    def _run_pipeline(
+        self,
+        repository: Repository,
+        url: str,
+        *,
+        branch: str | None = None,
+        tool_ids: list[str] | None = None,
+    ) -> Repository:
+        """Clone/update (optionally checking out `branch`) → analyze → ready; failures persist
+        the error state (no raise). Shared by ingest, refresh, and switch_branch."""
+        first_ingest = repository.clone_path is None
         repository.mark_cloning()
         self._repos.save(repository)
 
         try:
             clone_url, provider_client = self._authenticate(url, repository.connection_id)
-            outcome = self._clone.clone(clone_url, coordinates)
-            default_branch = outcome.default_branch
+            outcome = self._clone.clone(
+                clone_url, coordinates=repository.coordinates, branch=branch
+            )
             metadata = provider_client.fetch_metadata(url)
             if metadata and metadata.default_branch:
                 default_branch = metadata.default_branch
+            elif first_ingest:
+                default_branch = outcome.default_branch
+            else:
+                # The clone reports its *active* branch — don't let a switch drift the default.
+                default_branch = repository.default_branch
 
-            repository.mark_cloned(outcome.clone_path, default_branch)
+            repository.mark_cloned(outcome.clone_path, default_branch, outcome.active_branch)
             repository.mark_analyzing()
             self._repos.save(repository)
 

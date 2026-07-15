@@ -26,6 +26,7 @@ def _to_domain(row: RepositoryRow) -> Repository:
         url=RepoUrl(value=row.url),
         connection_id=row.connection_id,
         default_branch=row.default_branch,
+        current_branch=row.current_branch,
         clone_path=row.clone_path,
         status=IngestionStatus(row.status),
         last_analyzed_commit=row.last_analyzed_commit,
@@ -44,6 +45,7 @@ def _apply(row: RepositoryRow, repo: Repository) -> None:
     row.url = repo.url.value
     row.connection_id = repo.connection_id
     row.default_branch = repo.default_branch
+    row.current_branch = repo.current_branch
     row.clone_path = repo.clone_path
     row.status = repo.status.value
     row.last_analyzed_commit = repo.last_analyzed_commit

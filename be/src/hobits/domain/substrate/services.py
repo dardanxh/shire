@@ -184,6 +184,13 @@ class AnalysisService:
         """Purge a repository's substrate: analysis snapshots (child rows cascade) and every
         generated on-disk artifact (codebase graph + visualization outputs)."""
         self._analyses.delete_for_repository(repository_id)
+        self.clear_artifacts(repository_id)
+
+    def clear_artifacts(self, repository_id: uuid.UUID) -> None:
+        """Remove every generated on-disk artifact (codebase graph + all artifacts_root dirs:
+        architecture, codebase-overview, dependency-freshness, code-age, coupling, code-map).
+        Used on delete and on branch switch — artifacts describe the previously checked-out
+        branch. Analysis snapshots are kept (keyed by commit, re-added idempotently)."""
         settings = get_settings()
         shutil.rmtree(settings.graph_root / str(repository_id), ignore_errors=True)
         if settings.artifacts_root.exists():
@@ -380,7 +387,7 @@ class AnalysisService:
         repo = self._require_cloned_repo(repository_id)
         out_dir = self._artifact_dir("git-of-theseus", repository_id)
         shutil.rmtree(out_dir, ignore_errors=True)
-        branch = getattr(repo, "default_branch", None)
+        branch = repo.current_branch or repo.default_branch
         if adapter.run(Path(repo.clone_path), out_dir, branch) is None:
             raise ConflictError("Code-age generation failed — git-of-theseus produced no output.")
         return self.code_age_status(repository_id)
@@ -493,16 +500,18 @@ class AnalysisService:
         outdated = [i for i in items if i.gap in ("patch", "minor", "major")]
         repo = self._repos.get(repository_id)
         if outdated and repo and repo.clone_path:
-            settings = get_settings()
-            JobService(self._session).enqueue(
+            jobs = JobService(self._session)
+            model, timeout_seconds = jobs.engine_defaults()
+            jobs.enqueue(
                 kind=job_kinds.SUBSTRATE_DEPENDENCY_GAINS,
                 title=f"Dependency upgrade gains — {repo.coordinates.slug}",
                 prompt=_gains_prompt(outdated),
                 payload={
                     "cwd": repo.clone_path,
-                    "model": settings.claude_model,
-                    "timeout_seconds": settings.claude_timeout_seconds,
+                    "model": model,
+                    "timeout_seconds": timeout_seconds,
                     "repository_id": str(repository_id),
+                    "branch": repo.current_branch or repo.default_branch,
                 },
                 repository_id=repository_id,
             )
@@ -547,17 +556,19 @@ class AnalysisService:
         if kind is None:
             raise NotFoundError(f"Unknown architecture diagram: {kind_slug}")
         repo = self._require_cloned_repo(repository_id)
-        settings = get_settings()
-        job = JobService(self._session).enqueue(
+        jobs = JobService(self._session)
+        model, timeout_seconds = jobs.engine_defaults()
+        job = jobs.enqueue(
             kind=job_kinds.SUBSTRATE_ARCHITECTURE,
             title=f"Architecture diagram: {kind.title} — {repo.coordinates.slug}",
             prompt=architecture.build_prompt(kind, repo.coordinates.slug),
             payload={
                 "cwd": repo.clone_path,
-                "model": settings.claude_model,
-                "timeout_seconds": settings.claude_timeout_seconds,
+                "model": model,
+                "timeout_seconds": timeout_seconds,
                 "repository_id": str(repository_id),
                 "kind": kind.slug,
+                "branch": repo.current_branch or repo.default_branch,
             },
             repository_id=repository_id,
         )
@@ -593,16 +604,18 @@ class AnalysisService:
     def enqueue_codebase_overview(self, repository_id: uuid.UUID) -> JobResult:
         """Enqueue the big-picture overview generation for the engine service (non-blocking)."""
         repo = self._require_cloned_repo(repository_id)
-        settings = get_settings()
-        job = JobService(self._session).enqueue(
+        jobs = JobService(self._session)
+        model, timeout_seconds = jobs.engine_defaults()
+        job = jobs.enqueue(
             kind=job_kinds.SUBSTRATE_CODEBASE_OVERVIEW,
             title=f"Codebase overview — {repo.coordinates.slug}",
             prompt=_OVERVIEW_PROMPT.format(repo=repo.coordinates.slug),
             payload={
                 "cwd": repo.clone_path,
-                "model": settings.claude_model,
-                "timeout_seconds": settings.claude_timeout_seconds,
+                "model": model,
+                "timeout_seconds": timeout_seconds,
                 "repository_id": str(repository_id),
+                "branch": repo.current_branch or repo.default_branch,
             },
             repository_id=repository_id,
         )

@@ -12,7 +12,7 @@
       "tools": "Tools",
       "connectors": "Connectors",
       "members": "Members",
-      "merge_reviews": "MR Reviews",
+      "merge_reviews": "Merge Requests",
       "jobs": "Jobs"
     },
     "actions": {

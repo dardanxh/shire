@@ -155,3 +155,54 @@ def test_author_identity_merges_split_git_identities() -> None:
     assert keys[0] == keys[1] == keys[2]
     assert keys[3] != keys[0]
     assert len(set(keys)) == 2
+
+
+def test_clone_checkout_branch(sample_repo: Path, tmp_path: Path) -> None:
+    """Cloning with `branch` checks that branch out (remote-tracking preferred) and reports it
+    as the outcome's active_branch — the lever the branch switcher relies on."""
+    from hobits.domain.repository.domain import RepoCoordinates
+
+    _git(sample_repo, "checkout", "-q", "-b", "feature-x")
+    (sample_repo / "feature.txt").write_text("hello\n")
+    _git(sample_repo, "add", "-A")
+    _git(sample_repo, "commit", "-q", "-m", "feature work")
+    _git(sample_repo, "checkout", "-q", "main")
+
+    svc = GitCloneService(tmp_path / "clones")
+    coords = RepoCoordinates(provider=GitProvider.github, owner="acme", name="sample")
+
+    first = svc.clone(str(sample_repo), coords)
+    assert first.active_branch == "main"
+
+    switched = svc.clone(str(sample_repo), coords, branch="feature-x")
+    assert switched.active_branch == "feature-x"
+    assert (Path(switched.clone_path) / "feature.txt").exists()
+
+
+def test_local_clone_never_checks_out_without_branch(sample_repo: Path, tmp_path: Path) -> None:
+    """Refresh/ingest on a local-provider repo must adopt the user's checkout, never move it."""
+    from hobits.domain.repository.domain import RepoCoordinates
+
+    _git(sample_repo, "checkout", "-q", "-b", "wip")
+    svc = GitCloneService(tmp_path / "clones")
+    coords = RepoCoordinates(provider=GitProvider.local, owner="local", name="sample")
+
+    outcome = svc.clone(str(sample_repo), coords)
+    assert outcome.active_branch == "wip"  # adopted, not changed
+    assert outcome.clone_path == str(sample_repo)
+
+
+def test_local_switch_dirty_tree_raises(sample_repo: Path, tmp_path: Path) -> None:
+    """Switching a local repo's branch with uncommitted changes must refuse, not clobber."""
+    from hobits.domain.repository.domain import RepoCoordinates
+    from hobits.integrations.git_clone import DirtyWorkingTreeError
+
+    _git(sample_repo, "branch", "-q", "b2")
+    (sample_repo / "app.py").write_text("# uncommitted edit\n")
+
+    svc = GitCloneService(tmp_path / "clones")
+    coords = RepoCoordinates(provider=GitProvider.local, owner="local", name="sample")
+    with pytest.raises(DirtyWorkingTreeError):
+        svc.clone(str(sample_repo), coords, branch="b2")
+    # the user's edit is untouched
+    assert (sample_repo / "app.py").read_text() == "# uncommitted edit\n"

@@ -43,6 +43,7 @@ import { useAnalysisQuery, useRepositoryQuery } from "../api";
 import type { RepositoryTab } from "../tabs";
 import { ArchitecturePanel } from "./ArchitecturePanel";
 import { BranchesPanel } from "./BranchesPanel";
+import { BranchSwitcher } from "./BranchSwitcher";
 import { CodebaseOverviewPanel } from "./CodebaseOverviewPanel";
 import { CommitsChart } from "./CommitsChart";
 import { ContextPanel } from "./ContextPanel";
@@ -119,7 +120,12 @@ export function RepositoryViewPage({
                 <GitCommitHorizontalIcon className="size-3.5" />
                 {shortSha(repo.last_analyzed_commit)}
               </span>
-              <span className="font-mono text-xs">{repo.default_branch}</span>
+              <BranchSwitcher
+                id={repo.id}
+                slug={repo.slug}
+                currentBranch={repo.current_branch}
+                status={repo.status}
+              />
             </div>
           </div>
           <RepositoryActions id={repo.id} slug={repo.slug} />

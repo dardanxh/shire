@@ -398,6 +398,15 @@
         "status_dormant": "Dormant",
         "status_abandoned": "Abandoned"
       }
+    },
+    "branch": {
+      "label": "Branch",
+      "confirm_title": "Switch branch",
+      "confirm_body": "Switch \"{{slug}}\" to {{branch}}? This checks out the branch, re-runs the full analysis, and clears generated artifacts (diagrams, overview, graphs) — they regenerate on demand. This can take a few minutes.",
+      "confirm_button": "Switch and re-analyze",
+      "switching": "Switching…",
+      "switched": "Switched to {{branch}}",
+      "switch_failed": "Switch to {{branch}} failed"
     }
   }
 }

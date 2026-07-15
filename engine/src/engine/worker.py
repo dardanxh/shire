@@ -1,17 +1,18 @@
 """The worker loop: LISTEN for new jobs (poll as fallback), claim, execute, settle.
 
-Concurrency model: a thread pool of `concurrency` slots guarded by a semaphore. The main thread
-is the only claimer — it claims while slots are free, then blocks on the LISTEN connection until
-a notification or the poll timeout wakes it. Execution threads use their own short-lived DB
-connections, so nothing shares a psycopg connection across threads.
+Concurrency model: a thread pool with a fixed ceiling; the *target* concurrency comes from the
+shared `engine_config` row (editable from the Jobs → Config tab) and is refreshed every poll
+tick, so operators can dial it up or down across all instances without restarts. The main
+thread is the only claimer — it claims while in-flight jobs are below target, then blocks on
+the LISTEN connection until a notification or the poll timeout wakes it. Execution threads use
+their own short-lived DB connections, so nothing shares a psycopg connection across threads.
 """
 
 from __future__ import annotations
 
 import logging
-import threading
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
 from typing import Any
 
 import psycopg
@@ -22,6 +23,10 @@ from engine.model import Engine, EngineRequest
 from engine.settings import EngineSettings, get_settings
 
 logger = logging.getLogger(__name__)
+
+# Hard per-instance ceiling (executor size). The live target from engine_config is clamped to
+# this; scaling beyond it means starting more engine instances.
+_MAX_CONCURRENCY = 16
 
 
 def build_request(job: dict[str, Any]) -> EngineRequest:
@@ -36,14 +41,16 @@ def build_request(job: dict[str, Any]) -> EngineRequest:
     )
 
 
-def _execute(
-    settings: EngineSettings, engine: Engine, job: dict[str, Any], slots: threading.Semaphore
-) -> None:
+def _execute(settings: EngineSettings, engine: Engine, job: dict[str, Any]) -> None:
     job_id = job["id"]
     try:
         request = build_request(job)
         logger.info(
-            "Running job %s (%s), timeout %.0fs", job_id, job["kind"], request.timeout_seconds
+            "Running job %s (%s), model %s, timeout %.0fs",
+            job_id,
+            job["kind"],
+            request.model or "default",
+            request.timeout_seconds,
         )
         result = engine.run(request)
         db.complete(
@@ -53,6 +60,7 @@ def _execute(
             text=result.text,
             error=result.error,
             duration=result.duration_seconds,
+            usage=result.usage,
         )
         logger.info(
             "Job %s %s in %.1fs%s",
@@ -74,8 +82,6 @@ def _execute(
             )
         except Exception:
             logger.exception("Could not settle crashed job %s", job_id)
-    finally:
-        slots.release()
 
 
 def main() -> None:
@@ -93,15 +99,18 @@ def main() -> None:
             "Requeued %d job(s) left running by a previous %s", recovered, settings.worker_id
         )
 
-    slots = threading.Semaphore(settings.concurrency)
-    pool = ThreadPoolExecutor(max_workers=settings.concurrency, thread_name_prefix="engine-job")
+    pool = ThreadPoolExecutor(max_workers=_MAX_CONCURRENCY, thread_name_prefix="engine-job")
+    active: set[Future] = set()
+    target_concurrency = settings.concurrency
+    max_attempts = settings.max_attempts
     last_sweep = 0.0
+    last_config = 0.0
 
     logger.info(
         "Engine %s listening on %s (concurrency=%d, poll=%.0fs)",
         settings.worker_id,
         db.JOBS_NEW_CHANNEL,
-        settings.concurrency,
+        target_concurrency,
         settings.poll_interval_seconds,
     )
 
@@ -110,17 +119,35 @@ def main() -> None:
             with db.connect(settings.database_url) as listen_conn:
                 listen_conn.execute(f"LISTEN {db.JOBS_NEW_CHANNEL}")
                 while True:
+                    # Refresh the shared runtime config (Config-tab edits apply within a tick).
+                    if time.monotonic() - last_config >= settings.poll_interval_seconds:
+                        config = db.fetch_config(settings.database_url)
+                        if config is not None:
+                            new_target = min(
+                                int(config["concurrency"] or settings.concurrency),
+                                _MAX_CONCURRENCY,
+                            )
+                            if new_target != target_concurrency:
+                                logger.info(
+                                    "Concurrency target %d → %d (config change)",
+                                    target_concurrency,
+                                    new_target,
+                                )
+                            target_concurrency = new_target
+                            max_attempts = int(config["max_attempts"] or settings.max_attempts)
+                        last_config = time.monotonic()
+
                     if time.monotonic() - last_sweep >= settings.stale_sweep_interval_seconds:
-                        db.sweep_stale(settings.database_url, settings.max_attempts)
+                        db.sweep_stale(settings.database_url, max_attempts)
                         last_sweep = time.monotonic()
 
-                    # Claim as long as a slot is free and pending jobs exist.
-                    while slots.acquire(blocking=False):
+                    # Claim as long as we're under the live target and pending jobs exist.
+                    active = {f for f in active if not f.done()}
+                    while len(active) < target_concurrency:
                         job = db.claim_next(settings.database_url, settings.worker_id)
                         if job is None:
-                            slots.release()
                             break
-                        pool.submit(_execute, settings, engine, job, slots)
+                        active.add(pool.submit(_execute, settings, engine, job))
 
                     # Block until a new-job notification or the poll timeout, then loop back to
                     # claiming. Drain the generator so bursts collapse into one claim pass.

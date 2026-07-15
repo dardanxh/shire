@@ -8,7 +8,9 @@
       "col_created": "Created",
       "col_duration": "Duration",
       "empty_title": "No jobs yet",
-      "empty_body": "Trigger an analysis — an MR review, a diagram, a hobit run — and it will show up here."
+      "empty_body": "Trigger an analysis — an MR review, a diagram, a hobit run — and it will show up here.",
+      "col_tokens": "Tokens",
+      "col_model": "Model"
     },
     "view": {
       "crumb": "Job",
@@ -18,6 +20,7 @@
       "started": "Started",
       "finished": "Finished",
       "duration": "Duration",
+      "model": "Model",
       "attempts": "Attempts",
       "worker": "Worker",
       "repository": "Repository",
@@ -25,13 +28,73 @@
       "error": "Error",
       "prompt": "Prompt",
       "result": "Result",
-      "no_result": "No result yet."
+      "no_result": "No result yet.",
+      "usage": "Token usage (entire session)",
+      "usage_total": "Total tokens",
+      "usage_input": "Input (uncached)",
+      "usage_output": "Output",
+      "usage_cache_read": "Cache read",
+      "usage_cache_write": "Cache write",
+      "usage_cost": "Cost",
+      "usage_turns": "Turns",
+      "usage_models": "Models used"
     },
     "status": {
       "pending": "Pending",
       "running": "Running",
       "succeeded": "Succeeded",
-      "failed": "Failed"
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "tabs": {
+      "runs": "Runs",
+      "config": "Config"
+    },
+    "filter": {
+      "all": "All"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "cancel_done": "Job cancelled.",
+      "retry": "Retry",
+      "retry_done": "Job re-queued."
+    },
+    "stats": {
+      "today": "Today",
+      "last_7_days": "Last 7 days",
+      "all_time": "All time",
+      "tokens": "tokens",
+      "line": "{{jobs}} jobs · ${{cost}} equivalent"
+    },
+    "config": {
+      "title": "Engine configuration",
+      "desc": "Runtime settings for every engine worker. Stored in the database — changes need no restarts.",
+      "save": "Save configuration",
+      "saved_toast": "Engine configuration saved.",
+      "model": {
+        "label": "Default model",
+        "desc": "Used by jobs without a more specific setting (hobits keep their own model). Applies to newly enqueued jobs."
+      },
+      "timeout": {
+        "label": "Timeout (seconds)",
+        "desc": "Per-job ceiling for a single engine run. Applies to newly enqueued jobs.",
+        "invalid": "Must be between 30 and 3600 seconds."
+      },
+      "attempts": {
+        "label": "Retry attempts",
+        "desc": "How many attempts a job may consume before a dead-worker sweep fails it. Picked up by all workers within ~5s.",
+        "invalid": "Must be between 1 and 5."
+      },
+      "concurrency": {
+        "label": "Worker concurrency",
+        "desc": "Jobs each engine instance runs in parallel (max 16 per instance). Picked up by all workers within ~5s.",
+        "invalid": "Must be between 1 and 16."
+      },
+      "retention": {
+        "label": "Job retention (days)",
+        "desc": "Settled jobs older than this are deleted hourly. 0 = keep forever.",
+        "invalid": "Must be between 0 and 365."
+      }
     }
   }
 }
