@@ -12,6 +12,8 @@ export const REPOSITORY_TAB_VALUES = [
   "code",
   "architecture",
   "activity",
+  "branches",
+  "mrs",
   "dependencies",
   "security",
   "integrations",

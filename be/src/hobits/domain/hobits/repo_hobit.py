@@ -54,7 +54,7 @@ class RepoHobit:
         return f"{preamble}\n\n{instructions}\n\n{_OUTPUT_CONTRACT}"
 
     def parse_output(self, text: str) -> HobitOutput | None:
-        block = _extract_json_block(text)
+        block = extract_json_block(text)
         if block is None:
             return None
         try:
@@ -63,7 +63,7 @@ class RepoHobit:
             return None
 
 
-def _extract_json_block(text: str) -> str | None:
+def extract_json_block(text: str) -> str | None:
     """Pull the final JSON object out of the agent's text.
 
     Prefer the last ```json fenced block (robust to fences inside the narrative, since those are

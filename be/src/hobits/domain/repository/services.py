@@ -12,17 +12,23 @@ import shutil
 import uuid
 from pathlib import Path
 
+from git.exc import InvalidGitRepositoryError, NoSuchPathError
 from sqlalchemy.orm import Session
 
-from hobits.core.exceptions import NotFoundError
+from hobits.core.exceptions import ConflictError, NotFoundError
 from hobits.core.pagination import Page, PaginationParams
 from hobits.core.settings import get_settings
 from hobits.domain.connections.domain import AuthMethod, GitProvider
 from hobits.domain.connections.services import ConnectionService
 from hobits.domain.repository.domain import Repository, RepoUrl
 from hobits.domain.repository.repositories import SqlRepositoryRepository
-from hobits.domain.repository.schemas import RepositoryResult
+from hobits.domain.repository.schemas import (
+    BranchesResult,
+    BranchNamesResult,
+    RepositoryResult,
+)
 from hobits.domain.substrate.services import AnalysisService
+from hobits.integrations.git_branches import inspect_branches, list_branch_names
 from hobits.integrations.git_clone import GitCloneService
 from hobits.integrations.git_history import build_scan_context
 from hobits.integrations.git_providers.registry import get_connector
@@ -65,6 +71,39 @@ class RepositoryService:
         if repo is None:
             raise NotFoundError("Repository not found")
         return RepositoryResult.of(repo)
+
+    def branches(self, repository_id: uuid.UUID) -> BranchesResult:
+        """Live branch overview computed from the clone on disk (best-effort fetch first)."""
+        repo = self._repos.get(repository_id)
+        if repo is None:
+            raise NotFoundError("Repository not found")
+        if not repo.clone_path or not Path(repo.clone_path).is_dir():
+            raise ConflictError("Repository has not been cloned yet")
+        try:
+            inspection = inspect_branches(
+                Path(repo.clone_path),
+                repo.default_branch,
+                provider_is_local=repo.coordinates.provider is GitProvider.local,
+            )
+        except (InvalidGitRepositoryError, NoSuchPathError) as exc:
+            raise ConflictError("Repository clone is not a valid git repository") from exc
+        return BranchesResult.of(inspection, repo.default_branch)
+
+    def branch_names(self, repository_id: uuid.UUID) -> BranchNamesResult:
+        """The cheap full branch-name list (one `for-each-ref`) — feeds branch pickers."""
+        repo = self._repos.get(repository_id)
+        if repo is None:
+            raise NotFoundError("Repository not found")
+        if not repo.clone_path or not Path(repo.clone_path).is_dir():
+            raise ConflictError("Repository has not been cloned yet")
+        try:
+            names = list_branch_names(
+                Path(repo.clone_path),
+                provider_is_local=repo.coordinates.provider is GitProvider.local,
+            )
+        except (InvalidGitRepositoryError, NoSuchPathError) as exc:
+            raise ConflictError("Repository clone is not a valid git repository") from exc
+        return BranchNamesResult(default_branch=repo.default_branch, branches=names)
 
     # --- ingestion ------------------------------------------------------------
     def ingest(

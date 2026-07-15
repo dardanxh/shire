@@ -9,7 +9,12 @@ from sqlalchemy.orm import Session
 
 from hobits.core.db import get_session
 from hobits.core.pagination import Page, PaginationParams
-from hobits.domain.repository.schemas import IngestRepositoryRequest, RepositoryResult
+from hobits.domain.repository.schemas import (
+    BranchesResult,
+    BranchNamesResult,
+    IngestRepositoryRequest,
+    RepositoryResult,
+)
 from hobits.domain.repository.services import RepositoryService
 
 router = APIRouter(prefix="/repositories", tags=["repositories"])
@@ -38,6 +43,22 @@ def get_repository(
     return RepositoryService(session).get(repository_id)
 
 
+@router.get("/{repository_id}/branches", response_model=BranchesResult)
+def repository_branches(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> BranchesResult:
+    """Live branch overview: count, merged/stale tallies, and the most active branch tips."""
+    return RepositoryService(session).branches(repository_id)
+
+
+@router.get("/{repository_id}/branches/names", response_model=BranchNamesResult)
+def repository_branch_names(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> BranchNamesResult:
+    """Every branch name (cheap, no per-branch plumbing) — for branch pickers."""
+    return RepositoryService(session).branch_names(repository_id)
+
+
 @router.post("/{repository_id}/refresh", response_model=RepositoryResult)
 def refresh_repository(
     repository_id: uuid.UUID, session: Session = Depends(get_session)
@@ -47,9 +68,7 @@ def refresh_repository(
 
 
 @router.delete("/{repository_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_repository(
-    repository_id: uuid.UUID, session: Session = Depends(get_session)
-) -> None:
+def delete_repository(repository_id: uuid.UUID, session: Session = Depends(get_session)) -> None:
     """Delete a repository and everything derived from it (analysis, artifacts, hobit runs,
     briefing items, and the clone). A local repo's own files are left untouched."""
     RepositoryService(session).delete(repository_id)

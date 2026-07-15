@@ -47,6 +47,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/repositories/{repository_id}/branches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Repository Branches
+         * @description Live branch overview: count, merged/stale tallies, and the most active branch tips.
+         */
+        get: operations["repository_branches_api_v1_repositories__repository_id__branches_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/branches/names": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Repository Branch Names
+         * @description Every branch name (cheap, no per-branch plumbing) — for branch pickers.
+         */
+        get: operations["repository_branch_names_api_v1_repositories__repository_id__branches_names_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/repositories/{repository_id}/refresh": {
         parameters: {
             query?: never;
@@ -986,6 +1026,89 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/merge-reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Merge Reviews */
+        get: operations["list_merge_reviews_api_v1_merge_reviews_get"];
+        put?: never;
+        /**
+         * Create Merge Review
+         * @description Create a review: the git footprint is computed synchronously (returned immediately);
+         *     the AI sections run in the background — poll the detail endpoint.
+         */
+        post: operations["create_merge_review_api_v1_merge_reviews_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/merge-reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Repository Merge Reviews
+         * @description The reviews analyzed in this platform for one repository (the repo page's MRs tab).
+         */
+        get: operations["list_repository_merge_reviews_api_v1_repositories__repository_id__merge_reviews_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merge-reviews/{review_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Merge Review
+         * @description The full review document (the UI's poll target while sections are pending/running).
+         */
+        get: operations["get_merge_review_api_v1_merge_reviews__review_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Merge Review */
+        delete: operations["delete_merge_review_api_v1_merge_reviews__review_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merge-reviews/{review_id}/reanalyze": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reanalyze Merge Review
+         * @description Re-run the whole analysis against the branches' current heads (409 while one is running).
+         */
+        post: operations["reanalyze_merge_review_api_v1_merge_reviews__review_id__reanalyze_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -1099,6 +1222,78 @@ export interface components {
          */
         AuthMethod: "token" | "basic";
         /**
+         * BranchNamesResult
+         * @description The cheap full branch-name list (for branch pickers), most recently committed first.
+         */
+        BranchNamesResult: {
+            /** Default Branch */
+            default_branch: string;
+            /** Branches */
+            branches: string[];
+        };
+        /**
+         * BranchResult
+         * @description One branch tip. `merged` = ancestor check against the default branch (a true merge
+         *     happened — safe to delete); `squash_merged` = patch-equivalence check that also catches
+         *     squash/rebase merges (None when not checked or the check failed). Either yields
+         *     `status = "merged"`.
+         */
+        BranchResult: {
+            /** Name */
+            name: string;
+            /** Is Default */
+            is_default: boolean;
+            /** Last Commit Sha */
+            last_commit_sha: string;
+            /**
+             * Last Commit At
+             * Format: date-time
+             */
+            last_commit_at: string;
+            /** Author Name */
+            author_name: string;
+            /** Author Email */
+            author_email: string;
+            /** Ahead */
+            ahead: number | null;
+            /** Behind */
+            behind: number | null;
+            /** Merged */
+            merged: boolean | null;
+            /** Squash Merged */
+            squash_merged: boolean | null;
+            /** Status */
+            status: string;
+        };
+        /**
+         * BranchesResult
+         * @description Live branch overview. `merged_count`/`stale_count` use the ancestor check across all
+         *     enumerated branches; squash-merge detection upgrades only the listed top branches.
+         */
+        BranchesResult: {
+            /** Total Branches */
+            total_branches: number;
+            /** Merged Count */
+            merged_count: number;
+            /** Stale Count */
+            stale_count: number;
+            /** Stale Days */
+            stale_days: number;
+            /** Default Branch */
+            default_branch: string;
+            /** Fetched */
+            fetched: boolean;
+            /** Truncated */
+            truncated: boolean;
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Branches */
+            branches: components["schemas"]["BranchResult"][];
+        };
+        /**
          * BriefingItemResult
          * @description One post in the briefing feed — authored by a hobit, about a repository.
          */
@@ -1151,6 +1346,15 @@ export interface components {
          * @enum {string}
          */
         CiCdSystem: "github_actions" | "gitlab_ci" | "circleci" | "jenkins" | "travis" | "azure_pipelines" | "drone" | "other";
+        /**
+         * ClassificationLabel
+         * @description One label of the multi-label classification, with its rough share of the MR.
+         */
+        ClassificationLabel: {
+            label: components["schemas"]["MrLabel"];
+            /** Proportion */
+            proportion: number;
+        };
         /** CodeAgeCohort */
         CodeAgeCohort: {
             /** Label */
@@ -1256,6 +1460,11 @@ export interface components {
             /** Audience */
             audience?: string | null;
         };
+        /**
+         * CommentSeverity
+         * @enum {string}
+         */
+        CommentSeverity: "info" | "minor" | "major" | "critical";
         /**
          * ConnectionResult
          * @description Result schema — never carries the secret, only a redacted hint.
@@ -1657,6 +1866,28 @@ export interface components {
              */
             is_bot: boolean;
         };
+        /**
+         * CreateMergeReview
+         * @description Create input: an ingested repository + a branch pair + the hobits acting as reviewers.
+         */
+        CreateMergeReview: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Source Branch */
+            source_branch: string;
+            /** Target Branch */
+            target_branch: string;
+            /** Title */
+            title?: string | null;
+            /**
+             * Hobit Slugs
+             * @default []
+             */
+            hobit_slugs: string[];
+        };
         /** DailyCommitCount */
         DailyCommitCount: {
             /**
@@ -1730,6 +1961,20 @@ export interface components {
             repository_id: string;
             /** Versions */
             versions: string[];
+        };
+        /**
+         * DirectoryFootprint
+         * @description Directory-level aggregation (first two path segments) — the heatmap row.
+         */
+        DirectoryFootprint: {
+            /** Directory */
+            directory: string;
+            /** Files Changed */
+            files_changed: number;
+            /** Additions */
+            additions: number;
+            /** Deletions */
+            deletions: number;
         };
         /**
          * Ecosystem
@@ -1855,6 +2100,90 @@ export interface components {
             has_tests: boolean;
             /** Dependency Count */
             dependency_count: number;
+        };
+        /**
+         * FileFootprint
+         * @description One changed file — the row behind the stacked bar chart.
+         */
+        FileFootprint: {
+            /** Path */
+            path: string;
+            /** Old Path */
+            old_path?: string | null;
+            /** Additions */
+            additions: number;
+            /** Deletions */
+            deletions: number;
+            /** Total Loc */
+            total_loc?: number | null;
+            /**
+             * Is Binary
+             * @default false
+             */
+            is_binary: boolean;
+            /**
+             * Is New
+             * @default false
+             */
+            is_new: boolean;
+            /**
+             * Is Deleted
+             * @default false
+             */
+            is_deleted: boolean;
+            /**
+             * Is Test
+             * @default false
+             */
+            is_test: boolean;
+            /**
+             * Is Hotspot
+             * @default false
+             */
+            is_hotspot: boolean;
+        };
+        /**
+         * Footprint
+         * @description The full git-derived change footprint of a branch pair (merge-base to source head).
+         */
+        Footprint: {
+            /** Merge Base Sha */
+            merge_base_sha: string;
+            /** Source Sha */
+            source_sha: string;
+            /** Target Sha */
+            target_sha: string;
+            /** Commit Count */
+            commit_count: number;
+            /** Author Count */
+            author_count: number;
+            /** Authors */
+            authors: string[];
+            /** Files */
+            files: components["schemas"]["FileFootprint"][];
+            /** Directories */
+            directories: components["schemas"]["DirectoryFootprint"][];
+            /** Total Additions */
+            total_additions: number;
+            /** Total Deletions */
+            total_deletions: number;
+            /** Files Changed */
+            files_changed: number;
+            /** Test Files Changed */
+            test_files_changed: number;
+            /** Code Files Changed */
+            code_files_changed: number;
+            /** Test Lines Changed */
+            test_lines_changed: number;
+            /** Code Lines Changed */
+            code_lines_changed: number;
+            /** Tests To Code Ratio */
+            tests_to_code_ratio: number | null;
+            /** Hotspot Paths Touched */
+            hotspot_paths_touched: string[];
+            size: components["schemas"]["MrSize"];
+            /** Efficient */
+            efficient: boolean;
         };
         /**
          * GitProvider
@@ -2203,10 +2532,224 @@ export interface components {
             /** Members */
             members: components["schemas"]["MemberSummaryResult"][];
         };
+        /**
+         * MergeReviewDetailResult
+         * @description The full review document — the detail page's single (polled) payload.
+         */
+        MergeReviewDetailResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Repo Slug */
+            repo_slug: string;
+            /** Title */
+            title: string | null;
+            /** Source Branch */
+            source_branch: string;
+            /** Target Branch */
+            target_branch: string;
+            /** Overall Status */
+            overall_status: string;
+            /** Footprint Status */
+            footprint_status: string;
+            /** Classification Status */
+            classification_status: string;
+            /** Overview Status */
+            overview_status: string;
+            /** Hobits Status */
+            hobits_status: string;
+            /** Risk Status */
+            risk_status: string;
+            /** Size */
+            size: string | null;
+            /** Efficient */
+            efficient: boolean | null;
+            /** Risk Score */
+            risk_score: number | null;
+            /** Risk Verdict */
+            risk_verdict: string | null;
+            /** Files Changed */
+            files_changed: number | null;
+            /** Total Additions */
+            total_additions: number | null;
+            /** Total Deletions */
+            total_deletions: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Analyzed At */
+            analyzed_at: string | null;
+            /** Analyzed Source Sha */
+            analyzed_source_sha: string | null;
+            /** Analyzed Target Sha */
+            analyzed_target_sha: string | null;
+            /** Merge Base Sha */
+            merge_base_sha: string | null;
+            footprint: components["schemas"]["Footprint"] | null;
+            /** Classification */
+            classification: components["schemas"]["ClassificationLabel"][] | null;
+            /** Overview Markdown */
+            overview_markdown: string | null;
+            risk_breakdown: components["schemas"]["RiskBreakdown"] | null;
+            /** Selected Hobit Slugs */
+            selected_hobit_slugs: string[];
+            /** Hobit Reviews */
+            hobit_reviews: components["schemas"]["MrHobitReviewResult"][];
+            /** Top Findings */
+            top_findings: components["schemas"]["TopFindingResult"][];
+            /** Stale */
+            stale: boolean | null;
+            /** Current Source Sha */
+            current_source_sha: string | null;
+            /** Error */
+            error: string | null;
+        };
+        /**
+         * MergeReviewResult
+         * @description List-item shape: enough for tables and the polling predicate, no heavy payloads.
+         */
+        MergeReviewResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Repo Slug */
+            repo_slug: string;
+            /** Title */
+            title: string | null;
+            /** Source Branch */
+            source_branch: string;
+            /** Target Branch */
+            target_branch: string;
+            /** Overall Status */
+            overall_status: string;
+            /** Footprint Status */
+            footprint_status: string;
+            /** Classification Status */
+            classification_status: string;
+            /** Overview Status */
+            overview_status: string;
+            /** Hobits Status */
+            hobits_status: string;
+            /** Risk Status */
+            risk_status: string;
+            /** Size */
+            size: string | null;
+            /** Efficient */
+            efficient: boolean | null;
+            /** Risk Score */
+            risk_score: number | null;
+            /** Risk Verdict */
+            risk_verdict: string | null;
+            /** Files Changed */
+            files_changed: number | null;
+            /** Total Additions */
+            total_additions: number | null;
+            /** Total Deletions */
+            total_deletions: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Analyzed At */
+            analyzed_at: string | null;
+        };
+        /**
+         * MrComment
+         * @description One structured comment from a hobit's review of the diff.
+         */
+        MrComment: {
+            /**
+             * Id
+             * @default
+             */
+            id: string;
+            severity: components["schemas"]["CommentSeverity"];
+            /** File */
+            file?: string | null;
+            /** Line */
+            line?: number | null;
+            /** Body */
+            body: string;
+        };
+        /**
+         * MrHobitReviewResult
+         * @description One hobit's review of the diff (status drives the UI's per-card skeleton).
+         */
+        MrHobitReviewResult: {
+            /** Hobit Slug */
+            hobit_slug: string;
+            /** Hobit Name */
+            hobit_name: string;
+            /** Status */
+            status: string;
+            /** Headline */
+            headline: string | null;
+            /** Self Score */
+            self_score: number | null;
+            /** Comments */
+            comments: components["schemas"]["MrComment"][];
+            /** Error */
+            error: string | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /**
+         * MrLabel
+         * @description The fixed classification vocabulary (multi-label with proportions).
+         * @enum {string}
+         */
+        MrLabel: "bug_fix" | "new_feature" | "refactoring" | "docs" | "tests" | "chore" | "config";
+        /**
+         * MrSize
+         * @enum {string}
+         */
+        MrSize: "small" | "medium" | "large" | "huge";
         /** Page[ConnectionResult] */
         Page_ConnectionResult_: {
             /** Items */
             items: components["schemas"]["ConnectionResult"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
+        };
+        /** Page[MergeReviewResult] */
+        Page_MergeReviewResult_: {
+            /** Items */
+            items: components["schemas"]["MergeReviewResult"][];
             /** Total */
             total: number;
             /** Page */
@@ -2322,6 +2865,28 @@ export interface components {
              */
             updated_at: string;
         };
+        /**
+         * RiskBreakdown
+         * @description The composite risk score and its components (each 0-100), plus how it was combined.
+         */
+        RiskBreakdown: {
+            /** Size Score */
+            size_score: number;
+            /** Hotspot Score */
+            hotspot_score: number;
+            /** Test Score */
+            test_score: number;
+            /** Findings Score */
+            findings_score: number | null;
+            /** Total */
+            total: number;
+            verdict: components["schemas"]["RiskVerdict"];
+        };
+        /**
+         * RiskVerdict
+         * @enum {string}
+         */
+        RiskVerdict: "looks_safe" | "needs_attention" | "high_risk";
         /** SelfScoreResult */
         SelfScoreResult: {
             /** Importance */
@@ -2429,6 +2994,26 @@ export interface components {
             language: string;
             /** Synced At */
             synced_at?: string | null;
+        };
+        /**
+         * TopFindingResult
+         * @description One entry of the "most important items" pane — a comment attributed to its hobit.
+         */
+        TopFindingResult: {
+            /** Comment Id */
+            comment_id: string;
+            /** Hobit Slug */
+            hobit_slug: string;
+            /** Hobit Name */
+            hobit_name: string;
+            /** Severity */
+            severity: string;
+            /** File */
+            file: string | null;
+            /** Line */
+            line: number | null;
+            /** Body */
+            body: string;
         };
         /**
          * UpdateConnection
@@ -2632,6 +3217,68 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    repository_branches_api_v1_repositories__repository_id__branches_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BranchesResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    repository_branch_names_api_v1_repositories__repository_id__branches_names_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BranchNamesResult"];
+                };
             };
             /** @description Validation Error */
             422: {
@@ -4396,6 +5043,201 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_merge_reviews_api_v1_merge_reviews_get: {
+        parameters: {
+            query?: {
+                repository_id?: string | null;
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_MergeReviewResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_merge_review_api_v1_merge_reviews_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMergeReview"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MergeReviewDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_repository_merge_reviews_api_v1_repositories__repository_id__merge_reviews_get: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_MergeReviewResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_merge_review_api_v1_merge_reviews__review_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MergeReviewDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_merge_review_api_v1_merge_reviews__review_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reanalyze_merge_review_api_v1_merge_reviews__review_id__reanalyze_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MergeReviewDetailResult"];
+                };
             };
             /** @description Validation Error */
             422: {

@@ -74,6 +74,16 @@ class HobitService:
         custom = self._custom.get(slug)
         return RepoHobit(custom.spec) if custom is not None else None
 
+    def resolve_spec(self, slug: str) -> HobitSpec | None:
+        """Public spec lookup across both sources (used by the merge-review module, which runs
+        hobits through its own diff-scoped engine and must not hit the repo-assignment gate)."""
+        hobit = self._resolve(slug)
+        return hobit.spec if hobit is not None else None
+
+    def effective_config_for(self, spec: HobitSpec) -> HobitConfig:
+        """Public effective config (spec defaults ⊕ user override) for out-of-domain runners."""
+        return self._effective_config(spec)
+
     def _require_spec(self, slug: str) -> HobitSpec:
         hobit = self._resolve(slug)
         if hobit is None:
@@ -108,9 +118,7 @@ class HobitService:
         PrefectScheduleSync(self._session).sync_repo(repository_id)
         return self.list_repo_hobits(repository_id)
 
-    def set_cadence(
-        self, repository_id: uuid.UUID, slug: str, cadence: str
-    ) -> list[HobitResult]:
+    def set_cadence(self, repository_id: uuid.UUID, slug: str, cadence: str) -> list[HobitResult]:
         """Set one assignment's run cadence and reconcile its Prefect deployment."""
         self._require_spec(slug)
         try:
@@ -239,9 +247,8 @@ class HobitService:
             raise NotFoundError(f"Unknown hobit: {slug}")
         # Access gate: Foundational hobits (repo-onboarding) are always allowed; others must be
         # assigned to the repository.
-        if (
-            hobit.spec.category != "Foundational"
-            and slug not in self._access.linked_slugs(repository_id)
+        if hobit.spec.category != "Foundational" and slug not in self._access.linked_slugs(
+            repository_id
         ):
             raise ConflictError(f"Hobit '{slug}' is not assigned to this repository.")
         config = self._effective_config(hobit.spec)
@@ -264,8 +271,12 @@ class HobitService:
         if self._agent_override is None and not agent.available():
             return self._finish(
                 _run_record(
-                    repository_id, slug, HobitRunStatus.agent_unavailable, pack.identity.commit_sha,
-                    started=started, error="The `claude` CLI is not available on the server.",
+                    repository_id,
+                    slug,
+                    HobitRunStatus.agent_unavailable,
+                    pack.identity.commit_sha,
+                    started=started,
+                    error="The `claude` CLI is not available on the server.",
                     trigger=trigger,
                 ),
                 writes_narrative=hobit.spec.writes_narrative,
@@ -314,8 +325,12 @@ class HobitService:
         self._access.mark_checked(repository_id, slug)
         if unchanged:
             record = _run_record(
-                repository_id, slug, HobitRunStatus.skipped_unchanged, remote_sha,
-                started=datetime.now(UTC), trigger="scheduled",
+                repository_id,
+                slug,
+                HobitRunStatus.skipped_unchanged,
+                remote_sha,
+                started=datetime.now(UTC),
+                trigger="scheduled",
             )
             self._runs.add(record)
             return HobitRunResult.of(record)
@@ -344,9 +359,15 @@ class HobitService:
                 else HobitRunStatus.error
             )
             return _run_record(
-                repository_id, slug, status, commit, started=started,
-                error=agent_run.error, raw_output=agent_run.raw_stdout or None,
-                duration=agent_run.duration_seconds, trigger=trigger,
+                repository_id,
+                slug,
+                status,
+                commit,
+                started=started,
+                error=agent_run.error,
+                raw_output=agent_run.raw_stdout or None,
+                duration=agent_run.duration_seconds,
+                trigger=trigger,
             )
 
         output = hobit.parse_output(agent_run.text)
@@ -356,25 +377,40 @@ class HobitService:
             score = _FALLBACK_SCORE
             tier = derive_tier(score.importance, score.confidence, score.urgency).value
             return _run_record(
-                repository_id, slug, HobitRunStatus.parse_failed, commit, started=started,
-                headline=headline, narrative=agent_run.text or None, score=score, tier=tier,
-                raw_output=agent_run.raw_stdout or None, duration=agent_run.duration_seconds,
-                error="Could not parse the hobit's structured output.", trigger=trigger,
+                repository_id,
+                slug,
+                HobitRunStatus.parse_failed,
+                commit,
+                started=started,
+                headline=headline,
+                narrative=agent_run.text or None,
+                score=score,
+                tier=tier,
+                raw_output=agent_run.raw_stdout or None,
+                duration=agent_run.duration_seconds,
+                error="Could not parse the hobit's structured output.",
+                trigger=trigger,
             )
 
         tier = derive_tier(
             output.self_score.importance, output.self_score.confidence, output.self_score.urgency
         ).value
         return _run_record(
-            repository_id, slug, HobitRunStatus.completed, commit, started=started,
-            headline=output.headline, narrative=output.narrative, score=output.self_score,
-            tier=tier, raw_output=agent_run.raw_stdout or None,
-            duration=agent_run.duration_seconds, trigger=trigger,
+            repository_id,
+            slug,
+            HobitRunStatus.completed,
+            commit,
+            started=started,
+            headline=output.headline,
+            narrative=output.narrative,
+            score=output.self_score,
+            tier=tier,
+            raw_output=agent_run.raw_stdout or None,
+            duration=agent_run.duration_seconds,
+            trigger=trigger,
         )
 
-    def _finish(
-        self, record: HobitRunRecord, *, writes_narrative: bool
-    ) -> HobitRunResult:
+    def _finish(self, record: HobitRunRecord, *, writes_narrative: bool) -> HobitRunResult:
         """Persist the run and emit its overlays: a briefing post always; the context-pack
         narrative only for hobits that own it (onboarding)."""
         self._runs.add(record)
@@ -383,9 +419,7 @@ class HobitService:
         self._briefing.create_from_run(record)  # no-op for unscored runs
         return HobitRunResult.of(record)
 
-    def _effective_config(
-        self, spec: HobitSpec, custom: CustomHobit | None = None
-    ) -> HobitConfig:
+    def _effective_config(self, spec: HobitSpec, custom: CustomHobit | None = None) -> HobitConfig:
         custom = custom if custom is not None else self._custom.get(spec.slug)
         if custom is not None:
             # A custom hobit's spec already holds its live config; enabled lives on the record.
@@ -468,11 +502,7 @@ def _merge_config(spec: HobitSpec, override: HobitConfigOverride | None) -> Hobi
             if override and override.timeout_seconds
             else spec.default_timeout_seconds
         ),
-        tags=(
-            override.tags
-            if override and override.tags is not None
-            else spec.default_tags
-        ),
+        tags=(override.tags if override and override.tags is not None else spec.default_tags),
     )
 
 

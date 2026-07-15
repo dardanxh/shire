@@ -29,6 +29,8 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -76,6 +78,8 @@
   --accent: #eef0ff; /* pale indigo wash for hover/accent */
   --accent-foreground: #4434d4; /* indigo-deep */
   --destructive: #df1b41; /* dashboard error red */
+  --success: #16a34a; /* additions / safe verdicts (first use: merge reviews) */
+  --warning: #d97706; /* caution states (first use: merge reviews) */
   --border: #e3e8ee; /* hairline */
   --input: #a8c3de; /* hairline-input (cooler, for fields) */
   --ring: #533afd; /* focus ring = indigo */
@@ -114,6 +118,8 @@
   --accent: #233860;
   --accent-foreground: #f6f9fc;
   --destructive: #f2597a;
+  --success: #4ade80;
+  --warning: #fbbf24;
   --border: rgba(255, 255, 255, 0.1);
   --input: rgba(255, 255, 255, 0.15);
   --ring: #665efd;

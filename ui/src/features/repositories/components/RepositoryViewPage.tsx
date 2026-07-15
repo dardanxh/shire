@@ -7,7 +7,9 @@ import {
   CodeIcon,
   ExternalLinkIcon,
   GaugeIcon,
+  GitBranchIcon,
   GitCommitHorizontalIcon,
+  GitPullRequestIcon,
   KeyRoundIcon,
   NetworkIcon,
   PackageIcon,
@@ -29,6 +31,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RepoMergeReviewsPanel } from "@/features/merge-reviews";
 import { extractErrorMessage } from "@/lib/api";
 import {
   formatAge,
@@ -39,6 +42,7 @@ import {
 import { useAnalysisQuery, useRepositoryQuery } from "../api";
 import type { RepositoryTab } from "../tabs";
 import { ArchitecturePanel } from "./ArchitecturePanel";
+import { BranchesPanel } from "./BranchesPanel";
 import { CodebaseOverviewPanel } from "./CodebaseOverviewPanel";
 import { CommitsChart } from "./CommitsChart";
 import { ContextPanel } from "./ContextPanel";
@@ -156,6 +160,14 @@ export function RepositoryViewPage({
               <TabsTrigger value="activity">
                 <ActivityIcon />
                 {t("repositories.view.tabs.activity")}
+              </TabsTrigger>
+              <TabsTrigger value="branches">
+                <GitBranchIcon />
+                {t("repositories.view.tabs.branches")}
+              </TabsTrigger>
+              <TabsTrigger value="mrs">
+                <GitPullRequestIcon />
+                {t("repositories.view.tabs.mrs")}
               </TabsTrigger>
               <TabsTrigger value="dependencies">
                 <PackageIcon />
@@ -389,6 +401,16 @@ export function RepositoryViewPage({
                   </CardContent>
                 </Card>
               </div>
+            </TabsContent>
+
+            {/* Branches — live view against the clone, independent of the analysis snapshot */}
+            <TabsContent value="branches">
+              <BranchesPanel repoId={repo.id} />
+            </TabsContent>
+
+            {/* MRs — merge reviews analyzed in this platform for this repo */}
+            <TabsContent value="mrs">
+              <RepoMergeReviewsPanel repoId={repo.id} />
             </TabsContent>
 
             {/* Dependencies */}

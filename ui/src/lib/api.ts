@@ -42,6 +42,22 @@ export type CodeMapOut = components["schemas"]["CodeMapResult"];
 export type ToolStatusOut = components["schemas"]["ToolStatusResult"];
 export type ToolLogOut = components["schemas"]["ToolLogResult"];
 export type RepositoriesPage = components["schemas"]["Page_RepositoryResult_"];
+export type BranchesOut = components["schemas"]["BranchesResult"];
+export type BranchOut = components["schemas"]["BranchResult"];
+export type BranchNamesOut = components["schemas"]["BranchNamesResult"];
+export type MergeReviewOut = components["schemas"]["MergeReviewResult"];
+export type MergeReviewDetailOut =
+  components["schemas"]["MergeReviewDetailResult"];
+export type MergeReviewsPage = components["schemas"]["Page_MergeReviewResult_"];
+export type MergeReviewFootprint = components["schemas"]["Footprint"];
+export type FileFootprintOut = components["schemas"]["FileFootprint"];
+export type DirectoryFootprintOut = components["schemas"]["DirectoryFootprint"];
+export type MrHobitReviewOut = components["schemas"]["MrHobitReviewResult"];
+export type MrCommentOut = components["schemas"]["MrComment"];
+export type TopFindingOut = components["schemas"]["TopFindingResult"];
+export type RiskBreakdownOut = components["schemas"]["RiskBreakdown"];
+export type ClassificationLabelOut =
+  components["schemas"]["ClassificationLabel"];
 export type ConnectionOut = components["schemas"]["ConnectionResult"];
 export type ConnectionsPage = components["schemas"]["Page_ConnectionResult_"];
 export type TestConnectionOut = components["schemas"]["TestConnectionResult"];

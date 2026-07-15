@@ -179,6 +179,53 @@ class CloneOutcome(ValueObject):
     head_sha: str
 
 
+class BranchStatus(StrEnum):
+    default = "default"
+    merged = "merged"
+    stale = "stale"
+    active = "active"
+
+
+class BranchTip(ValueObject):
+    """One branch as seen from its tip commit.
+
+    `merged` is the ancestor check against the default branch (a true merge happened — safe to
+    delete). `squash_merged` is the patch-equivalence check that also catches squash/rebase
+    merges; it is only computed for listed, not-already-merged branches (None = not checked or
+    check failed). Either being true yields `status = merged`.
+    """
+
+    name: str
+    is_default: bool
+    last_commit_sha: str
+    last_commit_at: datetime
+    author_name: str
+    author_email: str
+    ahead: int | None
+    behind: int | None
+    merged: bool | None
+    squash_merged: bool | None
+    status: BranchStatus
+
+
+class BranchInspection(ValueObject):
+    """Live branch overview computed from the clone on disk.
+
+    `merged_count`/`stale_count` use the cheap ancestor check across all enumerated branches;
+    squash-merge detection upgrades only the listed top branches (it costs git plumbing calls
+    per branch).
+    """
+
+    total_branches: int
+    merged_count: int
+    stale_count: int
+    stale_days: int
+    fetched: bool
+    truncated: bool
+    as_of: datetime
+    branches: list[BranchTip]
+
+
 class RepositoryRepository(Protocol):
     """Persistence port for the Repository aggregate."""
 

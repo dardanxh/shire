@@ -11,7 +11,8 @@
       "feed": "Feed",
       "tools": "Tools",
       "connectors": "Connectors",
-      "members": "Members"
+      "members": "Members",
+      "merge_reviews": "MR Reviews"
     },
     "actions": {
       "add": "Add",

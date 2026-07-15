@@ -4,6 +4,8 @@ import {
   type AnalysisOut,
   type ArchitectureOut,
   api,
+  type BranchesOut,
+  type BranchNamesOut,
   type CodeAgeOut,
   type CodebaseOverviewOut,
   type CodeMapOut,
@@ -66,6 +68,47 @@ export function useAnalysisQuery(id: string) {
       return data ?? null;
     },
     enabled: id !== "",
+  });
+}
+
+/**
+ * Live branch overview: count, merged/stale tallies, and the most active branch
+ * tips. Computed against the clone on request (with a best-effort remote fetch),
+ * so a `staleTime` keeps tab flips from re-triggering that work.
+ */
+export function useBranchesQuery(id: string) {
+  return useQuery<BranchesOut>({
+    queryKey: repositoryKeys.branches(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/branches",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+    staleTime: 60_000,
+  });
+}
+
+/**
+ * Every branch name (cheap, no per-branch plumbing) — feeds branch pickers.
+ * Unlike `useBranchesQuery` this is the complete list, not the top active tips.
+ */
+export function useBranchNamesQuery(id: string) {
+  return useQuery<BranchNamesOut>({
+    queryKey: repositoryKeys.branchNames(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/branches/names",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+    staleTime: 60_000,
   });
 }
 
