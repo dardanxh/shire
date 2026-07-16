@@ -70,6 +70,17 @@ export type PrincipleCheckOut = components["schemas"]["PrincipleCheckResult"];
 export type RepoPrincipleStatusOut =
   components["schemas"]["RepoPrincipleStatusResult"];
 export type PrincipleIn = components["schemas"]["CreatePrinciple"];
+export type NewsTopicOut = components["schemas"]["NewsTopicResult"];
+export type NewsSourceOut = components["schemas"]["NewsSourceResult"];
+export type NewsItemOut = components["schemas"]["NewsItemResult"];
+export type NewsItemsPage = components["schemas"]["Page_NewsItemResult_"];
+export type NewsPollOut = components["schemas"]["NewsPollResult"];
+export type NewsRecommendationOut =
+  components["schemas"]["NewsRecommendationResult"];
+export type NewsConfigOut = components["schemas"]["NewsConfigResult"];
+export type NewsTopicIn = components["schemas"]["CreateNewsTopic"];
+export type NewsSourceIn = components["schemas"]["CreateNewsSource"];
+export type UpdateNewsConfigIn = components["schemas"]["UpdateNewsConfig"];
 
 /** Principle severities (backend types the column as a bare string). */
 export const PRINCIPLE_SEVERITIES = ["info", "warning", "critical"] as const;

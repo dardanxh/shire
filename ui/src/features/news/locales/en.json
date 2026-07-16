@@ -1,0 +1,108 @@
+{
+  "news": {
+    "title": "News",
+    "subtitle": "Web news for your topics, fetched by the engine and deduplicated",
+    "tabs": {
+      "feed": "Feed",
+      "topics": "Topics"
+    },
+    "actions": {
+      "fetch_now": "Fetch now",
+      "fetching": "Fetching…",
+      "mark_all_read": "Mark all read"
+    },
+    "feed": {
+      "empty": "No news yet — add a topic and hit Fetch now.",
+      "unread_only": "Unread only",
+      "all_topics": "All topics",
+      "read_badge": "read",
+      "search_chip": "web search",
+      "source_chip": "source"
+    },
+    "topics": {
+      "add": "Add topic",
+      "empty": "No topics yet — add one, or let the engine recommend some from your repositories.",
+      "columns": {
+        "name": "Topic",
+        "sources": "Sources",
+        "last_poll": "Last fetch",
+        "unread": "Unread"
+      },
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "fetch": "Fetch",
+      "edit": "Edit",
+      "delete": "Delete",
+      "delete_confirm": "Delete this topic? Its sources and feed items go with it.",
+      "poll_status": {
+        "pending": "Fetching…",
+        "succeeded": "{{inserted}} new of {{found}} found",
+        "error": "Failed"
+      },
+      "never_polled": "Never fetched"
+    },
+    "topic_form": {
+      "new_title": "New topic",
+      "edit_title": "Edit topic",
+      "description_text": "The agent polls your source URLs and searches the web for news on this topic.",
+      "name": {
+        "label": "Name",
+        "placeholder": "e.g. agentic AI, data warehouses…",
+        "required": "Name is required"
+      },
+      "description": {
+        "label": "Description (optional)",
+        "placeholder": "What angle matters to you — sharpens the agent's searches"
+      },
+      "enabled": {
+        "label": "Enabled (included in scheduled and fetch-all runs)"
+      },
+      "sources": {
+        "title": "Source URLs",
+        "empty": "No sources yet — the agent will rely on web search alone.",
+        "url_placeholder": "https://…",
+        "note_placeholder": "Label (optional)",
+        "add": "Add source",
+        "invalid_url": "Enter a valid URL",
+        "remove": "Remove source"
+      },
+      "create": "Create topic",
+      "save": "Save",
+      "toast_created": "Topic \"{{name}}\" created",
+      "toast_saved": "Topic \"{{name}}\" saved"
+    },
+    "recommendations": {
+      "title": "Recommended topics",
+      "description": "Suggestions inferred from your repositories' languages, dependencies and security posture.",
+      "generate": "Recommend topics",
+      "generating": "Analyzing your repositories…",
+      "empty": "No suggestions yet — generate some.",
+      "accept": "Follow",
+      "dismiss": "Dismiss",
+      "toast_accepted": "Now following \"{{name}}\""
+    },
+    "config": {
+      "title": "Polling schedule",
+      "cadence": {
+        "label": "Cadence",
+        "manual": "Manual only",
+        "hourly": "Hourly",
+        "daily": "Daily (8:00)",
+        "weekly": "Weekly (Mon 8:00)",
+        "custom": "Custom cron"
+      },
+      "cron": {
+        "label": "Cron expression",
+        "placeholder": "0 8 * * *",
+        "required": "Cron expression is required"
+      },
+      "max_items": {
+        "label": "Max items per topic per fetch",
+        "invalid": "Enter a number between 1 and 50"
+      },
+      "scheduler_disabled_hint": "The scheduler stack (Prefect) is disabled on this install — scheduled polling won't fire until it's enabled. Fetch now always works.",
+      "save": "Save",
+      "saved_toast": "News settings saved"
+    }
+  }
+}

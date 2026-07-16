@@ -6,6 +6,7 @@ import hobits from "@/features/hobits/locales/en.json";
 import jobs from "@/features/jobs/locales/en.json";
 import members from "@/features/members/locales/en.json";
 import mergeReviews from "@/features/merge-reviews/locales/en.json";
+import news from "@/features/news/locales/en.json";
 import principles from "@/features/principles/locales/en.json";
 import repositories from "@/features/repositories/locales/en.json";
 import tools from "@/features/tools/locales/en.json";
@@ -27,6 +28,7 @@ const en = {
   ...briefing,
   ...jobs,
   ...principles,
+  ...news,
 };
 
 i18n.use(initReactI18next).init({

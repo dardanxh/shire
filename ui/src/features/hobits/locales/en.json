@@ -101,6 +101,10 @@
       "last_run": "Last run: {{status}} · {{when}}",
       "never": "Not run yet",
       "toast_queued": "Onboarding run queued — the narrative will appear when it finishes."
+    },
+    "tabs": {
+      "hobits": "Hobits",
+      "feed": "Feed"
     }
   }
 }

@@ -18,9 +18,18 @@ from datetime import timedelta
 
 from hobits.core.settings import get_settings
 from hobits.domain.hobits.models import RepositoryHobitRow
-from hobits.orchestration.flows import FLOW_NAME, run_hobit_flow
+from hobits.domain.news.repositories import SqlNewsConfigRepository
+from hobits.orchestration.flows import (
+    FLOW_NAME,
+    NEWS_FLOW_NAME,
+    run_hobit_flow,
+    run_news_poll_flow,
+)
 
 logger = logging.getLogger(__name__)
+
+# The single global news deployment — addressed as "<NEWS_FLOW_NAME>/<NEWS_DEPLOYMENT_NAME>".
+NEWS_DEPLOYMENT_NAME = "news-poll"
 
 # Preset cadences → sensible schedules; daily/weekly fire in the morning rather than at midnight.
 _DAILY_CRON = "0 8 * * *"
@@ -112,13 +121,30 @@ class PrefectScheduleSync:
             self.sync_assignment(row.repository_id, row.hobit_slug, row.cadence)
 
     def sync_all(self) -> None:
-        """Startup convergence — reconcile every assignment across all repos."""
+        """Startup convergence — reconcile every assignment across all repos, plus the news
+        schedule."""
         if not self.enabled:
             return
         rows = self._assignments()
         logger.info("Reconciling %d hobit assignment(s) into Prefect deployments.", len(rows))
         for row in rows:
             self.sync_assignment(row.repository_id, row.hobit_slug, row.cadence)
+        self.sync_news()
+
+    def sync_news(self) -> None:
+        """Make Prefect match the news config's cadence — one global deployment of the news-poll
+        flow (or none when the cadence is `manual`)."""
+        if not self.enabled:
+            return
+        try:
+            cadence = SqlNewsConfigRepository(self._session).get_or_create().cadence
+            self._ensure_work_pool()
+            if _schedule_for(cadence) is None:
+                self._delete(NEWS_DEPLOYMENT_NAME, flow_name=NEWS_FLOW_NAME)
+            else:
+                self._deploy_news(cadence)
+        except Exception:  # never let a Prefect hiccup break a config save
+            logger.warning("Prefect sync failed for the news schedule.", exc_info=True)
 
     # --- Prefect calls --------------------------------------------------------
     def _deploy(self, repository_id: uuid.UUID, slug: str, cadence: str) -> None:
@@ -137,12 +163,23 @@ class PrefectScheduleSync:
         deployment.apply(work_pool_name=self._settings.prefect_work_pool)
         logger.info("Deployed schedule for %s/%s (%s).", repository_id, slug, cadence)
 
-    def _delete(self, name: str) -> None:
+    def _deploy_news(self, cadence: str) -> None:
+        from prefect.deployments.runner import EntrypointType
+
+        deployment = run_news_poll_flow.to_deployment(
+            name=NEWS_DEPLOYMENT_NAME,
+            schedules=[_schedule_for(cadence)],
+            entrypoint_type=EntrypointType.MODULE_PATH,
+        )
+        deployment.apply(work_pool_name=self._settings.prefect_work_pool)
+        logger.info("Deployed news poll schedule (%s).", cadence)
+
+    def _delete(self, name: str, *, flow_name: str = FLOW_NAME) -> None:
         from prefect.client.orchestration import get_client
 
         with get_client(sync_client=True) as client:
             try:
-                dep = client.read_deployment_by_name(f"{FLOW_NAME}/{name}")
+                dep = client.read_deployment_by_name(f"{flow_name}/{name}")
             except Exception:
                 return  # nothing to remove
             client.delete_deployment(dep.id)

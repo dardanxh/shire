@@ -137,7 +137,9 @@ export function HobitViewPage({ slug }: { slug: string }) {
               <DeleteHobitDialog
                 slug={hobit.slug}
                 name={hobit.name}
-                onDeleted={() => navigate({ to: "/hobits" })}
+                onDeleted={() =>
+                  navigate({ to: "/hobits", search: { tab: "hobits" } })
+                }
                 trigger={
                   <Button
                     size="sm"
@@ -208,6 +210,7 @@ function BackLink({ label }: { label: string }) {
   return (
     <Link
       to="/hobits"
+      search={{ tab: "hobits" }}
       className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
     >
       <ArrowLeftIcon className="size-4" />

@@ -11,11 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as PrinciplesRouteImport } from './routes/principles'
+import { Route as NewsRouteImport } from './routes/news'
 import { Route as MergeReviewsRouteImport } from './routes/merge-reviews'
 import { Route as MembersRouteImport } from './routes/members'
 import { Route as JobsRouteImport } from './routes/jobs'
 import { Route as HobitsRouteImport } from './routes/hobits'
-import { Route as FeedRouteImport } from './routes/feed'
 import { Route as ConnectorsRouteImport } from './routes/connectors'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
@@ -36,6 +36,11 @@ const PrinciplesRoute = PrinciplesRouteImport.update({
   path: '/principles',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NewsRoute = NewsRouteImport.update({
+  id: '/news',
+  path: '/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MergeReviewsRoute = MergeReviewsRouteImport.update({
   id: '/merge-reviews',
   path: '/merge-reviews',
@@ -54,11 +59,6 @@ const JobsRoute = JobsRouteImport.update({
 const HobitsRoute = HobitsRouteImport.update({
   id: '/hobits',
   path: '/hobits',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeedRoute = FeedRouteImport.update({
-  id: '/feed',
-  path: '/feed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConnectorsRoute = ConnectorsRouteImport.update({
@@ -110,11 +110,11 @@ const DiagramRepoIdKindRoute = DiagramRepoIdKindRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/connectors': typeof ConnectorsRoute
-  '/feed': typeof FeedRoute
   '/hobits': typeof HobitsRouteWithChildren
   '/jobs': typeof JobsRouteWithChildren
   '/members': typeof MembersRoute
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
+  '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
   '/tools': typeof ToolsRoute
   '/hobits/$slug': typeof HobitsSlugRoute
@@ -128,9 +128,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/connectors': typeof ConnectorsRoute
-  '/feed': typeof FeedRoute
   '/members': typeof MembersRoute
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
+  '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
   '/tools': typeof ToolsRoute
   '/hobits/$slug': typeof HobitsSlugRoute
@@ -145,11 +145,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/connectors': typeof ConnectorsRoute
-  '/feed': typeof FeedRoute
   '/hobits': typeof HobitsRouteWithChildren
   '/jobs': typeof JobsRouteWithChildren
   '/members': typeof MembersRoute
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
+  '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
   '/tools': typeof ToolsRoute
   '/hobits/$slug': typeof HobitsSlugRoute
@@ -165,11 +165,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/connectors'
-    | '/feed'
     | '/hobits'
     | '/jobs'
     | '/members'
     | '/merge-reviews'
+    | '/news'
     | '/principles'
     | '/tools'
     | '/hobits/$slug'
@@ -183,9 +183,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/connectors'
-    | '/feed'
     | '/members'
     | '/merge-reviews'
+    | '/news'
     | '/principles'
     | '/tools'
     | '/hobits/$slug'
@@ -199,11 +199,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/connectors'
-    | '/feed'
     | '/hobits'
     | '/jobs'
     | '/members'
     | '/merge-reviews'
+    | '/news'
     | '/principles'
     | '/tools'
     | '/hobits/$slug'
@@ -218,11 +218,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConnectorsRoute: typeof ConnectorsRoute
-  FeedRoute: typeof FeedRoute
   HobitsRoute: typeof HobitsRouteWithChildren
   JobsRoute: typeof JobsRouteWithChildren
   MembersRoute: typeof MembersRoute
   MergeReviewsRoute: typeof MergeReviewsRouteWithChildren
+  NewsRoute: typeof NewsRoute
   PrinciplesRoute: typeof PrinciplesRoute
   ToolsRoute: typeof ToolsRoute
   RepositoriesIdRoute: typeof RepositoriesIdRoute
@@ -243,6 +243,13 @@ declare module '@tanstack/react-router' {
       path: '/principles'
       fullPath: '/principles'
       preLoaderRoute: typeof PrinciplesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news': {
+      id: '/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/merge-reviews': {
@@ -271,13 +278,6 @@ declare module '@tanstack/react-router' {
       path: '/hobits'
       fullPath: '/hobits'
       preLoaderRoute: typeof HobitsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/feed': {
-      id: '/feed'
-      path: '/feed'
-      fullPath: '/feed'
-      preLoaderRoute: typeof FeedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/connectors': {
@@ -386,11 +386,11 @@ const MergeReviewsRouteWithChildren = MergeReviewsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConnectorsRoute: ConnectorsRoute,
-  FeedRoute: FeedRoute,
   HobitsRoute: HobitsRouteWithChildren,
   JobsRoute: JobsRouteWithChildren,
   MembersRoute: MembersRoute,
   MergeReviewsRoute: MergeReviewsRouteWithChildren,
+  NewsRoute: NewsRoute,
   PrinciplesRoute: PrinciplesRoute,
   ToolsRoute: ToolsRoute,
   RepositoriesIdRoute: RepositoriesIdRoute,

@@ -11,6 +11,8 @@ SUBSTRATE_DEPENDENCY_GAINS = "substrate.dependency_gains"
 HOBIT_RUN = "hobit.run"
 REPO_QUESTION = "repo.question"
 PRINCIPLE_AUDIT = "principle.audit"
+NEWS_POLL = "news.poll"
+NEWS_RECOMMEND = "news.recommend"
 
 # Models the engine's `claude` CLI accepts: aliases (track the latest version) plus pinned
 # IDs for reproducibility. Curated here so the Config tab's dropdown has one place to update.
