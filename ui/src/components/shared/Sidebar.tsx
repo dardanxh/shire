@@ -5,6 +5,7 @@ import {
   GlobeIcon,
   ListChecksIcon,
   type LucideIcon,
+  MapIcon,
   PlugIcon,
   ScaleIcon,
   UsersIcon,
@@ -45,6 +46,12 @@ const ITEMS: NavItem[] = [
     labelKey: "common.nav.news",
     icon: GlobeIcon,
     match: (p) => p === "/news" || p.startsWith("/news/"),
+  },
+  {
+    to: "/roadmaps",
+    labelKey: "common.nav.roadmaps",
+    icon: MapIcon,
+    match: (p) => p === "/roadmaps" || p.startsWith("/roadmaps/"),
   },
   {
     to: "/members",

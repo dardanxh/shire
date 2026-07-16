@@ -1,0 +1,174 @@
+{
+  "roadmaps": {
+    "list": {
+      "title": "Roadmaps",
+      "subtitle": "AI-planned improvement roadmaps across your repositories",
+      "new": "New roadmap",
+      "empty": "No roadmaps yet — pick some repositories and let the AI plan the way forward.",
+      "empty_cta": "Create your first roadmap",
+      "col_name": "Roadmap",
+      "col_repositories": "Repositories",
+      "col_version": "Version",
+      "col_progress": "Progress",
+      "col_updated": "Updated"
+    },
+    "new": {
+      "crumb": "New roadmap",
+      "title": "New roadmap",
+      "subtitle": "Pick the repositories to plan over; the goal is optional — without one, the AI plans from the portfolio's weaknesses and risks.",
+      "name_label": "Name",
+      "name_placeholder": "Q4 hardening",
+      "goal_label": "End goal (optional)",
+      "goal_help": "Plain language. e.g. \"Get both services production-ready and on Python 3.13.\"",
+      "goal_placeholder": "Where should these repositories end up?",
+      "repos_label": "Repositories",
+      "repo_search_placeholder": "Search repositories…",
+      "no_repositories": "No analyzed repositories available.",
+      "submit": "Create & generate",
+      "toast_success": "Roadmap created — generating the plan…"
+    },
+    "view": {
+      "export_md": "Export MD",
+      "regenerate": "Regenerate",
+      "read_only_banner": "Viewing version {{number}} — a superseded plan is read-only.",
+      "sync_prs": "Sync PRs",
+      "sync_prs_done": "PR sweep done — {{count}} item(s) updated.",
+      "check_drift": "Check drift",
+      "create_issues": "Create issues",
+      "issues_done": "Issues export done — {{created}} created, {{skipped}} skipped."
+    },
+    "drift": {
+      "checking": "Drift check running — the agent is comparing the plan against the code…",
+      "title": "Drift detected — {{count}} proposal(s) to review",
+      "started": "Drift check started — {{count}} repository job(s) enqueued.",
+      "accept": "Accept",
+      "dismiss": "Dismiss"
+    },
+    "tabs": {
+      "board": "Board",
+      "graph": "Dependencies",
+      "timeline": "Timeline",
+      "items": "Items",
+      "insights": "Insights"
+    },
+    "generation": {
+      "running_title": "Generating version {{number}}…",
+      "running_body": "The engine is assessing the repositories and drafting milestones. This page updates on its own.",
+      "failed_title": "Generation failed",
+      "failed_body": "The generation job did not produce a plan.",
+      "view_job": "View job"
+    },
+    "matrix": {
+      "q_do_first": "Do first",
+      "q_schedule": "Schedule",
+      "q_delegate": "Quick wins",
+      "q_later": "Later"
+    },
+    "timeline": {
+      "empty": "No milestones in this version.",
+      "progress": "{{done}}/{{total}} items done",
+      "points": "{{points}} pts"
+    },
+    "items": {
+      "col_title": "Item",
+      "col_label": "Label",
+      "col_status": "Status",
+      "col_priority": "Priority",
+      "col_effort": "Effort",
+      "col_repository": "Repository",
+      "col_milestone": "Milestone",
+      "portfolio_wide": "Portfolio-wide",
+      "empty": "No items match."
+    },
+    "item": {
+      "status": "Status",
+      "urgent": "Urgent",
+      "important": "Important",
+      "effort": "Effort",
+      "effort_unset": "—",
+      "yes": "Yes",
+      "no": "No",
+      "description": "Description",
+      "rationale": "Why this item",
+      "blocked_by": "Blocked by",
+      "blocked_hint": "Blocked by unfinished items",
+      "carried_hint": "Carried over from the previous version",
+      "no_dependencies": "No dependencies",
+      "add_dependency": "Add dependency",
+      "pick_dependency": "Blocked by…",
+      "remove_dependency": "Remove dependency",
+      "execution": "AI implementation",
+      "execute": "Implement",
+      "execute_again": "Implement again",
+      "execute_confirm": "This dispatches an agent that implements the item in an isolated worktree, pushes a branch, and opens a pull request for your review.",
+      "blocked_explainer": "Blocked — finish, drop, or unlink the items under \"Blocked by\" first.",
+      "execute_go": "Dispatch",
+      "executing": "Implementing… the agent is working on a branch.",
+      "execute_status_hint": "This item is done — reopen it (To do) to implement it again.",
+      "execution_failed": "The implementation run failed.",
+      "execution_cost": "${{cost}}",
+      "view_pr": "PR #{{number}}",
+      "pr_open": "Open",
+      "pr_merged": "Merged",
+      "pr_closed": "Closed"
+    },
+    "regenerate": {
+      "title": "Regenerate this roadmap?",
+      "body": "The AI re-plans from the current state of the repositories and creates version N+1. Done items (and in-progress items with an open PR) carry over; everything else is re-planned on merit.",
+      "confirm": "Regenerate"
+    },
+    "insights": {
+      "burnup_title": "Progress burnup",
+      "burnup_total": "Total items",
+      "burnup_done": "Done",
+      "burnup_empty": "Not enough history yet — progress accrues as items move.",
+      "by_label_title": "Items by label",
+      "by_repo_title": "Items by repository",
+      "radar_title": "Repository health radar",
+      "radar_subtitle": "The AI's per-repo assessment from this version's generation (1–10 per dimension).",
+      "radar_empty": "No assessments in this version."
+    },
+    "health": {
+      "security": "Security",
+      "maintainability": "Maintainability",
+      "dependency_freshness": "Dependency freshness",
+      "test_confidence": "Test confidence",
+      "activity": "Activity",
+      "documentation": "Documentation"
+    },
+    "label": {
+      "improvement": "Improvement",
+      "fix": "Fix",
+      "refactor": "Refactor",
+      "feature": "Feature",
+      "security": "Security",
+      "deprecation": "Deprecation",
+      "lib_upgrade": "Lib upgrade",
+      "docs": "Docs",
+      "testing": "Testing",
+      "performance": "Performance"
+    },
+    "item_status": {
+      "todo": "To do",
+      "in_progress": "In progress",
+      "done": "Done"
+    },
+    "export": {
+      "failed": "Export failed — is a plan generated yet?"
+    },
+    "repo_tab": {
+      "empty": "No roadmap covers this repository yet.",
+      "empty_cta": "Create a roadmap",
+      "progress": "{{done}}/{{total}} done",
+      "no_items": "This roadmap has no items for this repository in its current version."
+    },
+    "board": {
+      "empty_column": "Drop tickets here"
+    },
+    "graph": {
+      "legend_ready": "Ready to start",
+      "legend_blocked": "Blocked",
+      "legend_order": "Left to right = dependency order: start with the leftmost open tickets."
+    }
+  }
+}

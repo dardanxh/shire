@@ -26,6 +26,8 @@ from hobits.domain.merge_review.routes import router as merge_reviews_router
 from hobits.domain.news.routes import router as news_router
 from hobits.domain.principles.routes import router as principles_router
 from hobits.domain.repository.routes import router as repositories_router
+from hobits.domain.roadmap.routes import repo_router as repo_roadmaps_router
+from hobits.domain.roadmap.routes import router as roadmaps_router
 from hobits.domain.substrate.routes import router as substrate_router
 from hobits.domain.substrate.services import (
     ARTIFACTS_PATH,
@@ -93,6 +95,8 @@ app.include_router(merge_reviews_router, prefix=API_V1_PREFIX)
 app.include_router(jobs_router, prefix=API_V1_PREFIX)
 app.include_router(principles_router, prefix=API_V1_PREFIX)
 app.include_router(news_router, prefix=API_V1_PREFIX)
+app.include_router(roadmaps_router, prefix=API_V1_PREFIX)
+app.include_router(repo_roadmaps_router, prefix=API_V1_PREFIX)
 
 # Serve generated codebase-graph artifacts (emerge HTML apps) read-only. Mounted under /api/v1 so
 # the dev Vite proxy (/api → :8000) reaches it same-origin and the UI can iframe the graph. The

@@ -18,6 +18,11 @@ from hobits.domain.merge_review.jobs import (
 )
 from hobits.domain.news.jobs import handle_news_poll, handle_news_recommend
 from hobits.domain.principles.jobs import handle_principle_audit
+from hobits.domain.roadmap.jobs import (
+    handle_roadmap_drift,
+    handle_roadmap_execute,
+    handle_roadmap_generate,
+)
 from hobits.domain.substrate.jobs import (
     handle_architecture,
     handle_codebase_overview,
@@ -42,4 +47,7 @@ HANDLERS: dict[str, Callable[[JobRow], None]] = {
     kinds.PRINCIPLE_AUDIT: handle_principle_audit,
     kinds.NEWS_POLL: handle_news_poll,
     kinds.NEWS_RECOMMEND: handle_news_recommend,
+    kinds.ROADMAP_GENERATE: handle_roadmap_generate,
+    kinds.ROADMAP_EXECUTE: handle_roadmap_execute,
+    kinds.ROADMAP_DRIFT: handle_roadmap_drift,
 }

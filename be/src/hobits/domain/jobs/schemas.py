@@ -131,14 +131,25 @@ class JobStatsResult(BaseModel):
     all_time: JobStatsBucket
 
 
+class JobProgressEvent(BaseModel):
+    """One compact entry of the live agent transcript the engine streams while running."""
+
+    type: str  # text | tool | tool_result
+    text: str | None = None
+    tool: str | None = None
+    detail: str | None = None
+    error: bool | None = None
+
+
 class JobDetailResult(JobResult):
-    """Detail shape: adds the exact prompt sent to the engine, the raw result, and the
-    full token-usage breakdown."""
+    """Detail shape: adds the exact prompt sent to the engine, the raw result, the live
+    agent transcript, and the full token-usage breakdown."""
 
     prompt: str
     result: str | None
     worker_id: str | None
     usage: JobUsage | None
+    progress: list[JobProgressEvent]
 
     @classmethod
     def of_detail(cls, row: JobRow) -> JobDetailResult:
@@ -148,4 +159,9 @@ class JobDetailResult(JobResult):
             result=row.result,
             worker_id=row.worker_id,
             usage=JobUsage.model_validate(row.usage) if row.usage else None,
+            progress=[
+                JobProgressEvent.model_validate(e)
+                for e in (row.progress or [])
+                if isinstance(e, dict)
+            ],
         )

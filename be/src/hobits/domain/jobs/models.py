@@ -71,6 +71,9 @@ class JobRow(Base):
     # output_tokens, cache_creation_input_tokens, cache_read_input_tokens,
     # total_cost_usd, num_turns.
     usage: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
+    # Live agent transcript, streamed by the engine while the job runs (capped list of
+    # compact events: {type: text|tool|tool_result, text?, tool?, detail?, error?}).
+    progress: Mapped[list[dict[str, Any]] | None] = mapped_column(JSONB, nullable=True)
 
     attempts: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     worker_id: Mapped[str | None] = mapped_column(String(128), nullable=True)

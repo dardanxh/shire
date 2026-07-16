@@ -13,6 +13,9 @@ REPO_QUESTION = "repo.question"
 PRINCIPLE_AUDIT = "principle.audit"
 NEWS_POLL = "news.poll"
 NEWS_RECOMMEND = "news.recommend"
+ROADMAP_GENERATE = "roadmap.generate"
+ROADMAP_EXECUTE = "roadmap.execute"
+ROADMAP_DRIFT = "roadmap.drift"
 
 # Models the engine's `claude` CLI accepts: aliases (track the latest version) plus pinned
 # IDs for reproducibility. Curated here so the Config tab's dropdown has one place to update.

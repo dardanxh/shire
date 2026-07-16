@@ -37,7 +37,10 @@
       "usage_cache_write": "Cache write",
       "usage_cost": "Cost",
       "usage_turns": "Turns",
-      "usage_models": "Models used"
+      "usage_models": "Models used",
+      "activity": "Agent activity",
+      "activity_count": "{{count}} event(s)",
+      "activity_waiting": "Waiting for the agent's first message…"
     },
     "status": {
       "pending": "Pending",

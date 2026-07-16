@@ -16,5 +16,6 @@ from hobits.domain.merge_review import models as _merge_review_models  # noqa: F
 from hobits.domain.news import models as _news_models  # noqa: F401
 from hobits.domain.principles import models as _principles_models  # noqa: F401
 from hobits.domain.repository import models as _repository_models  # noqa: F401
+from hobits.domain.roadmap import models as _roadmap_models  # noqa: F401
 from hobits.domain.substrate import models as _substrate_models  # noqa: F401
 from hobits.domain.tools import models as _tools_models  # noqa: F401

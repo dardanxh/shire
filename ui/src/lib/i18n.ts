@@ -9,6 +9,7 @@ import mergeReviews from "@/features/merge-reviews/locales/en.json";
 import news from "@/features/news/locales/en.json";
 import principles from "@/features/principles/locales/en.json";
 import repositories from "@/features/repositories/locales/en.json";
+import roadmaps from "@/features/roadmaps/locales/en.json";
 import tools from "@/features/tools/locales/en.json";
 import common from "@/locales/common/en.json";
 
@@ -29,6 +30,7 @@ const en = {
   ...jobs,
   ...principles,
   ...news,
+  ...roadmaps,
 };
 
 i18n.use(initReactI18next).init({

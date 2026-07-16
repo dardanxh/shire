@@ -1,25 +1,42 @@
 """Claude Code CLI engine (`claude -p`) — the default `Engine` implementation.
 
-Ported from the backend's `ClaudeAgent` wrapper. Runs headlessly in a repo clone with read-only
-tools, on the logged-in Max subscription.
+Ported from the backend's `ClaudeAgent` wrapper. Runs headlessly in a repo clone (or a
+disposable worktree), on the logged-in Max subscription.
 
 Design notes:
 - **Never raises for expected failures** (missing binary, timeout, non-zero exit, unparseable
   output) — those come back as `EngineResult(ok=False, error=...)` so the job settles cleanly.
-- **Read-only by construction.** In `--print` mode, permission mode `default` auto-denies any
-  tool outside the allow-list (it can't prompt), so a run can't mutate the clone.
+- **The allow-list is the permission boundary.** In `--print` mode, permission mode `default`
+  auto-denies any tool outside `allowed_tools` (it can't prompt). Most kinds run read-only
+  (Read/Grep/Glob); `roadmap.execute` grants Edit/Write inside a disposable git worktree —
+  never Bash.
 - **Subscription auth.** `ANTHROPIC_API_KEY` is stripped from the env so the CLI uses the
   logged-in session rather than silently switching to paid API-key auth.
+- **Streamed transcript.** Runs with `--output-format stream-json` and forwards each assistant
+  message / tool call as a compact event to the optional `on_event` callback — the Jobs UI's
+  live "agent activity" feed. The final `result` event carries the same envelope (result text,
+  usage) the old whole-stdout JSON mode did.
 """
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
+import select
 import subprocess
 import time
+from collections.abc import Callable, Iterator
 
 from engine.model import EngineRequest, EngineResult
+
+# Bounds on the compact transcript events (the full text still arrives via the result).
+_TEXT_LIMIT = 4_000
+_DETAIL_LIMIT = 300
+
+
+class _TimeoutError(Exception):
+    """The run exceeded its deadline (internal control flow, never escapes `run`)."""
 
 
 class ClaudeCliEngine:
@@ -39,24 +56,22 @@ class ClaudeCliEngine:
             return False
         return proc.returncode == 0
 
-    def run(self, request: EngineRequest) -> EngineResult:
+    def run(
+        self,
+        request: EngineRequest,
+        on_event: Callable[[dict], None] | None = None,
+    ) -> EngineResult:
         argv = self._build_argv(request)
         started = time.monotonic()
+        deadline = started + request.timeout_seconds
         try:
-            proc = subprocess.run(
+            proc = subprocess.Popen(
                 argv,
                 cwd=request.cwd,
-                capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 text=True,
-                timeout=request.timeout_seconds,
                 env=_subscription_env(),
-            )
-        except subprocess.TimeoutExpired:
-            return EngineResult(
-                ok=False,
-                text="",
-                error=f"claude run timed out after {request.timeout_seconds:.0f}s",
-                duration_seconds=time.monotonic() - started,
             )
         except (FileNotFoundError, NotADirectoryError, OSError) as exc:
             return EngineResult(
@@ -66,23 +81,58 @@ class ClaudeCliEngine:
                 duration_seconds=time.monotonic() - started,
             )
 
-        duration = time.monotonic() - started
-        if proc.returncode != 0:
-            detail = (proc.stderr or proc.stdout or "").strip()[:2000]
+        envelope: dict | None = None
+        stray: list[str] = []  # non-JSON output, kept as the error-path fallback
+        try:
+            for line in _stream_lines(proc, deadline):
+                raw = line.strip()
+                if not raw:
+                    continue
+                try:
+                    event = json.loads(raw)
+                except json.JSONDecodeError:
+                    stray.append(raw[:500])
+                    continue
+                if not isinstance(event, dict):
+                    continue
+                if event.get("type") == "result":
+                    envelope = event
+                elif on_event is not None:
+                    # Progress is best-effort only — a bad callback must never kill the run.
+                    for compact in _compact_events(event):
+                        with contextlib.suppress(Exception):
+                            on_event(compact)
+        except _TimeoutError:
+            proc.kill()
+            proc.wait()
             return EngineResult(
                 ok=False,
                 text="",
-                error=f"claude exited {proc.returncode}: {detail}",
-                duration_seconds=duration,
+                error=f"claude run timed out after {request.timeout_seconds:.0f}s",
+                duration_seconds=time.monotonic() - started,
             )
 
-        text, err = _extract_text(proc.stdout)
+        returncode = proc.wait()
+        stderr = proc.stderr.read() if proc.stderr else ""
+        duration = time.monotonic() - started
+
+        if envelope is None:
+            detail = (stderr or "\n".join(stray)).strip()[:2000]
+            if returncode != 0:
+                error = f"claude exited {returncode}: {detail}"
+            else:
+                error = "claude produced no result envelope"
+            return EngineResult(
+                ok=False, text="\n".join(stray), error=error, duration_seconds=duration
+            )
+
+        text, err = _extract_text(envelope)
         return EngineResult(
             ok=err is None,
             text=text,
             error=err,
             duration_seconds=duration,
-            usage=_extract_usage(proc.stdout),
+            usage=_extract_usage(envelope),
         )
 
     def _build_argv(self, request: EngineRequest) -> list[str]:
@@ -90,12 +140,14 @@ class ClaudeCliEngine:
         # the operator's user-level hooks (a UserPromptSubmit hook would otherwise intercept
         # engine prompts) and any .claude settings inside the analyzed clone (untrusted input —
         # a repo must never inject hooks into our runs). Auth is unaffected.
+        # stream-json requires --verbose in --print mode.
         argv = [
             self._binary,
             "-p",
             request.prompt,
             "--output-format",
-            "json",
+            "stream-json",
+            "--verbose",
             "--setting-sources",
             "",
         ]
@@ -111,23 +163,105 @@ class ClaudeCliEngine:
         return argv
 
 
+def _stream_lines(proc: subprocess.Popen, deadline: float) -> Iterator[str]:
+    """Yield stdout lines until EOF; raise _Timeout when the deadline passes.
+
+    `select` on the pipe keeps the deadline enforceable even when the CLI goes quiet
+    (a blocking readline would only notice the timeout on the next write).
+    """
+    stdout = proc.stdout
+    if stdout is None:
+        return
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise _TimeoutError
+        readable, _, _ = select.select([stdout], [], [], min(remaining, 5.0))
+        if not readable:
+            continue
+        line = stdout.readline()
+        if line == "":
+            return  # EOF — the process is finishing
+        yield line
+
+
 def _subscription_env() -> dict[str, str]:
     return {k: v for k, v in os.environ.items() if k != "ANTHROPIC_API_KEY"}
 
 
-def _extract_usage(raw_stdout: str) -> dict | None:
-    """Pull the session-cumulative token accounting out of the JSON envelope.
+def _compact_events(event: dict) -> list[dict]:
+    """Squash one stream-json event into compact transcript entries for the progress feed."""
+    entries: list[dict] = []
+    event_type = event.get("type")
+    message = event.get("message")
+    content = message.get("content") if isinstance(message, dict) else None
+    if not isinstance(content, list):
+        return entries
+
+    if event_type == "assistant":
+        for block in content:
+            if not isinstance(block, dict):
+                continue
+            if block.get("type") == "text" and block.get("text"):
+                entries.append({"type": "text", "text": str(block["text"])[:_TEXT_LIMIT]})
+            elif block.get("type") == "tool_use":
+                entries.append(
+                    {
+                        "type": "tool",
+                        "tool": str(block.get("name") or "?"),
+                        "detail": _tool_summary(block.get("name"), block.get("input")),
+                    }
+                )
+    elif event_type == "user":
+        for block in content:
+            if isinstance(block, dict) and block.get("type") == "tool_result":
+                detail = _tool_result_summary(block.get("content"))
+                if detail:
+                    entries.append(
+                        {
+                            "type": "tool_result",
+                            "detail": detail,
+                            "error": bool(block.get("is_error")),
+                        }
+                    )
+    return entries
+
+
+def _tool_summary(name: object, tool_input: object) -> str:
+    """The one line that tells a human what the tool call is doing."""
+    if not isinstance(tool_input, dict):
+        return ""
+    for key in ("file_path", "path", "pattern", "query", "url", "command", "notebook_path"):
+        value = tool_input.get(key)
+        if isinstance(value, str) and value:
+            return value[:_DETAIL_LIMIT]
+    try:
+        return json.dumps(tool_input)[:_DETAIL_LIMIT]
+    except (TypeError, ValueError):
+        return ""
+
+
+def _tool_result_summary(content: object) -> str:
+    if isinstance(content, str):
+        text = content
+    elif isinstance(content, list):
+        text = " ".join(
+            str(block.get("text") or "")
+            for block in content
+            if isinstance(block, dict) and block.get("type") == "text"
+        )
+    else:
+        return ""
+    return " ".join(text.split())[:160]
+
+
+def _extract_usage(envelope: dict) -> dict | None:
+    """Pull the session-cumulative token accounting out of the result envelope.
 
     The envelope's `usage` covers the entire `claude -p` session — every internal turn's
     prompt and completion — not just the final message. Returns a flat, engine-agnostic
-    dict, or None when the output isn't the expected envelope.
+    dict, or None when the envelope has no usage block.
     """
-    try:
-        envelope = json.loads(raw_stdout.strip())
-    except (json.JSONDecodeError, ValueError):
-        return None
-    if not isinstance(envelope, dict):
-        return None
     usage = envelope.get("usage")
     if not isinstance(usage, dict):
         return None
@@ -144,27 +278,18 @@ def _extract_usage(raw_stdout: str) -> dict | None:
     }
 
 
-def _extract_text(raw_stdout: str) -> tuple[str, str | None]:
-    """Pull the final assistant text out of the `--output-format json` envelope.
+def _extract_text(envelope: dict) -> tuple[str, str | None]:
+    """Pull the final assistant text out of the result envelope.
 
-    Returns (text, error). On an error result or unparseable envelope, error is set; text falls
-    back to the raw stdout so the caller can still surface *something*.
+    Returns (text, error). On an error result, error is set; text falls back to whatever the
+    envelope carries so the caller can still surface *something*.
     """
-    raw = raw_stdout.strip()
-    if not raw:
-        return "", "claude produced no output"
-    try:
-        envelope = json.loads(raw)
-    except json.JSONDecodeError:
-        # Not the expected JSON envelope — treat the whole stdout as the text.
-        return raw, None
-    if isinstance(envelope, dict):
-        if envelope.get("is_error") or envelope.get("subtype") not in (None, "success"):
-            return (
-                str(envelope.get("result") or raw),
-                f"claude error result: {envelope.get('subtype') or 'unknown'}",
-            )
-        result = envelope.get("result")
-        if isinstance(result, str):
-            return result, None
-    return raw, None
+    result = envelope.get("result")
+    if envelope.get("is_error") or envelope.get("subtype") not in (None, "success"):
+        return (
+            str(result or ""),
+            f"claude error result: {envelope.get('subtype') or 'unknown'}",
+        )
+    if isinstance(result, str):
+        return result, None
+    return "", "claude result envelope had no text"

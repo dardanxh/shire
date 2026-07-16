@@ -52,6 +52,20 @@ class TestResult(ValueObject):
     account: str | None = None  # the login/username echoed back on success
 
 
+class PullRequestRef(ValueObject):
+    """A pull/merge request as the provider reports it (normalized across providers)."""
+
+    number: int
+    url: str
+    state: str  # open | merged | closed
+
+
+class IssueRef(ValueObject):
+    """An issue created on the provider."""
+
+    url: str
+
+
 # --- aggregate ----------------------------------------------------------------
 
 
@@ -126,7 +140,25 @@ class ConnectionRepository(Protocol):
 
 
 class GitProviderConnector(Protocol):
-    """Talks to a provider on behalf of a credential: verifies it and authenticates clone URLs."""
+    """Talks to a provider on behalf of a credential: verifies it, authenticates clone URLs,
+    and (where the provider supports it) manages pull requests and issues."""
 
     def test(self, credential: ProviderCredential) -> TestResult: ...
     def authenticated_url(self, url: str, credential: ProviderCredential) -> str: ...
+    def create_pull_request(
+        self,
+        credential: ProviderCredential,
+        owner: str,
+        name: str,
+        *,
+        head: str,
+        base: str,
+        title: str,
+        body: str,
+    ) -> PullRequestRef: ...
+    def get_pull_request(
+        self, credential: ProviderCredential, owner: str, name: str, number: int
+    ) -> PullRequestRef: ...
+    def create_issue(
+        self, credential: ProviderCredential, owner: str, name: str, *, title: str, body: str
+    ) -> IssueRef: ...

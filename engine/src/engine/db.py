@@ -92,6 +92,22 @@ def claim_next(dsn: str, worker_id: str) -> dict[str, Any] | None:
     return row
 
 
+_PROGRESS_SQL = """
+UPDATE jobs SET progress = %(progress)s::jsonb
+WHERE id = %(id)s AND status = 'running';
+"""
+
+
+def update_progress(dsn: str, job_id: Any, events: list[dict]) -> None:
+    """Overwrite the job's live transcript (compact agent events, capped by the worker).
+    Best-effort: silently skipped when the backend migration hasn't added the column yet."""
+    try:
+        with connect(dsn) as conn:
+            conn.execute(_PROGRESS_SQL, {"id": job_id, "progress": json.dumps(events)})
+    except psycopg.errors.UndefinedColumn:
+        pass
+
+
 def complete(
     dsn: str,
     job_id: Any,

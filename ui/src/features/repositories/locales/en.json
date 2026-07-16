@@ -285,7 +285,8 @@
         "hobits": "Hobits",
         "ask": "Ask",
         "jobs": "Jobs",
-        "principles": "Principles"
+        "principles": "Principles",
+        "roadmaps": "Roadmaps"
       },
       "overview": {
         "title": "Codebase Overview for Humans",

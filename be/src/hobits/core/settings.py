@@ -34,6 +34,10 @@ class Settings(BaseSettings):
     # Served read-only under /api/v1/artifacts.
     artifacts_root: Path = Field(default=Path(".data/artifacts"))
 
+    # Where roadmap-execution worktrees live (`git worktree add` off the main clone), under
+    # <root>/<repo_id>/<branch-slug>/. Disposable: removed as soon as the execution settles.
+    worktree_root: Path = Field(default=Path(".data/worktrees"))
+
     # Optional GitHub token for richer metadata + higher rate limits + private repos.
     github_token: str | None = Field(default=None)
 
@@ -65,6 +69,7 @@ class Settings(BaseSettings):
         self.clone_root.mkdir(parents=True, exist_ok=True)
         self.graph_root.mkdir(parents=True, exist_ok=True)
         self.artifacts_root.mkdir(parents=True, exist_ok=True)
+        self.worktree_root.mkdir(parents=True, exist_ok=True)
 
 
 @lru_cache

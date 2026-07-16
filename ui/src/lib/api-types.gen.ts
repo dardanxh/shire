@@ -1649,6 +1649,386 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/roadmaps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Roadmaps
+         * @description Every roadmap with its scope and current-version progress, newest activity first.
+         */
+        get: operations["list_roadmaps_api_v1_roadmaps_get"];
+        put?: never;
+        /**
+         * Create Roadmap
+         * @description Create a roadmap over the selected repositories and enqueue its first generation
+         *     (non-blocking — poll the detail until the generation settles).
+         */
+        post: operations["create_roadmap_api_v1_roadmaps_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roadmaps/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Config */
+        get: operations["get_config_api_v1_roadmaps_config_get"];
+        /**
+         * Update Config
+         * @description Save execution timeout + drift cadence, and reconcile the Prefect schedule.
+         */
+        put: operations["update_config_api_v1_roadmaps_config_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roadmaps/{roadmap_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Roadmap
+         * @description The full plan: milestones, items, dependencies and assessments. `version` renders a
+         *     historical (read-only) version; omit it for the current one.
+         */
+        get: operations["get_roadmap_api_v1_roadmaps__roadmap_id__get"];
+        /**
+         * Update Roadmap
+         * @description Edit name/goal/repositories — affects the next generated version, never the current.
+         */
+        put: operations["update_roadmap_api_v1_roadmaps__roadmap_id__put"];
+        post?: never;
+        /** Delete Roadmap */
+        delete: operations["delete_roadmap_api_v1_roadmaps__roadmap_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roadmaps/{roadmap_id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Versions
+         * @description Version history, newest first — the detail view's version switcher.
+         */
+        get: operations["list_versions_api_v1_roadmaps__roadmap_id__versions_get"];
+        put?: never;
+        /**
+         * Regenerate Roadmap
+         * @description Re-plan: insert version N+1 and enqueue its generation. Done and in-review items carry
+         *     over when it lands (non-blocking — poll the detail).
+         */
+        post: operations["regenerate_roadmap_api_v1_roadmaps__roadmap_id__versions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roadmaps/{roadmap_id}/items/{item_id}/execute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Execute Item
+         * @description Have the AI implement this item: isolated worktree → branch → push → pull request
+         *     (non-blocking — the item shows the PR once the run settles).
+         */
+        post: operations["execute_item_api_v1_roadmaps__roadmap_id__items__item_id__execute_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roadmaps/{roadmap_id}/executions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Executions
+         * @description Execution history for the current version (or one item), newest first.
+         */
+        get: operations["list_executions_api_v1_roadmaps__roadmap_id__executions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roadmaps/{roadmap_id}/refresh-prs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Refresh Prs
+         * @description Check the provider for merged/closed PRs: merged completes the item, closed bounces it
+         *     back to 'to do'.
+         */
+        post: operations["refresh_prs_api_v1_roadmaps__roadmap_id__refresh_prs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roadmaps/{roadmap_id}/drift": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Drift Status
+         * @description Recent drift checks plus every open finding awaiting an accept/dismiss decision.
+         */
+        get: operations["drift_status_api_v1_roadmaps__roadmap_id__drift_get"];
+        put?: never;
+        /**
+         * Run Drift
+         * @description Check the plan against reality: one read-only engine job per repository with open items
+         *     (non-blocking — poll GET /drift).
+         */
+        post: operations["run_drift_api_v1_roadmaps__roadmap_id__drift_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roadmaps/{roadmap_id}/drift/findings/{finding_id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Accept Drift Finding
+         * @description Apply the verdict: appears_done → done, obsolete → dropped.
+         */
+        post: operations["accept_drift_finding_api_v1_roadmaps__roadmap_id__drift_findings__finding_id__accept_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roadmaps/{roadmap_id}/drift/findings/{finding_id}/dismiss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Dismiss Drift Finding */
+        post: operations["dismiss_drift_finding_api_v1_roadmaps__roadmap_id__drift_findings__finding_id__dismiss_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roadmaps/{roadmap_id}/export/issues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Export Issues
+         * @description Push open items as provider issues (GitHub/GitLab); unexportable items are skipped.
+         */
+        post: operations["export_issues_api_v1_roadmaps__roadmap_id__export_issues_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roadmaps/{roadmap_id}/charts/burnup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Burnup Chart
+         * @description Scope vs completion per day for the current version (from the item event log).
+         */
+        get: operations["burnup_chart_api_v1_roadmaps__roadmap_id__charts_burnup_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roadmaps/{roadmap_id}/charts/radar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Radar Chart
+         * @description Per-repo health assessments of the last two ready versions.
+         */
+        get: operations["radar_chart_api_v1_roadmaps__roadmap_id__charts_radar_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roadmaps/{roadmap_id}/export/markdown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Markdown
+         * @description The current version rendered as a downloadable markdown document.
+         */
+        get: operations["export_markdown_api_v1_roadmaps__roadmap_id__export_markdown_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roadmaps/{roadmap_id}/items/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Item
+         * @description Partial item edit. Status changes are validated against the transition table; status,
+         *     priority and effort changes append history events (the burnup source).
+         */
+        patch: operations["update_item_api_v1_roadmaps__roadmap_id__items__item_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/roadmaps/{roadmap_id}/items/{item_id}/dependencies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Dependency
+         * @description Declare that the item is blocked by another item of the same version (cycles rejected).
+         */
+        post: operations["add_dependency_api_v1_roadmaps__roadmap_id__items__item_id__dependencies_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roadmaps/{roadmap_id}/items/{item_id}/dependencies/{depends_on_item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove Dependency */
+        delete: operations["remove_dependency_api_v1_roadmaps__roadmap_id__items__item_id__dependencies__depends_on_item_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/roadmaps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Repository Roadmaps
+         * @description Every roadmap covering this repository, sliced to its items only — the repository
+         *     detail's Roadmaps tab.
+         */
+        get: operations["repository_roadmaps_api_v1_repositories__repository_id__roadmaps_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -1882,6 +2262,26 @@ export interface components {
             created_at: string;
             /** Read At */
             read_at: string | null;
+        };
+        /** BurnupPoint */
+        BurnupPoint: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Total */
+            total: number;
+            /** Done */
+            done: number;
+        };
+        /**
+         * BurnupResult
+         * @description Scope vs completion over time, aggregated from the item event log.
+         */
+        BurnupResult: {
+            /** Series */
+            series: components["schemas"]["BurnupPoint"][];
         };
         /** CiCdConfig */
         CiCdConfig: {
@@ -2402,6 +2802,14 @@ export interface components {
              */
             enabled: boolean;
         };
+        /** CreateItemDependency */
+        CreateItemDependency: {
+            /**
+             * Depends On Item Id
+             * Format: uuid
+             */
+            depends_on_item_id: string;
+        };
         /** CreateMemberExclusion */
         CreateMemberExclusion: {
             /** Pattern */
@@ -2473,6 +2881,15 @@ export interface components {
              * @default true
              */
             enabled: boolean;
+        };
+        /** CreateRoadmap */
+        CreateRoadmap: {
+            /** Name */
+            name: string;
+            /** Goal */
+            goal?: string | null;
+            /** Repository Ids */
+            repository_ids: string[];
         };
         /** DailyCommitCount */
         DailyCommitCount: {
@@ -2691,6 +3108,39 @@ export interface components {
             /** Maintenance Status */
             maintenance_status?: string | null;
             ratings?: components["schemas"]["Ratings"];
+        };
+        /**
+         * ExportIssuesRequest
+         * @description Optional narrowing; default = every exportable item of the current version.
+         */
+        ExportIssuesRequest: {
+            /** Item Ids */
+            item_ids?: string[] | null;
+            /** Statuses */
+            statuses?: string[] | null;
+        };
+        /** ExportIssuesResult */
+        ExportIssuesResult: {
+            /** Created */
+            created: number;
+            /** Skipped */
+            skipped: number;
+            /** Items */
+            items: components["schemas"]["ExportedIssueResult"][];
+        };
+        /** ExportedIssueResult */
+        ExportedIssueResult: {
+            /**
+             * Item Id
+             * Format: uuid
+             */
+            item_id: string;
+            /** Item Title */
+            item_title: string;
+            /** Issue Url */
+            issue_url: string | null;
+            /** Skipped Reason */
+            skipped_reason: string | null;
         };
         /** FactsResult */
         FactsResult: {
@@ -3036,8 +3486,8 @@ export interface components {
         };
         /**
          * JobDetailResult
-         * @description Detail shape: adds the exact prompt sent to the engine, the raw result, and the
-         *     full token-usage breakdown.
+         * @description Detail shape: adds the exact prompt sent to the engine, the raw result, the live
+         *     agent transcript, and the full token-usage breakdown.
          */
         JobDetailResult: {
             /**
@@ -3081,6 +3531,24 @@ export interface components {
             /** Worker Id */
             worker_id: string | null;
             usage: components["schemas"]["JobUsage"] | null;
+            /** Progress */
+            progress: components["schemas"]["JobProgressEvent"][];
+        };
+        /**
+         * JobProgressEvent
+         * @description One compact entry of the live agent transcript the engine streams while running.
+         */
+        JobProgressEvent: {
+            /** Type */
+            type: string;
+            /** Text */
+            text?: string | null;
+            /** Tool */
+            tool?: string | null;
+            /** Detail */
+            detail?: string | null;
+            /** Error */
+            error?: boolean | null;
         };
         /**
          * JobResult
@@ -3707,6 +4175,19 @@ export interface components {
             /** Total Pages */
             total_pages: number;
         };
+        /** Page[RoadmapResult] */
+        Page_RoadmapResult_: {
+            /** Items */
+            items: components["schemas"]["RoadmapResult"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
+        };
         /**
          * PortfolioHealthResult
          * @description Fleet-wide collaboration health — the headline, framed around resilience not ranking.
@@ -3840,6 +4321,20 @@ export interface components {
             total_tokens: number | null;
         };
         /**
+         * RadarResult
+         * @description The last two ready versions' per-repo assessments, for radar + trend.
+         */
+        RadarResult: {
+            /** Current */
+            current: components["schemas"]["RepoAssessmentResult"][];
+            /** Current Version */
+            current_version: number | null;
+            /** Previous */
+            previous: components["schemas"]["RepoAssessmentResult"][];
+            /** Previous Version */
+            previous_version: number | null;
+        };
+        /**
          * Rating
          * @enum {string}
          */
@@ -3855,6 +4350,32 @@ export interface components {
             security: components["schemas"]["Rating"];
             /** @default NA */
             health: components["schemas"]["Rating"];
+        };
+        /**
+         * RefreshPrsResult
+         * @description Outcome of a provider-side PR sweep: which items changed status.
+         */
+        RefreshPrsResult: {
+            /** Checked */
+            checked: number;
+            /** Updated Item Ids */
+            updated_item_ids: string[];
+        };
+        /**
+         * RepoAssessmentResult
+         * @description One repo's health-radar scores from the generation output.
+         */
+        RepoAssessmentResult: {
+            /** Repo */
+            repo: string | null;
+            /** Repository Id */
+            repository_id: string | null;
+            /** Scores */
+            scores: {
+                [key: string]: number;
+            };
+            /** Summary */
+            summary: string | null;
         };
         /** RepoContextResult */
         RepoContextResult: {
@@ -3878,6 +4399,34 @@ export interface components {
         RepoPrincipleStatusResult: {
             principle: components["schemas"]["PrincipleResult"];
             latest_check: components["schemas"]["PrincipleCheckResult"] | null;
+        };
+        /**
+         * RepoRoadmapSliceResult
+         * @description One roadmap as seen from a single repository: only that repo's items of the current
+         *     version, with repo-scoped progress. The repository detail's `roadmaps` tab.
+         */
+        RepoRoadmapSliceResult: {
+            /**
+             * Roadmap Id
+             * Format: uuid
+             */
+            roadmap_id: string;
+            /** Name */
+            name: string;
+            /** Goal */
+            goal: string | null;
+            /** Status */
+            status: string;
+            /** Version Number */
+            version_number: number | null;
+            /** Generation Status */
+            generation_status: string | null;
+            /** Items Total */
+            items_total: number;
+            /** Items Done */
+            items_done: number;
+            /** Items */
+            items: components["schemas"]["RoadmapItemResult"][];
         };
         /**
          * RepositoryResult
@@ -3946,6 +4495,347 @@ export interface components {
          * @enum {string}
          */
         RiskVerdict: "looks_safe" | "needs_attention" | "high_risk";
+        /** RoadmapConfigResult */
+        RoadmapConfigResult: {
+            /** Execution Timeout Seconds */
+            execution_timeout_seconds: number;
+            /** Drift Cadence */
+            drift_cadence: string;
+            /** Scheduler Enabled */
+            scheduler_enabled: boolean;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * RoadmapDetailResult
+         * @description The detail view: the current ready version's full plan, plus any in-flight generation.
+         *
+         *     `version` is the ready version being rendered (None until the first generation lands).
+         *     `generation` is the newest version when it is still pending or errored — the UI's
+         *     generating/failed banner; None once it settles ready.
+         *     Items are flat (each carries `milestone_id`) — the matrix, timeline and table are all
+         *     client-side regroupings of one list.
+         */
+        RoadmapDetailResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Goal */
+            goal: string | null;
+            /** Status */
+            status: string;
+            /** Repositories */
+            repositories: components["schemas"]["RoadmapRepoRef"][];
+            version: components["schemas"]["RoadmapVersionResult"] | null;
+            generation: components["schemas"]["RoadmapVersionResult"] | null;
+            /** Milestones */
+            milestones: components["schemas"]["RoadmapMilestoneResult"][];
+            /** Items */
+            items: components["schemas"]["RoadmapItemResult"][];
+            /** Assessments */
+            assessments: components["schemas"]["RepoAssessmentResult"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * RoadmapDriftCheckResult
+         * @description One repository's drift run (pending until its engine job settles).
+         */
+        RoadmapDriftCheckResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Version Id
+             * Format: uuid
+             */
+            version_id: string;
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Job Id */
+            job_id: string | null;
+            /** Status */
+            status: string;
+            /** Error */
+            error: string | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /**
+         * RoadmapDriftFindingResult
+         * @description One item's drift verdict, awaiting an accept/dismiss decision.
+         */
+        RoadmapDriftFindingResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Item Id
+             * Format: uuid
+             */
+            item_id: string;
+            /** Item Title */
+            item_title: string;
+            /** Item Status */
+            item_status: string;
+            /** Verdict */
+            verdict: string;
+            /** Evidence */
+            evidence: string | null;
+            /** Status */
+            status: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Decided At */
+            decided_at: string | null;
+        };
+        /**
+         * RoadmapDriftStatusResult
+         * @description The drift tab's poll target: recent checks + every open finding.
+         */
+        RoadmapDriftStatusResult: {
+            /** Checks */
+            checks: components["schemas"]["RoadmapDriftCheckResult"][];
+            /** Findings */
+            findings: components["schemas"]["RoadmapDriftFindingResult"][];
+        };
+        /**
+         * RoadmapExecutionResult
+         * @description One AI implementation run for an item (worktree → branch → push → PR).
+         */
+        RoadmapExecutionResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Item Id
+             * Format: uuid
+             */
+            item_id: string;
+            /** Job Id */
+            job_id: string | null;
+            /** Status */
+            status: string;
+            /** Branch */
+            branch: string;
+            /** Commit Sha */
+            commit_sha: string | null;
+            /** Pr Url */
+            pr_url: string | null;
+            /** Pr Number */
+            pr_number: number | null;
+            /** Pr State */
+            pr_state: string | null;
+            /** Agent Summary */
+            agent_summary: string | null;
+            /** Error */
+            error: string | null;
+            /** Total Cost Usd */
+            total_cost_usd: number | null;
+            /** Input Tokens */
+            input_tokens: number | null;
+            /** Output Tokens */
+            output_tokens: number | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /** RoadmapItemResult */
+        RoadmapItemResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Version Id
+             * Format: uuid
+             */
+            version_id: string;
+            /** Milestone Id */
+            milestone_id: string | null;
+            /** Repository Id */
+            repository_id: string | null;
+            /** Position */
+            position: number;
+            /** Slug */
+            slug: string;
+            /** Title */
+            title: string;
+            /** Description */
+            description: string | null;
+            /** Rationale */
+            rationale: string | null;
+            /** Label */
+            label: string;
+            /** Urgent */
+            urgent: boolean;
+            /** Important */
+            important: boolean;
+            /** Quadrant */
+            quadrant: string;
+            /** Effort */
+            effort: string | null;
+            /** Status */
+            status: string;
+            /** Carried Over */
+            carried_over: boolean;
+            /** Issue Url */
+            issue_url: string | null;
+            /** Depends On */
+            depends_on: string[];
+            execution: components["schemas"]["RoadmapExecutionResult"] | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** RoadmapMilestoneResult */
+        RoadmapMilestoneResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Position */
+            position: number;
+            /** Title */
+            title: string;
+            /** Summary */
+            summary: string | null;
+        };
+        /**
+         * RoadmapRepoRef
+         * @description The repo chip: enough to label and link an item's repository.
+         */
+        RoadmapRepoRef: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Owner */
+            owner: string;
+            /** Name */
+            name: string;
+        };
+        /**
+         * RoadmapResult
+         * @description The list-page row: identity + scope + current-version progress at a glance.
+         */
+        RoadmapResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Goal */
+            goal: string | null;
+            /** Status */
+            status: string;
+            /** Repositories */
+            repositories: components["schemas"]["RoadmapRepoRef"][];
+            /** Version Number */
+            version_number: number | null;
+            /** Generation Status */
+            generation_status: string | null;
+            /** Items Total */
+            items_total: number;
+            /** Items Done */
+            items_done: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** RoadmapVersionResult */
+        RoadmapVersionResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Roadmap Id
+             * Format: uuid
+             */
+            roadmap_id: string;
+            /** Number */
+            number: number;
+            /** Status */
+            status: string;
+            /** Job Id */
+            job_id: string | null;
+            /** Error */
+            error: string | null;
+            /** Item Count */
+            item_count: number;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+        };
         /** SelfScoreResult */
         SelfScoreResult: {
             /** Importance */
@@ -4191,6 +5081,48 @@ export interface components {
              * @default true
              */
             enabled: boolean;
+        };
+        /**
+         * UpdateRoadmap
+         * @description Full edit — affects the *next* generated version, never the current one.
+         */
+        UpdateRoadmap: {
+            /** Name */
+            name: string;
+            /** Goal */
+            goal?: string | null;
+            /** Repository Ids */
+            repository_ids: string[];
+        };
+        /** UpdateRoadmapConfig */
+        UpdateRoadmapConfig: {
+            /** Execution Timeout Seconds */
+            execution_timeout_seconds: number;
+            /** Drift Cadence */
+            drift_cadence: string;
+        };
+        /**
+         * UpdateRoadmapItem
+         * @description Partial edit; only provided fields change. Status changes go through the transition
+         *     table, priority/effort changes append events.
+         */
+        UpdateRoadmapItem: {
+            /** Status */
+            status?: string | null;
+            /** Urgent */
+            urgent?: boolean | null;
+            /** Important */
+            important?: boolean | null;
+            /** Effort */
+            effort?: string | null;
+            /** Milestone Id */
+            milestone_id?: string | null;
+            /** Position */
+            position?: number | null;
+            /** Title */
+            title?: string | null;
+            /** Description */
+            description?: string | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -7388,6 +8320,767 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_roadmaps_api_v1_roadmaps_get: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_RoadmapResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_roadmap_api_v1_roadmaps_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRoadmap"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoadmapDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_config_api_v1_roadmaps_config_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoadmapConfigResult"];
+                };
+            };
+        };
+    };
+    update_config_api_v1_roadmaps_config_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRoadmapConfig"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoadmapConfigResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_roadmap_api_v1_roadmaps__roadmap_id__get: {
+        parameters: {
+            query?: {
+                version?: number | null;
+            };
+            header?: never;
+            path: {
+                roadmap_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoadmapDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_roadmap_api_v1_roadmaps__roadmap_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roadmap_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRoadmap"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoadmapDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_roadmap_api_v1_roadmaps__roadmap_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roadmap_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_versions_api_v1_roadmaps__roadmap_id__versions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roadmap_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoadmapVersionResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    regenerate_roadmap_api_v1_roadmaps__roadmap_id__versions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roadmap_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoadmapVersionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    execute_item_api_v1_roadmaps__roadmap_id__items__item_id__execute_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roadmap_id: string;
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoadmapExecutionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_executions_api_v1_roadmaps__roadmap_id__executions_get: {
+        parameters: {
+            query?: {
+                item_id?: string | null;
+            };
+            header?: never;
+            path: {
+                roadmap_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoadmapExecutionResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    refresh_prs_api_v1_roadmaps__roadmap_id__refresh_prs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roadmap_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefreshPrsResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    drift_status_api_v1_roadmaps__roadmap_id__drift_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roadmap_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoadmapDriftStatusResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_drift_api_v1_roadmaps__roadmap_id__drift_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roadmap_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoadmapDriftCheckResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    accept_drift_finding_api_v1_roadmaps__roadmap_id__drift_findings__finding_id__accept_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roadmap_id: string;
+                finding_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoadmapItemResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dismiss_drift_finding_api_v1_roadmaps__roadmap_id__drift_findings__finding_id__dismiss_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roadmap_id: string;
+                finding_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_issues_api_v1_roadmaps__roadmap_id__export_issues_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roadmap_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExportIssuesRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportIssuesResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    burnup_chart_api_v1_roadmaps__roadmap_id__charts_burnup_get: {
+        parameters: {
+            query?: {
+                days?: number;
+            };
+            header?: never;
+            path: {
+                roadmap_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BurnupResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    radar_chart_api_v1_roadmaps__roadmap_id__charts_radar_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roadmap_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RadarResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_markdown_api_v1_roadmaps__roadmap_id__export_markdown_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roadmap_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_item_api_v1_roadmaps__roadmap_id__items__item_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roadmap_id: string;
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRoadmapItem"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoadmapItemResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_dependency_api_v1_roadmaps__roadmap_id__items__item_id__dependencies_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roadmap_id: string;
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateItemDependency"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoadmapItemResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_dependency_api_v1_roadmaps__roadmap_id__items__item_id__dependencies__depends_on_item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roadmap_id: string;
+                item_id: string;
+                depends_on_item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    repository_roadmaps_api_v1_repositories__repository_id__roadmaps_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepoRoadmapSliceResult"][];
+                };
             };
             /** @description Validation Error */
             422: {

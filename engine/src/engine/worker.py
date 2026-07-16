@@ -28,6 +28,10 @@ logger = logging.getLogger(__name__)
 # this; scaling beyond it means starting more engine instances.
 _MAX_CONCURRENCY = 16
 
+# Live-transcript bounds: keep the newest N events, flush to the DB at most once a second.
+_PROGRESS_MAX_EVENTS = 400
+_PROGRESS_FLUSH_SECONDS = 1.0
+
 
 def build_request(job: dict[str, Any]) -> EngineRequest:
     payload = job["payload"] or {}
@@ -52,7 +56,28 @@ def _execute(settings: EngineSettings, engine: Engine, job: dict[str, Any]) -> N
             request.model or "default",
             request.timeout_seconds,
         )
-        result = engine.run(request)
+        events: list[dict] = []
+        last_flush = 0.0
+
+        def on_event(event: dict) -> None:
+            nonlocal last_flush
+            events.append(event)
+            if len(events) > _PROGRESS_MAX_EVENTS:
+                events[:] = events[-_PROGRESS_MAX_EVENTS:]
+            now = time.monotonic()
+            if now - last_flush >= _PROGRESS_FLUSH_SECONDS:
+                last_flush = now
+                try:
+                    db.update_progress(settings.database_url, job_id, events)
+                except Exception:
+                    logger.debug("Progress flush failed for job %s", job_id, exc_info=True)
+
+        result = engine.run(request, on_event=on_event)
+        if events:
+            try:
+                db.update_progress(settings.database_url, job_id, events)
+            except Exception:
+                logger.debug("Final progress flush failed for job %s", job_id, exc_info=True)
         db.complete(
             settings.database_url,
             job_id,

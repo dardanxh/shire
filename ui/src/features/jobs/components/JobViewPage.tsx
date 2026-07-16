@@ -3,17 +3,21 @@ import {
   ArrowLeftIcon,
   ChevronDownIcon,
   ChevronRightIcon,
+  Loader2Icon,
   RotateCcwIcon,
+  WrenchIcon,
   XIcon,
 } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { JobDetailOut } from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import { useCancelJobMutation, useJobQuery, useRetryJobMutation } from "../api";
 import { JobStatusBadge } from "./JobStatusBadge";
 import { formatTokens } from "./JobsListPage";
@@ -185,6 +189,10 @@ export function JobViewPage({ id }: { id: string }) {
         </Card>
       ) : null}
 
+      {job.progress.length > 0 || job.status === "running" ? (
+        <ActivityFeed job={job} />
+      ) : null}
+
       <CollapsibleBlock
         title={t("jobs.view.prompt")}
         content={job.prompt}
@@ -197,6 +205,90 @@ export function JobViewPage({ id }: { id: string }) {
         defaultOpen
       />
     </div>
+  );
+}
+
+/**
+ * The live agent transcript the engine streams while the job runs: assistant
+ * messages as prose, tool calls as compact mono rows, tool results muted. The
+ * detail query already polls while the job is unsettled, so new entries appear
+ * on their own; the feed keeps itself scrolled to the newest entry while live.
+ */
+function ActivityFeed({ job }: { job: JobDetailOut }) {
+  const { t } = useTranslation();
+  const running = job.status === "running";
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  // Side effect: pin the feed to the newest entry as long as the run is live.
+  const eventCount = job.progress.length;
+  useEffect(() => {
+    if (running && eventCount > 0 && scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [running, eventCount]);
+
+  return (
+    <Card className="gap-0 p-0">
+      <div className="flex items-center gap-2 px-5 py-3.5">
+        <h2 className="text-sm font-semibold">{t("jobs.view.activity")}</h2>
+        {running ? (
+          <Loader2Icon className="size-3.5 animate-spin text-primary" />
+        ) : null}
+        <span className="ml-auto text-xs text-muted-foreground">
+          {t("jobs.view.activity_count", { count: job.progress.length })}
+        </span>
+      </div>
+      <div
+        ref={scrollRef}
+        className="max-h-[28rem] space-y-2 overflow-y-auto border-t border-border px-5 py-4"
+      >
+        {job.progress.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            {t("jobs.view.activity_waiting")}
+          </p>
+        ) : null}
+        {job.progress.map((event, index) => {
+          const key = `${index}-${event.type}`;
+          if (event.type === "text") {
+            return (
+              <p
+                key={key}
+                className="whitespace-pre-wrap rounded-md bg-muted/50 px-3 py-2 text-sm leading-relaxed"
+              >
+                {event.text}
+              </p>
+            );
+          }
+          if (event.type === "tool") {
+            return (
+              <p
+                key={key}
+                className="flex items-center gap-2 px-1 font-mono text-xs text-muted-foreground"
+              >
+                <WrenchIcon className="size-3 shrink-0" />
+                <span className="font-semibold text-foreground/80">
+                  {event.tool}
+                </span>
+                <span className="truncate">{event.detail}</span>
+              </p>
+            );
+          }
+          return (
+            <p
+              key={key}
+              className={cn(
+                "truncate px-6 font-mono text-xs",
+                event.error
+                  ? "text-red-600/80 dark:text-red-400/80"
+                  : "text-muted-foreground/70",
+              )}
+            >
+              ↳ {event.detail}
+            </p>
+          );
+        })}
+      </div>
+    </Card>
   );
 }
 

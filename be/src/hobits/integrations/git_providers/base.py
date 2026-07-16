@@ -12,9 +12,19 @@ from urllib.parse import quote
 
 import httpx
 
-from hobits.domain.connections.domain import AuthMethod, ProviderCredential, TestResult
+from hobits.domain.connections.domain import (
+    AuthMethod,
+    IssueRef,
+    ProviderCredential,
+    PullRequestRef,
+    TestResult,
+)
 
 _TIMEOUT = 10.0
+
+
+class ProviderApiError(Exception):
+    """A provider REST call failed (network error or non-2xx response)."""
 
 
 def _error_message(resp: httpx.Response) -> str:
@@ -69,6 +79,54 @@ class BaseConnector:
         except ValueError:
             pass
         return TestResult(ok=True, message="Authenticated successfully.", account=account)
+
+    # --- pull requests / issues (overridden per provider; base = unsupported) -----------
+    def create_pull_request(
+        self,
+        credential: ProviderCredential,
+        owner: str,
+        name: str,
+        *,
+        head: str,
+        base: str,
+        title: str,
+        body: str,
+    ) -> PullRequestRef:
+        raise ProviderApiError(f"{self.name} does not support pull request creation.")
+
+    def get_pull_request(
+        self, credential: ProviderCredential, owner: str, name: str, number: int
+    ) -> PullRequestRef:
+        raise ProviderApiError(f"{self.name} does not support pull request lookup.")
+
+    def create_issue(
+        self, credential: ProviderCredential, owner: str, name: str, *, title: str, body: str
+    ) -> IssueRef:
+        raise ProviderApiError(f"{self.name} does not support issue creation.")
+
+    def _request(
+        self,
+        credential: ProviderCredential,
+        method: str,
+        url: str,
+        json: dict | None = None,
+    ) -> dict:
+        """One provider REST call with the credential's auth; raises ProviderApiError on failure."""
+        try:
+            resp = httpx.request(
+                method, url, json=json, timeout=_TIMEOUT, **self._auth_kwargs(credential)
+            )  # type: ignore[arg-type]
+        except httpx.HTTPError as exc:
+            raise ProviderApiError(f"Could not reach {self.name}: {exc}") from exc
+        if resp.status_code >= 400:
+            raise ProviderApiError(f"{self.name} API error — {_error_message(resp)}")
+        try:
+            data = resp.json()
+        except ValueError as exc:
+            raise ProviderApiError(f"{self.name} returned a non-JSON response.") from exc
+        if not isinstance(data, dict):
+            raise ProviderApiError(f"{self.name} returned an unexpected response shape.")
+        return data
 
     def authenticated_url(self, url: str, credential: ProviderCredential) -> str:
         if not (url.startswith("http://") or url.startswith("https://")):

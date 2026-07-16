@@ -19,6 +19,9 @@ FLOW_NAME = "run-hobit"
 # The global news-poll flow/deployment (one deployment total, not one per topic).
 NEWS_FLOW_NAME = "news-poll"
 
+# The global roadmap-drift flow/deployment (one deployment total, ticks every active roadmap).
+ROADMAP_DRIFT_FLOW_NAME = "roadmap-drift"
+
 
 @flow(name=FLOW_NAME, retries=1, retry_delay_seconds=30)
 def run_hobit_flow(repository_id: str, hobit_slug: str, force: bool = False) -> dict:
@@ -60,3 +63,33 @@ def run_news_poll_flow() -> dict:
         polls = NewsService(session).poll_all(trigger="scheduled")
     logger.info("news poll → %d topic job(s) enqueued", len(polls))
     return {"topics_enqueued": len(polls)}
+
+
+@flow(name=ROADMAP_DRIFT_FLOW_NAME, retries=1, retry_delay_seconds=30)
+def run_roadmap_drift_flow() -> dict:
+    """One scheduled drift tick: for every active roadmap with a ready plan, sweep PRs and
+    enqueue drift jobs for repositories with open items (roadmaps with runs already in flight,
+    or with nothing open, are skipped). The engine does the inspection — this returns fast."""
+    from sqlalchemy import select
+
+    from hobits.core.db import unit_of_work
+    from hobits.core.exceptions import ConflictError
+    from hobits.domain.roadmap.models import RoadmapRow
+    from hobits.domain.roadmap.services import RoadmapService
+
+    logger = get_run_logger()
+    enqueued = 0
+    with unit_of_work() as session:
+        service = RoadmapService(session)
+        roadmaps = session.scalars(
+            select(RoadmapRow).where(
+                RoadmapRow.status == "active", RoadmapRow.current_version_id.is_not(None)
+            )
+        ).all()
+        for roadmap in roadmaps:
+            try:
+                enqueued += len(service.run_drift(roadmap.id))
+            except ConflictError:
+                continue  # nothing open, or a check already in flight — both fine
+    logger.info("roadmap drift → %d check job(s) enqueued", enqueued)
+    return {"checks_enqueued": enqueued}

@@ -7,6 +7,7 @@ new `Engine` implementation — the queue, the worker loop, and the backend neve
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Protocol
 
 from pydantic import BaseModel
@@ -35,4 +36,12 @@ class EngineResult(BaseModel):
 class Engine(Protocol):
     def available(self) -> bool: ...
 
-    def run(self, request: EngineRequest) -> EngineResult: ...
+    def run(
+        self,
+        request: EngineRequest,
+        on_event: Callable[[dict], None] | None = None,
+    ) -> EngineResult:
+        """Execute the request. `on_event` (optional) receives compact transcript events as
+        the agent works — {"type": "text"|"tool"|"tool_result", ...} — for live progress UIs.
+        Implementations without streaming may simply never call it."""
+        ...

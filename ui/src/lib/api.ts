@@ -81,6 +81,63 @@ export type NewsConfigOut = components["schemas"]["NewsConfigResult"];
 export type NewsTopicIn = components["schemas"]["CreateNewsTopic"];
 export type NewsSourceIn = components["schemas"]["CreateNewsSource"];
 export type UpdateNewsConfigIn = components["schemas"]["UpdateNewsConfig"];
+export type RoadmapOut = components["schemas"]["RoadmapResult"];
+export type RoadmapsPage = components["schemas"]["Page_RoadmapResult_"];
+export type RoadmapDetailOut = components["schemas"]["RoadmapDetailResult"];
+export type RoadmapItemOut = components["schemas"]["RoadmapItemResult"];
+export type RoadmapMilestoneOut =
+  components["schemas"]["RoadmapMilestoneResult"];
+export type RoadmapVersionOut = components["schemas"]["RoadmapVersionResult"];
+export type RoadmapRepoRefOut = components["schemas"]["RoadmapRepoRef"];
+export type RepoAssessmentOut = components["schemas"]["RepoAssessmentResult"];
+export type RoadmapIn = components["schemas"]["CreateRoadmap"];
+export type UpdateRoadmapItemIn = components["schemas"]["UpdateRoadmapItem"];
+export type RoadmapBurnupOut = components["schemas"]["BurnupResult"];
+export type RoadmapRadarOut = components["schemas"]["RadarResult"];
+export type RoadmapExecutionOut =
+  components["schemas"]["RoadmapExecutionResult"];
+export type RefreshPrsOut = components["schemas"]["RefreshPrsResult"];
+export type RoadmapDriftStatusOut =
+  components["schemas"]["RoadmapDriftStatusResult"];
+export type RoadmapDriftCheckOut =
+  components["schemas"]["RoadmapDriftCheckResult"];
+export type RoadmapDriftFindingOut =
+  components["schemas"]["RoadmapDriftFindingResult"];
+export type ExportIssuesOut = components["schemas"]["ExportIssuesResult"];
+export type RepoRoadmapSliceOut =
+  components["schemas"]["RepoRoadmapSliceResult"];
+
+/** Roadmap item labels (backend types the column as a bare string). */
+export const ROADMAP_ITEM_LABELS = [
+  "improvement",
+  "fix",
+  "refactor",
+  "feature",
+  "security",
+  "deprecation",
+  "lib_upgrade",
+  "docs",
+  "testing",
+  "performance",
+] as const;
+export type RoadmapItemLabel = (typeof ROADMAP_ITEM_LABELS)[number];
+
+/** Roadmap item lifecycle statuses (backend types the column as a bare string). */
+export const ROADMAP_ITEM_STATUSES = ["todo", "in_progress", "done"] as const;
+export type RoadmapItemStatus = (typeof ROADMAP_ITEM_STATUSES)[number];
+
+/** Effort sizes for roadmap items. */
+export const ROADMAP_EFFORTS = ["S", "M", "L", "XL"] as const;
+export type RoadmapEffort = (typeof ROADMAP_EFFORTS)[number];
+
+/** Eisenhower quadrants, derived server-side from `urgent` × `important`. */
+export const ROADMAP_QUADRANTS = [
+  "do_first",
+  "schedule",
+  "delegate",
+  "later",
+] as const;
+export type RoadmapQuadrant = (typeof ROADMAP_QUADRANTS)[number];
 
 /** Principle severities (backend types the column as a bare string). */
 export const PRINCIPLE_SEVERITIES = ["info", "warning", "critical"] as const;

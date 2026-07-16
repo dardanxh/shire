@@ -12,6 +12,7 @@ import {
   GitPullRequestIcon,
   KeyRoundIcon,
   ListChecksIcon,
+  MapIcon,
   MessageCircleQuestionIcon,
   NetworkIcon,
   PackageIcon,
@@ -37,6 +38,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RepoJobsPanel } from "@/features/jobs";
 import { RepoMergeReviewsPanel } from "@/features/merge-reviews";
 import { RepoPrinciplesPanel } from "@/features/principles";
+import { RepoRoadmapsPanel } from "@/features/roadmaps";
 import { extractErrorMessage } from "@/lib/api";
 import {
   formatAge,
@@ -209,6 +211,10 @@ export function RepositoryViewPage({
                 <ScaleIcon />
                 {t("repositories.view.tabs.principles")}
               </TabsTrigger>
+              <TabsTrigger value="roadmaps">
+                <MapIcon />
+                {t("repositories.view.tabs.roadmaps")}
+              </TabsTrigger>
               <TabsTrigger value="jobs">
                 <ListChecksIcon />
                 {t("repositories.view.tabs.jobs")}
@@ -221,6 +227,10 @@ export function RepositoryViewPage({
 
             <TabsContent value="principles">
               <RepoPrinciplesPanel repositoryId={repo.id} />
+            </TabsContent>
+
+            <TabsContent value="roadmaps">
+              <RepoRoadmapsPanel repositoryId={repo.id} />
             </TabsContent>
 
             <TabsContent value="jobs">
