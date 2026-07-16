@@ -19,7 +19,7 @@ class EngineSettings(BaseSettings):
     )
 
     # Plain psycopg DSN (no SQLAlchemy +psycopg driver suffix).
-    database_url: str = Field(default="postgresql://hobits:hobits@localhost:5433/hobits")
+    database_url: str = Field(default="postgresql://shire:shire@localhost:5433/shire")
 
     claude_binary: str = Field(default="claude")
 

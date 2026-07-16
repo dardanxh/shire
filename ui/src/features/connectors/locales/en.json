@@ -1,7 +1,7 @@
 {
   "connectors": {
     "title": "Connectors",
-    "subtitle": "Connect Hobits to your git providers to analyze private repositories.",
+    "subtitle": "Connect Shire to your git providers to analyze private repositories.",
     "provider": {
       "github": "GitHub",
       "gitlab": "GitLab",

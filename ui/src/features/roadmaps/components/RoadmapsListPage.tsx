@@ -109,15 +109,7 @@ export function RoadmapsListPage({
 
   return (
     <div className="space-y-4 p-6">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">
-            {t("roadmaps.list.title")}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {t("roadmaps.list.subtitle")}
-          </p>
-        </div>
+      <div className="flex items-center justify-end gap-3">
         <Link to="/roadmaps/new" className={cn(buttonVariants())}>
           <PlusIcon className="size-4" />
           {t("roadmaps.list.new")}

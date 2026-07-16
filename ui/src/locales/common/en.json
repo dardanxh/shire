@@ -1,11 +1,10 @@
 {
   "common": {
     "app": {
-      "name": "Hobits",
-      "tagline": "repository insights"
+      "name": "Shire",
+      "tagline": "your repositories, tended"
     },
     "nav": {
-      "modules": "Modules",
       "repositories": "Repositories",
       "hobits": "Hobits",
       "news": "News",
@@ -15,7 +14,9 @@
       "members": "Members",
       "merge_reviews": "Merge Requests",
       "jobs": "Jobs",
-      "principles": "Principles"
+      "principles": "Principles",
+      "expand": "Expand sidebar",
+      "collapse": "Collapse sidebar"
     },
     "actions": {
       "add": "Add",

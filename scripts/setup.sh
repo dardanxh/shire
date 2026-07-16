@@ -22,7 +22,7 @@ echo "==> [3/5] Database (Docker Postgres + pgvector)"
 ( cd be && docker compose up -d )
 echo "    waiting for Postgres to be healthy..."
 for _ in $(seq 1 30); do
-  status="$(docker inspect -f '{{.State.Health.Status}}' hobits-db 2>/dev/null || echo starting)"
+  status="$(docker inspect -f '{{.State.Health.Status}}' shire-db 2>/dev/null || echo starting)"
   [ "$status" = "healthy" ] && break
   sleep 2
 done

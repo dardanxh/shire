@@ -9,8 +9,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT/be"
 
-POOL="${HOBITS_PREFECT_WORK_POOL:-hobits-pool}"
-export PREFECT_API_URL="${HOBITS_PREFECT_API_URL:-http://127.0.0.1:4200/api}"
+POOL="${SHIRE_PREFECT_WORK_POOL:-shire-pool}"
+export PREFECT_API_URL="${SHIRE_PREFECT_API_URL:-http://127.0.0.1:4200/api}"
 
 echo "==> Prefect server (UI + API) on ${PREFECT_API_URL%/api}"
 uv run prefect server start &
@@ -25,5 +25,5 @@ uv run prefect work-pool create "$POOL" --type process 2>/dev/null \
   || echo "    (work pool already exists)"
 
 echo "==> Worker polling '${POOL}'  (Ctrl+C to stop the worker + server)"
-echo "    Reminder: start the API with HOBITS_SCHEDULER_ENABLED=true so it registers schedules."
+echo "    Reminder: start the API with SHIRE_SCHEDULER_ENABLED=true so it registers schedules."
 uv run prefect worker start --pool "$POOL"

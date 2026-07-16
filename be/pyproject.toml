@@ -1,7 +1,7 @@
 [project]
-name = "hobits-be"
+name = "shire-be"
 version = "0.1.0"
-description = "Hobits backend — repo-intelligence substrate"
+description = "Shire backend — repo-intelligence substrate"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -37,7 +37,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/hobits"]
+packages = ["src/shire"]
 
 [tool.ruff]
 line-length = 100

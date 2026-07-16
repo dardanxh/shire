@@ -1,17 +1,18 @@
 services:
   db:
     image: pgvector/pgvector:pg17
-    container_name: hobits-db
+    container_name: shire-db
     environment:
-      POSTGRES_USER: hobits
-      POSTGRES_PASSWORD: hobits
-      POSTGRES_DB: hobits
+      POSTGRES_USER: shire
+      POSTGRES_PASSWORD: shire
+      POSTGRES_DB: shire
     ports:
       - "5433:5432"
     volumes:
+      # named volume kept as hobits_pgdata: renaming it would orphan existing local data
       - hobits_pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U hobits -d hobits"]
+      test: ["CMD-SHELL", "pg_isready -U shire -d shire"]
       interval: 5s
       timeout: 5s
       retries: 10

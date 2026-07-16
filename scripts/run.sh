@@ -10,7 +10,7 @@ echo "==> Database"
 ( cd be && docker compose up -d && uv run alembic upgrade head )
 
 echo "==> Backend API on http://localhost:8000  (docs: /docs, tools: /tools)"
-( cd be && uv run uvicorn hobits.main:app --port 8000 ) &
+( cd be && uv run uvicorn shire.main:app --port 8000 ) &
 BACKEND_PID=$!
 
 echo "==> Engine worker (claims jobs from Postgres; start more instances to scale out)"

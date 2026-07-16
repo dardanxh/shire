@@ -14,7 +14,7 @@
     "ingest": {
       "trigger": "Add repository",
       "title": "Add a repository",
-      "description": "Paste a git URL, or an absolute path to a local repo. Hobits analyzes it — this can take a few seconds.",
+      "description": "Paste a git URL, or an absolute path to a local repo. Shire analyzes it — this can take a few seconds.",
       "placeholder": "https://github.com/owner/repo  ·  or  /Users/me/code/repo",
       "submit": "Add & analyze",
       "submitting": "Analyzing…",

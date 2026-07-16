@@ -1,7 +1,7 @@
 [project]
-name = "hobits-engine"
+name = "shire-engine"
 version = "0.1.0"
-description = "Hobits engine service — claims jobs from Postgres and runs them through an LLM engine"
+description = "Shire engine service — claims jobs from Postgres and runs them through an LLM engine"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

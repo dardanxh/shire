@@ -6,14 +6,19 @@ import {
   ListChecksIcon,
   type LucideIcon,
   MapIcon,
+  PanelLeftCloseIcon,
+  PanelLeftOpenIcon,
   PlugIcon,
   ScaleIcon,
   UsersIcon,
   WrenchIcon,
 } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
+
+const COLLAPSED_KEY = "shire.sidebar.collapsed";
 
 type NavItem = {
   to: string;
@@ -88,30 +93,38 @@ const ITEMS: NavItem[] = [
 export function Sidebar() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
+  // Collapse preference persists across sessions; the setter owns the write so
+  // no effect is needed to keep localStorage in sync.
+  const [collapsed, setCollapsed] = useState(
+    () => localStorage.getItem(COLLAPSED_KEY) === "1",
+  );
+  const toggle = () =>
+    setCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem(COLLAPSED_KEY, next ? "1" : "0");
+      return next;
+    });
 
   return (
-    <aside className="sticky top-0 flex h-dvh w-60 shrink-0 flex-col border-r border-border bg-background">
+    <aside
+      className={cn(
+        "sticky top-0 flex h-dvh shrink-0 flex-col border-r border-border bg-background transition-[width] duration-200",
+        collapsed ? "w-16" : "w-60",
+      )}
+    >
       <Link
         to="/"
         search={{ view: "repositories", page: 1, size: 20 }}
-        className="flex items-center gap-2 px-5 py-5"
+        className={cn(
+          "flex items-center gap-2 py-5",
+          collapsed ? "justify-center px-0" : "px-5",
+        )}
         aria-label={`${t("common.app.name")} home`}
       >
-        <span
-          className="grid size-7 place-items-center rounded-md bg-primary text-sm font-bold text-primary-foreground"
-          aria-hidden
-        >
-          H
-        </span>
-        <span className="text-lg font-semibold tracking-tight">
-          {t("common.app.name")}
-        </span>
+        <img src="/logo.svg" alt="" aria-hidden className="size-9 rounded-md" />
       </Link>
 
-      <nav className="flex flex-col gap-1 px-3">
-        <p className="px-2 pb-1 pt-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {t("common.nav.modules")}
-        </p>
+      <nav className="flex flex-col gap-1 px-3 pt-2">
         {ITEMS.map((item) => {
           const active = item.match(pathname);
           const Icon = item.icon;
@@ -120,23 +133,49 @@ export function Sidebar() {
               key={item.to}
               to={item.to}
               aria-current={active ? "page" : undefined}
+              title={collapsed ? t(item.labelKey) : undefined}
               className={cn(
-                "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-2.5 rounded-md py-2 text-sm font-medium transition-colors",
+                collapsed ? "justify-center px-0" : "px-2.5",
                 active
                   ? "bg-muted text-foreground"
                   : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
               )}
             >
               <Icon className="size-4 shrink-0" />
-              {t(item.labelKey)}
+              {collapsed ? null : t(item.labelKey)}
             </Link>
           );
         })}
       </nav>
 
-      <p className="mt-auto px-5 py-4 text-xs text-muted-foreground">
-        {t("common.app.tagline")}
-      </p>
+      <div
+        className={cn(
+          "mt-auto flex items-center gap-2 py-3",
+          collapsed ? "justify-center px-0" : "px-4",
+        )}
+      >
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={
+            collapsed ? t("common.nav.expand") : t("common.nav.collapse")
+          }
+          title={collapsed ? t("common.nav.expand") : t("common.nav.collapse")}
+          className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+        >
+          {collapsed ? (
+            <PanelLeftOpenIcon className="size-4" />
+          ) : (
+            <PanelLeftCloseIcon className="size-4" />
+          )}
+        </button>
+        {collapsed ? null : (
+          <p className="truncate text-xs text-muted-foreground">
+            {t("common.app.tagline")}
+          </p>
+        )}
+      </div>
     </aside>
   );
 }

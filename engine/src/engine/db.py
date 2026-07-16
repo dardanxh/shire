@@ -17,8 +17,8 @@ from psycopg.rows import dict_row
 
 logger = logging.getLogger(__name__)
 
-JOBS_NEW_CHANNEL = "hobits_jobs_new"
-JOBS_DONE_CHANNEL = "hobits_jobs_done"
+JOBS_NEW_CHANNEL = "shire_jobs_new"
+JOBS_DONE_CHANNEL = "shire_jobs_done"
 
 _CLAIM_SQL = """
 WITH next_job AS (
