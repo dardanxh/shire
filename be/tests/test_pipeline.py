@@ -7,10 +7,10 @@ from pathlib import Path
 
 import pytest
 
-from hobits.domain.repository.domain import GitProvider, RepoUrl
-from hobits.integrations.git_clone import GitCloneService
-from hobits.integrations.git_history import build_scan_context
-from hobits.integrations.scanners import default_scanners
+from shire.domain.repository.domain import GitProvider, RepoUrl
+from shire.integrations.git_clone import GitCloneService
+from shire.integrations.git_history import build_scan_context
+from shire.integrations.scanners import default_scanners
 
 
 def _git(cwd: Path, *args: str) -> None:
@@ -141,7 +141,7 @@ def test_author_identity_merges_split_git_identities() -> None:
     Top Contributors / bus factor count people, not git identities."""
     from types import SimpleNamespace
 
-    from hobits.integrations.scanners.git import _author_key_resolver
+    from shire.integrations.scanners.git import _author_key_resolver
 
     commits = [
         SimpleNamespace(author_name="Khalil Sharkawi", author_email="khalil@work.com"),
@@ -160,7 +160,7 @@ def test_author_identity_merges_split_git_identities() -> None:
 def test_clone_checkout_branch(sample_repo: Path, tmp_path: Path) -> None:
     """Cloning with `branch` checks that branch out (remote-tracking preferred) and reports it
     as the outcome's active_branch — the lever the branch switcher relies on."""
-    from hobits.domain.repository.domain import RepoCoordinates
+    from shire.domain.repository.domain import RepoCoordinates
 
     _git(sample_repo, "checkout", "-q", "-b", "feature-x")
     (sample_repo / "feature.txt").write_text("hello\n")
@@ -181,7 +181,7 @@ def test_clone_checkout_branch(sample_repo: Path, tmp_path: Path) -> None:
 
 def test_local_clone_never_checks_out_without_branch(sample_repo: Path, tmp_path: Path) -> None:
     """Refresh/ingest on a local-provider repo must adopt the user's checkout, never move it."""
-    from hobits.domain.repository.domain import RepoCoordinates
+    from shire.domain.repository.domain import RepoCoordinates
 
     _git(sample_repo, "checkout", "-q", "-b", "wip")
     svc = GitCloneService(tmp_path / "clones")
@@ -194,8 +194,8 @@ def test_local_clone_never_checks_out_without_branch(sample_repo: Path, tmp_path
 
 def test_local_switch_dirty_tree_raises(sample_repo: Path, tmp_path: Path) -> None:
     """Switching a local repo's branch with uncommitted changes must refuse, not clobber."""
-    from hobits.domain.repository.domain import RepoCoordinates
-    from hobits.integrations.git_clone import DirtyWorkingTreeError
+    from shire.domain.repository.domain import RepoCoordinates
+    from shire.integrations.git_clone import DirtyWorkingTreeError
 
     _git(sample_repo, "branch", "-q", "b2")
     (sample_repo / "app.py").write_text("# uncommitted edit\n")

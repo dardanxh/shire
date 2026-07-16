@@ -137,7 +137,7 @@ class SqlNewsItemRepository:
             .where(NewsItemRow.read_at.is_(None))
             .group_by(NewsItemRow.topic_id)
         )
-        return {topic_id: count for topic_id, count in self._session.execute(stmt)}
+        return dict(self._session.execute(stmt).tuples())
 
     def mark_all_read(self, topic_id: uuid.UUID | None) -> None:
         stmt = (

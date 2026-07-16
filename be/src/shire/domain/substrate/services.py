@@ -679,12 +679,14 @@ def _mtime(path: Path) -> datetime:
 
 
 def _new_agent() -> ClaudeAgent:
-    """A ClaudeAgent configured from settings (read-only tools, Max subscription, no API key)."""
+    """A ClaudeAgent configured from settings (read-only tools; subscription auth unless
+    SHIRE_USE_API_KEY opts into API-key auth)."""
     settings = get_settings()
     return ClaudeAgent(
         binary=settings.claude_binary,
         model=settings.claude_model,
         timeout_seconds=settings.claude_timeout_seconds,
+        use_api_key=settings.use_api_key,
     )
 
 

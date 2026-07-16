@@ -12,7 +12,9 @@ Design notes:
 - **Read-only by construction.** We pass an allow-list of read tools and leave permission mode at
   `default`; in `--print` mode any non-allowed tool (Write/Edit/Bash) is auto-denied (it can't
   prompt), so a run can't mutate the clone.
-- **Subscription auth.** We don't touch `ANTHROPIC_API_KEY`; the CLI uses the logged-in session.
+- **Auth.** By default `ANTHROPIC_API_KEY` is stripped from run envs so the CLI uses the
+  logged-in session; constructing with `use_api_key=True` (env `SHIRE_USE_API_KEY`) passes the
+  key through for paid API-key auth. `CLAUDE_CODE_OAUTH_TOKEN` always passes through.
 """
 
 from __future__ import annotations
@@ -51,15 +53,21 @@ class ClaudeAgent:
         allowed_tools: tuple[str, ...] = DEFAULT_ALLOWED_TOOLS,
         mcp_config: str | None = None,
         timeout_seconds: float = 180.0,
+        use_api_key: bool = False,
     ) -> None:
         self._binary = binary
         self._model = model
         self._allowed_tools = allowed_tools
         self._mcp_config = mcp_config  # inline JSON string; omitted for the first hobit
         self._timeout_seconds = timeout_seconds
+        self._use_api_key = use_api_key
 
     def available(self) -> bool:
         """True when the CLI is installed and answers `--version` quickly."""
+        return self.version() is not None
+
+    def version(self) -> str | None:
+        """The CLI's version line (e.g. "2.1.0 (Claude Code)"), or None when not installed."""
         try:
             proc = subprocess.run(
                 [self._binary, "--version"],
@@ -68,8 +76,10 @@ class ClaudeAgent:
                 timeout=5,
             )
         except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
-            return False
-        return proc.returncode == 0
+            return None
+        if proc.returncode != 0:
+            return None
+        return (proc.stdout or "").strip().splitlines()[0] if proc.stdout.strip() else ""
 
     def run(self, prompt: str, *, system: str | None = None, cwd: str | Path) -> AgentRun:
         """Invoke `claude -p` in `cwd`. Returns an AgentRun; never raises for expected failures."""
@@ -82,7 +92,7 @@ class ClaudeAgent:
                 capture_output=True,
                 text=True,
                 timeout=self._timeout_seconds,
-                env=_subscription_env(),
+                env=_claude_env(use_api_key=self._use_api_key),
             )
         except subprocess.TimeoutExpired:
             return AgentRun(
@@ -141,9 +151,11 @@ class ClaudeAgent:
         return argv
 
 
-def _subscription_env() -> dict[str, str]:
-    """Env for the run with `ANTHROPIC_API_KEY` stripped, so the CLI uses the logged-in Max
-    session ($0) rather than silently switching to paid API-key auth."""
+def _claude_env(*, use_api_key: bool) -> dict[str, str]:
+    """Env for the run. Unless API-key auth is opted into, `ANTHROPIC_API_KEY` is stripped so
+    the CLI uses the logged-in session rather than silently switching to paid API-key auth."""
+    if use_api_key:
+        return dict(os.environ)
     return {k: v for k, v in os.environ.items() if k != "ANTHROPIC_API_KEY"}
 
 

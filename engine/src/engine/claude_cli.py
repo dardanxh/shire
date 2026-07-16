@@ -10,8 +10,10 @@ Design notes:
   auto-denies any tool outside `allowed_tools` (it can't prompt). Most kinds run read-only
   (Read/Grep/Glob); `roadmap.execute` grants Edit/Write inside a disposable git worktree —
   never Bash.
-- **Subscription auth.** `ANTHROPIC_API_KEY` is stripped from the env so the CLI uses the
-  logged-in session rather than silently switching to paid API-key auth.
+- **Auth.** By default `ANTHROPIC_API_KEY` is stripped from the env so the CLI uses the
+  logged-in session rather than silently switching to paid API-key auth. Constructing with
+  `use_api_key=True` (env `ENGINE_USE_API_KEY`) passes the key through — the zero-setup path
+  for containerized deployments. `CLAUDE_CODE_OAUTH_TOKEN` always passes through.
 - **Streamed transcript.** Runs with `--output-format stream-json` and forwards each assistant
   message / tool call as a compact event to the optional `on_event` callback — the Jobs UI's
   live "agent activity" feed. The final `result` event carries the same envelope (result text,
@@ -40,8 +42,9 @@ class _TimeoutError(Exception):
 
 
 class ClaudeCliEngine:
-    def __init__(self, *, binary: str = "claude") -> None:
+    def __init__(self, *, binary: str = "claude", use_api_key: bool = False) -> None:
         self._binary = binary
+        self._use_api_key = use_api_key
 
     def available(self) -> bool:
         """True when the CLI is installed and answers `--version` quickly."""
@@ -71,7 +74,7 @@ class ClaudeCliEngine:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                env=_subscription_env(),
+                env=_claude_env(use_api_key=self._use_api_key),
             )
         except (FileNotFoundError, NotADirectoryError, OSError) as exc:
             return EngineResult(
@@ -185,7 +188,11 @@ def _stream_lines(proc: subprocess.Popen, deadline: float) -> Iterator[str]:
         yield line
 
 
-def _subscription_env() -> dict[str, str]:
+def _claude_env(*, use_api_key: bool) -> dict[str, str]:
+    """Env for the run. Unless API-key auth is opted into, `ANTHROPIC_API_KEY` is stripped so
+    the CLI uses the logged-in session rather than silently switching to paid API-key auth."""
+    if use_api_key:
+        return dict(os.environ)
     return {k: v for k, v in os.environ.items() if k != "ANTHROPIC_API_KEY"}
 
 

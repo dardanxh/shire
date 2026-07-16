@@ -49,9 +49,11 @@ class Settings(BaseSettings):
     # Embedding dimension reserved for the (Phase-1-scaffolded) semantic index.
     embedding_dim: int = Field(default=384)
 
-    # Hobit engine — the Claude Code CLI (`claude -p`) that hobit runs shell out to. Runs on the
-    # logged-in Max subscription ($0); do NOT set ANTHROPIC_API_KEY or it switches to paid API auth.
+    # Hobit engine — the Claude Code CLI (`claude -p`) that hobit runs shell out to. By default it
+    # runs on the logged-in subscription and ANTHROPIC_API_KEY is stripped from run envs; set
+    # SHIRE_USE_API_KEY=true to opt in to paid API-key auth (the key is then passed through).
     claude_binary: str = Field(default="claude")
+    use_api_key: bool = Field(default=False)
     claude_model: str = Field(default="sonnet")
     claude_timeout_seconds: float = Field(default=500.0)
 

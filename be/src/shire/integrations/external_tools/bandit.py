@@ -20,7 +20,7 @@ class BanditResult:
 class BanditAdapter(ExternalTool):
     spec = ToolSpec(
         name="bandit",
-        purpose="Python security linter (SAST) — flags common security issues, bucketed by severity.",
+        purpose="Python security linter (SAST) — flags common issues, bucketed by severity.",
         homepage="https://github.com/PyCQA/bandit",
         install="bundled (uv sync)",
         category="security",

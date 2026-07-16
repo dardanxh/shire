@@ -369,7 +369,8 @@ def _js_frameworks(root: Path) -> set[str]:
         text = pkg.read_text(encoding="utf-8", errors="ignore").lower()
     except OSError:
         return set()
-    return {fw for fw in ("jest", "vitest", "mocha", "jasmine", "cypress", "playwright") if fw in text}
+    frameworks = ("jest", "vitest", "mocha", "jasmine", "cypress", "playwright")
+    return {fw for fw in frameworks if fw in text}
 
 
 def _detect_frameworks(root: Path, suffixes: set[str]) -> list[str]:

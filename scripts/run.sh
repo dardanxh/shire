@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Hobits — start everything: database, backend API (:8000), engine worker, frontend (:3000).
-# Backend + engine run in the background; the frontend runs in the foreground (Ctrl+C stops all).
+# Shire — start everything natively: database, backend API (:8000), engine worker,
+# frontend dev server (:5173). Backend + engine run in the background; the frontend runs in
+# the foreground (Ctrl+C stops all). For the containerized stack use ./setup.sh at the root.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -19,5 +20,5 @@ ENGINE_PID=$!
 
 trap 'kill $BACKEND_PID $ENGINE_PID 2>/dev/null || true' EXIT
 
-echo "==> Frontend on http://localhost:3000"
+echo "==> Frontend on http://localhost:5173"
 ( cd ui && npm run dev )

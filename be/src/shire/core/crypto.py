@@ -21,7 +21,8 @@ from shire.core.settings import get_settings
 
 logger = logging.getLogger(__name__)
 
-_INSECURE_DEV_PASSPHRASE = "hobits-insecure-dev-key"  # unchanged: re-keying would orphan dev-encrypted secrets
+# Pre-rename value kept on purpose: re-keying would orphan dev-encrypted secrets.
+_INSECURE_DEV_PASSPHRASE = "hobits-insecure-dev-key"
 
 
 def _derive_key(passphrase: str) -> bytes:

@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from hobits.domain.hobits.domain import HobitSpec
-from hobits.domain.merge_review.domain import (
+from shire.domain.hobits.domain import HobitSpec
+from shire.domain.merge_review.domain import (
     ClassificationLabel,
     CommentSeverity,
     Footprint,
@@ -19,8 +19,8 @@ from hobits.domain.merge_review.domain import (
     compute_risk,
     is_test_path,
 )
-from hobits.domain.merge_review.mr_hobit import MrHobit, parse_classification, parse_overview
-from hobits.integrations.git_diff import (
+from shire.domain.merge_review.mr_hobit import MrHobit, parse_classification, parse_overview
+from shire.integrations.git_diff import (
     BranchNotFoundError,
     compute_footprint,
     diff_excerpt,

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Hobits — one-shot setup: external tools + backend + frontend + database.
+# Shire — one-shot NATIVE dev setup: external tools + backend + frontend + database.
 # Idempotent; safe to re-run. See docs/external-tools.md and docs/running-phase-1.md.
+# For the containerized stack use ./setup.sh at the repo root instead (the two flows keep
+# separate databases).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -30,8 +32,13 @@ done
 echo "==> [4/5] Database migrations (Alembic)"
 ( cd be && uv run alembic upgrade head )
 
-echo "==> [5/5] Frontend dependencies (npm)"
-( cd ui && npm install )
+echo "==> [5/5] Frontend dependencies (pnpm)"
+if command -v pnpm >/dev/null 2>&1; then
+  ( cd ui && pnpm install )
+else
+  ( cd ui && npm install -g pnpm@9 && pnpm install ) \
+    || { echo "  ! pnpm not found and global install failed; falling back to npm"; ( cd ui && npm install ); }
+fi
 
 echo ""
 echo "Setup complete. Start everything with:  ./scripts/run.sh"

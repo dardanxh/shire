@@ -7,7 +7,7 @@ import uuid
 import pytest
 from prefect.client.schemas.schedules import CronSchedule, IntervalSchedule
 
-from hobits.orchestration.schedule_sync import (
+from shire.orchestration.schedule_sync import (
     _schedule_for,
     deployment_name,
     validate_cadence,

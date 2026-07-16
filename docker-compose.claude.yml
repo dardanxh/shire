@@ -1,0 +1,15 @@
+# Optional overlay: mount the host's Claude Code credentials into the engine so jobs run on
+# your logged-in Claude subscription instead of an API key.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.claude.yml up -d
+#
+# (setup.sh enables this automatically by writing COMPOSE_FILE=... into .env.)
+#
+# Caveat: on macOS the Claude CLI keeps its OAuth credentials in the system Keychain, not in
+# ~/.claude — so this mount alone may not carry auth. The reliable subscription path there is
+# `claude setup-token` on the host and CLAUDE_CODE_OAUTH_TOKEN in .env.
+services:
+  engine:
+    volumes:
+      - ${HOME}/.claude:/home/shire/.claude
+      - ${HOME}/.claude.json:/home/shire/.claude.json

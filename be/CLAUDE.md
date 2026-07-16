@@ -2,15 +2,17 @@
 
 ## Project Overview
 
-Factory management platform backend — FastAPI + SQLAlchemy + PostgreSQL.
+Shire backend — repo-intelligence substrate. FastAPI + SQLAlchemy + PostgreSQL.
+(The generic conventions below come from a blueprint template; see "Project reality" at the
+bottom for how this repo differs.)
 
 ## Tech Stack
 
 - **Framework**: FastAPI
 - **ORM**: SQLAlchemy (sync)
-- **Database**: PostgreSQL
+- **Database**: PostgreSQL (pgvector)
 - **Migrations**: Alembic
-- **Auth**: AWS Cognito
+- **Auth**: none (local-first; see Project reality)
 - **Python**: 3.13+
 
 ## Project Structure
@@ -103,13 +105,13 @@ alembic downgrade -1
 ## Project reality (how this repo differs from the generic conventions above)
 
 The conventions above are the source of truth for *how we build*. A few concrete facts about
-*this* repo (hobits — a repository-scorecard substrate, not a factory/CRM platform) differ from
+*this* repo (Shire — a repository-intelligence substrate, not a factory/CRM platform) differ from
 the generic template; follow these when they conflict:
 
-- **`src/hobits/` package, not `app/` + `main.py`.** This is a `uv`-packaged src-layout project
-  (`pyproject.toml`, `hobits.*` imports, `migrations/` via Alembic). Entry point is
-  `hobits.main:app`; run with `uv run uvicorn hobits.main:app --reload`.
-- **Layout is layer-per-domain inside `src/hobits/`:**
+- **`src/shire/` package, not `app/` + `main.py`.** This is a `uv`-packaged src-layout project
+  (`pyproject.toml`, `shire.*` imports, `migrations/` via Alembic). Entry point is
+  `shire.main:app`; run with `uv run uvicorn shire.main:app --reload`.
+- **Layout is layer-per-domain inside `src/shire/`:**
   - `core/` — `db.py`, `settings.py`, `domain_base.py` (DDD base types), `exceptions.py`
     (`AppError` + subclasses + global handlers → `{detail, code}`), `pagination.py`
     (`PaginationParams` + `Page[T]`), `metadata.py`.
@@ -142,15 +144,15 @@ the generic template; follow these when they conflict:
     Resolves binaries from `~/.local/bin`. Serves `stack.svg` (shown as an `<img>`).
   - **code-maat** (`coupling`) — temporal (change) coupling. *Data*, not an artifact: git log →
     `java -jar code-maat …-standalone.jar -c git2 -a coupling` → CSV → JSON cached to disk. Needs
-    `java` + the jar in `~/.local/share/code-maat/` (or `$HOBITS_CODE_MAAT_JAR`).
+    `java` + the jar in `~/.local/share/code-maat/` (or `$SHIRE_CODE_MAAT_JAR`).
   - **CodeCharta** (`code-map`) — 3D code-city map. `ccsh unifiedparser` → `.cc.json` (we gunzip it
     so static serving doesn't fight `Content-Encoding`). The **viewer is a separate static SPA**
     (`codecharta-visualization`) mounted at `/api/v1/cc-viewer`; the map loads via
     `…/cc-viewer/index.html?file=<map-url>`. `npm i -g codecharta-analysis codecharta-visualization`.
-    Viewer dir resolved from `$HOBITS_CODECHARTA_VIEWER` or the npm global root; `viewer_available`
+    Viewer dir resolved from `$SHIRE_CODECHARTA_VIEWER` or the npm global root; `viewer_available`
     is reported separately from `tool_available`.
 - **No auth.** There is no Cognito, no permissions/scope, no `current_user` dependency — the
-  hobits backend is unauthenticated. Ignore the auth sections until auth is introduced.
+  shire backend is unauthenticated. Ignore the auth sections until auth is introduced.
 - **Bulk CRUD is N/A for the single-resource ingest** (`POST /api/v1/repositories` takes one
   URL). Pagination *is* applied to the list endpoint (`Page[RepositoryResult]`).
 - Everything else — `/api/v1` prefix, `{detail, code}` errors via global handlers,

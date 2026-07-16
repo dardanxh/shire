@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from hobits.domain.repository.domain import BranchStatus
-from hobits.integrations.git_branches import inspect_branches
+from shire.domain.repository.domain import BranchStatus
+from shire.integrations.git_branches import inspect_branches
 
 
 def _git(cwd: Path, *args: str, date: str = "2026-07-01T12:00:00", author: str = "Alice") -> None:

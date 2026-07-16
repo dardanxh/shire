@@ -1,0 +1,85 @@
+# Shire — full containerized stack. Bootstrap with ./setup.sh (generates .env), or copy
+# .env.example to .env yourself and `docker compose up -d --build`.
+#
+# UI:       http://localhost:3000
+# API docs: http://localhost:8000/docs
+#
+# The native dev flow (scripts/setup.sh + scripts/run.sh) uses a separate database
+# (be/docker-compose.yml, host port 5433); the two stacks don't share data.
+name: shire
+
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: shire
+      POSTGRES_PASSWORD: shire
+      POSTGRES_DB: shire
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shire -d shire"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    # The DB is not exposed on the host by default (and the native dev DB already uses 5433).
+    # Uncomment to poke at it directly:
+    # ports:
+    #   - "5434:5432"
+
+  backend:
+    build: ./be
+    environment:
+      SHIRE_DATABASE_URL: postgresql+psycopg://shire:shire@db:5432/shire
+      # Absolute paths on the volume shared with the engine — job cwds are resolved to
+      # absolute paths at enqueue time, so both containers must see the same tree at /data.
+      SHIRE_CLONE_ROOT: /data/repos
+      SHIRE_GRAPH_ROOT: /data/graph
+      SHIRE_ARTIFACTS_ROOT: /data/artifacts
+      SHIRE_WORKTREE_ROOT: /data/worktrees
+      SHIRE_SECRET_KEY: ${SHIRE_SECRET_KEY:?missing — run ./setup.sh (or copy .env.example to .env)}
+      SHIRE_GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      SHIRE_CLAUDE_MODEL: ${CLAUDE_MODEL:-sonnet}
+      SHIRE_USE_API_KEY: ${USE_API_KEY:-false}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      CLAUDE_CODE_OAUTH_TOKEN: ${CLAUDE_CODE_OAUTH_TOKEN:-}
+    volumes:
+      - shire_data:/data
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s   # the entrypoint runs migrations before the API comes up
+
+  engine:
+    build: ./engine
+    environment:
+      ENGINE_DATABASE_URL: postgresql://shire:shire@db:5432/shire
+      ENGINE_CONCURRENCY: ${ENGINE_CONCURRENCY:-2}
+      ENGINE_USE_API_KEY: ${USE_API_KEY:-false}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      CLAUDE_CODE_OAUTH_TOKEN: ${CLAUDE_CODE_OAUTH_TOKEN:-}
+    volumes:
+      - shire_data:/data
+    depends_on:
+      # Healthy backend implies migrations ran, so the jobs table exists before we poll it.
+      backend:
+        condition: service_healthy
+
+  ui:
+    build: ./ui
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  shire_data:

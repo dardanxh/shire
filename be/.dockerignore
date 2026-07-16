@@ -1,0 +1,11 @@
+.venv/
+.data/
+.env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+docker-compose.yml
+CLAUDE.md
+.claude/

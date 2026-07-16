@@ -59,7 +59,7 @@ select = [
 ignore = ["B008"]  # FastAPI Depends() in defaults is idiomatic
 
 [tool.ruff.lint.isort]
-known-first-party = ["hobits"]
+known-first-party = ["shire"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

@@ -111,7 +111,9 @@ def _execute(settings: EngineSettings, engine: Engine, job: dict[str, Any]) -> N
 
 def main() -> None:
     settings = get_settings()
-    engine: Engine = ClaudeCliEngine(binary=settings.claude_binary)
+    engine: Engine = ClaudeCliEngine(
+        binary=settings.claude_binary, use_api_key=settings.use_api_key
+    )
     if not engine.available():
         logger.warning(
             "The '%s' CLI is not available — jobs will fail until it is installed/logged in.",

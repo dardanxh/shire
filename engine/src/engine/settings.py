@@ -23,6 +23,10 @@ class EngineSettings(BaseSettings):
 
     claude_binary: str = Field(default="claude")
 
+    # Opt in to paid API-key auth: when true, ANTHROPIC_API_KEY is passed through to the
+    # claude subprocess instead of stripped. Default false = subscription auth (key stripped).
+    use_api_key: bool = Field(default=False)
+
     # Jobs this instance runs concurrently; each is a full `claude -p` subprocess.
     concurrency: int = Field(default=2)
 
