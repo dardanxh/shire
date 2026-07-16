@@ -102,6 +102,12 @@ class EmergeAdapter(ExternalTool):
         install=(
             "uv tool install emerge-viz --with 'setuptools<81' --with pip --with 'networkx<3.4'"
         ),
+        install_argv=(
+            (
+                "uv", "tool", "install", "emerge-viz",
+                "--with", "setuptools<81", "--with", "pip", "--with", "networkx<3.4",
+            ),
+        ),
         id="emerge",
         category="visualization",
         kind="artifact",

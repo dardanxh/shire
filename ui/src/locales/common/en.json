@@ -5,6 +5,7 @@
       "tagline": "your repositories, tended"
     },
     "nav": {
+      "home": "Home",
       "repositories": "Repositories",
       "hobits": "Hobits",
       "news": "News",

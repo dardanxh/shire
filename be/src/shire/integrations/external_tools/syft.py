@@ -29,6 +29,7 @@ class SyftAdapter(ExternalTool):
         purpose="SBOM — resolved + transitive dependencies across ecosystems.",
         homepage="https://github.com/anchore/syft",
         install="brew install syft",
+        install_argv=(("brew", "install", "syft"),),
         category="security",
     )
 

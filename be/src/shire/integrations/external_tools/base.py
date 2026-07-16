@@ -31,6 +31,10 @@ class ToolSpec:
     kind: str = "scorecard"
     # Language scope: "general" (any language) or a specific language like "python".
     language: str = "general"
+    # Curated one-click install: a sequence of argv commands run verbatim by the backend
+    # (never a shell, never user input — this hardcoded allowlist IS the safety boundary).
+    # Empty = manual install only.
+    install_argv: tuple[tuple[str, ...], ...] = ()
 
 
 @dataclass(frozen=True)

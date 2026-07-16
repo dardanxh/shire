@@ -9,7 +9,7 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 
 from shire.integrations.external_tools.bandit import BanditAdapter
-from shire.integrations.external_tools.base import ToolSpec, ToolStatus
+from shire.integrations.external_tools.base import ExternalTool, ToolSpec, ToolStatus
 from shire.integrations.external_tools.code_maat import CodeMaatAdapter
 from shire.integrations.external_tools.codecharta import CodeChartaAdapter
 from shire.integrations.external_tools.emerge import EmergeAdapter
@@ -83,6 +83,11 @@ def binary_tool_specs() -> list[ToolSpec]:
     return [tool.spec for tool in BINARY_TOOLS]
 
 
+def binary_tool_by_id() -> dict[str, ExternalTool]:
+    """Adapter lookup by catalog id (the install runner's selector)."""
+    return {tool.spec.id or tool.spec.name: tool for tool in BINARY_TOOLS}
+
+
 def tool_languages() -> dict[str, str]:
     """Static tool-id → language scope ("general" / "python" / …) from each ToolSpec.
 
@@ -121,9 +126,11 @@ def all_tool_statuses() -> list[ToolStatus]:
 __all__ = [
     "BINARY_TOOLS",
     "LIBRARY_TOOLS",
+    "ExternalTool",
     "ToolSpec",
     "ToolStatus",
     "all_tool_statuses",
+    "binary_tool_by_id",
     "binary_tool_specs",
     "tool_languages",
 ]

@@ -41,10 +41,19 @@ function toggle(set: Set<string>, value: string): Set<string> {
   return next;
 }
 
-export function IngestRepositoryDialog() {
+export function IngestRepositoryDialog({
+  open: controlledOpen,
+  onOpenChange,
+}: {
+  /** Optionally controlled (the Home checklist deep-links via a `wizard` URL param). */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+} = {}) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
   const [step, setStep] = useState(0);
   const [url, setUrl] = useState("");
   const [urlError, setUrlError] = useState(false);

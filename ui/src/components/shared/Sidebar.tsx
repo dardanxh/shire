@@ -3,6 +3,7 @@ import {
   BookOpenIcon,
   FolderGitIcon,
   GlobeIcon,
+  HomeIcon,
   ListChecksIcon,
   type LucideIcon,
   MapIcon,
@@ -24,6 +25,8 @@ type NavItem = {
   to: string;
   labelKey: string;
   icon: LucideIcon;
+  /** Required by targets with `validateSearch` (typed links need an explicit search). */
+  search?: Record<string, unknown>;
   /** Active when the pathname matches this item (prefix-aware). */
   match: (pathname: string) => boolean;
 };
@@ -31,14 +34,19 @@ type NavItem = {
 const ITEMS: NavItem[] = [
   {
     to: "/",
+    labelKey: "common.nav.home",
+    icon: HomeIcon,
+    match: (p) => p === "/",
+  },
+  {
+    to: "/repositories",
     labelKey: "common.nav.repositories",
     icon: FolderGitIcon,
+    search: { view: "repositories", page: 1, size: 20 },
     // MR reviews live as a tab of the repositories hub, so their detail
     // pages keep this module highlighted.
     match: (p) =>
-      p === "/" ||
-      p.startsWith("/repositories") ||
-      p.startsWith("/merge-reviews"),
+      p.startsWith("/repositories") || p.startsWith("/merge-reviews"),
   },
   {
     to: "/hobits",
@@ -114,7 +122,6 @@ export function Sidebar() {
     >
       <Link
         to="/"
-        search={{ view: "repositories", page: 1, size: 20 }}
         className={cn(
           "flex items-center gap-2 py-5",
           collapsed ? "justify-center px-0" : "px-5",
@@ -132,6 +139,7 @@ export function Sidebar() {
             <Link
               key={item.to}
               to={item.to}
+              search={item.search}
               aria-current={active ? "page" : undefined}
               title={collapsed ? t(item.labelKey) : undefined}
               className={cn(

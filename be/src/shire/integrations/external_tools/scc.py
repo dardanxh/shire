@@ -34,6 +34,7 @@ class SccAdapter(ExternalTool):
         purpose="Comment-aware LOC by language + cyclomatic complexity + COCOMO cost estimate.",
         homepage="https://github.com/boyter/scc",
         install="brew install scc",
+        install_argv=(("brew", "install", "scc"),),
         category="metrics",
     )
 

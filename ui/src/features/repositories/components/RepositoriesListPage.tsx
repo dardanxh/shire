@@ -19,11 +19,15 @@ export function RepositoriesListPage({
   size,
   onPageChange,
   onSizeChange,
+  wizardOpen,
+  onWizardOpenChange,
 }: {
   page: number;
   size: number;
   onPageChange: (page: number) => void;
   onSizeChange: (size: number) => void;
+  wizardOpen?: boolean;
+  onWizardOpenChange?: (open: boolean) => void;
 }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -104,7 +108,10 @@ export function RepositoriesListPage({
     <div className="space-y-6">
       {/* The hub's tab strip is the title — only the action lives here. */}
       <div className="flex justify-end">
-        <IngestRepositoryDialog />
+        <IngestRepositoryDialog
+          open={wizardOpen}
+          onOpenChange={onWizardOpenChange}
+        />
       </div>
 
       <Card className="overflow-hidden p-0">

@@ -25,3 +25,10 @@ class ToolStatusResult(BaseModel):
     kind: str
     language: str
     synced_at: datetime | None = None
+    # One-click install overlay (computed at read time; never persisted — the catalog sync
+    # would wipe it). `installer` names the runner ("brew"/"uv"/"npm") even when it's missing,
+    # so the UI can say "requires Homebrew".
+    installable: bool = False
+    installer: str | None = None
+    install_status: str = "idle"  # idle | running | succeeded | failed
+    install_error: str | None = None

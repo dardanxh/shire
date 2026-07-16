@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { extractErrorMessage, type ToolStatusOut } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useToolsQuery } from "../api";
+import { InstallToolButton } from "./InstallToolButton";
 import { SyncToolsButton } from "./SyncToolsButton";
 
 export function ToolsListPage() {
@@ -78,10 +79,14 @@ export function ToolsListPage() {
       {
         accessorKey: "install",
         header: t("tools.list.col_install"),
+        meta: { isAction: true },
         cell: ({ row }) => (
-          <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
-            {row.original.install}
-          </code>
+          <div className="space-y-1.5">
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+              {row.original.install}
+            </code>
+            <InstallToolButton tool={row.original} />
+          </div>
         ),
       },
       {

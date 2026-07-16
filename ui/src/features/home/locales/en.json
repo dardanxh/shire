@@ -1,0 +1,95 @@
+{
+  "home": {
+    "title": "Welcome to Shire",
+    "subtitle": "Your repositories, tended — here's how everything is doing.",
+    "system": {
+      "title": "System",
+      "claude_ok": "Claude Code",
+      "default_model": "default model: {{model}}",
+      "claude_missing_title": "Claude Code CLI not found",
+      "claude_missing_body": "This version of Shire runs on top of Claude Code — analysis, hobits, roadmaps and reviews all execute through it. Install and log in, then reload this page.",
+      "claude_install_link": "Install Claude Code",
+      "engine_running": "Engine running",
+      "engine_stopped": "Engine not detected",
+      "engine_hint": "Start it with: cd engine && uv run python -m engine",
+      "engine_detail": {
+        "pg_listener": "",
+        "recent_job_activity": "inferred from recent job activity"
+      }
+    },
+    "checklist": {
+      "title": "Get started",
+      "progress": "{{done}} of {{total}} complete",
+      "needs_repo_hint": "Import a repository first",
+      "done_title": "You're all set",
+      "done_body": "Every onboarding step is complete — Shire is fully wired up.",
+      "items": {
+        "claude": {
+          "title": "Install Claude Code",
+          "description": "The engine substrate — everything AI in Shire runs through the Claude CLI.",
+          "cta": "Install guide"
+        },
+        "repository": {
+          "title": "Import your first repository",
+          "description": "Paste a git URL or a local path — Shire clones and analyzes it.",
+          "cta": "Import"
+        },
+        "connection": {
+          "title": "Add a git connection",
+          "description": "Credentials for private repositories — and for roadmap tickets to push branches and open PRs.",
+          "cta": "Connect"
+        },
+        "tool": {
+          "title": "Link a tool to a repository",
+          "description": "Pick which analyzers run against the repo (security, metrics, testing…).",
+          "cta": "Link tools"
+        },
+        "hobit": {
+          "title": "Run a hobit",
+          "description": "Send a specialist agent through the codebase and get its first finding.",
+          "cta": "Run one"
+        },
+        "principle": {
+          "title": "Create a principle",
+          "description": "Codify an engineering conviction — the engine audits every repo against it.",
+          "cta": "Create"
+        }
+      }
+    },
+    "tools": {
+      "title": "Analysis tools",
+      "count": "{{available}}/{{total}} installed",
+      "missing": "missing",
+      "warning": "Automated installs can fail for machine-specific reasons — if one does, run the command manually in a terminal.",
+      "all_installed": "Everything is installed — full analysis coverage.",
+      "copy": "Copy command",
+      "view_all": "View all tools →"
+    },
+    "attention": {
+      "title": "Needs attention",
+      "all_clear": "Nothing needs your attention — all clear.",
+      "rows": {
+        "drift": "Drift proposals awaiting your decision",
+        "prs": "AI-opened pull requests waiting for review",
+        "failed_jobs": "Jobs failed in the last 24 hours",
+        "principles": "Principles currently violated",
+        "briefing": "Urgent briefing items unread"
+      }
+    },
+    "spend": {
+      "title": "Engine spend",
+      "view_jobs": "View jobs →",
+      "today": "Today",
+      "week": "Last 7 days",
+      "all_time": "All time",
+      "detail": "{{jobs}} job(s) · {{tokens}} tokens"
+    },
+    "actions": {
+      "import_repo": "Import repository",
+      "new_roadmap": "New roadmap",
+      "ask": "Ask a question",
+      "run_drift": "Run drift",
+      "drift_done": "Drift started — {{started}} check(s) enqueued, {{skipped}} roadmap(s) skipped."
+    }
+  }
+}

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as RoadmapsRouteImport } from './routes/roadmaps'
+import { Route as RepositoriesRouteImport } from './routes/repositories'
 import { Route as PrinciplesRouteImport } from './routes/principles'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as MergeReviewsRouteImport } from './routes/merge-reviews'
@@ -20,6 +21,7 @@ import { Route as HobitsRouteImport } from './routes/hobits'
 import { Route as ConnectorsRouteImport } from './routes/connectors'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RoadmapsIndexRouteImport } from './routes/roadmaps.index'
+import { Route as RepositoriesIndexRouteImport } from './routes/repositories.index'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
 import { Route as HobitsIndexRouteImport } from './routes/hobits.index'
 import { Route as RoadmapsNewRouteImport } from './routes/roadmaps.new'
@@ -38,6 +40,11 @@ const ToolsRoute = ToolsRouteImport.update({
 const RoadmapsRoute = RoadmapsRouteImport.update({
   id: '/roadmaps',
   path: '/roadmaps',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepositoriesRoute = RepositoriesRouteImport.update({
+  id: '/repositories',
+  path: '/repositories',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrinciplesRoute = PrinciplesRouteImport.update({
@@ -85,6 +92,11 @@ const RoadmapsIndexRoute = RoadmapsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => RoadmapsRoute,
 } as any)
+const RepositoriesIndexRoute = RepositoriesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RepositoriesRoute,
+} as any)
 const JobsIndexRoute = JobsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -106,9 +118,9 @@ const RoadmapsIdRoute = RoadmapsIdRouteImport.update({
   getParentRoute: () => RoadmapsRoute,
 } as any)
 const RepositoriesIdRoute = RepositoriesIdRouteImport.update({
-  id: '/repositories/$id',
-  path: '/repositories/$id',
-  getParentRoute: () => rootRouteImport,
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => RepositoriesRoute,
 } as any)
 const MergeReviewsIdRoute = MergeReviewsIdRouteImport.update({
   id: '/$id',
@@ -140,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
+  '/repositories': typeof RepositoriesRouteWithChildren
   '/roadmaps': typeof RoadmapsRouteWithChildren
   '/tools': typeof ToolsRoute
   '/hobits/$slug': typeof HobitsSlugRoute
@@ -150,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/roadmaps/new': typeof RoadmapsNewRoute
   '/hobits/': typeof HobitsIndexRoute
   '/jobs/': typeof JobsIndexRoute
+  '/repositories/': typeof RepositoriesIndexRoute
   '/roadmaps/': typeof RoadmapsIndexRoute
   '/diagram/$repoId/$kind': typeof DiagramRepoIdKindRoute
 }
@@ -169,6 +183,7 @@ export interface FileRoutesByTo {
   '/roadmaps/new': typeof RoadmapsNewRoute
   '/hobits': typeof HobitsIndexRoute
   '/jobs': typeof JobsIndexRoute
+  '/repositories': typeof RepositoriesIndexRoute
   '/roadmaps': typeof RoadmapsIndexRoute
   '/diagram/$repoId/$kind': typeof DiagramRepoIdKindRoute
 }
@@ -182,6 +197,7 @@ export interface FileRoutesById {
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
+  '/repositories': typeof RepositoriesRouteWithChildren
   '/roadmaps': typeof RoadmapsRouteWithChildren
   '/tools': typeof ToolsRoute
   '/hobits/$slug': typeof HobitsSlugRoute
@@ -192,6 +208,7 @@ export interface FileRoutesById {
   '/roadmaps/new': typeof RoadmapsNewRoute
   '/hobits/': typeof HobitsIndexRoute
   '/jobs/': typeof JobsIndexRoute
+  '/repositories/': typeof RepositoriesIndexRoute
   '/roadmaps/': typeof RoadmapsIndexRoute
   '/diagram/$repoId/$kind': typeof DiagramRepoIdKindRoute
 }
@@ -206,6 +223,7 @@ export interface FileRouteTypes {
     | '/merge-reviews'
     | '/news'
     | '/principles'
+    | '/repositories'
     | '/roadmaps'
     | '/tools'
     | '/hobits/$slug'
@@ -216,6 +234,7 @@ export interface FileRouteTypes {
     | '/roadmaps/new'
     | '/hobits/'
     | '/jobs/'
+    | '/repositories/'
     | '/roadmaps/'
     | '/diagram/$repoId/$kind'
   fileRoutesByTo: FileRoutesByTo
@@ -235,6 +254,7 @@ export interface FileRouteTypes {
     | '/roadmaps/new'
     | '/hobits'
     | '/jobs'
+    | '/repositories'
     | '/roadmaps'
     | '/diagram/$repoId/$kind'
   id:
@@ -247,6 +267,7 @@ export interface FileRouteTypes {
     | '/merge-reviews'
     | '/news'
     | '/principles'
+    | '/repositories'
     | '/roadmaps'
     | '/tools'
     | '/hobits/$slug'
@@ -257,6 +278,7 @@ export interface FileRouteTypes {
     | '/roadmaps/new'
     | '/hobits/'
     | '/jobs/'
+    | '/repositories/'
     | '/roadmaps/'
     | '/diagram/$repoId/$kind'
   fileRoutesById: FileRoutesById
@@ -270,9 +292,9 @@ export interface RootRouteChildren {
   MergeReviewsRoute: typeof MergeReviewsRouteWithChildren
   NewsRoute: typeof NewsRoute
   PrinciplesRoute: typeof PrinciplesRoute
+  RepositoriesRoute: typeof RepositoriesRouteWithChildren
   RoadmapsRoute: typeof RoadmapsRouteWithChildren
   ToolsRoute: typeof ToolsRoute
-  RepositoriesIdRoute: typeof RepositoriesIdRoute
   DiagramRepoIdKindRoute: typeof DiagramRepoIdKindRoute
 }
 
@@ -290,6 +312,13 @@ declare module '@tanstack/react-router' {
       path: '/roadmaps'
       fullPath: '/roadmaps'
       preLoaderRoute: typeof RoadmapsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repositories': {
+      id: '/repositories'
+      path: '/repositories'
+      fullPath: '/repositories'
+      preLoaderRoute: typeof RepositoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/principles': {
@@ -355,6 +384,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RoadmapsIndexRouteImport
       parentRoute: typeof RoadmapsRoute
     }
+    '/repositories/': {
+      id: '/repositories/'
+      path: '/'
+      fullPath: '/repositories/'
+      preLoaderRoute: typeof RepositoriesIndexRouteImport
+      parentRoute: typeof RepositoriesRoute
+    }
     '/jobs/': {
       id: '/jobs/'
       path: '/'
@@ -385,10 +421,10 @@ declare module '@tanstack/react-router' {
     }
     '/repositories/$id': {
       id: '/repositories/$id'
-      path: '/repositories/$id'
+      path: '/$id'
       fullPath: '/repositories/$id'
       preLoaderRoute: typeof RepositoriesIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof RepositoriesRoute
     }
     '/merge-reviews/$id': {
       id: '/merge-reviews/$id'
@@ -458,6 +494,20 @@ const MergeReviewsRouteWithChildren = MergeReviewsRoute._addFileChildren(
   MergeReviewsRouteChildren,
 )
 
+interface RepositoriesRouteChildren {
+  RepositoriesIdRoute: typeof RepositoriesIdRoute
+  RepositoriesIndexRoute: typeof RepositoriesIndexRoute
+}
+
+const RepositoriesRouteChildren: RepositoriesRouteChildren = {
+  RepositoriesIdRoute: RepositoriesIdRoute,
+  RepositoriesIndexRoute: RepositoriesIndexRoute,
+}
+
+const RepositoriesRouteWithChildren = RepositoriesRoute._addFileChildren(
+  RepositoriesRouteChildren,
+)
+
 interface RoadmapsRouteChildren {
   RoadmapsIdRoute: typeof RoadmapsIdRoute
   RoadmapsNewRoute: typeof RoadmapsNewRoute
@@ -483,9 +533,9 @@ const rootRouteChildren: RootRouteChildren = {
   MergeReviewsRoute: MergeReviewsRouteWithChildren,
   NewsRoute: NewsRoute,
   PrinciplesRoute: PrinciplesRoute,
+  RepositoriesRoute: RepositoriesRouteWithChildren,
   RoadmapsRoute: RoadmapsRouteWithChildren,
   ToolsRoute: ToolsRoute,
-  RepositoriesIdRoute: RepositoriesIdRoute,
   DiagramRepoIdKindRoute: DiagramRepoIdKindRoute,
 }
 export const routeTree = rootRouteImport

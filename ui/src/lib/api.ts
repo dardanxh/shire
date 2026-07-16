@@ -106,6 +106,7 @@ export type RoadmapDriftFindingOut =
 export type ExportIssuesOut = components["schemas"]["ExportIssuesResult"];
 export type RepoRoadmapSliceOut =
   components["schemas"]["RepoRoadmapSliceResult"];
+export type HomeStatusOut = components["schemas"]["HomeStatusResult"];
 
 /** Roadmap item labels (backend types the column as a bare string). */
 export const ROADMAP_ITEM_LABELS = [

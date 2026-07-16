@@ -18,6 +18,13 @@
       "syncing": "Syncing…",
       "synced": "Tools synced",
       "last_synced": "Synced {{when}}"
+    },
+    "install": {
+      "install": "Install",
+      "retry": "Retry install",
+      "running": "Installing…",
+      "needs_runner": "Automated install needs {{runner}} on the server",
+      "fallback_hint": "run the manual command instead."
     }
   }
 }

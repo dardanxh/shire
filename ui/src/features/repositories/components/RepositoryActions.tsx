@@ -55,7 +55,7 @@ export function RepositoryActions({ id, slug }: { id: string; slug: string }) {
         slug={slug}
         onDeleted={() =>
           navigate({
-            to: "/",
+            to: "/repositories",
             search: { view: "repositories", page: 1, size: 20 },
           })
         }

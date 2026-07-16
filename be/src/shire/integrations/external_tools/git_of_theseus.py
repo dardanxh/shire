@@ -33,6 +33,7 @@ class GitOfTheseusAdapter(ExternalTool):
         purpose="Code age / survival over time (stacked-area chart of per-year cohorts).",
         homepage="https://github.com/erikbern/git-of-theseus",
         install="uv tool install git-of-theseus",
+        install_argv=(("uv", "tool", "install", "git-of-theseus"),),
         id="git-of-theseus",
         category="history",
         kind="artifact",

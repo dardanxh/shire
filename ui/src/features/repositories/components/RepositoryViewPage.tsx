@@ -580,7 +580,7 @@ export function RepositoryViewPage({
 function BackLink({ label }: { label: string }) {
   return (
     <Link
-      to="/"
+      to="/repositories"
       search={{ view: "repositories", page: 1, size: 20 }}
       className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
     >

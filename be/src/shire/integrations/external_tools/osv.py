@@ -46,6 +46,7 @@ class OsvScannerAdapter(ExternalTool):
         purpose="Known vulnerabilities (CVEs) in dependencies via Google's OSV database.",
         homepage="https://github.com/google/osv-scanner",
         install="brew install osv-scanner",
+        install_argv=(("brew", "install", "osv-scanner"),),
         category="security",
     )
 

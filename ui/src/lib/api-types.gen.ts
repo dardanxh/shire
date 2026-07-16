@@ -671,6 +671,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tools/{tool_id}/install": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Install Tool
+         * @description Run the tool's curated install command in the background (non-blocking — poll GET /tools).
+         *     Automated installs are best-effort; the manual command is always the fallback.
+         */
+        post: operations["install_tool_api_v1_tools__tool_id__install_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/members": {
         parameters: {
             query?: never;
@@ -1736,8 +1757,8 @@ export interface paths {
         put?: never;
         /**
          * Regenerate Roadmap
-         * @description Re-plan: insert version N+1 and enqueue its generation. Done and in-review items carry
-         *     over when it lands (non-blocking — poll the detail).
+         * @description Re-plan: insert version N+1 and enqueue its generation. Done items (and in-progress
+         *     items with an open PR) carry over when it lands (non-blocking — poll the detail).
          */
         post: operations["regenerate_roadmap_api_v1_roadmaps__roadmap_id__versions_post"];
         delete?: never;
@@ -1844,7 +1865,7 @@ export interface paths {
         put?: never;
         /**
          * Accept Drift Finding
-         * @description Apply the verdict: appears_done → done, obsolete → dropped.
+         * @description Apply the verdict: the item closes as done.
          */
         post: operations["accept_drift_finding_api_v1_roadmaps__roadmap_id__drift_findings__finding_id__accept_post"];
         delete?: never;
@@ -2029,6 +2050,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/home/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Home Status
+         * @description Everything the landing page needs in one read: Claude CLI availability + version,
+         *     the engine's liveness, and the raw facts the onboarding checklist derives from.
+         */
+        get: operations["home_status_api_v1_home_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -2143,6 +2185,22 @@ export interface components {
         AskQuestionRequest: {
             /** Question */
             question: string;
+        };
+        /**
+         * AttentionResult
+         * @description Counts of everything currently waiting on the user, for the Home inbox strip.
+         */
+        AttentionResult: {
+            /** Drift Findings */
+            drift_findings: number;
+            /** Open Prs */
+            open_prs: number;
+            /** Failed Jobs 24H */
+            failed_jobs_24h: number;
+            /** Violated Principles */
+            violated_principles: number;
+            /** Briefing Now Unread */
+            briefing_now_unread: number;
         };
         /**
          * AuthMethod
@@ -2302,6 +2360,18 @@ export interface components {
             label: components["schemas"]["MrLabel"];
             /** Proportion */
             proportion: number;
+        };
+        /**
+         * ClaudeStatusResult
+         * @description Whether the Claude Code CLI — the platform's engine substrate — is usable.
+         */
+        ClaudeStatusResult: {
+            /** Installed */
+            installed: boolean;
+            /** Version */
+            version: string | null;
+            /** Default Model */
+            default_model: string;
         };
         /** CodeAgeCohort */
         CodeAgeCohort: {
@@ -3015,6 +3085,20 @@ export interface components {
             updated_at: string;
         };
         /**
+         * EngineStatusResult
+         * @description Whether a Shire engine worker is alive.
+         */
+        EngineStatusResult: {
+            /** Running */
+            running: boolean;
+            /** Listeners */
+            listeners: number;
+            /** Last Job Activity At */
+            last_job_activity_at: string | null;
+            /** Detail */
+            detail: string | null;
+        };
+        /**
          * Enrichment
          * @description Scalar enrichment bundle embedded on an Analysis (all tool-sourced, best-effort).
          */
@@ -3454,6 +3538,13 @@ export interface components {
             started_at: string;
             /** Finished At */
             finished_at: string | null;
+        };
+        /** HomeStatusResult */
+        HomeStatusResult: {
+            claude: components["schemas"]["ClaudeStatusResult"];
+            engine: components["schemas"]["EngineStatusResult"];
+            checklist: components["schemas"]["OnboardingChecklistResult"];
+            attention: components["schemas"]["AttentionResult"];
         };
         /**
          * Hotspot
@@ -4109,6 +4200,24 @@ export interface components {
             latest_poll: components["schemas"]["NewsPollResult"] | null;
             /** Unread Count */
             unread_count: number;
+        };
+        /**
+         * OnboardingChecklistResult
+         * @description Raw facts the checklist derives its item states from (booleans computed client-side).
+         */
+        OnboardingChecklistResult: {
+            /** Repository Count */
+            repository_count: number;
+            /** Connection Count */
+            connection_count: number;
+            /** Principle Count */
+            principle_count: number;
+            /** Has Linked Tool */
+            has_linked_tool: boolean;
+            /** Has Hobit Run */
+            has_hobit_run: boolean;
+            /** First Repository Id */
+            first_repository_id: string | null;
         };
         /** Page[ConnectionResult] */
         Page_ConnectionResult_: {
@@ -4951,6 +5060,20 @@ export interface components {
             language: string;
             /** Synced At */
             synced_at?: string | null;
+            /**
+             * Installable
+             * @default false
+             */
+            installable: boolean;
+            /** Installer */
+            installer?: string | null;
+            /**
+             * Install Status
+             * @default idle
+             */
+            install_status: string;
+            /** Install Error */
+            install_error?: string | null;
         };
         /**
          * TopFindingResult
@@ -5156,7 +5279,7 @@ export interface components {
          * MarkReadRequest
          * @description Mark all posts read — scoped to one hobit when `hobit_slug` is set, else the whole feed.
          */
-        hobits__domain__briefing__routes__MarkReadRequest: {
+        shire__domain__briefing__routes__MarkReadRequest: {
             /** Hobit Slug */
             hobit_slug?: string | null;
         };
@@ -5164,7 +5287,7 @@ export interface components {
          * MarkReadRequest
          * @description Mark all items read — scoped to one topic when `topic_id` is set, else the whole feed.
          */
-        hobits__domain__news__routes__MarkReadRequest: {
+        shire__domain__news__routes__MarkReadRequest: {
             /** Topic Id */
             topic_id?: string | null;
         };
@@ -6420,6 +6543,37 @@ export interface operations {
             };
         };
     };
+    install_tool_api_v1_tools__tool_id__install_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tool_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToolStatusResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     members_overview_api_v1_members_get: {
         parameters: {
             query?: {
@@ -7209,7 +7363,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["hobits__domain__briefing__routes__MarkReadRequest"];
+                "application/json": components["schemas"]["shire__domain__briefing__routes__MarkReadRequest"];
             };
         };
         responses: {
@@ -8064,7 +8218,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["hobits__domain__news__routes__MarkReadRequest"];
+                "application/json": components["schemas"]["shire__domain__news__routes__MarkReadRequest"];
             };
         };
         responses: {
@@ -9089,6 +9243,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    home_status_api_v1_home_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HomeStatusResult"];
                 };
             };
         };
