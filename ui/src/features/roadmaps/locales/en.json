@@ -14,7 +14,6 @@
     },
     "new": {
       "crumb": "New roadmap",
-      "title": "New roadmap",
       "subtitle": "Pick the repositories to plan over; the goal is optional — without one, the AI plans from the portfolio's weaknesses and risks.",
       "name_label": "Name",
       "name_placeholder": "Q4 hardening",

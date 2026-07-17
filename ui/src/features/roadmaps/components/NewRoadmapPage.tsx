@@ -53,14 +53,10 @@ export function NewRoadmapPage() {
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">
-          {t("roadmaps.new.title")}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {t("roadmaps.new.subtitle")}
-        </p>
-      </div>
+      {/* The crumb names the page; this line is form guidance, not a title. */}
+      <p className="text-sm text-muted-foreground">
+        {t("roadmaps.new.subtitle")}
+      </p>
 
       <Form {...form}>
         <form

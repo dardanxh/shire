@@ -99,6 +99,7 @@ class HobitResult(BaseModel):
 class HobitConfigUpdate(BaseModel):
     """Full effective config sent by the config form; stored as overrides."""
 
+    name: str = Field(min_length=1, max_length=120)
     enabled: bool
     model: str
     charter: str

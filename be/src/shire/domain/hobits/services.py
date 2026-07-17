@@ -153,7 +153,7 @@ class HobitService:
                 CustomHobit(
                     spec=HobitSpec(
                         slug=slug,
-                        name=custom.spec.name,
+                        name=update.name,
                         description=custom.spec.description,
                         category=custom.spec.category,
                         default_charter=update.charter,
@@ -171,6 +171,7 @@ class HobitService:
         self._require_spec(slug)  # built-in: 404 if unknown, else store an override
         self._configs.upsert(
             slug,
+            name=update.name,
             enabled=update.enabled,
             model=update.model,
             charter=update.charter,
@@ -292,7 +293,7 @@ class HobitService:
         self._runs.add(record)
         JobService(self._session).enqueue(
             kind=job_kinds.HOBIT_RUN,
-            title=f"Hobit run: {hobit.spec.name} — {pack.identity.slug}",
+            title=f"Hobit run: {config.name} — {pack.identity.slug}",
             prompt=hobit.build_prompt(ctx, config.instructions),
             payload={
                 "system": config.charter,
@@ -359,6 +360,7 @@ class HobitService:
             # A custom hobit's spec already holds its live config; enabled lives on the record.
             return HobitConfig(
                 slug=spec.slug,
+                name=spec.name,
                 enabled=custom.enabled,
                 model=spec.default_model,
                 charter=spec.default_charter,
@@ -403,7 +405,7 @@ class HobitService:
         cadence, last_checked_at = assignment if assignment is not None else (None, None)
         return HobitResult(
             slug=spec.slug,
-            name=spec.name,
+            name=config.name,
             description=spec.description,
             category=spec.category,
             enabled=config.enabled,
@@ -423,6 +425,7 @@ class HobitService:
 def _merge_config(spec: HobitSpec, override: HobitConfigOverride | None) -> HobitConfig:
     return HobitConfig(
         slug=spec.slug,
+        name=override.name if override and override.name else spec.name,
         enabled=override.enabled if override and override.enabled is not None else True,
         model=override.model if override and override.model else spec.default_model,
         charter=override.charter if override and override.charter else spec.default_charter,

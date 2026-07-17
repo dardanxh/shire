@@ -6,9 +6,9 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import {
-  CheckboxField,
   FormFooter,
   SelectField,
+  SwitchField,
   TextareaField,
   TextField,
 } from "@/components/shared/form-fields";
@@ -157,15 +157,15 @@ export function HobitFormDialog({
               disabled={isPending}
             >
               {HOBIT_MODELS.map((m) => (
-                <SelectItem key={m} value={m}>
-                  {m}
+                <SelectItem key={m.alias} value={m.alias}>
+                  {m.version}
                 </SelectItem>
               ))}
             </SelectField>
             <TextareaField<HobitFormValues>
               name="charter"
               label={t("hobits.form.charter.label")}
-              description={t("hobits.form.charter.desc")}
+              info={t("hobits.form.charter.desc")}
               rows={4}
               disabled={isPending}
               className="font-mono text-xs"
@@ -173,7 +173,7 @@ export function HobitFormDialog({
             <TextareaField<HobitFormValues>
               name="instructions"
               label={t("hobits.form.instructions.label")}
-              description={t("hobits.form.instructions.desc")}
+              info={t("hobits.form.instructions.desc")}
               rows={8}
               disabled={isPending}
               className="font-mono text-xs"
@@ -191,9 +191,10 @@ export function HobitFormDialog({
               placeholder="performance, latency"
               disabled={isPending}
             />
-            <CheckboxField<HobitFormValues>
+            <SwitchField<HobitFormValues>
               name="enabled"
               label={t("hobits.form.enabled.label")}
+              info={t("hobits.form.enabled.desc")}
               disabled={isPending}
             />
             <FormFooter

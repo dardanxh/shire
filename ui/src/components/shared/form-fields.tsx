@@ -1,4 +1,4 @@
-import { Loader2Icon } from "lucide-react";
+import { InfoIcon, Loader2Icon } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import {
   type FieldPath,
@@ -22,7 +22,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 /**
  * Shared RHF field components. They read `control` from `useFormContext<T>()`
@@ -35,12 +41,35 @@ type BaseFieldProps<T extends FieldValues> = {
   name: FieldPath<T>;
   label: string;
   description?: ReactNode;
+  /** Hover help: renders an info icon next to the label with this text in a tooltip. */
+  info?: string;
 };
+
+/** The label line: plain label, or label + hoverable info icon when `info` is set. */
+function FieldLabel({ label, info }: { label: string; info?: string }) {
+  if (!info) return <FormLabel>{label}</FormLabel>;
+  return (
+    <div className="flex items-center gap-1.5">
+      <FormLabel>{label}</FormLabel>
+      <Tooltip>
+        <TooltipTrigger
+          type="button"
+          aria-label={info}
+          className="text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <InfoIcon className="size-3.5" />
+        </TooltipTrigger>
+        <TooltipContent>{info}</TooltipContent>
+      </Tooltip>
+    </div>
+  );
+}
 
 export function TextField<T extends FieldValues>({
   name,
   label,
   description,
+  info,
   ...inputProps
 }: BaseFieldProps<T> & Omit<ComponentProps<typeof Input>, "name">) {
   const { control } = useFormContext<T>();
@@ -50,7 +79,7 @@ export function TextField<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FieldLabel label={label} info={info} />
           <FormControl>
             <Input {...field} {...inputProps} />
           </FormControl>
@@ -68,6 +97,7 @@ export function SelectField<T extends FieldValues>({
   name,
   label,
   description,
+  info,
   placeholder,
   disabled,
   children,
@@ -84,7 +114,7 @@ export function SelectField<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FieldLabel label={label} info={info} />
           <Select<string>
             value={field.value ?? ""}
             onValueChange={(value) => field.onChange(value)}
@@ -111,6 +141,7 @@ export function TextareaField<T extends FieldValues>({
   name,
   label,
   description,
+  info,
   ...textareaProps
 }: BaseFieldProps<T> & Omit<ComponentProps<typeof Textarea>, "name">) {
   const { control } = useFormContext<T>();
@@ -120,10 +151,43 @@ export function TextareaField<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FieldLabel label={label} info={info} />
           <FormControl>
             <Textarea {...field} {...textareaProps} />
           </FormControl>
+          {description ? (
+            <FormDescription>{description}</FormDescription>
+          ) : null}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+export function SwitchField<T extends FieldValues>({
+  name,
+  label,
+  description,
+  info,
+  disabled,
+}: BaseFieldProps<T> & { disabled?: boolean }) {
+  const { control } = useFormContext<T>();
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex flex-row items-center gap-2 space-y-0">
+          <FormControl>
+            <Switch
+              checked={Boolean(field.value)}
+              onCheckedChange={(checked) => field.onChange(checked)}
+              onBlur={field.onBlur}
+              disabled={disabled}
+            />
+          </FormControl>
+          <FieldLabel label={label} info={info} />
           {description ? (
             <FormDescription>{description}</FormDescription>
           ) : null}

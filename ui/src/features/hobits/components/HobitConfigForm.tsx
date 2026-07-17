@@ -4,19 +4,16 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import {
-  CheckboxField,
   FormFooter,
-  SelectField,
+  SwitchField,
   TextareaField,
   TextField,
 } from "@/components/shared/form-fields";
 import { Form } from "@/components/ui/form";
-import { SelectItem } from "@/components/ui/select";
 import type { HobitOut } from "@/lib/api";
 import { useUpdateHobitMutation } from "../api";
 import { type HobitConfigFormValues, makeHobitConfigSchema } from "../schemas";
-
-const MODEL_OPTIONS = ["sonnet", "opus", "haiku"];
+import { ModelPickerField } from "./ModelPickerField";
 
 export function HobitConfigForm({ hobit }: { hobit: HobitOut }) {
   const { t } = useTranslation();
@@ -25,12 +22,12 @@ export function HobitConfigForm({ hobit }: { hobit: HobitOut }) {
   const form = useForm<HobitConfigFormValues>({
     resolver: standardSchemaResolver(makeHobitConfigSchema(t)),
     defaultValues: {
+      name: hobit.name,
       enabled: hobit.enabled,
       model: hobit.model,
       charter: hobit.charter,
       instructions: hobit.instructions,
       timeout_seconds: String(hobit.timeout_seconds),
-      tags: hobit.tags.join(", "),
     },
   });
 
@@ -39,10 +36,8 @@ export function HobitConfigForm({ hobit }: { hobit: HobitOut }) {
       {
         ...values,
         timeout_seconds: Number(values.timeout_seconds),
-        tags: values.tags
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
+        // Tags are edited inline at the top of the page; carry the current set through.
+        tags: hobit.tags,
       },
       { onSuccess: () => toast.success(t("hobits.view.saved_toast")) },
     );
@@ -51,26 +46,26 @@ export function HobitConfigForm({ hobit }: { hobit: HobitOut }) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <CheckboxField<HobitConfigFormValues>
-          name="enabled"
-          label={t("hobits.form.enabled.label")}
+        <TextField<HobitConfigFormValues>
+          name="name"
+          label={t("hobits.form.name.label")}
           disabled={isPending}
         />
-        <SelectField<HobitConfigFormValues>
+        <SwitchField<HobitConfigFormValues>
+          name="enabled"
+          label={t("hobits.form.enabled.label")}
+          info={t("hobits.form.enabled.desc")}
+          disabled={isPending}
+        />
+        <ModelPickerField<HobitConfigFormValues>
           name="model"
           label={t("hobits.form.model.label")}
           disabled={isPending}
-        >
-          {MODEL_OPTIONS.map((m) => (
-            <SelectItem key={m} value={m}>
-              {m}
-            </SelectItem>
-          ))}
-        </SelectField>
+        />
         <TextareaField<HobitConfigFormValues>
           name="charter"
           label={t("hobits.form.charter.label")}
-          description={t("hobits.form.charter.desc")}
+          info={t("hobits.form.charter.desc")}
           rows={5}
           disabled={isPending}
           className="font-mono text-xs"
@@ -78,7 +73,7 @@ export function HobitConfigForm({ hobit }: { hobit: HobitOut }) {
         <TextareaField<HobitConfigFormValues>
           name="instructions"
           label={t("hobits.form.instructions.label")}
-          description={t("hobits.form.instructions.desc")}
+          info={t("hobits.form.instructions.desc")}
           rows={10}
           disabled={isPending}
           className="font-mono text-xs"
@@ -87,13 +82,6 @@ export function HobitConfigForm({ hobit }: { hobit: HobitOut }) {
           name="timeout_seconds"
           type="number"
           label={t("hobits.form.timeout.label")}
-          disabled={isPending}
-        />
-        <TextField<HobitConfigFormValues>
-          name="tags"
-          label={t("hobits.form.tags.label")}
-          description={t("hobits.form.tags.desc")}
-          placeholder="data engineering, streaming"
           disabled={isPending}
         />
         <FormFooter submitLabel={t("hobits.form.save")} isPending={isPending} />

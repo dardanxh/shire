@@ -32,6 +32,7 @@ class SqlHobitConfigRepository:
             return None
         return HobitConfigOverride(
             slug=row.slug,
+            name=row.name,
             enabled=row.enabled,
             model=row.model,
             charter=row.charter,
@@ -44,6 +45,7 @@ class SqlHobitConfigRepository:
         self,
         slug: str,
         *,
+        name: str,
         enabled: bool,
         model: str,
         charter: str,
@@ -56,6 +58,7 @@ class SqlHobitConfigRepository:
         if row is None:
             row = HobitConfigRow(slug=slug, created_at=now)
             self._session.add(row)
+        row.name = name
         row.enabled = enabled
         row.model = model
         row.charter = charter

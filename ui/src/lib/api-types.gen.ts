@@ -3400,6 +3400,8 @@ export interface components {
          * @description Full effective config sent by the config form; stored as overrides.
          */
         HobitConfigUpdate: {
+            /** Name */
+            name: string;
             /** Enabled */
             enabled: boolean;
             /** Model */

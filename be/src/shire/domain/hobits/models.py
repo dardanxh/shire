@@ -37,6 +37,8 @@ class HobitConfigRow(Base):
     __tablename__ = "hobit_configs"
 
     slug: Mapped[str] = mapped_column(String(64), primary_key=True)
+    # Display-name override. NULL = use the spec's name.
+    name: Mapped[str | None] = mapped_column(String(120), nullable=True)
     enabled: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
     model: Mapped[str | None] = mapped_column(String(64), nullable=True)
     charter: Mapped[str | None] = mapped_column(Text, nullable=True)

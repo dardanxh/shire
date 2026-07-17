@@ -8,6 +8,7 @@ import { z } from "zod";
  */
 export function makeHobitConfigSchema(t: TFunction) {
   return z.object({
+    name: z.string().trim().min(1, t("hobits.form.name.required")),
     enabled: z.boolean(),
     model: z.string().trim().min(1, t("hobits.form.model.required")),
     charter: z.string().trim().min(1, t("hobits.form.charter.required")),
@@ -18,7 +19,7 @@ export function makeHobitConfigSchema(t: TFunction) {
     timeout_seconds: z
       .string()
       .refine((v) => Number(v) > 0, t("hobits.form.timeout.invalid")),
-    tags: z.string(), // comma-separated; split in the submit handler
+    // Tags are edited inline on the view page, not in this form.
   });
 }
 
@@ -26,7 +27,16 @@ export type HobitConfigFormValues = z.infer<
   ReturnType<typeof makeHobitConfigSchema>
 >;
 
-export const HOBIT_MODELS = ["sonnet", "opus", "haiku"] as const;
+/**
+ * The models a hobit can run on — the Claude Code CLI's model aliases (`--model <alias>`).
+ * Name/version are product names (not translated); descriptions live under `hobits.models.*`.
+ */
+export const HOBIT_MODELS = [
+  { alias: "opus", name: "Opus", version: "Opus 4.8" },
+  { alias: "fable", name: "Fable", version: "Fable 5" },
+  { alias: "sonnet", name: "Sonnet", version: "Sonnet 4.6" },
+  { alias: "haiku", name: "Haiku", version: "Haiku 4.5" },
+] as const;
 
 /**
  * Full custom-hobit form (create + edit). Superset of the config form with identity fields

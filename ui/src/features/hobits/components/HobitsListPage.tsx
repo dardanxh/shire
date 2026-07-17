@@ -15,12 +15,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { extractErrorMessage, type HobitOut } from "@/lib/api";
 import { useHobitsQuery, useUpdateHobitMutation } from "../api";
+import { HOBIT_MODELS } from "../schemas";
 import { DeleteHobitDialog } from "./DeleteHobitDialog";
 import { HobitFormDialog } from "./HobitFormDialog";
-
-const MODEL_OPTIONS = ["sonnet", "opus", "haiku"];
 
 export function HobitsListPage() {
   const { t } = useTranslation();
@@ -116,15 +116,7 @@ export function HobitsListPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {t("hobits.list.title")}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("hobits.list.subtitle")}
-          </p>
-        </div>
+      <div className="flex justify-end">
         <HobitFormDialog
           trigger={
             <Button size="sm">
@@ -202,9 +194,9 @@ function ModelCell({ hobit }: { hobit: HobitOut }) {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {MODEL_OPTIONS.map((m) => (
-          <SelectItem key={m} value={m}>
-            {m}
+        {HOBIT_MODELS.map((m) => (
+          <SelectItem key={m.alias} value={m.alias}>
+            {m.version}
           </SelectItem>
         ))}
       </SelectContent>
@@ -217,28 +209,26 @@ function StatusCell({ hobit }: { hobit: HobitOut }) {
   const { t } = useTranslation();
   const { mutate: save, isPending } = useUpdateHobitMutation(hobit.slug);
   return (
-    <label className="inline-flex cursor-pointer items-center gap-2 text-xs">
-      <input
-        type="checkbox"
+    <div className="inline-flex items-center gap-2 text-xs">
+      <Switch
         checked={hobit.enabled}
         disabled={isPending}
-        onChange={(e) =>
-          save({ ...configOf(hobit), enabled: e.target.checked })
-        }
-        className="size-4 rounded border border-input accent-primary"
+        aria-label={t("hobits.list.col_status")}
+        onCheckedChange={(enabled) => save({ ...configOf(hobit), enabled })}
       />
       <span className="text-muted-foreground">
         {hobit.enabled
           ? t("hobits.status.enabled")
           : t("hobits.status.disabled")}
       </span>
-    </label>
+    </div>
   );
 }
 
 /** The editable config fields carried on a row, as a HobitConfigUpdate body. */
 function configOf(h: HobitOut) {
   return {
+    name: h.name,
     enabled: h.enabled,
     model: h.model,
     charter: h.charter,

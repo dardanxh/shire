@@ -1,7 +1,5 @@
 {
   "home": {
-    "title": "Welcome to Shire",
-    "subtitle": "Your repositories, tended — here's how everything is doing.",
     "system": {
       "title": "System",
       "claude_ok": "Claude Code",

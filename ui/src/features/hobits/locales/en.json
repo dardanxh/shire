@@ -1,8 +1,6 @@
 {
   "hobits": {
     "list": {
-      "title": "Hobits",
-      "subtitle": "Configurable agents that reason over your repositories.",
       "empty": "No hobits registered.",
       "col_name": "Hobit",
       "col_category": "Category",
@@ -25,9 +23,8 @@
     },
     "view": {
       "crumb": "Hobit",
-      "back": "All hobits",
-      "config_title": "Configuration",
-      "config_desc": "Saved as overrides. The charter is passed as the agent's persona.",
+      "tags_add": "Add tag",
+      "tags_remove": "Remove tag {{tag}}",
       "timeline_title": "Timeline",
       "runs_title": "Run history",
       "runs_empty": "No runs yet.",
@@ -61,24 +58,25 @@
         "required": "A category is required"
       },
       "enabled": {
-        "label": "Enabled"
+        "label": "Enabled",
+        "desc": "Master switch for this hobit. On: it can run — manually or on its repository schedules. Off: every run is blocked (manual and scheduled) until you switch it back on; past runs and posts stay visible."
       },
       "model": {
         "label": "Model",
         "required": "Model is required"
       },
       "charter": {
-        "label": "Charter (persona)",
+        "label": "Charter",
         "desc": "Who the hobit is — passed as the agent's system prompt.",
         "required": "Charter is required"
       },
       "instructions": {
-        "label": "Instructions (task)",
+        "label": "Instructions",
         "desc": "What the hobit should do and produce. Change this to change its behavior. The context snapshot and the required JSON output format are added automatically.",
         "required": "Instructions are required"
       },
       "timeout": {
-        "label": "Timeout (seconds)",
+        "label": "Timeout in seconds",
         "invalid": "Must be a positive number"
       },
       "tags": {
@@ -89,6 +87,12 @@
     },
     "tags": {
       "clear_filter": "Clear"
+    },
+    "models": {
+      "opus": "Best for everyday, complex tasks",
+      "fable": "Most capable for your hardest and longest-running tasks",
+      "sonnet": "Efficient for routine tasks",
+      "haiku": "Fastest for quick answers"
     },
     "run": {
       "title": "Mental model (Repo-Onboarding hobit)",

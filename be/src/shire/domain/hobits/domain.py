@@ -96,6 +96,7 @@ class HobitConfigOverride:
     """The persisted override row (NULLs mean "use the spec default")."""
 
     slug: str
+    name: str | None
     enabled: bool | None
     model: str | None
     charter: str | None
@@ -109,6 +110,7 @@ class HobitConfig:
     """Effective config = spec defaults ⊕ override."""
 
     slug: str
+    name: str
     enabled: bool
     model: str
     charter: str

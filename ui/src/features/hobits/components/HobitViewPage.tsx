@@ -1,19 +1,13 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowLeftIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { PencilIcon, Trash2Icon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { DataTable } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   BriefingFeed,
@@ -27,11 +21,13 @@ import {
   extractErrorMessage,
   type HobitRunOut,
 } from "@/lib/api";
+import { useCrumbOverride } from "@/lib/crumb";
 import { formatDateTime } from "@/lib/format";
 import { useHobitQuery, useHobitRunsQuery } from "../api";
 import { DeleteHobitDialog } from "./DeleteHobitDialog";
 import { HobitConfigForm } from "./HobitConfigForm";
 import { HobitFormDialog } from "./HobitFormDialog";
+import { TagsEditor } from "./TagsEditor";
 
 export function HobitViewPage({ slug }: { slug: string }) {
   const { t } = useTranslation();
@@ -44,6 +40,9 @@ export function HobitViewPage({ slug }: { slug: string }) {
   const [selectedPost, setSelectedPost] = useState<BriefingItemOut | null>(
     null,
   );
+
+  // The page has no title of its own — the hobit's name is the breadcrumb leaf.
+  useCrumbOverride(hobit?.name);
 
   // Opening a hobit marks its posts seen (clears its unread count).
   useEffect(() => {
@@ -98,31 +97,22 @@ export function HobitViewPage({ slug }: { slug: string }) {
   if (isPending) return <Skeleton className="h-96 w-full" />;
   if (isError || !hobit) {
     return (
-      <div className="space-y-4">
-        <BackLink label={t("hobits.view.back")} />
-        <Card className="p-6 text-sm text-destructive">
-          {error ? extractErrorMessage(error) : t("common.states.error_body")}
-        </Card>
-      </div>
+      <Card className="p-6 text-sm text-destructive">
+        {error ? extractErrorMessage(error) : t("common.states.error_body")}
+      </Card>
     );
   }
 
   return (
     <div className="space-y-6">
-      <BackLink label={t("hobits.view.back")} />
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {hobit.name}
-          </h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            {hobit.description}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-1.5">
           <Badge variant="outline" className="text-xs">
             {hobit.category}
           </Badge>
+          <TagsEditor hobit={hobit} />
+        </div>
+        <div className="flex items-center gap-2">
           {hobit.custom ? (
             <>
               <HobitFormDialog
@@ -157,10 +147,6 @@ export function HobitViewPage({ slug }: { slug: string }) {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>{t("hobits.view.config_title")}</CardTitle>
-          <CardDescription>{t("hobits.view.config_desc")}</CardDescription>
-        </CardHeader>
         <CardContent>
           <HobitConfigForm hobit={hobit} />
         </CardContent>
@@ -203,18 +189,5 @@ export function HobitViewPage({ slug }: { slug: string }) {
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-function BackLink({ label }: { label: string }) {
-  return (
-    <Link
-      to="/hobits"
-      search={{ tab: "hobits" }}
-      className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-    >
-      <ArrowLeftIcon className="size-4" />
-      {label}
-    </Link>
   );
 }
