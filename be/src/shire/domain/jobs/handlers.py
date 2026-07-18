@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from shire.domain.hobits.jobs import handle_hobit_run
+from shire.domain.hobits.jobs import handle_feedback_distill, handle_hobit_run
 from shire.domain.jobs import kinds
 from shire.domain.jobs.models import JobRow
 from shire.domain.merge_review.jobs import (
@@ -44,6 +44,7 @@ HANDLERS: dict[str, Callable[[JobRow], None]] = {
     kinds.SUBSTRATE_CODEBASE_OVERVIEW: handle_codebase_overview,
     kinds.SUBSTRATE_DEPENDENCY_GAINS: handle_dependency_gains,
     kinds.HOBIT_RUN: handle_hobit_run,
+    kinds.HOBIT_FEEDBACK_DISTILL: handle_feedback_distill,
     kinds.PRINCIPLE_AUDIT: handle_principle_audit,
     kinds.NEWS_POLL: handle_news_poll,
     kinds.NEWS_RECOMMEND: handle_news_recommend,

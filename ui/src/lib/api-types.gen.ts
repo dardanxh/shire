@@ -914,6 +914,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/hobits/{slug}/guidance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Hobit Guidance
+         * @description The hobit's standing guidance distilled from run feedback (empty until distilled).
+         */
+        get: operations["get_hobit_guidance_api_v1_hobits__slug__guidance_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/hobits/{slug}/guidance/distill": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Distill Hobit Guidance
+         * @description Force a feedback-distillation job now (async — poll GET .../guidance for the result).
+         */
+        post: operations["distill_hobit_guidance_api_v1_hobits__slug__guidance_distill_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/repositories/{repository_id}/hobits": {
         parameters: {
             query?: never;
@@ -1028,6 +1068,28 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/hobits/runs/{run_id}/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Upsert Run Feedback
+         * @description Rate a run's response 1-5 stars with an optional comment (one per run; PUT replaces it).
+         *     Feedback tunes the hobit's future runs — raw in the next prompt, distilled over time.
+         */
+        put: operations["upsert_run_feedback_api_v1_repositories__repository_id__hobits_runs__run_id__feedback_put"];
+        post?: never;
+        /** Delete Run Feedback */
+        delete: operations["delete_run_feedback_api_v1_repositories__repository_id__hobits_runs__run_id__feedback_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3416,6 +3478,22 @@ export interface components {
             tags: string[];
         };
         /**
+         * HobitGuidanceResult
+         * @description A hobit's standing guidance distilled from feedback (empty until the first distill).
+         */
+        HobitGuidanceResult: {
+            /** Hobit Slug */
+            hobit_slug: string;
+            /** Guidance */
+            guidance: string | null;
+            /** Last Distilled At */
+            last_distilled_at: string | null;
+            /** Feedback Count */
+            feedback_count: number;
+            /** Distill Pending */
+            distill_pending: boolean;
+        };
+        /**
          * HobitResult
          * @description A hobit: registry identity merged with its effective config + last-run summary.
          */
@@ -3499,6 +3577,33 @@ export interface components {
             raw_output: string | null;
             /** Error */
             error: string | null;
+            feedback?: components["schemas"]["HobitRunFeedbackResult"] | null;
+        };
+        /** HobitRunFeedbackResult */
+        HobitRunFeedbackResult: {
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+            /** Hobit Slug */
+            hobit_slug: string;
+            /** Repository Slug */
+            repository_slug: string;
+            /** Rating */
+            rating: number;
+            /** Comment */
+            comment: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /**
          * HobitRunResult
@@ -5248,6 +5353,16 @@ export interface components {
             title?: string | null;
             /** Description */
             description?: string | null;
+        };
+        /**
+         * UpsertHobitRunFeedback
+         * @description The user's rating of one run's response (one per run; PUT replaces it).
+         */
+        UpsertHobitRunFeedback: {
+            /** Rating */
+            rating: number;
+            /** Comment */
+            comment?: string | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -7067,6 +7182,68 @@ export interface operations {
             };
         };
     };
+    get_hobit_guidance_api_v1_hobits__slug__guidance_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitGuidanceResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    distill_hobit_guidance_api_v1_hobits__slug__guidance_distill_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitGuidanceResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_repo_hobits_api_v1_repositories__repository_id__hobits_get: {
         parameters: {
             query?: never;
@@ -7284,6 +7461,72 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["HobitRunDetailResult"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upsert_run_feedback_api_v1_repositories__repository_id__hobits_runs__run_id__feedback_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertHobitRunFeedback"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitRunFeedbackResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_run_feedback_api_v1_repositories__repository_id__hobits_runs__run_id__feedback_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

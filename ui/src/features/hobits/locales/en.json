@@ -88,6 +88,14 @@
     "tags": {
       "clear_filter": "Clear"
     },
+    "guidance": {
+      "title": "Learned guidance",
+      "empty": "Nothing learned yet. Rate this hobit's responses (open a post and leave stars + a comment) — enough feedback distills into standing guidance for its future runs.",
+      "distill_now": "Distill now",
+      "pending": "Distilling…",
+      "meta": "Distilled {{when}} from {{count}} feedback entries",
+      "toast_queued": "Distillation queued — the guidance will refresh when it lands."
+    },
     "models": {
       "opus": "Best for everyday, complex tasks",
       "fable": "Most capable for your hardest and longest-running tasks",

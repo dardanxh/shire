@@ -34,21 +34,36 @@ from shire.domain.hobits.repo_hobit import RepoHobit
 from shire.domain.hobits.repositories import (
     SqlCustomHobitRepository,
     SqlHobitConfigRepository,
+    SqlHobitFeedbackRepository,
+    SqlHobitGuidanceRepository,
     SqlHobitRunRepository,
     SqlRepositoryHobitRepository,
 )
 from shire.domain.hobits.schemas import (
     CreateHobit,
     HobitConfigUpdate,
+    HobitGuidanceResult,
     HobitResult,
     HobitRunDetailResult,
+    HobitRunFeedbackResult,
     HobitRunResult,
     UpdateHobit,
+    UpsertHobitRunFeedback,
 )
 from shire.domain.jobs import kinds as job_kinds
 from shire.domain.jobs.services import JobService
 from shire.domain.repository.services import RepositoryService
 from shire.orchestration.schedule_sync import PrefectScheduleSync, validate_cadence
+
+# The feedback cycle: how many raw entries ride along in each run prompt, when accumulated
+# feedback triggers a distillation job, and how much of it the distiller reads.
+_RAW_FEEDBACK_LIMIT = 5
+_DISTILL_THRESHOLD = 3
+_DISTILL_DEBOUNCE_SECONDS = 900
+_DISTILL_INPUT_LIMIT = 25
+
+# Statuses whose runs produced a response the user can rate.
+_RATABLE_STATUSES = (HobitRunStatus.completed.value, HobitRunStatus.parse_failed.value)
 
 
 class HobitService:
@@ -60,6 +75,8 @@ class HobitService:
         self._runs = SqlHobitRunRepository(session)
         self._access = SqlRepositoryHobitRepository(session)
         self._briefing = BriefingService(session)
+        self._feedback = SqlHobitFeedbackRepository(session)
+        self._guidance = SqlHobitGuidanceRepository(session)
 
     # --- registry resolution (code roster + user-authored custom hobits) ------
     def _resolve(self, slug: str) -> Hobit | None:
@@ -221,9 +238,10 @@ class HobitService:
             if get_hobit(slug) is not None:
                 raise ConflictError("Built-in hobits can't be deleted — disable them instead.")
             raise NotFoundError(f"Unknown hobit: {slug}")
-        self._runs.delete_for_hobit(slug)  # briefing items cascade via FK
+        self._runs.delete_for_hobit(slug)  # briefing items + feedback cascade via FK
         self._access.remove_hobit(slug)
         self._configs.delete(slug)
+        self._guidance.delete(slug)
         self._custom.delete(slug)
 
     def list_runs(self, repository_id: uuid.UUID) -> list[HobitRunResult]:
@@ -237,7 +255,90 @@ class HobitService:
         record = self._runs.get(run_id)
         if record is None:
             raise NotFoundError("Hobit run not found")
-        return HobitRunDetailResult.of_detail(record)
+        return HobitRunDetailResult.of_detail(record, feedback=self._feedback.get(run_id))
+
+    # --- the feedback cycle ---------------------------------------------------
+    def upsert_feedback(
+        self, repository_id: uuid.UUID, run_id: uuid.UUID, data: UpsertHobitRunFeedback
+    ) -> HobitRunFeedbackResult:
+        """Save the user's rating of a run's response, and kick off a distillation when enough
+        feedback has accumulated since the last one."""
+        run = self._require_repo_run(repository_id, run_id)
+        if run.status not in _RATABLE_STATUSES:
+            raise ConflictError("Only runs that produced a response can be rated.")
+        repo_slug = RepositoryService(self._session).get(repository_id).slug
+        record = self._feedback.upsert(
+            run_id=run_id,
+            hobit_slug=run.hobit_slug,
+            repository_slug=repo_slug,
+            rating=data.rating,
+            comment=data.comment or None,
+        )
+        self._maybe_enqueue_distill(run.hobit_slug)
+        return HobitRunFeedbackResult.of(record)
+
+    def delete_feedback(self, repository_id: uuid.UUID, run_id: uuid.UUID) -> None:
+        self._require_repo_run(repository_id, run_id)
+        if not self._feedback.delete(run_id):
+            raise NotFoundError("This run has no feedback.")
+
+    def get_guidance(self, slug: str) -> HobitGuidanceResult:
+        self._require_spec(slug)
+        return HobitGuidanceResult.of(slug, self._guidance.get(slug))
+
+    def trigger_distill(self, slug: str) -> HobitGuidanceResult:
+        """Force a distillation job now (async — poll the guidance endpoint for the result)."""
+        self._require_spec(slug)
+        if self._feedback.count_changed_since(slug, None) == 0:
+            raise ConflictError("No feedback to distill yet.")
+        self._enqueue_distill(slug)
+        return self.get_guidance(slug)
+
+    def _require_repo_run(self, repository_id: uuid.UUID, run_id: uuid.UUID) -> HobitRunRecord:
+        run = self._runs.get(run_id)
+        if run is None or run.repository_id != repository_id:
+            raise NotFoundError("Hobit run not found")
+        return run
+
+    def _maybe_enqueue_distill(self, slug: str) -> None:
+        guidance = self._guidance.get(slug)
+        if guidance is not None and guidance.distill_enqueued_at is not None:
+            in_flight = (
+                guidance.last_distilled_at is None
+                or guidance.distill_enqueued_at > guidance.last_distilled_at
+            )
+            age = (datetime.now(UTC) - guidance.distill_enqueued_at).total_seconds()
+            if in_flight and age < _DISTILL_DEBOUNCE_SECONDS:
+                return
+        since = guidance.last_distilled_at if guidance else None
+        if self._feedback.count_changed_since(slug, since) >= _DISTILL_THRESHOLD:
+            self._enqueue_distill(slug)
+
+    def _enqueue_distill(self, slug: str) -> None:
+        # Local import: jobs.py imports this module for its completion handler.
+        from shire.domain.hobits.jobs import build_distill_prompt
+
+        spec = self._require_spec(slug)
+        guidance = self._guidance.get(slug)
+        entries = self._feedback.recent_entries(slug, _DISTILL_INPUT_LIMIT)
+        total = self._feedback.count_changed_since(slug, None)
+        jobs = JobService(self._session)
+        model, _timeout = jobs.engine_defaults()
+        jobs.enqueue(
+            kind=job_kinds.HOBIT_FEEDBACK_DISTILL,
+            title=f"Feedback distillation: {spec.name}",
+            prompt=build_distill_prompt(
+                spec.name, guidance.guidance if guidance else None, entries
+            ),
+            payload={
+                # No cwd: a prompt-only job — the distiller works entirely from the entries.
+                "slug": slug,
+                "feedback_count": total,
+                "model": model,
+                "timeout_seconds": 120.0,
+            },
+        )
+        self._guidance.mark_enqueued(slug)
 
     # --- the run lifecycle ----------------------------------------------------
     def run_hobit(
@@ -264,12 +365,17 @@ class HobitService:
             raise ConflictError("Repository has no local clone yet.")
         context_md = self._context.get_markdown(repository_id).effective
 
+        # The feedback cycle: distilled standing guidance + the newest raw ratings ride along
+        # in the prompt so the hobit tunes itself on what the user said about past responses.
+        guidance = self._guidance.get(slug)
         ctx = HobitContext(
             repository_id=repository_id,
             slug=slug,
             repo_slug=pack.identity.slug,
             clone_path=pack.identity.clone_path,
             context_markdown=context_md,
+            learned_guidance=guidance.guidance if guidance else None,
+            feedback_entries=tuple(self._feedback.recent_entries(slug, _RAW_FEEDBACK_LIMIT)),
         )
         record = HobitRunRecord(
             id=uuid.uuid4(),

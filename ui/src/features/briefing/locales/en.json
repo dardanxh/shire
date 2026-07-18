@@ -3,6 +3,18 @@
     "empty": "No briefing items yet. Run a hobit on a repository to populate this.",
     "scores": "importance {{importance}} · confidence {{confidence}} · urgency {{urgency}}",
     "no_detail": "No detail available for this post.",
+    "feedback": {
+      "title": "Rate this response",
+      "star_label": "Rate {{n}} of 5 stars",
+      "rating_required": "Pick a star rating first.",
+      "comment_label": "Comment",
+      "comment_placeholder": "What should this hobit keep doing or change? Your feedback tunes its future runs.",
+      "save": "Save rating",
+      "update": "Update rating",
+      "remove": "Remove rating",
+      "saved_toast": "Feedback saved — the hobit will tune its next run on it.",
+      "removed_toast": "Feedback removed"
+    },
     "unread": "Unread",
     "hobit_timeline_empty": "This hobit hasn't posted anything yet.",
     "tiers": {

@@ -50,6 +50,42 @@ export function useHobitRunsQuery(slug: string) {
   });
 }
 
+/** The hobit's standing guidance distilled from run feedback (empty until distilled). */
+export function useHobitGuidanceQuery(slug: string) {
+  return useQuery({
+    queryKey: hobitKeys.guidance(slug),
+    queryFn: async () => {
+      const { data, error } = await api.GET("/api/v1/hobits/{slug}/guidance", {
+        params: { path: { slug } },
+      });
+      if (error) throw error;
+      return data;
+    },
+    enabled: slug !== "",
+    // A distillation lands asynchronously (engine job) — poll while one is in flight.
+    refetchInterval: (query) =>
+      query.state.data?.distill_pending ? 5000 : false,
+  });
+}
+
+/** Force a feedback-distillation job now (async — the guidance refreshes when it lands). */
+export function useDistillGuidanceMutation(slug: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { data, error } = await api.POST(
+        "/api/v1/hobits/{slug}/guidance/distill",
+        { params: { path: { slug } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(hobitKeys.guidance(slug), data);
+    },
+  });
+}
+
 /** Save a hobit's config (model, charter, timeout, enabled) as overrides. */
 export function useUpdateHobitMutation(slug: string) {
   const queryClient = useQueryClient();

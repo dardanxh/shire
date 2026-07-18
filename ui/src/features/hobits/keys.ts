@@ -4,4 +4,5 @@ export const hobitKeys = {
   details: () => [...hobitKeys.all, "detail"] as const,
   detail: (slug: string) => [...hobitKeys.details(), slug] as const,
   runs: (slug: string) => [...hobitKeys.detail(slug), "runs"] as const,
+  guidance: (slug: string) => [...hobitKeys.detail(slug), "guidance"] as const,
 };

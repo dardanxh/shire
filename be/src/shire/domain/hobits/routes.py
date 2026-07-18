@@ -11,12 +11,15 @@ from shire.core.db import get_session
 from shire.domain.hobits.schemas import (
     CreateHobit,
     HobitConfigUpdate,
+    HobitGuidanceResult,
     HobitResult,
     HobitRunDetailResult,
+    HobitRunFeedbackResult,
     HobitRunResult,
     SetCadenceRequest,
     SetRepoHobitsRequest,
     UpdateHobit,
+    UpsertHobitRunFeedback,
 )
 from shire.domain.hobits.services import HobitService
 
@@ -69,6 +72,20 @@ def delete_hobit(slug: str, session: Session = Depends(get_session)) -> None:
 def list_hobit_runs(slug: str, session: Session = Depends(get_session)) -> list[HobitRunResult]:
     """This hobit's runs across every repository, newest first."""
     return HobitService(session).list_hobit_runs(slug)
+
+
+@router.get("/hobits/{slug}/guidance", response_model=HobitGuidanceResult)
+def get_hobit_guidance(slug: str, session: Session = Depends(get_session)) -> HobitGuidanceResult:
+    """The hobit's standing guidance distilled from run feedback (empty until distilled)."""
+    return HobitService(session).get_guidance(slug)
+
+
+@router.post("/hobits/{slug}/guidance/distill", response_model=HobitGuidanceResult)
+def distill_hobit_guidance(
+    slug: str, session: Session = Depends(get_session)
+) -> HobitGuidanceResult:
+    """Force a feedback-distillation job now (async — poll GET .../guidance for the result)."""
+    return HobitService(session).trigger_distill(slug)
 
 
 @router.get("/repositories/{repository_id}/hobits", response_model=list[HobitResult])
@@ -141,3 +158,28 @@ def get_run(
     repository_id: uuid.UUID, run_id: uuid.UUID, session: Session = Depends(get_session)
 ) -> HobitRunDetailResult:
     return HobitService(session).get_run(run_id)
+
+
+@router.put(
+    "/repositories/{repository_id}/hobits/runs/{run_id}/feedback",
+    response_model=HobitRunFeedbackResult,
+)
+def upsert_run_feedback(
+    repository_id: uuid.UUID,
+    run_id: uuid.UUID,
+    body: UpsertHobitRunFeedback,
+    session: Session = Depends(get_session),
+) -> HobitRunFeedbackResult:
+    """Rate a run's response 1-5 stars with an optional comment (one per run; PUT replaces it).
+    Feedback tunes the hobit's future runs — raw in the next prompt, distilled over time."""
+    return HobitService(session).upsert_feedback(repository_id, run_id, body)
+
+
+@router.delete(
+    "/repositories/{repository_id}/hobits/runs/{run_id}/feedback",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_run_feedback(
+    repository_id: uuid.UUID, run_id: uuid.UUID, session: Session = Depends(get_session)
+) -> None:
+    HobitService(session).delete_feedback(repository_id, run_id)

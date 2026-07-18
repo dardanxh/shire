@@ -54,6 +54,17 @@ class HobitOutput(BaseModel):
 
 
 @dataclass(frozen=True)
+class FeedbackEntry:
+    """One feedback item shaped for prompt injection (feedback row ⋈ its run's headline)."""
+
+    rating: int
+    comment: str | None
+    repository_slug: str
+    headline: str | None
+    created_at: datetime
+
+
+@dataclass(frozen=True)
 class HobitContext:
     """What a hobit is handed to do its work."""
 
@@ -62,6 +73,10 @@ class HobitContext:
     repo_slug: str  # owner/name
     clone_path: str
     context_markdown: str  # the effective context pack, embedded so the run is robust
+    # The feedback cycle: standing guidance distilled from ratings + the raw recent entries.
+    # Defaulted so the `Hobit` protocol and non-feedback callers (merge review) stay untouched.
+    learned_guidance: str | None = None
+    feedback_entries: tuple[FeedbackEntry, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -128,6 +143,30 @@ class CustomHobit:
     enabled: bool
     created_at: datetime
     updated_at: datetime
+
+
+@dataclass(frozen=True)
+class HobitFeedbackRecord:
+    """The user's rating of one run's response (one per run, upsertable)."""
+
+    run_id: uuid.UUID
+    hobit_slug: str
+    repository_slug: str
+    rating: int
+    comment: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
+@dataclass(frozen=True)
+class HobitGuidanceRecord:
+    """Standing guidance distilled from a hobit's accumulated feedback."""
+
+    hobit_slug: str
+    guidance: str | None
+    last_distilled_at: datetime | None
+    feedback_count: int
+    distill_enqueued_at: datetime | None
 
 
 @dataclass(frozen=True)

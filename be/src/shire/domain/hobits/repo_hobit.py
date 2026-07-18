@@ -10,8 +10,9 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Sequence
 
-from shire.domain.hobits.domain import HobitContext, HobitOutput, HobitSpec
+from shire.domain.hobits.domain import FeedbackEntry, HobitContext, HobitOutput, HobitSpec
 
 # Fixed: orients the agent (repo + tools + context). Wraps the editable instructions.
 _PREAMBLE = """\
@@ -24,6 +25,45 @@ orient you:
 <context>
 {context_markdown}
 </context>"""
+
+# The feedback cycle: standing guidance (distilled) + recent raw ratings, injected between the
+# instructions and the output contract whenever they exist. Absent feedback leaves the prompt
+# byte-identical to the pre-feedback shape.
+_GUIDANCE_SECTION = """\
+## Standing guidance from your user
+
+Distilled from the user's ratings of your previous reports across all repositories. Follow it \
+in this run:
+
+{guidance}"""
+
+_FEEDBACK_SECTION = """\
+## User feedback on your previous responses
+
+The user rated some of your recent reports 1-5 stars (newest first, from any repository). \
+Calibrate this run accordingly — keep doing what earned high ratings, fix what earned low ones:
+
+{entries}"""
+
+_MAX_COMMENT_CHARS = 500
+_MAX_HEADLINE_CHARS = 200
+
+
+def _clip(text: str, limit: int) -> str:
+    return text if len(text) <= limit else text[:limit].rstrip() + "…"
+
+
+def format_feedback_entries(entries: Sequence[FeedbackEntry]) -> str:
+    lines = []
+    for e in entries:
+        line = f"- [{e.rating}/5] {e.repository_slug}"
+        if e.headline:
+            line += f' — report: "{_clip(e.headline, _MAX_HEADLINE_CHARS)}"'
+        if e.comment:
+            line += f" — comment: {_clip(e.comment, _MAX_COMMENT_CHARS)}"
+        lines.append(line)
+    return "\n".join(lines)
+
 
 # Fixed: the self-score + strict JSON contract the parser depends on. Never user-editable.
 _OUTPUT_CONTRACT = """\
@@ -51,7 +91,15 @@ class RepoHobit:
         preamble = _PREAMBLE.format(
             repo_slug=ctx.repo_slug, context_markdown=ctx.context_markdown
         )
-        return f"{preamble}\n\n{instructions}\n\n{_OUTPUT_CONTRACT}"
+        parts = [preamble, instructions]
+        if ctx.learned_guidance:
+            parts.append(_GUIDANCE_SECTION.format(guidance=ctx.learned_guidance))
+        if ctx.feedback_entries:
+            parts.append(
+                _FEEDBACK_SECTION.format(entries=format_feedback_entries(ctx.feedback_entries))
+            )
+        parts.append(_OUTPUT_CONTRACT)  # must stay last — the parser reads the trailing JSON
+        return "\n\n".join(parts)
 
     def parse_output(self, text: str) -> HobitOutput | None:
         block = extract_json_block(text)

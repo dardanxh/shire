@@ -33,6 +33,47 @@ export function useRunDetailQuery(repoId: string, runId: string) {
   });
 }
 
+/** Rate a run's response 1-5 stars with an optional comment (one per run; PUT replaces it). */
+export function useUpsertRunFeedbackMutation(repoId: string, runId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: { rating: number; comment?: string | null }) => {
+      const { data, error } = await api.PUT(
+        "/api/v1/repositories/{repository_id}/hobits/runs/{run_id}/feedback",
+        { params: { path: { repository_id: repoId, run_id: runId } }, body },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: briefingKeys.runDetail(repoId, runId),
+      });
+      queryClient.invalidateQueries({ queryKey: ["hobits"] });
+    },
+  });
+}
+
+/** Remove the rating from a run's response. */
+export function useDeleteRunFeedbackMutation(repoId: string, runId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { error } = await api.DELETE(
+        "/api/v1/repositories/{repository_id}/hobits/runs/{run_id}/feedback",
+        { params: { path: { repository_id: repoId, run_id: runId } } },
+      );
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: briefingKeys.runDetail(repoId, runId),
+      });
+      queryClient.invalidateQueries({ queryKey: ["hobits"] });
+    },
+  });
+}
+
 /** Mark one post read (fired when a post is opened). Refreshes feeds + hobit unread counts. */
 export function useMarkPostReadMutation() {
   const queryClient = useQueryClient();

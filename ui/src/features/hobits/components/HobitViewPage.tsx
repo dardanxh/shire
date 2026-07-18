@@ -27,6 +27,7 @@ import { useHobitQuery, useHobitRunsQuery } from "../api";
 import { DeleteHobitDialog } from "./DeleteHobitDialog";
 import { HobitConfigForm } from "./HobitConfigForm";
 import { HobitFormDialog } from "./HobitFormDialog";
+import { HobitGuidanceCard } from "./HobitGuidanceCard";
 import { TagsEditor } from "./TagsEditor";
 
 export function HobitViewPage({ slug }: { slug: string }) {
@@ -151,6 +152,8 @@ export function HobitViewPage({ slug }: { slug: string }) {
           <HobitConfigForm hobit={hobit} />
         </CardContent>
       </Card>
+
+      <HobitGuidanceCard slug={slug} />
 
       <Card>
         <CardHeader>

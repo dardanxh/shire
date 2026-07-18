@@ -8,12 +8,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import type { BriefingItemOut } from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
 import { useRunDetailQuery } from "../api";
 import { hobitName } from "./BriefingFeed";
+import { RunFeedback } from "./RunFeedback";
+
+/** Runs whose response the user can rate (the backend rejects the rest with a 409). */
+const RATABLE_STATUSES = ["completed", "parse_failed"];
 
 /** Expands a briefing post into the full hobit run behind it (narrative + scores). */
 export function BriefingPostDialog({
@@ -68,6 +73,17 @@ export function BriefingPostDialog({
             {data.error ?? t("briefing.no_detail")}
           </p>
         )}
+
+        {post && data && RATABLE_STATUSES.includes(data.status) ? (
+          <>
+            <Separator />
+            <RunFeedback
+              repoId={post.repository_id}
+              runId={post.hobit_run_id}
+              feedback={data.feedback ?? null}
+            />
+          </>
+        ) : null}
       </DialogContent>
     </Dialog>
   );

@@ -7,7 +7,11 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from shire.domain.hobits.domain import HobitRunRecord
+from shire.domain.hobits.domain import (
+    HobitFeedbackRecord,
+    HobitGuidanceRecord,
+    HobitRunRecord,
+)
 
 
 class SelfScoreResult(BaseModel):
@@ -55,21 +59,85 @@ class HobitRunResult(BaseModel):
         )
 
 
+class UpsertHobitRunFeedback(BaseModel):
+    """The user's rating of one run's response (one per run; PUT replaces it)."""
+
+    rating: int = Field(ge=1, le=5)
+    comment: str | None = Field(default=None, max_length=2000)
+
+
+class HobitRunFeedbackResult(BaseModel):
+    run_id: uuid.UUID
+    hobit_slug: str
+    repository_slug: str
+    rating: int
+    comment: str | None
+    created_at: datetime
+    updated_at: datetime
+
+    @classmethod
+    def of(cls, r: HobitFeedbackRecord) -> HobitRunFeedbackResult:
+        return cls(
+            run_id=r.run_id,
+            hobit_slug=r.hobit_slug,
+            repository_slug=r.repository_slug,
+            rating=r.rating,
+            comment=r.comment,
+            created_at=r.created_at,
+            updated_at=r.updated_at,
+        )
+
+
+class HobitGuidanceResult(BaseModel):
+    """A hobit's standing guidance distilled from feedback (empty until the first distill)."""
+
+    hobit_slug: str
+    guidance: str | None
+    last_distilled_at: datetime | None
+    feedback_count: int
+    distill_pending: bool
+
+    @classmethod
+    def of(cls, slug: str, r: HobitGuidanceRecord | None) -> HobitGuidanceResult:
+        if r is None:
+            return cls(
+                hobit_slug=slug,
+                guidance=None,
+                last_distilled_at=None,
+                feedback_count=0,
+                distill_pending=False,
+            )
+        pending = r.distill_enqueued_at is not None and (
+            r.last_distilled_at is None or r.distill_enqueued_at > r.last_distilled_at
+        )
+        return cls(
+            hobit_slug=r.hobit_slug,
+            guidance=r.guidance,
+            last_distilled_at=r.last_distilled_at,
+            feedback_count=r.feedback_count,
+            distill_pending=pending,
+        )
+
+
 class HobitRunDetailResult(HobitRunResult):
     """A run with its full output — for the detail endpoint."""
 
     narrative: str | None
     raw_output: str | None
     error: str | None
+    feedback: HobitRunFeedbackResult | None = None
 
     @classmethod
-    def of_detail(cls, r: HobitRunRecord) -> HobitRunDetailResult:
+    def of_detail(
+        cls, r: HobitRunRecord, *, feedback: HobitFeedbackRecord | None = None
+    ) -> HobitRunDetailResult:
         base = HobitRunResult.of(r)
         return cls(
             **base.model_dump(),
             narrative=r.narrative,
             raw_output=r.raw_output,
             error=r.error,
+            feedback=HobitRunFeedbackResult.of(feedback) if feedback else None,
         )
 
 

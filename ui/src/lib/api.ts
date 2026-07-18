@@ -25,6 +25,9 @@ export type HobitConfigUpdate = components["schemas"]["HobitConfigUpdate"];
 export type HobitInput = components["schemas"]["CreateHobit"];
 export type HobitRunOut = components["schemas"]["HobitRunResult"];
 export type HobitRunDetailOut = components["schemas"]["HobitRunDetailResult"];
+export type HobitRunFeedbackOut =
+  components["schemas"]["HobitRunFeedbackResult"];
+export type HobitGuidanceOut = components["schemas"]["HobitGuidanceResult"];
 export type BriefingItemOut = components["schemas"]["BriefingItemResult"];
 export type GraphOut = components["schemas"]["GraphResult"];
 export type CodeAgeOut = components["schemas"]["CodeAgeResult"];
