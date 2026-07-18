@@ -4,12 +4,22 @@
       "name": "Shire",
       "tagline": "your repositories, tended"
     },
+    "settings": {
+      "title": "Settings",
+      "theme": "Theme"
+    },
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
     "nav": {
       "home": "Home",
       "repositories": "Repositories",
       "hobits": "Hobits",
       "news": "News",
       "roadmaps": "Roadmaps",
+      "council": "Council",
       "tools": "Tools",
       "connectors": "Connectors",
       "members": "Members",

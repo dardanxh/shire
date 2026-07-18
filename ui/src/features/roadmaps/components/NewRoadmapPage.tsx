@@ -9,6 +9,7 @@ import {
   TextareaField,
   TextField,
 } from "@/components/shared/form-fields";
+import { RepoMultiSelect } from "@/components/shared/RepoMultiSelect";
 import {
   Form,
   FormField,
@@ -18,7 +19,6 @@ import {
 } from "@/components/ui/form";
 import { useCreateRoadmapMutation } from "../api";
 import { type RoadmapFormValues, roadmapFormSchema } from "../schemas";
-import { RepoMultiSelect } from "./RepoMultiSelect";
 
 /** Create a roadmap: name + optional goal + the repositories it plans over. */
 export function NewRoadmapPage() {
@@ -52,7 +52,7 @@ export function NewRoadmapPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
+    <div className="mx-auto w-full max-w-2xl space-y-6">
       {/* The crumb names the page; this line is form guidance, not a title. */}
       <p className="text-sm text-muted-foreground">
         {t("roadmaps.new.subtitle")}
@@ -91,6 +91,9 @@ export function NewRoadmapPage() {
                         : [...field.value, repoId],
                     )
                   }
+                  searchPlaceholder={t("roadmaps.new.repo_search_placeholder")}
+                  emptyLabel={t("roadmaps.new.no_repositories")}
+                  loadingLabel={t("common.states.loading")}
                 />
                 <FormMessage />
               </FormItem>

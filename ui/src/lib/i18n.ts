@@ -2,6 +2,7 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import briefing from "@/features/briefing/locales/en.json";
 import connectors from "@/features/connectors/locales/en.json";
+import council from "@/features/council/locales/en.json";
 import hobits from "@/features/hobits/locales/en.json";
 import home from "@/features/home/locales/en.json";
 import jobs from "@/features/jobs/locales/en.json";
@@ -33,6 +34,7 @@ const en = {
   ...principles,
   ...news,
   ...roadmaps,
+  ...council,
 };
 
 i18n.use(initReactI18next).init({

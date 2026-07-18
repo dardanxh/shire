@@ -2112,6 +2112,93 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/council": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Topics */
+        get: operations["list_topics_api_v1_council_get"];
+        put?: never;
+        /**
+         * Create Topic
+         * @description Create a topic. A roster-suggestion job is enqueued automatically; edit the roster,
+         *     then convene to start the debate.
+         */
+        post: operations["create_topic_api_v1_council_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/council/{topic_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Topic
+         * @description The topic with its full debate state (takes + synthesis) — the UI polls this.
+         */
+        get: operations["get_topic_api_v1_council__topic_id__get"];
+        /**
+         * Update Topic
+         * @description Edit the topic (name, description, repos, devil's advocate). Locked mid-debate.
+         */
+        put: operations["update_topic_api_v1_council__topic_id__put"];
+        post?: never;
+        /** Delete Topic */
+        delete: operations["delete_topic_api_v1_council__topic_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/council/{topic_id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set Topic Members
+         * @description Replace the roster. Marks it user-edited so a late suggestion never clobbers it.
+         */
+        put: operations["set_topic_members_api_v1_council__topic_id__members_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/council/{topic_id}/convene": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Convene Topic
+         * @description Start (or restart) the debate — async; poll the detail endpoint to watch the rounds.
+         */
+        post: operations["convene_topic_api_v1_council__topic_id__convene_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/home/status": {
         parameters: {
             query?: never;
@@ -2842,6 +2929,144 @@ export interface components {
             /** Last Commit At */
             last_commit_at?: string | null;
         };
+        /** CouncilMemberResult */
+        CouncilMemberResult: {
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Suggested */
+            suggested: boolean;
+        };
+        /**
+         * CouncilSynthesisResult
+         * @description The chair's final recommendation.
+         */
+        CouncilSynthesisResult: {
+            /** Headline */
+            headline: string;
+            /** Narrative */
+            narrative: string;
+            /** Key Disagreements */
+            key_disagreements: string[];
+        };
+        /** CouncilTakeResult */
+        CouncilTakeResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Hobit Slug */
+            hobit_slug: string;
+            /** Hobit Name */
+            hobit_name: string;
+            /** Round */
+            round: number;
+            /** Status */
+            status: string;
+            /** Headline */
+            headline: string | null;
+            /** Narrative */
+            narrative: string | null;
+            /** Error */
+            error: string | null;
+            /** Is Devils Advocate */
+            is_devils_advocate: boolean;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /** Started At */
+            started_at: string | null;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /**
+         * CouncilTopicDetailResult
+         * @description A topic with its full debate state — for the detail endpoint the UI polls.
+         */
+        CouncilTopicDetailResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Status */
+            status: string;
+            /** Devils Advocate */
+            devils_advocate: boolean;
+            /** Repository Count */
+            repository_count: number;
+            /** Member Count */
+            member_count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Convened At */
+            convened_at: string | null;
+            /** Description */
+            description: string;
+            /** Repository Ids */
+            repository_ids: string[];
+            /** Repository Slugs */
+            repository_slugs: string[];
+            /** Suggested Slugs */
+            suggested_slugs: string[] | null;
+            /** Member Slugs */
+            member_slugs: string[];
+            /** Roster Edited */
+            roster_edited: boolean;
+            /** Roster Error */
+            roster_error: string | null;
+            /** Members */
+            members: components["schemas"]["CouncilMemberResult"][];
+            /** Takes */
+            takes: components["schemas"]["CouncilTakeResult"][];
+            synthesis: components["schemas"]["CouncilSynthesisResult"] | null;
+            /** Error */
+            error: string | null;
+        };
+        /**
+         * CouncilTopicResult
+         * @description A topic in list form.
+         */
+        CouncilTopicResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Status */
+            status: string;
+            /** Devils Advocate */
+            devils_advocate: boolean;
+            /** Repository Count */
+            repository_count: number;
+            /** Member Count */
+            member_count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Convened At */
+            convened_at: string | null;
+        };
         /** CouplingPair */
         CouplingPair: {
             /** Entity */
@@ -2897,6 +3122,23 @@ export interface components {
             base_url?: string | null;
             /** Name */
             name: string;
+        };
+        /**
+         * CreateCouncilTopic
+         * @description A topic for the council to debate (repos optional — they ground the takes).
+         */
+        CreateCouncilTopic: {
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /** Repository Ids */
+            repository_ids?: string[];
+            /**
+             * Devils Advocate
+             * @default false
+             */
+            devils_advocate: boolean;
         };
         /**
          * CreateHobit
@@ -4339,6 +4581,19 @@ export interface components {
             /** Total Pages */
             total_pages: number;
         };
+        /** Page[CouncilTopicResult] */
+        Page_CouncilTopicResult_: {
+            /** Items */
+            items: components["schemas"]["CouncilTopicResult"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
+        };
         /** Page[JobResult] */
         Page_JobResult_: {
             /** Items */
@@ -5215,6 +5470,31 @@ export interface components {
             secret?: string | null;
             /** Base Url */
             base_url?: string | null;
+        };
+        /**
+         * UpdateCouncilMembers
+         * @description The roster to debate with (replaces the current set).
+         */
+        UpdateCouncilMembers: {
+            /** Slugs */
+            slugs: string[];
+        };
+        /**
+         * UpdateCouncilTopic
+         * @description Full edit of the topic (same shape as create; allowed only outside a running debate).
+         */
+        UpdateCouncilTopic: {
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /** Repository Ids */
+            repository_ids?: string[];
+            /**
+             * Devils Advocate
+             * @default false
+             */
+            devils_advocate: boolean;
         };
         /**
          * UpdateEngineConfig
@@ -9479,6 +9759,234 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RepoRoadmapSliceResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_topics_api_v1_council_get: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_CouncilTopicResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_topic_api_v1_council_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCouncilTopic"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouncilTopicDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_topic_api_v1_council__topic_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topic_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouncilTopicDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_topic_api_v1_council__topic_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topic_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCouncilTopic"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouncilTopicDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_topic_api_v1_council__topic_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topic_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_topic_members_api_v1_council__topic_id__members_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topic_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCouncilMembers"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouncilTopicDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    convene_topic_api_v1_council__topic_id__convene_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topic_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouncilTopicDetailResult"];
                 };
             };
             /** @description Validation Error */

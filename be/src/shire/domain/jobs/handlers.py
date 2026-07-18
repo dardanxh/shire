@@ -8,6 +8,12 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
+from shire.domain.council.jobs import (
+    handle_council_chair,
+    handle_council_roster,
+    handle_council_take_r1,
+    handle_council_take_r2,
+)
 from shire.domain.hobits.jobs import handle_feedback_distill, handle_hobit_run
 from shire.domain.jobs import kinds
 from shire.domain.jobs.models import JobRow
@@ -45,6 +51,10 @@ HANDLERS: dict[str, Callable[[JobRow], None]] = {
     kinds.SUBSTRATE_DEPENDENCY_GAINS: handle_dependency_gains,
     kinds.HOBIT_RUN: handle_hobit_run,
     kinds.HOBIT_FEEDBACK_DISTILL: handle_feedback_distill,
+    kinds.COUNCIL_ROSTER: handle_council_roster,
+    kinds.COUNCIL_TAKE_R1: handle_council_take_r1,
+    kinds.COUNCIL_TAKE_R2: handle_council_take_r2,
+    kinds.COUNCIL_CHAIR: handle_council_chair,
     kinds.PRINCIPLE_AUDIT: handle_principle_audit,
     kinds.NEWS_POLL: handle_news_poll,
     kinds.NEWS_RECOMMEND: handle_news_recommend,

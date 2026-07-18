@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ToolsRouteImport } from './routes/tools'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RoadmapsRouteImport } from './routes/roadmaps'
 import { Route as RepositoriesRouteImport } from './routes/repositories'
 import { Route as PrinciplesRouteImport } from './routes/principles'
@@ -18,23 +19,32 @@ import { Route as MergeReviewsRouteImport } from './routes/merge-reviews'
 import { Route as MembersRouteImport } from './routes/members'
 import { Route as JobsRouteImport } from './routes/jobs'
 import { Route as HobitsRouteImport } from './routes/hobits'
+import { Route as CouncilRouteImport } from './routes/council'
 import { Route as ConnectorsRouteImport } from './routes/connectors'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RoadmapsIndexRouteImport } from './routes/roadmaps.index'
 import { Route as RepositoriesIndexRouteImport } from './routes/repositories.index'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
 import { Route as HobitsIndexRouteImport } from './routes/hobits.index'
+import { Route as CouncilIndexRouteImport } from './routes/council.index'
 import { Route as RoadmapsNewRouteImport } from './routes/roadmaps.new'
 import { Route as RoadmapsIdRouteImport } from './routes/roadmaps.$id'
 import { Route as RepositoriesIdRouteImport } from './routes/repositories.$id'
 import { Route as MergeReviewsIdRouteImport } from './routes/merge-reviews.$id'
 import { Route as JobsIdRouteImport } from './routes/jobs.$id'
 import { Route as HobitsSlugRouteImport } from './routes/hobits.$slug'
+import { Route as CouncilNewRouteImport } from './routes/council.new'
+import { Route as CouncilIdRouteImport } from './routes/council.$id'
 import { Route as DiagramRepoIdKindRouteImport } from './routes/diagram.$repoId.$kind'
 
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
   path: '/tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RoadmapsRoute = RoadmapsRouteImport.update({
@@ -77,6 +87,11 @@ const HobitsRoute = HobitsRouteImport.update({
   path: '/hobits',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CouncilRoute = CouncilRouteImport.update({
+  id: '/council',
+  path: '/council',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConnectorsRoute = ConnectorsRouteImport.update({
   id: '/connectors',
   path: '/connectors',
@@ -106,6 +121,11 @@ const HobitsIndexRoute = HobitsIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => HobitsRoute,
+} as any)
+const CouncilIndexRoute = CouncilIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CouncilRoute,
 } as any)
 const RoadmapsNewRoute = RoadmapsNewRouteImport.update({
   id: '/new',
@@ -137,6 +157,16 @@ const HobitsSlugRoute = HobitsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => HobitsRoute,
 } as any)
+const CouncilNewRoute = CouncilNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => CouncilRoute,
+} as any)
+const CouncilIdRoute = CouncilIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => CouncilRoute,
+} as any)
 const DiagramRepoIdKindRoute = DiagramRepoIdKindRouteImport.update({
   id: '/diagram/$repoId/$kind',
   path: '/diagram/$repoId/$kind',
@@ -146,6 +176,7 @@ const DiagramRepoIdKindRoute = DiagramRepoIdKindRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/connectors': typeof ConnectorsRoute
+  '/council': typeof CouncilRouteWithChildren
   '/hobits': typeof HobitsRouteWithChildren
   '/jobs': typeof JobsRouteWithChildren
   '/members': typeof MembersRoute
@@ -154,13 +185,17 @@ export interface FileRoutesByFullPath {
   '/principles': typeof PrinciplesRoute
   '/repositories': typeof RepositoriesRouteWithChildren
   '/roadmaps': typeof RoadmapsRouteWithChildren
+  '/settings': typeof SettingsRoute
   '/tools': typeof ToolsRoute
+  '/council/$id': typeof CouncilIdRoute
+  '/council/new': typeof CouncilNewRoute
   '/hobits/$slug': typeof HobitsSlugRoute
   '/jobs/$id': typeof JobsIdRoute
   '/merge-reviews/$id': typeof MergeReviewsIdRoute
   '/repositories/$id': typeof RepositoriesIdRoute
   '/roadmaps/$id': typeof RoadmapsIdRoute
   '/roadmaps/new': typeof RoadmapsNewRoute
+  '/council/': typeof CouncilIndexRoute
   '/hobits/': typeof HobitsIndexRoute
   '/jobs/': typeof JobsIndexRoute
   '/repositories/': typeof RepositoriesIndexRoute
@@ -174,13 +209,17 @@ export interface FileRoutesByTo {
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
+  '/settings': typeof SettingsRoute
   '/tools': typeof ToolsRoute
+  '/council/$id': typeof CouncilIdRoute
+  '/council/new': typeof CouncilNewRoute
   '/hobits/$slug': typeof HobitsSlugRoute
   '/jobs/$id': typeof JobsIdRoute
   '/merge-reviews/$id': typeof MergeReviewsIdRoute
   '/repositories/$id': typeof RepositoriesIdRoute
   '/roadmaps/$id': typeof RoadmapsIdRoute
   '/roadmaps/new': typeof RoadmapsNewRoute
+  '/council': typeof CouncilIndexRoute
   '/hobits': typeof HobitsIndexRoute
   '/jobs': typeof JobsIndexRoute
   '/repositories': typeof RepositoriesIndexRoute
@@ -191,6 +230,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/connectors': typeof ConnectorsRoute
+  '/council': typeof CouncilRouteWithChildren
   '/hobits': typeof HobitsRouteWithChildren
   '/jobs': typeof JobsRouteWithChildren
   '/members': typeof MembersRoute
@@ -199,13 +239,17 @@ export interface FileRoutesById {
   '/principles': typeof PrinciplesRoute
   '/repositories': typeof RepositoriesRouteWithChildren
   '/roadmaps': typeof RoadmapsRouteWithChildren
+  '/settings': typeof SettingsRoute
   '/tools': typeof ToolsRoute
+  '/council/$id': typeof CouncilIdRoute
+  '/council/new': typeof CouncilNewRoute
   '/hobits/$slug': typeof HobitsSlugRoute
   '/jobs/$id': typeof JobsIdRoute
   '/merge-reviews/$id': typeof MergeReviewsIdRoute
   '/repositories/$id': typeof RepositoriesIdRoute
   '/roadmaps/$id': typeof RoadmapsIdRoute
   '/roadmaps/new': typeof RoadmapsNewRoute
+  '/council/': typeof CouncilIndexRoute
   '/hobits/': typeof HobitsIndexRoute
   '/jobs/': typeof JobsIndexRoute
   '/repositories/': typeof RepositoriesIndexRoute
@@ -217,6 +261,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/connectors'
+    | '/council'
     | '/hobits'
     | '/jobs'
     | '/members'
@@ -225,13 +270,17 @@ export interface FileRouteTypes {
     | '/principles'
     | '/repositories'
     | '/roadmaps'
+    | '/settings'
     | '/tools'
+    | '/council/$id'
+    | '/council/new'
     | '/hobits/$slug'
     | '/jobs/$id'
     | '/merge-reviews/$id'
     | '/repositories/$id'
     | '/roadmaps/$id'
     | '/roadmaps/new'
+    | '/council/'
     | '/hobits/'
     | '/jobs/'
     | '/repositories/'
@@ -245,13 +294,17 @@ export interface FileRouteTypes {
     | '/merge-reviews'
     | '/news'
     | '/principles'
+    | '/settings'
     | '/tools'
+    | '/council/$id'
+    | '/council/new'
     | '/hobits/$slug'
     | '/jobs/$id'
     | '/merge-reviews/$id'
     | '/repositories/$id'
     | '/roadmaps/$id'
     | '/roadmaps/new'
+    | '/council'
     | '/hobits'
     | '/jobs'
     | '/repositories'
@@ -261,6 +314,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/connectors'
+    | '/council'
     | '/hobits'
     | '/jobs'
     | '/members'
@@ -269,13 +323,17 @@ export interface FileRouteTypes {
     | '/principles'
     | '/repositories'
     | '/roadmaps'
+    | '/settings'
     | '/tools'
+    | '/council/$id'
+    | '/council/new'
     | '/hobits/$slug'
     | '/jobs/$id'
     | '/merge-reviews/$id'
     | '/repositories/$id'
     | '/roadmaps/$id'
     | '/roadmaps/new'
+    | '/council/'
     | '/hobits/'
     | '/jobs/'
     | '/repositories/'
@@ -286,6 +344,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConnectorsRoute: typeof ConnectorsRoute
+  CouncilRoute: typeof CouncilRouteWithChildren
   HobitsRoute: typeof HobitsRouteWithChildren
   JobsRoute: typeof JobsRouteWithChildren
   MembersRoute: typeof MembersRoute
@@ -294,6 +353,7 @@ export interface RootRouteChildren {
   PrinciplesRoute: typeof PrinciplesRoute
   RepositoriesRoute: typeof RepositoriesRouteWithChildren
   RoadmapsRoute: typeof RoadmapsRouteWithChildren
+  SettingsRoute: typeof SettingsRoute
   ToolsRoute: typeof ToolsRoute
   DiagramRepoIdKindRoute: typeof DiagramRepoIdKindRoute
 }
@@ -305,6 +365,13 @@ declare module '@tanstack/react-router' {
       path: '/tools'
       fullPath: '/tools'
       preLoaderRoute: typeof ToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/roadmaps': {
@@ -363,6 +430,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HobitsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/council': {
+      id: '/council'
+      path: '/council'
+      fullPath: '/council'
+      preLoaderRoute: typeof CouncilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/connectors': {
       id: '/connectors'
       path: '/connectors'
@@ -404,6 +478,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/hobits/'
       preLoaderRoute: typeof HobitsIndexRouteImport
       parentRoute: typeof HobitsRoute
+    }
+    '/council/': {
+      id: '/council/'
+      path: '/'
+      fullPath: '/council/'
+      preLoaderRoute: typeof CouncilIndexRouteImport
+      parentRoute: typeof CouncilRoute
     }
     '/roadmaps/new': {
       id: '/roadmaps/new'
@@ -447,6 +528,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HobitsSlugRouteImport
       parentRoute: typeof HobitsRoute
     }
+    '/council/new': {
+      id: '/council/new'
+      path: '/new'
+      fullPath: '/council/new'
+      preLoaderRoute: typeof CouncilNewRouteImport
+      parentRoute: typeof CouncilRoute
+    }
+    '/council/$id': {
+      id: '/council/$id'
+      path: '/$id'
+      fullPath: '/council/$id'
+      preLoaderRoute: typeof CouncilIdRouteImport
+      parentRoute: typeof CouncilRoute
+    }
     '/diagram/$repoId/$kind': {
       id: '/diagram/$repoId/$kind'
       path: '/diagram/$repoId/$kind'
@@ -456,6 +551,21 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface CouncilRouteChildren {
+  CouncilIdRoute: typeof CouncilIdRoute
+  CouncilNewRoute: typeof CouncilNewRoute
+  CouncilIndexRoute: typeof CouncilIndexRoute
+}
+
+const CouncilRouteChildren: CouncilRouteChildren = {
+  CouncilIdRoute: CouncilIdRoute,
+  CouncilNewRoute: CouncilNewRoute,
+  CouncilIndexRoute: CouncilIndexRoute,
+}
+
+const CouncilRouteWithChildren =
+  CouncilRoute._addFileChildren(CouncilRouteChildren)
 
 interface HobitsRouteChildren {
   HobitsSlugRoute: typeof HobitsSlugRoute
@@ -527,6 +637,7 @@ const RoadmapsRouteWithChildren = RoadmapsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConnectorsRoute: ConnectorsRoute,
+  CouncilRoute: CouncilRouteWithChildren,
   HobitsRoute: HobitsRouteWithChildren,
   JobsRoute: JobsRouteWithChildren,
   MembersRoute: MembersRoute,
@@ -535,6 +646,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrinciplesRoute: PrinciplesRoute,
   RepositoriesRoute: RepositoriesRouteWithChildren,
   RoadmapsRoute: RoadmapsRouteWithChildren,
+  SettingsRoute: SettingsRoute,
   ToolsRoute: ToolsRoute,
   DiagramRepoIdKindRoute: DiagramRepoIdKindRoute,
 }

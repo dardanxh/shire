@@ -151,6 +151,10 @@ class JobService:
                 "MR analysis stages can't be retried individually — use Reanalyze on the "
                 "merge review."
             )
+        if row.kind.startswith("council."):
+            raise ConflictError(
+                "Council jobs can't be retried individually — re-convene the topic."
+            )
         if row.kind == kinds.HOBIT_RUN:
             # Local import: hobits.services imports JobService (enqueue path).
             from shire.domain.hobits.services import HobitService

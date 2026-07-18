@@ -19,6 +19,7 @@ from shire.core.settings import get_settings
 from shire.domain.briefing.routes import router as briefing_router
 from shire.domain.connections.routes import router as connections_router
 from shire.domain.context.routes import router as context_router
+from shire.domain.council.routes import router as council_router
 from shire.domain.hobits.routes import router as hobits_router
 from shire.domain.home.routes import router as home_router
 from shire.domain.jobs.routes import router as jobs_router
@@ -98,6 +99,7 @@ app.include_router(principles_router, prefix=API_V1_PREFIX)
 app.include_router(news_router, prefix=API_V1_PREFIX)
 app.include_router(roadmaps_router, prefix=API_V1_PREFIX)
 app.include_router(repo_roadmaps_router, prefix=API_V1_PREFIX)
+app.include_router(council_router, prefix=API_V1_PREFIX)
 app.include_router(home_router, prefix=API_V1_PREFIX)
 
 # Serve generated codebase-graph artifacts (emerge HTML apps) read-only. Mounted under /api/v1 so

@@ -110,6 +110,12 @@ export type ExportIssuesOut = components["schemas"]["ExportIssuesResult"];
 export type RepoRoadmapSliceOut =
   components["schemas"]["RepoRoadmapSliceResult"];
 export type HomeStatusOut = components["schemas"]["HomeStatusResult"];
+export type CouncilTopicOut = components["schemas"]["CouncilTopicResult"];
+export type CouncilTopicDetailOut =
+  components["schemas"]["CouncilTopicDetailResult"];
+export type CouncilTakeOut = components["schemas"]["CouncilTakeResult"];
+export type CouncilTopicsPage =
+  components["schemas"]["Page_CouncilTopicResult_"];
 
 /** Roadmap item labels (backend types the column as a bare string). */
 export const ROADMAP_ITEM_LABELS = [

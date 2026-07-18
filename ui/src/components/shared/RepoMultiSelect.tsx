@@ -1,22 +1,27 @@
 import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 
 import { CheckboxList } from "@/components/shared/CheckboxList";
 import { Input } from "@/components/ui/input";
 import { useRepositoriesQuery } from "@/features/repositories/api";
 
 /**
- * The roadmap scope picker: search over the analyzed repositories feeding the
- * shared CheckboxList (the HobitMultiSelect shape). Controlled by an id Set.
+ * A repository scope picker: search over the analyzed repositories feeding the shared
+ * CheckboxList. Controlled by an id Set. Labels come in as props — shared components
+ * don't own i18n keys.
  */
 export function RepoMultiSelect({
   selected,
   onToggle,
+  searchPlaceholder,
+  emptyLabel,
+  loadingLabel,
 }: {
   selected: Set<string>;
   onToggle: (repositoryId: string) => void;
+  searchPlaceholder: string;
+  emptyLabel: string;
+  loadingLabel: string;
 }) {
-  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const { data: page, isPending } = useRepositoriesQuery({
     page: 1,
@@ -44,18 +49,14 @@ export function RepoMultiSelect({
       <Input
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        placeholder={t("roadmaps.new.repo_search_placeholder")}
-        aria-label={t("roadmaps.new.repo_search_placeholder")}
+        placeholder={searchPlaceholder}
+        aria-label={searchPlaceholder}
       />
       <CheckboxList
         items={items}
         selected={selected}
         onToggle={onToggle}
-        emptyLabel={
-          isPending
-            ? t("common.states.loading")
-            : t("roadmaps.new.no_repositories")
-        }
+        emptyLabel={isPending ? loadingLabel : emptyLabel}
       />
     </div>
   );

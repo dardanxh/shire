@@ -9,6 +9,7 @@ from __future__ import annotations
 from shire.domain.briefing import models as _briefing_models  # noqa: F401
 from shire.domain.connections import models as _connections_models  # noqa: F401
 from shire.domain.context import models as _context_models  # noqa: F401
+from shire.domain.council import models as _council_models  # noqa: F401
 from shire.domain.hobits import models as _hobits_models  # noqa: F401
 from shire.domain.jobs import models as _jobs_models  # noqa: F401
 from shire.domain.members import models as _members_models  # noqa: F401

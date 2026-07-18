@@ -1,0 +1,81 @@
+{
+  "council": {
+    "list": {
+      "new": "New topic",
+      "empty": "No council topics yet. Drop a topic and let the hobits debate it.",
+      "empty_cta": "Convene your first council",
+      "col_name": "Topic",
+      "col_status": "Status",
+      "col_members": "Members",
+      "col_repositories": "Repos",
+      "col_updated": "Updated",
+      "da_indicator": "Devil's advocate on"
+    },
+    "new": {
+      "crumb": "New topic",
+      "subtitle": "Drop a topic and description. The platform suggests the most relevant hobits; you adjust the roster and convene — they debate in two rounds and a chair synthesizes the recommendation.",
+      "name_label": "Topic",
+      "name_placeholder": "e.g. Should we adopt Postgres 17 this quarter?",
+      "name_required": "A topic name is required",
+      "description_label": "Description",
+      "description_help": "What's the question, the context, and what kind of answer you need. The more concrete, the better the debate.",
+      "description_placeholder": "Lay out the decision, constraints, and what you already know…",
+      "description_required": "A description is required",
+      "repos_label": "Ground in repositories (optional)",
+      "repo_search_placeholder": "Search repositories…",
+      "no_repositories": "No analyzed repositories.",
+      "da_label": "Devil's advocate",
+      "da_help": "Adds a dedicated adversary to round 2 whose only job is to refute the emerging consensus — the chair must address its objections. Use for contested or high-stakes topics.",
+      "submit": "Create topic",
+      "toast_success": "Topic created — suggesting the roster…"
+    },
+    "status": {
+      "suggesting": "Suggesting roster",
+      "ready": "Ready to convene",
+      "r1_running": "Round 1",
+      "r2_running": "Round 2",
+      "synthesizing": "Synthesizing",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "roster": {
+      "title": "Council roster",
+      "suggesting_hint": "Picking the most relevant hobits for this topic — you can hand-pick without waiting.",
+      "suggested": "Suggested:",
+      "suggestion_failed": "The roster suggestion failed — pick the members yourself.",
+      "no_hobits": "No enabled hobits to pick from.",
+      "convene": "Convene",
+      "convene_hint": "Pick at least one member to convene the council."
+    },
+    "view": {
+      "debate_title": "The debate",
+      "round_1": "Round 1 — independent takes",
+      "round_2": "Round 2 — challenges & refinements",
+      "chair_working": "The chair is synthesizing the final recommendation…",
+      "synthesis_title": "The council's recommendation",
+      "key_disagreements": "Key disagreements",
+      "reconvene": "Re-convene",
+      "da_badge": "Devil's advocate",
+      "failed_banner": "The debate failed: {{error}}"
+    },
+    "takes": {
+      "devils_advocate": "Devil's advocate",
+      "failed": "Failed",
+      "empty": "No output.",
+      "status": {
+        "pending": "Pending",
+        "running": "Running",
+        "parse_failed": "Unparsed",
+        "timeout": "Timed out",
+        "agent_unavailable": "Agent unavailable",
+        "error": "Error"
+      }
+    },
+    "delete": {
+      "title": "Delete topic",
+      "body": "Delete \"{{name}}\" and its entire debate? This can't be undone.",
+      "confirm": "Delete topic",
+      "toast_deleted": "Deleted {{name}}"
+    }
+  }
+}

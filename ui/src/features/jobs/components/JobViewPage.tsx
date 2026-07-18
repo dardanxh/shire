@@ -1,17 +1,16 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeftIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
   Loader2Icon,
   RotateCcwIcon,
   WrenchIcon,
   XIcon,
 } from "lucide-react";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import { CollapsibleBlock } from "@/components/shared/CollapsibleBlock";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -300,47 +299,5 @@ function MetaItem({ label, children }: { label: string; children: ReactNode }) {
       </dt>
       <dd className="mt-0.5 break-all">{children}</dd>
     </div>
-  );
-}
-
-function CollapsibleBlock({
-  title,
-  content,
-  emptyLabel,
-  defaultOpen,
-}: {
-  title: string;
-  content: string | null;
-  emptyLabel?: string;
-  defaultOpen: boolean;
-}) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <Card className="p-0">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className="flex w-full items-center gap-2 px-5 py-3.5 text-sm font-semibold"
-        aria-expanded={open}
-      >
-        {open ? (
-          <ChevronDownIcon className="size-4 text-muted-foreground" />
-        ) : (
-          <ChevronRightIcon className="size-4 text-muted-foreground" />
-        )}
-        {title}
-      </button>
-      {open ? (
-        <div className="border-t border-border px-5 py-4">
-          {content ? (
-            <pre className="max-h-[32rem] overflow-auto whitespace-pre-wrap break-words font-mono text-xs leading-relaxed">
-              {content}
-            </pre>
-          ) : (
-            <p className="text-sm text-muted-foreground">{emptyLabel ?? "—"}</p>
-          )}
-        </div>
-      ) : null}
-    </Card>
   );
 }
