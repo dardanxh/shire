@@ -19,7 +19,11 @@ from shire.domain.jobs import kinds as job_kinds
 from shire.domain.jobs.schemas import JobResult
 from shire.domain.jobs.services import JobService
 from shire.domain.readiness import catalog
-from shire.domain.readiness.jobs import build_apply_prompt, build_suggest_prompt
+from shire.domain.readiness.jobs import (
+    build_apply_prompt,
+    build_suggest_prompt,
+    detected_assistants,
+)
 from shire.domain.readiness.models import ReadinessExecutionRow, ReadinessSuggestionRow
 from shire.domain.readiness.schemas import (
     ApplySuggestions,
@@ -83,19 +87,21 @@ class ReadinessService:
     # --- suggestions (AI, read-only) ------------------------------------------
     def enqueue_suggest(self, repository_id: uuid.UUID) -> JobResult:
         repo = self._require_cloned_repo(repository_id)
+        scan = catalog.scan_repo(repo.clone_path)
         jobs = JobService(self._session)
         model, timeout_seconds = jobs.engine_defaults()
         job = jobs.enqueue(
             kind=job_kinds.READINESS_SUGGEST,
             title=f"AI readiness suggestions — {repo.coordinates.slug}",
-            prompt=build_suggest_prompt(
-                repo.coordinates.slug, catalog.scan_repo(repo.clone_path)
-            ),
+            prompt=build_suggest_prompt(repo.coordinates.slug, scan),
             payload={
                 "cwd": repo.clone_path,
                 "model": model,
                 "timeout_seconds": timeout_seconds,
                 "repository_id": str(repository_id),
+                # Adopted assistants only (empty = none adopted, all allowed) — the
+                # handler drops suggestions outside this set as a hard guarantee.
+                "allowed_assistants": detected_assistants(scan),
             },
             repository_id=repository_id,
         )

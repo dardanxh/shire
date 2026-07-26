@@ -76,7 +76,7 @@ export function BranchSwitcher({
         disabled={busy}
       >
         <SelectTrigger
-          className="h-7 gap-1.5 px-2 font-mono text-xs"
+          className="h-7 w-auto gap-1.5 px-2 font-mono text-xs"
           aria-label={t("repositories.branch.label")}
         >
           {isPending ? (

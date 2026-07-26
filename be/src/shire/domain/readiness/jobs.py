@@ -31,16 +31,16 @@ structure, build/test commands, conventions, and any existing assistant configs.
 The deterministic scan already found this (present/missing per assistant):
 {scan}
 
+{focus}
+
 Propose concrete, high-value suggestions to ADD or EDIT assistant configuration:
-- Prioritize assistants that already show adoption signals; if none exist, propose a solid \
-starter set (repo instructions files first — CLAUDE.md / AGENTS.md — then rules for others).
 - Each suggestion targets ONE file or directory and must say what content belongs in it, \
 grounded in what this repository actually is (its stack, commands, layout, conventions).
 - Suggest EDITs for existing artifacts that are thin, stale, or missing key sections.
 - 4-10 suggestions total, most valuable first. Do not suggest artifacts that make no sense \
 for this repo.
 
-Allowed assistant keys: claude, codex, cursor, copilot, windsurf, gemini, aider, cline.
+Allowed assistant keys: {allowed_keys}.
 
 Return ONLY a single fenced json object as the very last thing, nothing else:
 ```json
@@ -81,6 +81,10 @@ Return ONLY a single fenced json object as the very last thing, nothing else:
 ```"""
 
 
+def detected_assistants(scan: list[dict]) -> list[str]:
+    return [state["key"] for state in scan if state["detected"]]
+
+
 def build_suggest_prompt(repo_slug: str, scan: list[dict]) -> str:
     lines = []
     for state in scan:
@@ -89,7 +93,28 @@ def build_suggest_prompt(repo_slug: str, scan: list[dict]) -> str:
         lines.append(
             f"- {state['key']}: present={present or 'none'}, missing={missing or 'none'}"
         )
-    return _SUGGEST_PROMPT.format(repo=repo_slug, scan="\n".join(lines))
+    # A repo that already picked its assistant(s) gets focused advice for those tools only;
+    # the broad starter-set is reserved for repos with no assistant configs at all.
+    detected = detected_assistants(scan)
+    if detected:
+        names = ", ".join(detected)
+        focus = (
+            f"This repository already uses: {names}. Suggest improvements ONLY for these "
+            "assistants — deepen and fix what is already adopted (missing companion "
+            "artifacts, thin or stale instructions). Do NOT propose configs for any other "
+            "tool; the team has not adopted them."
+        )
+        allowed = names
+    else:
+        focus = (
+            "This repository has no assistant configs yet. Propose a solid starter set: "
+            "repo instruction files first (CLAUDE.md / AGENTS.md), then rules for other "
+            "assistants where they genuinely add value."
+        )
+        allowed = ", ".join(sorted(ASSISTANT_KEYS))
+    return _SUGGEST_PROMPT.format(
+        repo=repo_slug, scan="\n".join(lines), focus=focus, allowed_keys=allowed
+    )
 
 
 def build_apply_prompt(repo_slug: str, rows: list[ReadinessSuggestionRow]) -> str:
@@ -107,6 +132,14 @@ def handle_readiness_suggest(job: JobRow) -> None:
     if suggestions is None:
         _fail_job(job.id, "The agent did not return a usable suggestion list.")
         return
+    # Hard guarantee: a repo with adopted assistants only gets suggestions for those,
+    # even if the agent strays outside the prompt's allowed set.
+    allowed = set(job.payload.get("allowed_assistants") or [])
+    if allowed:
+        suggestions = [s for s in suggestions if s["assistant"] in allowed]
+        if not suggestions:
+            _fail_job(job.id, "The agent only suggested tools this repository does not use.")
+            return
     repository_id = uuid.UUID(job.payload["repository_id"])
     with unit_of_work() as session:
         # Fresh run replaces the previous proposals; applied rows stay as history.

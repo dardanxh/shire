@@ -1,14 +1,11 @@
-import { Link } from "@tanstack/react-router";
 import {
   ActivityIcon,
-  ArrowLeftIcon,
   BookOpenIcon,
   BotIcon,
   CodeIcon,
   ExternalLinkIcon,
   GaugeIcon,
   GitBranchIcon,
-  GitCommitHorizontalIcon,
   GitPullRequestIcon,
   KeyRoundIcon,
   Layers2Icon,
@@ -42,6 +39,7 @@ import { RepoMergeReviewsPanel } from "@/features/merge-reviews";
 import { RepoPrinciplesPanel } from "@/features/principles";
 import { RepoRoadmapsPanel } from "@/features/roadmaps";
 import { extractErrorMessage } from "@/lib/api";
+import { useCrumbOverride } from "@/lib/crumb";
 import {
   formatAge,
   formatDateTime,
@@ -90,13 +88,14 @@ export function RepositoryViewPage({
     error,
   } = useRepositoryQuery(id);
   const { data: analysis, isPending: analysisPending } = useAnalysisQuery(id);
+  // Breadcrumb: "Repositories > <repo slug>" — the loaded name replaces the static leaf.
+  useCrumbOverride(repo?.slug);
 
   if (repoPending || analysisPending) return <DetailSkeleton />;
 
   if (repoError || !repo) {
     return (
       <div className="space-y-4">
-        <BackLink label={t("repositories.view.back")} />
         <Card className="p-6 text-sm text-destructive">
           {error
             ? extractErrorMessage(error)
@@ -111,34 +110,30 @@ export function RepositoryViewPage({
   return (
     <div className="space-y-8">
       <div className="space-y-4">
-        <BackLink label={t("repositories.view.back")} />
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight">
-              {repo.slug}
-            </h1>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-              <span className="capitalize">{repo.provider}</span>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 text-sm text-muted-foreground">
+            <BranchSwitcher
+              id={repo.id}
+              slug={repo.slug}
+              currentBranch={repo.current_branch}
+              status={repo.status}
+            />
+            {repo.provider === "local" ? (
+              // A filesystem path is information, not a destination — no dead link.
+              <span className="max-w-md truncate text-xs select-all">
+                {repo.url}
+              </span>
+            ) : (
               <a
                 href={repo.url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1 hover:text-foreground hover:underline"
+                className="inline-flex min-w-0 items-center gap-1 text-xs hover:text-foreground hover:underline"
               >
-                {repo.url}
-                <ExternalLinkIcon className="size-3.5" />
+                <span className="max-w-md truncate">{repo.url}</span>
+                <ExternalLinkIcon className="size-3.5 shrink-0" />
               </a>
-              <span className="inline-flex items-center gap-1 font-mono text-xs">
-                <GitCommitHorizontalIcon className="size-3.5" />
-                {shortSha(repo.last_analyzed_commit)}
-              </span>
-              <BranchSwitcher
-                id={repo.id}
-                slug={repo.slug}
-                currentBranch={repo.current_branch}
-                status={repo.status}
-              />
-            </div>
+            )}
           </div>
           <RepositoryActions id={repo.id} slug={repo.slug} />
         </div>
@@ -594,19 +589,6 @@ export function RepositoryViewPage({
         </>
       )}
     </div>
-  );
-}
-
-function BackLink({ label }: { label: string }) {
-  return (
-    <Link
-      to="/repositories"
-      search={{ view: "repositories", page: 1, size: 20 }}
-      className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-    >
-      <ArrowLeftIcon className="size-4" />
-      {label}
-    </Link>
   );
 }
 
