@@ -1,0 +1,399 @@
+{
+  "slug": "pci-dss",
+  "name": "PCI DSS",
+  "full_name": "Payment Card Industry Data Security Standard v4.0",
+  "category": "payments",
+  "region": "global",
+  "jurisdiction": "Global (contractual standard of the payment card brands)",
+  "status": "in_force",
+  "effective_year": 2004,
+  "effective_date": "v4.0 mandatory 31 March 2024 (v4.0.1 current)",
+  "description": "PCI DSS is the global security standard for any organization that stores, processes, or transmits payment card data, maintained by the PCI Security Standards Council on behalf of the major card brands. It is not a law but a contractual obligation flowing through acquiring banks and card-brand agreements. Version 4.0 organizes 12 requirements under 6 goals, spanning network security, protecting stored and transmitted account data, vulnerability management, access control, monitoring and testing, and security governance. Compliance is validated annually via self-assessment questionnaires or Qualified Security Assessor audits depending on transaction volume.",
+  "who_is_impacted": [
+    "Merchants of every size that accept payment cards, from e-commerce startups to global retailers, with validation rigor scaled by annual transaction volume (Levels 1-4).",
+    "Payment service providers, gateways, processors, and acquirers that store, process, or transmit cardholder data on behalf of others, who typically face the strictest Level 1 assessments.",
+    "Any third-party service provider that could affect the security of cardholder data — hosting providers, tokenization vaults, managed security services — must demonstrate compliance to their customers.",
+    "Software vendors and teams building payment applications fall under the related PA-DSS/Secure Software standards, and any system component in or connected to the cardholder data environment (CDE) is in scope.",
+    "Organizations that fully outsource card handling to compliant providers (e.g., hosted payment pages) can dramatically reduce scope but retain responsibility for vendor management and their own attestations.",
+    "Entities that never touch cardholder data (data fully tokenized by an independent provider before reaching them) may fall out of scope, but must document that scoping conclusion."
+  ],
+  "penalties": "Contractual fines from card brands/acquirers ($5,000-$100,000 per month), increased transaction fees, or loss of card-processing ability; not a government law",
+  "official_url": "https://www.pcisecuritystandards.org/",
+  "unit_label": "requirement",
+  "triggering_data_classes": ["payment_card_data"],
+  "articles": [
+    {
+      "number": "1",
+      "title": "Install and Maintain Network Security Controls",
+      "chapter": "Build and Maintain a Secure Network and Systems",
+      "is_key": true,
+      "summary": "Requires network security controls (firewalls, cloud security groups, and equivalent policy-enforcement points) that restrict traffic into and out of the cardholder data environment. Organizations must define and document rulesets, restrict inbound and outbound traffic to that which is necessary, and prohibit direct public access between the internet and the CDE. Configuration standards, change control for ruleset modifications, and periodic review of rules keep the boundary defensible over time.",
+      "key_requirements": [
+        "Document and implement configuration standards and processes for all network security controls.",
+        "Restrict inbound and outbound traffic to and from the cardholder data environment to only that which is necessary, denying all other traffic.",
+        "Prohibit direct public access between the internet and any system component in the CDE, using DMZs or equivalent segmentation.",
+        "Review network security control configurations and rulesets at least every six months.",
+        "Install security controls (e.g., host firewalls) on devices that connect to both untrusted networks and the CDE."
+      ],
+      "paragraphs": [
+        {
+          "ref": "1.2",
+          "text": "Network security controls must be configured and maintained: configuration standards defined, rulesets reviewed at least once every six months, and all changes to network connections and NSC configurations approved and managed through the change control process."
+        },
+        {
+          "ref": "1.3",
+          "text": "Network access to and from the cardholder data environment is restricted: inbound traffic to the CDE is limited to only necessary traffic and all other traffic is specifically denied; outbound traffic from the CDE is likewise limited to what is necessary."
+        },
+        {
+          "ref": "1.4",
+          "text": "Network connections between trusted and untrusted networks are controlled: NSCs are placed between trusted and untrusted networks, direct inbound access from the internet to stored cardholder data is prohibited, and anti-spoofing measures block forged source addresses."
+        }
+      ]
+    },
+    {
+      "number": "2",
+      "title": "Apply Secure Configurations to All System Components",
+      "chapter": "Build and Maintain a Secure Network and Systems",
+      "is_key": true,
+      "summary": "Vendor-default settings are the attacker's first guess, so this requirement mandates hardening every system component before or immediately after deployment. All vendor default accounts and passwords must be changed or disabled, unnecessary services, protocols, and functions removed, and documented configuration standards (aligned with industry hardening benchmarks such as CIS) applied consistently. Primary functions with differing security levels should not coexist on one system, and all non-console administrative access must be encrypted.",
+      "key_requirements": [
+        "Maintain and apply documented secure configuration standards for all system component types, consistent with industry hardening standards.",
+        "Change or disable all vendor-supplied default accounts and passwords before deployment.",
+        "Remove or disable unnecessary services, protocols, daemons, functions, and accounts.",
+        "Encrypt all non-console administrative access using strong cryptography.",
+        "Manage wireless environments so that wireless vendor defaults (keys, SNMP strings, passwords) are changed at installation."
+      ],
+      "paragraphs": [
+        {
+          "ref": "2.2",
+          "text": "System components are configured and managed securely: configuration standards cover all components, address known vulnerabilities, and are applied when systems are built; vendor default accounts are managed (changed or removed/disabled); only necessary services, protocols, and daemons are enabled and insecure ones carry additional documented mitigations."
+        },
+        {
+          "ref": "2.2.7",
+          "text": "All non-console administrative access is encrypted using strong cryptography, so administrator credentials and session contents cannot be captured off the wire."
+        },
+        {
+          "ref": "2.3",
+          "text": "Wireless environments connected to the CDE or transmitting account data have all wireless vendor defaults changed at installation, including encryption keys, passwords, and SNMP community strings, and keys are changed when personnel with knowledge leave or keys are suspected compromised."
+        }
+      ]
+    },
+    {
+      "number": "3",
+      "title": "Protect Stored Account Data",
+      "chapter": "Protect Account Data",
+      "is_key": true,
+      "summary": "The data-at-rest heart of the standard. Storage of account data must be minimized through retention and disposal policies; sensitive authentication data (full track, CVV, PIN) must never be stored after authorization even if encrypted (with a narrow issuer exception). The primary account number must be masked when displayed (only BIN and last four visible by default) and rendered unreadable anywhere it is stored using one-way hashes, truncation, tokenization, or strong cryptography. Cryptographic keys protecting stored data get their own lifecycle: documented management, split knowledge and dual control, secure storage, and rotation.",
+      "key_requirements": [
+        "Keep account data storage to a minimum via data retention and disposal policies; purge data exceeding the defined retention period at least quarterly.",
+        "Never store sensitive authentication data (full track data, card verification codes, PINs/PIN blocks) after authorization, even encrypted.",
+        "Mask PAN when displayed so only personnel with a business need see more than the BIN and last four digits.",
+        "Render PAN unreadable wherever stored using keyed cryptographic hashes, truncation, tokenization, or strong cryptography with key management.",
+        "Protect cryptographic keys with a minimum of key-custodian controls, split knowledge and dual control, and secure key storage.",
+        "Operate a full documented key lifecycle: generation, distribution, storage, rotation at cryptoperiod end, retirement, and destruction."
+      ],
+      "paragraphs": [
+        {
+          "ref": "3.2-3.3",
+          "text": "Storage of account data is minimized through retention policies with defined periods and secure deletion; sensitive authentication data is not retained after authorization — full track contents, card verification codes, and PINs/PIN blocks must be rendered unrecoverable upon completion of the authorization process (issuers with a legitimate business need are the sole, tightly controlled exception)."
+        },
+        {
+          "ref": "3.4",
+          "text": "PAN is masked when displayed such that only the BIN and last four digits are visible by default, with full PAN visible only to roles with a documented, legitimate business need, and controls prevent copying of PAN when using remote-access technologies except where explicitly authorized."
+        },
+        {
+          "ref": "3.5",
+          "text": "PAN is rendered unreadable anywhere it is stored, using one-way keyed cryptographic hashes of the entire PAN, truncation, index tokens with securely stored pads, or strong cryptography with associated key-management processes; hashed and truncated versions of the same PAN must not be correlatable to reconstruct it, and disk-level encryption alone is insufficient for non-removable media."
+        },
+        {
+          "ref": "3.6-3.7",
+          "text": "Cryptographic keys used to protect stored account data are themselves protected: stored in the fewest possible locations, in secure cryptographic devices or encrypted by key-encrypting keys, accessible to the fewest custodians necessary; documented key-management covers generation of strong keys, secure distribution and storage, rotation at the end of the cryptoperiod, and retirement or replacement of weakened or suspected-compromised keys with split knowledge and dual control for manual clear-text operations."
+        }
+      ]
+    },
+    {
+      "number": "4",
+      "title": "Protect Cardholder Data with Strong Cryptography During Transmission Over Open, Public Networks",
+      "chapter": "Protect Account Data",
+      "is_key": true,
+      "summary": "Whenever PAN travels over open, public networks — the internet, wireless, cellular, satellite — it must be protected with strong cryptography and secure protocol versions and configurations. Certificates must be valid and trusted, protocols must not fall back to insecure versions, and self-signed or internal CAs require documented confirmation of trust. Sending unprotected PANs by email, chat, SMS, or similar end-user messaging technologies is flatly prohibited unless strong cryptography renders the PAN unreadable.",
+      "key_requirements": [
+        "Use strong cryptography and security protocols (e.g., TLS 1.2+) to safeguard PAN during transmission over open, public networks.",
+        "Accept only trusted keys and certificates, verify certificate validity and expiry, and reject insecure protocol versions and fallbacks.",
+        "Maintain an inventory of the entity's trusted keys and certificates.",
+        "Secure wireless networks transmitting account data with strong cryptography for both authentication and transmission.",
+        "Never send unprotected PANs via end-user messaging technologies (email, instant messaging, SMS, chat) — encrypt the PAN or don't send it."
+      ],
+      "paragraphs": [
+        {
+          "ref": "4.2.1",
+          "text": "Strong cryptography and security protocols protect PAN during transmission over open, public networks: only trusted keys and certificates are accepted, certificates are confirmed valid and not expired or revoked, the protocol supports only secure versions and configurations without fallback to insecure ones, and encryption strength is appropriate to the methodology in use."
+        },
+        {
+          "ref": "4.2.1.1-4.2.1.2",
+          "text": "An inventory of trusted keys and certificates used to protect PAN in transit is maintained and kept current, and wireless networks transmitting PAN or connected to the CDE use industry best practices for strong cryptographic authentication and transmission."
+        },
+        {
+          "ref": "4.2.2",
+          "text": "PAN is secured with strong cryptography whenever it is sent via end-user messaging technologies; sending clear-text PAN by email, instant messaging, SMS, or chat is prohibited."
+        }
+      ]
+    },
+    {
+      "number": "5",
+      "title": "Protect All Systems and Networks from Malicious Software",
+      "chapter": "Maintain a Vulnerability Management Program",
+      "is_key": true,
+      "summary": "All systems must be defended against malware with anti-malware solutions that are kept current, actively running, and monitored. Systems traditionally considered not at risk must be periodically re-evaluated as threats evolve. v4.0 adds explicit anti-phishing expectations: mechanisms to detect and protect personnel against phishing attacks. Removable media scanning, malware-solution audit logging, and restrictions preventing users from disabling protections round out the requirement.",
+      "key_requirements": [
+        "Deploy an anti-malware solution on all system components except those periodically evaluated and documented as not at risk.",
+        "Keep anti-malware mechanisms current via automatic updates, run periodic and active/real-time scans (or continuous behavioral analysis), and scan removable media.",
+        "Generate and retain anti-malware audit logs in accordance with Requirement 10.",
+        "Prevent users from disabling or altering anti-malware mechanisms unless specifically authorized case-by-case for a limited period.",
+        "Implement processes and automated mechanisms to detect and protect personnel against phishing attacks."
+      ],
+      "paragraphs": [
+        {
+          "ref": "5.2",
+          "text": "Malicious software is prevented or detected and addressed: an anti-malware solution covering all applicable malware types is deployed on all system components, except components identified through periodic (and re-performed) evaluations as not at risk from malware."
+        },
+        {
+          "ref": "5.3",
+          "text": "Anti-malware mechanisms are active, maintained, and monitored: kept current automatically, performing periodic scans and active or real-time scanning (or continuous behavioral analysis), scanning removable media when in use, producing audit logs, and protected from being disabled or altered by users without time-limited, case-by-case management authorization."
+        },
+        {
+          "ref": "5.4",
+          "text": "Anti-phishing mechanisms are in place: processes and automated mechanisms detect and protect personnel against phishing attacks, complementing the security-awareness training requirement in Requirement 12.6."
+        }
+      ]
+    },
+    {
+      "number": "6",
+      "title": "Develop and Maintain Secure Systems and Software",
+      "chapter": "Maintain a Vulnerability Management Program",
+      "is_key": true,
+      "summary": "Covers the software lifecycle and patch hygiene. Bespoke and custom software must be developed securely — trained developers, code review before release, and defenses against the common attack classes (injection, broken access control, etc.). Security vulnerabilities must be identified from industry sources, risk-ranked, and patched: critical patches within one month, others within a defined timeframe. Public-facing web applications must be protected by an automated technical solution (in practice a WAF, mandatory in v4.0) or reviewed regularly, payment page scripts must be managed and integrity-checked, and all changes go through change control.",
+      "key_requirements": [
+        "Develop bespoke and custom software securely: trained developers, secure coding techniques addressing common vulnerability classes, and code review before release.",
+        "Identify new security vulnerabilities via industry sources and assign risk rankings; install critical security patches within one month of release.",
+        "Deploy an automated technical solution (e.g., a web application firewall) that continually detects and prevents web-based attacks on public-facing web applications.",
+        "Manage all payment page scripts loaded in the consumer browser: authorize, assure integrity, and inventory each script with written justification.",
+        "Control all changes to system components through documented change control with impact analysis, approval, testing, and rollback procedures.",
+        "Separate development/test environments from production and never use live PANs in pre-production except where those environments are fully in scope."
+      ],
+      "paragraphs": [
+        {
+          "ref": "6.2",
+          "text": "Bespoke and custom software is developed securely: based on industry standards, with software-security training for developers at least annually, code reviews performed before release by someone other than the author (or automated tools), and software engineering techniques that prevent or mitigate common attacks including injection, broken cryptography, and broken access control."
+        },
+        {
+          "ref": "6.3",
+          "text": "Security vulnerabilities are identified and addressed: new vulnerabilities are discovered through industry-recognized sources and risk-ranked; an inventory of bespoke, custom, and third-party software supports vulnerability management; critical or high-security patches are installed within one month of release and all others within a timeframe set by the entity's risk assessment."
+        },
+        {
+          "ref": "6.4",
+          "text": "Public-facing web applications are protected against attacks: by 31 March 2025 an automated technical solution that continually detects and prevents web-based attacks (such as a WAF) must be deployed in front of public-facing web applications; payment page scripts executed in the consumer's browser must be authorized, integrity-assured, and inventoried with business or technical justification."
+        },
+        {
+          "ref": "6.5",
+          "text": "Changes to all system components are managed securely: documented change control includes reason and description, impact and security review, approval, and rollback procedures; production and pre-production environments are separated with separation of duties, and live PANs are not used in pre-production environments unless those environments carry full CDE controls."
+        }
+      ]
+    },
+    {
+      "number": "7",
+      "title": "Restrict Access to System Components and Cardholder Data by Business Need to Know",
+      "chapter": "Implement Strong Access Control Measures",
+      "is_key": true,
+      "summary": "Codifies least privilege for the cardholder data environment. Access to system components and cardholder data must be limited to only those individuals whose job requires it, granted based on job classification and function, and set to deny-all by default. An access control model must be defined, privileges must be approved by authorized personnel before assignment, and all user accounts and privileges — including application/system accounts — must be reviewed at least every six months with inappropriate access remediated.",
+      "key_requirements": [
+        "Define an access control model that grants access based on job classification and function, with documented approval for privileges assigned.",
+        "Limit access to system components and cardholder data to only what each role's least privileges require.",
+        "Set access control systems to deny all by default.",
+        "Review all user accounts and related access privileges, including third-party and vendor accounts, at least once every six months.",
+        "Manage application and system account privileges to the least required for operability and review them periodically."
+      ],
+      "paragraphs": [
+        {
+          "ref": "7.2.1-7.2.2",
+          "text": "An access control model is defined and covers all system components; access is assigned to users, including privileged users, based on job classification and function and on the least privileges necessary to perform their responsibilities."
+        },
+        {
+          "ref": "7.2.4",
+          "text": "All user accounts and related access privileges, including accounts used by third parties and vendors, are reviewed at least once every six months to confirm they remain appropriate for the individual's job function, with inappropriate access addressed and management acknowledging that access remains appropriate."
+        },
+        {
+          "ref": "7.2.5-7.3",
+          "text": "Application and system accounts are assigned the least privileges necessary for operability and reviewed periodically; access is managed via an access control system that restricts access based on need to know and is set to deny all by default."
+        }
+      ]
+    },
+    {
+      "number": "8",
+      "title": "Identify Users and Authenticate Access to System Components",
+      "chapter": "Implement Strong Access Control Measures",
+      "is_key": true,
+      "summary": "Every user gets a unique identity, and shared or generic accounts are prohibited except in documented exceptional circumstances. Authentication must use strong factors: passwords of at least 12 characters with complexity, changed on suspicion of compromise, and never hard-coded. The headline control is 8.3-8.5's multi-factor authentication: MFA is required for all access into the CDE (for every user type), for all remote access originating outside the network, and it must be implemented so it cannot be bypassed and is not susceptible to replay. Account lifecycle controls cover lockout after repeated failures, idle session timeout, and disabling accounts of departed users immediately.",
+      "key_requirements": [
+        "Assign a unique ID to every user and administrator; shared, group, or generic accounts only under documented, time-limited exception with individual accountability.",
+        "Enforce strong authentication: minimum 12-character passwords with numeric and alphabetic characters, protected in storage and transmission with strong cryptography.",
+        "Require multi-factor authentication for all non-console access into the CDE and for all remote network access originating from outside the entity's network (8.3, 8.4).",
+        "Implement MFA so it cannot be bypassed except by documented, time-limited exception, uses at least two different factors, and is not susceptible to replay (8.5).",
+        "Lock accounts after no more than 10 failed attempts, time out idle sessions after 15 minutes, and revoke access for terminated users immediately.",
+        "Do not hard-code passwords for application and system accounts in scripts or code; manage interactive use of system accounts with individual accountability."
+      ],
+      "paragraphs": [
+        {
+          "ref": "8.2-8.3",
+          "text": "All users are assigned a unique ID before access is allowed, group and shared accounts are prohibited outside documented exceptions, and strong authentication is enforced: passwords/passphrases of at least 12 characters containing both numeric and alphabetic characters, rendered unreadable in storage and transmission, changed immediately on suspected compromise, and — where passwords are the only factor — changed at least every 90 days or governed by dynamic risk analysis."
+        },
+        {
+          "ref": "8.3.6-8.4",
+          "text": "Multi-factor authentication is required for all access into the CDE — applying to all user types including administrators — and separately for all remote network access originating from outside the entity's network, whether by personnel or third parties, such that remote access to the CDE effectively requires MFA twice (network then CDE) or an equivalently strong single implementation."
+        },
+        {
+          "ref": "8.5",
+          "text": "MFA systems are implemented correctly: not susceptible to replay attacks, cannot be bypassed by any user (including administrators) except in documented and authorized exception cases for a limited period, use at least two different authentication factor categories, and require success of all factors before access is granted."
+        },
+        {
+          "ref": "8.6",
+          "text": "Application and system account authentication is managed: interactive login to system accounts is prevented or tightly controlled with individual accountability, and passwords for such accounts are not hard-coded in scripts, configuration files, or bespoke code, are protected against misuse, and are changed periodically and on suspicion of compromise."
+        }
+      ]
+    },
+    {
+      "number": "9",
+      "title": "Restrict Physical Access to Cardholder Data",
+      "chapter": "Implement Strong Access Control Measures",
+      "is_key": true,
+      "summary": "Physical access to systems and media holding cardholder data must be controlled so data cannot be walked out the door. Facility entry controls, video monitoring of sensitive areas (retained 90 days), badge distinction between personnel and visitors, and visitor logs govern facilities. Media containing cardholder data must be classified, physically secured, tracked when moved, and destroyed when no longer needed so the data is unrecoverable. Point-of-interaction (POS) devices that capture card data must be inventoried, periodically inspected for tampering or skimmers, and staff trained to spot substitution attempts.",
+      "key_requirements": [
+        "Control physical entry to facilities and systems in the CDE, monitor sensitive areas with video or access-control mechanisms, and retain that data at least 90 days.",
+        "Distinguish personnel from visitors with badges, authorize and escort visitors, and keep a visitor log retained at least three months.",
+        "Physically secure, classify, and track all media containing cardholder data, including during transport and offline backup storage.",
+        "Destroy media and hard-copy materials with cardholder data when no longer needed so it cannot be reconstructed (cross-cut shredding, incineration, secure wipe/physical destruction).",
+        "Maintain an inventory of point-of-interaction devices, inspect them periodically for tampering or unauthorized substitution, and train personnel accordingly."
+      ],
+      "paragraphs": [
+        {
+          "ref": "9.2-9.3",
+          "text": "Physical access controls manage entry into facilities and systems containing cardholder data: entry controls and monitoring of sensitive areas with recordings retained at least 90 days, procedures to identify and authorize personnel and visitors, visitor badges and escorts, and a retained visitor log."
+        },
+        {
+          "ref": "9.4",
+          "text": "Media with cardholder data is securely stored, accessed, distributed, and destroyed: classified by data sensitivity, secured (offline backups in a secured location reviewed annually), sent via trackable secured courier with management approval, and destroyed when no longer needed by cross-cut shredding, incineration, or pulping of hard copy and secure erasure or physical destruction of electronic media."
+        },
+        {
+          "ref": "9.5",
+          "text": "Point-of-interaction devices are protected from tampering and substitution: an up-to-date device inventory is maintained, device surfaces are periodically inspected for tampering or skimming attachments at a frequency based on risk, and personnel are trained to verify the identity of third parties claiming to service devices and to report suspicious behavior."
+        }
+      ]
+    },
+    {
+      "number": "10",
+      "title": "Log and Monitor All Access to System Components and Cardholder Data",
+      "chapter": "Regularly Monitor and Test Networks",
+      "is_key": true,
+      "summary": "Audit logging and monitoring make attacks detectable and forensics possible. Audit logs must capture all individual access to cardholder data, all administrator actions, access to logs, invalid access attempts, authentication changes, and audit-trail initialization events, each with user, event type, timestamp, outcome, origin, and affected resource. Logs must be protected from alteration, backed up centrally, and reviewed daily (for critical systems, via automated mechanisms in v4.0). Time must be synchronized from approved sources, log history retained 12 months with 3 months immediately available, and failures of critical security control systems detected and responded to promptly.",
+      "key_requirements": [
+        "Enable audit logs on all system components, capturing individual user access to cardholder data, administrative actions, access to audit logs, invalid access attempts, authentication and account changes, and audit-log start/stop events.",
+        "Record for each event: user identification, event type, date and time, success/failure, origination, and the identity of affected data or resources.",
+        "Protect audit logs from destruction and unauthorized modification; restrict read access to need-to-know and back logs up to a central, secured internal server.",
+        "Review logs of security events and critical system components at least daily using automated mechanisms; review other logs periodically per risk analysis.",
+        "Retain audit log history for at least 12 months, with at least the most recent three months immediately available for analysis.",
+        "Synchronize clocks from designated central time servers using industry-accepted time sources, and detect, alert on, and promptly respond to failures of critical security control systems."
+      ],
+      "paragraphs": [
+        {
+          "ref": "10.2",
+          "text": "Audit logs capture all individual user access to cardholder data, all actions by anyone with administrative access, all access to audit logs, invalid logical access attempts, changes to identification and authentication credentials including privilege elevations and new accounts, initialization/stopping/pausing of audit logs, and creation or deletion of system-level objects — each entry recording user, event type, date and time, success or failure, origination, and affected data, component, or resource."
+        },
+        {
+          "ref": "10.3",
+          "text": "Audit logs are protected from destruction and unauthorized modifications: read access limited to job-related need, files protected via mechanisms such as write-once media or file integrity monitoring, and logs promptly backed up to a centralized internal log server or media that is difficult to alter."
+        },
+        {
+          "ref": "10.4",
+          "text": "Audit logs are reviewed to identify anomalies or suspicious activity: logs of all security events, CDE system components, and critical systems are reviewed at least once daily using automated mechanisms; other component logs are reviewed at a frequency determined by the targeted risk analysis; identified exceptions and anomalies are addressed."
+        },
+        {
+          "ref": "10.5-10.7",
+          "text": "Audit log history is retained for at least 12 months with at least the most recent three months immediately available; time is synchronized across systems using time-synchronization technology from industry-accepted sources with protected time settings; failures of critical security control systems (NSCs, IDS/IPS, FIM, anti-malware, access controls, logging) are detected, alerted, and responded to promptly, with service providers required to restore functions and assess risk from the failure window."
+        }
+      ]
+    },
+    {
+      "number": "11",
+      "title": "Test Security of Systems and Networks Regularly",
+      "chapter": "Regularly Monitor and Test Networks",
+      "is_key": true,
+      "summary": "Security must be verified continuously, not assumed. This requirement mandates quarterly internal vulnerability scans (authenticated in v4.0) and quarterly external scans by an Approved Scanning Vendor, with rescans until high-risk findings are resolved. Annual internal and external penetration testing — plus after significant changes — must validate segmentation controls that limit CDE scope. Additional controls include detection of unauthorized wireless access points, intrusion detection/prevention at the CDE perimeter, change-and-tamper detection for payment pages, and file integrity monitoring.",
+      "key_requirements": [
+        "Run internal vulnerability scans at least quarterly (authenticated scanning) and resolve high-risk and critical vulnerabilities with rescans confirming remediation.",
+        "Run external vulnerability scans at least quarterly via a PCI SSC Approved Scanning Vendor (ASV), rescanning until passing.",
+        "Perform internal and external penetration testing at least annually and after significant changes, using an industry-accepted methodology; correct exploitable findings and retest.",
+        "Test the effectiveness of segmentation controls at least annually (every six months for service providers).",
+        "Detect and respond to unauthorized wireless access points quarterly, run intrusion detection/prevention at the CDE perimeter and critical points, and deploy change/tamper-detection for payment pages and file integrity monitoring on critical files."
+      ],
+      "paragraphs": [
+        {
+          "ref": "11.3",
+          "text": "Vulnerabilities are identified and addressed: internal scans at least every three months with authenticated scanning, resolving high and critical findings and rescanning to verify; external scans at least every three months by an ASV with rescans until CVSS 4.0+ vulnerabilities are resolved; both repeated after significant changes."
+        },
+        {
+          "ref": "11.4",
+          "text": "Penetration testing is performed regularly: a defined methodology covers the entire CDE perimeter and critical systems, internal and external testing occurs at least annually and after significant changes, exploitable vulnerabilities are corrected and retested, and segmentation controls are tested at least annually (at least every six months for service providers) to confirm they isolate the CDE."
+        },
+        {
+          "ref": "11.5-11.6",
+          "text": "Intrusions and unexpected changes are detected and responded to: IDS/IPS monitors traffic at the CDE perimeter and critical points with signatures kept current; a change-detection (file integrity monitoring) mechanism alerts on unauthorized modification of critical files at least weekly; and for e-commerce, a change- and tamper-detection mechanism evaluates payment pages as received by the consumer browser at least weekly (or per targeted risk analysis) to alert on unauthorized modifications to HTTP headers and script contents."
+        }
+      ]
+    },
+    {
+      "number": "12",
+      "title": "Support Information Security with Organizational Policies and Programs",
+      "chapter": "Maintain an Information Security Policy",
+      "is_key": true,
+      "summary": "The governance requirement that makes the other eleven sustainable. Organizations must maintain a comprehensive information security policy reviewed annually, assign an executive-level security responsibility (CISO or equivalent), perform targeted risk analyses supporting flexible-frequency controls, and formally confirm PCI DSS scope annually (every six months for service providers). It also mandates acceptable-use policies, an ongoing security awareness program including phishing and social engineering, personnel screening, third-party service provider management with responsibility matrices, and a tested incident response plan with specific procedures for detecting stored PAN where it doesn't belong.",
+      "key_requirements": [
+        "Maintain an information security policy known to all personnel, reviewed and updated at least annually, with executive management assigning overall responsibility (e.g., a CISO).",
+        "Document and confirm PCI DSS scope at least annually and upon significant change (every six months for service providers), including data-flow diagrams and all account data storage locations.",
+        "Perform targeted risk analyses for every control with flexible frequency and manage an enterprise risk exercise annually.",
+        "Run a formal security awareness program at least annually covering threats including phishing and social engineering, with acknowledgment from personnel.",
+        "Manage third-party service providers: due diligence before engagement, written agreements acknowledging responsibility for account data security, annual monitoring of their PCI DSS status, and a shared responsibility matrix.",
+        "Maintain and test an incident response plan at least annually, with 24/7 personnel availability, alert response procedures (including from change- and tamper-detection), and defined steps when stored PAN is found anywhere it is not expected."
+      ],
+      "paragraphs": [
+        {
+          "ref": "12.1-12.3",
+          "text": "An overall information security policy is established, published, kept current, reviewed at least annually, and disseminated to all relevant personnel; acceptable use policies govern end-user technologies; and targeted risk analyses are documented for each PCI DSS requirement performed at flexible frequency, with cryptographic cipher and protocol inventories reviewed annually."
+        },
+        {
+          "ref": "12.4-12.6",
+          "text": "PCI DSS compliance is actively managed: executive management establishes responsibility and (for service providers) a formal compliance program; scope is documented and confirmed at least annually and after significant changes, every six months for service providers; and a security awareness program educates personnel at hire and at least annually — including threats such as phishing and social engineering — with periodic acknowledgment of security policy."
+        },
+        {
+          "ref": "12.8",
+          "text": "Third-party service provider (TPSP) risk is managed: a list of TPSPs with descriptions of services is maintained, written agreements include the TPSP's acknowledgment of responsibility for securing account data, due diligence precedes engagement, TPSP PCI DSS compliance status is monitored at least annually, and responsibilities are delineated in a shared-responsibility matrix."
+        },
+        {
+          "ref": "12.10",
+          "text": "Suspected and confirmed security incidents are responded to immediately: a comprehensive incident response plan covers roles, communication, containment, and legal notification requirements, is tested at least annually, has trained personnel available 24/7, incorporates alerts from security monitoring systems (including change- and tamper-detection for payment pages), and includes procedures for responding to the discovery of stored PAN anywhere it is not expected."
+        }
+      ]
+    }
+  ],
+  "related_practice_slugs": [
+    "encryption-at-rest",
+    "encryption-in-transit",
+    "key-management",
+    "tokenization",
+    "data-masking",
+    "access-control-rbac-abac",
+    "least-privilege-reviews",
+    "audit-logging"
+  ],
+  "related_technology_slugs": ["hashicorp-vault", "aws-kms", "skyflow"],
+  "position": 40
+}

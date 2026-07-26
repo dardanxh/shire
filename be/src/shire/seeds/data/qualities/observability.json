@@ -1,0 +1,195 @@
+{
+  "slug": "observability",
+  "name": "Observability",
+  "category": "operability",
+  "summary": "The degree to which you can see what the data system is doing — freshness, volumes, failures, lineage, and cost — from signals it emits, without guessing.",
+  "description": "Observability is being able to answer \"is the data right, is it on time, and what broke\" from telemetry the system already exposes. It combines pipeline metrics and logs, freshness and volume monitors, end-to-end lineage, and catalog metadata into a single pane over the flow of data. Architectures with modern orchestration and data-observability tooling surface anomalies before consumers notice; ad-hoc scripts and raw dumping grounds leave operators blind until a dashboard is wrong.",
+  "mechanisms": [
+    {
+      "name": "Data lineage",
+      "note": "Column- and table-level lineage traces where data came from and what breaks downstream when a source changes, turning incidents into root-cause paths.",
+      "related_technology_slugs": [
+        "openlineage",
+        "marquez",
+        "datahub",
+        "atlan"
+      ]
+    },
+    {
+      "name": "Freshness and volume monitors",
+      "note": "Automated checks on row counts, load recency, and distributions catch late, missing, or anomalous data before it reaches consumers.",
+      "related_technology_slugs": [
+        "monte-carlo",
+        "elementary",
+        "soda",
+        "anomalo"
+      ]
+    },
+    {
+      "name": "Data-quality tests in the pipeline",
+      "note": "Assertions embedded in transformations fail loudly on schema drift, null spikes, or broken referential integrity at the point of build.",
+      "related_technology_slugs": [
+        "great-expectations",
+        "dbt",
+        "pandera",
+        "deequ"
+      ]
+    },
+    {
+      "name": "Pipeline metrics and dashboards",
+      "note": "Run durations, retries, and throughput exported as metrics give operators live health signals and alerting on the compute layer itself.",
+      "related_technology_slugs": [
+        "prometheus",
+        "grafana",
+        "dagster",
+        "apache-airflow"
+      ]
+    },
+    {
+      "name": "Catalog and metadata harvesting",
+      "note": "A crawled catalog with ownership, usage, and popularity metadata makes assets discoverable and their reliability legible across teams.",
+      "related_technology_slugs": [
+        "datahub",
+        "openmetadata",
+        "atlan",
+        "collibra"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "strong",
+      "statement": "dbt tests, run artifacts, and lineage plus a data-observability layer give end-to-end visibility from source freshness to model failures inside one warehouse-native flow."
+    },
+    {
+      "blueprint_slug": "layered-warehouse-dbt",
+      "rating": "strong",
+      "statement": "Explicit staging/marts boundaries with dbt lineage and tests make every column's provenance and health visible, so breakages localize to a known layer."
+    },
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "strong",
+      "statement": "Bronze/silver/gold stages with table-format metadata, orchestrator metrics, and quality checks expose freshness and volume at each promotion step."
+    },
+    {
+      "blueprint_slug": "self-serve-data-platform-mesh",
+      "rating": "strong",
+      "statement": "A shared catalog with lineage and SLOs is a first-class platform capability, giving domain teams and consumers uniform visibility across data products."
+    },
+    {
+      "blueprint_slug": "semantic-metrics-layer",
+      "rating": "strong",
+      "statement": "Centralized metric definitions with lineage back to source models make it visible which upstream change affects which metric in which tool."
+    },
+    {
+      "blueprint_slug": "data-vault-warehouse",
+      "rating": "strong",
+      "statement": "Load timestamps and record-source columns are baked into every satellite, giving auditable freshness and provenance without extra instrumentation."
+    },
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "moderate",
+      "statement": "Replication lag and change volumes are observable through connector metrics, but end-to-end freshness across many source tables needs a dedicated monitor to be trustworthy."
+    },
+    {
+      "blueprint_slug": "customer-360-cdp",
+      "rating": "moderate",
+      "statement": "Warehouse-side lineage covers the profile build, but identity-resolution match rates and activation delivery need extra monitoring to see the whole picture."
+    },
+    {
+      "blueprint_slug": "ml-feature-pipeline",
+      "rating": "moderate",
+      "statement": "Feature stores expose materialization and serving metrics, but point-in-time correctness and training-serving skew require purpose-built checks to observe reliably."
+    },
+    {
+      "blueprint_slug": "kimball-data-warehouse",
+      "rating": "moderate",
+      "statement": "ETL job logs and load audit tables give decent operational visibility, but fine-grained column lineage often depends on the tooling wrapped around the loads."
+    },
+    {
+      "blueprint_slug": "reverse-etl-activation-loop",
+      "rating": "moderate",
+      "statement": "Sync tools report per-destination success and error rows, but whether the activated data actually changed downstream behavior stays outside the pipeline's view."
+    },
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "moderate",
+      "statement": "Consumer lag and throughput are readily observable, but end-to-end data-quality and lineage over continuous streams need dedicated tooling that batch stacks get for free."
+    },
+    {
+      "blueprint_slug": "real-time-analytics-serving",
+      "rating": "moderate",
+      "statement": "Engine-level query and ingestion metrics are rich, but correctness of continuously updated results is hard to assert without streaming-aware quality checks."
+    },
+    {
+      "blueprint_slug": "streaming-lakehouse",
+      "rating": "moderate",
+      "statement": "Table commit history gives freshness signals, but observing quality across continuous small commits is harder than over discrete batch loads."
+    },
+    {
+      "blueprint_slug": "event-driven-architecture",
+      "rating": "moderate",
+      "statement": "Schema-registry compatibility and broker metrics are visible, but tracing a fact across many independent consumers requires distributed lineage that is not automatic."
+    },
+    {
+      "blueprint_slug": "hybrid-onprem-cloud-sync",
+      "rating": "limited",
+      "statement": "Bespoke sync jobs across an on-prem/cloud boundary rarely emit lineage or freshness signals, so failures are often discovered only when cloud data looks stale."
+    },
+    {
+      "blueprint_slug": "classic-raw-data-lake",
+      "rating": "limited",
+      "statement": "Schema-on-read dumping grounds carry little instrumentation, so freshness, volumes, and lineage are effectively invisible until a downstream query returns wrong results."
+    },
+    {
+      "blueprint_slug": "classic-batch-etl",
+      "rating": "limited",
+      "statement": "Bespoke hand-rolled jobs typically log only to files, leaving lineage and data-quality signals absent unless observability is bolted on after the fact."
+    },
+    {
+      "blueprint_slug": "query-federation",
+      "rating": "limited",
+      "statement": "Data stays in place across systems that emit no shared telemetry, so freshness and lineage across the federated sources are largely opaque to the engine."
+    },
+    {
+      "blueprint_slug": "rag-pipeline",
+      "rating": "limited",
+      "statement": "Retrieval and generation quality are hard to observe from pipeline metrics alone; embedding staleness and relevance drift need bespoke evaluation the ingest flow does not provide."
+    },
+    {
+      "blueprint_slug": "pii-safe-analytics-zone",
+      "rating": "strong",
+      "statement": "Audit logging, access trails, and data lineage are mandatory controls here, so who touched which sensitive field is captured by design rather than bolted on."
+    }
+  ],
+  "related_technology_slugs": [
+    "openlineage",
+    "monte-carlo",
+    "great-expectations",
+    "datahub",
+    "prometheus",
+    "dbt"
+  ],
+  "related_quality_slugs": [
+    "data-quality",
+    "maintainability"
+  ],
+  "position": 10,
+  "tradeoffs": [
+    {
+      "title": "Cost efficiency",
+      "note": "Retaining metrics, logs, traces, and column-level lineage plus running data-observability and catalog tooling consumes real storage and compute that grows with pipeline volume.",
+      "quality_slug": "cost-efficiency"
+    },
+    {
+      "title": "Latency",
+      "note": "Emitting spans, sampling, and running inline data-quality assertions add a small but real per-run and per-request overhead to the paths being instrumented.",
+      "quality_slug": "latency"
+    },
+    {
+      "title": "Engineering effort",
+      "note": "Lineage integrations, freshness monitors, alert thresholds, and dashboards must be built and continually maintained, and they rot into false alarms if left untended."
+    }
+  ]
+}

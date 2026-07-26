@@ -13,9 +13,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi_pagination import add_pagination
 
 from shire.core.exceptions import register_exception_handlers
 from shire.core.settings import get_settings
+from shire.domain.archetype.routes import router as archetypes_router
+from shire.domain.blueprint.routes import router as blueprints_router
 from shire.domain.briefing.routes import router as briefing_router
 from shire.domain.connections.routes import router as connections_router
 from shire.domain.context.routes import router as context_router
@@ -25,17 +28,23 @@ from shire.domain.home.routes import router as home_router
 from shire.domain.jobs.routes import router as jobs_router
 from shire.domain.members.routes import router as members_router
 from shire.domain.merge_review.routes import router as merge_reviews_router
+from shire.domain.modelling.routes import router as modelling_router
 from shire.domain.news.routes import router as news_router
 from shire.domain.principles.routes import router as principles_router
+from shire.domain.qualities.routes import router as qualities_router
 from shire.domain.repository.routes import router as repositories_router
 from shire.domain.roadmap.routes import repo_router as repo_roadmaps_router
 from shire.domain.roadmap.routes import router as roadmaps_router
+from shire.domain.security.routes import practices_router as practices_router
+from shire.domain.security.routes import regulations_router as regulations_router
 from shire.domain.substrate.routes import router as substrate_router
 from shire.domain.substrate.services import (
     ARTIFACTS_PATH,
     CC_VIEWER_PATH,
     GRAPH_ARTIFACTS_PATH,
 )
+from shire.domain.technology.routes import categories_router as tech_categories_router
+from shire.domain.technology.routes import technologies_router as technologies_router
 from shire.domain.tools.routes import router as tools_router
 from shire.integrations.external_tools.codecharta import resolve_viewer_dir
 
@@ -101,6 +110,17 @@ app.include_router(roadmaps_router, prefix=API_V1_PREFIX)
 app.include_router(repo_roadmaps_router, prefix=API_V1_PREFIX)
 app.include_router(council_router, prefix=API_V1_PREFIX)
 app.include_router(home_router, prefix=API_V1_PREFIX)
+app.include_router(archetypes_router, prefix=API_V1_PREFIX)
+app.include_router(blueprints_router, prefix=API_V1_PREFIX)
+app.include_router(tech_categories_router, prefix=API_V1_PREFIX)
+app.include_router(technologies_router, prefix=API_V1_PREFIX)
+app.include_router(modelling_router, prefix=API_V1_PREFIX)
+app.include_router(regulations_router, prefix=API_V1_PREFIX)
+app.include_router(practices_router, prefix=API_V1_PREFIX)
+app.include_router(qualities_router, prefix=API_V1_PREFIX)
+
+# fastapi-pagination wires its Params/Page plumbing for the catalog routers above.
+add_pagination(app)
 
 # Serve generated codebase-graph artifacts (emerge HTML apps) read-only. Mounted under /api/v1 so
 # the dev Vite proxy (/api → :8000) reaches it same-origin and the UI can iframe the graph. The

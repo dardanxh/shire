@@ -1,0 +1,126 @@
+{
+  "slug": "data-sharing-clean-room",
+  "name": "Data sharing / clean room",
+  "use_case": "Cross-org collaboration without copying",
+  "description": "Two organizations analyze joint data without either handing the other a copy: the provider publishes governed, live shares (no files, no pipelines — consumers query the provider's data in place), sensitive collaborations run inside a clean room where each party's raw rows stay invisible and only approved query templates over the intersection may run (aggregate-only outputs, minimum group sizes, no row-level exfiltration), and whatever leaves the room passes a governed egress gate with audit. The pattern replaced the SFTP-and-CSV era's twin failures — stale copies and unbounded liability once data left your hands — with access that is live, revocable, and provably constrained. There is deliberately no landing or copy layer: the pattern's value is collaboration without moving or duplicating raw data.",
+  "when_to_use": [
+    "Choose this for partner and customer data delivery (data-as-a-product), retail-media and advertising measurement (matching audiences without exposing customer lists), and any regulated collaboration where lawyers would never sign off on shipping raw rows.",
+    "Sharing works best when both parties are on, or can reach, the same platform ecosystem; clean rooms specifically earn their complexity when the join itself is the sensitive act.",
+    "Partners will only collaborate if raw data never leaves their control."
+  ],
+  "when_not_to_use": [
+    "Inside one organization, this is overkill — internal governance (18) and a catalog do the job.",
+    "If the partner genuinely needs a copy to ingest into their own stack, honest file/API delivery beats a share they will just export from.",
+    "Clean rooms also cannot conjure trust from nothing: without agreed match keys, query approval processes, and legal frameworks, the technology is an empty room."
+  ],
+  "use_cases": [
+    "compliance",
+    "integration"
+  ],
+  "hot_spots": [
+    {
+      "title": "Query templates",
+      "detail": "Overly broad templates leak more than partners agreed to share."
+    },
+    {
+      "title": "Threshold gaming",
+      "detail": "Repeated small queries can reconstruct individual-level data."
+    },
+    {
+      "title": "Governance drift",
+      "detail": "Shares outliving their agreements become silent compliance debt."
+    }
+  ],
+  "complexity": "medium",
+  "evolution": [],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  P1[Provider Data Sources]:::source -->|governed shares| SH[Share Layer]:::process\n  P2[Partner Data Sources]:::source -->|contributed datasets| CR[Clean Room]:::process\n  SH -->|revocable access| CR\n  CR -->|approved query results| EG[Egress Control]:::process\n  EG -->|aggregate outputs| CONS[Insight Consumers]:::serve\n  AUD[Audit + Approval]:::govern -. every query reviewed .-> CR"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  PR[Provider Datasets]:::source -->|live shares| SP[Data Share Platform]:::process\n  PA[Partner Datasets]:::source -->|contribution| CRE[Privacy Clean Room]:::process\n  SP -->|no-copy access| CRE\n  CRE -->|template queries only| QT[Approved Query Templates]:::govern\n  QT -->|aggregates| EGW[Egress Gateway]:::process\n  EGW -->|released outputs| OUT[Shared Insights]:::serve"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([provider datasets]):::source -->|share without copy| C([joined privacy-safe view]):::process\n  B([partner datasets]):::source -->|contribute| C\n  C -->|approved templates| E([aggregate results]):::store\n  E -->|controlled release| F([shared insights]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant P as Provider\n  participant R as Partner\n  participant C as Clean Room\n  participant Q as Query Templates\n  participant E as Egress Control\n  participant A as Analyst\n  P->>C: publish governed share\n  R->>C: contribute datasets\n  A->>Q: run approved template\n  Q->>C: privacy-constrained join\n  C->>E: aggregate result\n  E->>E: check thresholds\n  E-->>A: release output\n  E->>E: record in audit log"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  P1[Provider Data Sources]:::source -->|governed shares| SH[\"AWS Data Exchange<br/><i>Share Layer</i>\"]:::process\n  P2[Partner Data Sources]:::source -->|contributed datasets| CR[\"AWS Clean Rooms<br/><i>Clean Room</i>\"]:::process\n  SH -->|revocable access| CR\n  CR -->|approved query results| EG[\"Clean Rooms query controls<br/><i>Egress Control</i>\"]:::process\n  EG -->|aggregate outputs| CONS[Insight Consumers]:::serve\n  AUD[\"AWS CloudTrail<br/><i>Audit + Approval</i>\"]:::govern -. every query reviewed .-> CR"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  P1[Provider Data Sources]:::source -->|governed shares| SH[\"Azure Data Share<br/><i>Share Layer</i>\"]:::process\n  P2[Partner Data Sources]:::source -->|contributed datasets| CR[\"Azure confidential clean room<br/><i>Clean Room</i>\"]:::process\n  SH -->|revocable access| CR\n  CR -->|approved query results| EG[\"Purview egress policies<br/><i>Egress Control</i>\"]:::process\n  EG -->|aggregate outputs| CONS[Insight Consumers]:::serve\n  AUD[\"Azure Monitor audit logs<br/><i>Audit + Approval</i>\"]:::govern -. every query reviewed .-> CR"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  P1[Provider Data Sources]:::source -->|governed shares| SH[\"BigQuery Analytics Hub<br/><i>Share Layer</i>\"]:::process\n  P2[Partner Data Sources]:::source -->|contributed datasets| CR[\"BigQuery data clean rooms<br/><i>Clean Room</i>\"]:::process\n  SH -->|revocable access| CR\n  CR -->|approved query results| EG[\"Analytics Hub egress controls<br/><i>Egress Control</i>\"]:::process\n  EG -->|aggregate outputs| CONS[Insight Consumers]:::serve\n  AUD[\"Google Cloud Audit Logs<br/><i>Audit + Approval</i>\"]:::govern -. every query reviewed .-> CR"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  P1[Provider Data Sources]:::source -->|governed shares| SH[\"Iceberg REST catalog shares<br/><i>Share Layer</i>\"]:::process\n  P2[Partner Data Sources]:::source -->|contributed datasets| CR[\"OpenMined PySyft<br/><i>Clean Room</i>\"]:::process\n  SH -->|revocable access| CR\n  CR -->|approved query results| EG[\"OPA egress policies<br/><i>Egress Control</i>\"]:::process\n  EG -->|aggregate outputs| CONS[Insight Consumers]:::serve\n  AUD[\"OpenSearch audit trail<br/><i>Audit + Approval</i>\"]:::govern -. every query reviewed .-> CR"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  P1[Provider Data Sources]:::source -->|governed shares| SH[\"Snowflake Secure Data Sharing<br/><i>Share Layer</i>\"]:::process\n  P2[Partner Data Sources]:::source -->|contributed datasets| CR[\"Snowflake Data Clean Rooms<br/><i>Clean Room</i>\"]:::process\n  SH -->|revocable access| CR\n  CR -->|approved query results| EG[\"Snowflake query templates<br/><i>Egress Control</i>\"]:::process\n  EG -->|aggregate outputs| CONS[Insight Consumers]:::serve\n  AUD[\"Snowflake ACCESS_HISTORY<br/><i>Audit + Approval</i>\"]:::govern -. every query reviewed .-> CR"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  P1[Provider Data Sources]:::source -->|governed shares| SH[\"Delta Sharing<br/><i>Share Layer</i>\"]:::process\n  P2[Partner Data Sources]:::source -->|contributed datasets| CR[\"Databricks Clean Rooms<br/><i>Clean Room</i>\"]:::process\n  SH -->|revocable access| CR\n  CR -->|approved query results| EG[\"Clean Rooms output controls<br/><i>Egress Control</i>\"]:::process\n  EG -->|aggregate outputs| CONS[Insight Consumers]:::serve\n  AUD[\"Unity Catalog audit logs<br/><i>Audit + Approval</i>\"]:::govern -. every query reviewed .-> CR"
+    }
+  ],
+  "family_tags": [
+    "analytics-serving",
+    "governance-security-compliance"
+  ],
+  "archetype_slugs": [
+    "data-sharing-clean-rooms",
+    "data-monetization",
+    "data-api-data-as-a-product"
+  ],
+  "position": 19,
+  "stages": [
+    {
+      "position": 0,
+      "name": "Provider shares",
+      "role": "Publish live, governed, revocable access to selected datasets without copying",
+      "recommended_technology_slug": "snowflake",
+      "alternative_technology_slugs": [
+        "delta-lake",
+        "databricks-sql",
+        "bigquery",
+        "apache-iceberg"
+      ],
+      "rationale": "Snowflake Secure Data Sharing is the most mature implementation of zero-copy sharing — provider grants, consumer queries, revocation is instant, and reader accounts cover partners without their own Snowflake; its Marketplace extends the same rails to commercial distribution. Delta Sharing is the open-protocol counterweight (hence delta-lake here): REST-based, consumer-platform-agnostic, the right choice when partners are not on your vendor — with Databricks providing the managed experience. BigQuery Analytics Hub is the GCP-native equivalent; Iceberg-based sharing via REST catalogs is emerging for lakehouse estates. The strategic question is ecosystem: same-platform partners make vendor sharing frictionless, heterogeneous partners push you toward open protocols."
+    },
+    {
+      "position": 1,
+      "name": "Clean-room joins",
+      "role": "Privacy-constrained collaboration: joins over the intersection with raw rows invisible to both sides — dedicated clean-room vendors (Habu/LiveRamp, Samooha pre-acquisition) lack corpus entries; platform-native rooms are the recommendation",
+      "recommended_technology_slug": "snowflake",
+      "alternative_technology_slugs": [
+        "databricks-sql",
+        "bigquery"
+      ],
+      "rationale": "The platform-native route is now the default: Snowflake Data Clean Rooms (the Samooha acquisition, no separate slug) put provider-defined query templates, join policies, and aggregation constraints directly on the sharing rails, so a room is configuration rather than new infrastructure — Databricks Clean Rooms and BigQuery's Data Clean Rooms are the same move on their platforms. Independent vendors (LiveRamp/Habu, Decentriq — none in the corpus) still matter for multi-platform advertising ecosystems and identity-graph matching. The design work is not the tool but the constraint set: which templates may run, minimum aggregate sizes, noise where warranted, and crucially the match-key strategy — hashed emails and identity-provider keys determine match rates, and match rates determine whether the collaboration is worth anything."
+    },
+    {
+      "position": 2,
+      "name": "Governed egress",
+      "role": "Control and audit what leaves: aggregate-only results, approved destinations, full lineage of released outputs",
+      "recommended_technology_slug": "immuta",
+      "alternative_technology_slugs": [
+        "satori",
+        "datahub",
+        "openlineage"
+      ],
+      "rationale": "Egress is where clean-room guarantees survive or die — results that exit must be aggregate-bounded, destinations enumerated, and every release attributable. The platforms enforce the in-room constraints, but cross-cutting policy and audit benefit from a governance layer: Immuta for policy-driven control over which derived outputs may land where, Satori for uniform monitoring of who pulled what, DataHub/OpenLineage to keep lineage from shared source to released aggregate queryable when a partner (or regulator) asks. Operationally, treat every egress path as a product decision with an owner — the room's contract is only as strong as its least-reviewed export."
+    }
+  ]
+}

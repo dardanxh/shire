@@ -1,0 +1,185 @@
+{
+  "slug": "scalability",
+  "name": "Scalability",
+  "category": "performance",
+  "summary": "The ability to keep meeting demand as data volume, concurrency, and load grow by adding more resources rather than rewriting the system.",
+  "description": "Scalability is how gracefully a data architecture absorbs growth — more rows, more sources, more concurrent queries, more events per second — by adding capacity. Horizontally scalable designs partition work across many nodes and decouple storage from compute so each can grow independently. Poorly scalable designs hit a single-node or single-writer ceiling and require re-architecture instead of more hardware.",
+  "mechanisms": [
+    {
+      "name": "Data partitioning and sharding",
+      "note": "Splitting data by key or time range spreads storage and query work across nodes so no single machine is the bottleneck.",
+      "related_technology_slugs": [
+        "apache-kafka",
+        "clickhouse",
+        "apache-iceberg",
+        "bigquery"
+      ]
+    },
+    {
+      "name": "Decoupled storage and compute",
+      "note": "Keeping data in object storage and spinning up independent compute lets each dimension scale without moving data.",
+      "related_technology_slugs": [
+        "snowflake",
+        "databricks-sql",
+        "amazon-s3",
+        "trino"
+      ]
+    },
+    {
+      "name": "Horizontal scale-out of distributed processing",
+      "note": "Frameworks that parallelize across a cluster add throughput linearly by adding workers.",
+      "related_technology_slugs": [
+        "apache-spark",
+        "apache-flink",
+        "ray",
+        "dask"
+      ]
+    },
+    {
+      "name": "Consumer groups and partition parallelism",
+      "note": "Stream consumers scale by adding instances up to the partition count, dividing the load automatically.",
+      "related_technology_slugs": [
+        "apache-kafka",
+        "amazon-kinesis",
+        "kafka-streams"
+      ]
+    },
+    {
+      "name": "MPP columnar query engines",
+      "note": "Massively parallel processing engines fan a single query across many nodes to serve high concurrency over large tables.",
+      "related_technology_slugs": [
+        "bigquery",
+        "redshift",
+        "starrocks",
+        "apache-druid"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "strong",
+      "statement": "Open table formats over object storage with elastic Spark/warehouse compute let bronze/silver/gold layers grow to petabytes and add compute per workload independently."
+    },
+    {
+      "blueprint_slug": "open-iceberg-lakehouse",
+      "rating": "strong",
+      "statement": "One copy of partitioned Iceberg data in object storage scales storage cheaply while many independent engines scale compute out to match query demand."
+    },
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "strong",
+      "statement": "Partitioned logs plus consumer-group parallelism scale event throughput by adding partitions and stream workers with no schema-on-write ceiling."
+    },
+    {
+      "blueprint_slug": "log-clickstream-analytics",
+      "rating": "strong",
+      "statement": "High-volume event ingestion into partitioned columnar stores scales out linearly to absorb traffic spikes across huge cardinality."
+    },
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "strong",
+      "statement": "Warehouse-native transformation on cloud MPP engines scales concurrency and data volume by resizing or adding virtual warehouses on demand."
+    },
+    {
+      "blueprint_slug": "real-time-analytics-serving",
+      "rating": "strong",
+      "statement": "Distributed OLAP engines shard data and replicas across nodes to sustain high query concurrency at scale, though very large state can strain rebalancing."
+    },
+    {
+      "blueprint_slug": "iot-telemetry-platform",
+      "rating": "strong",
+      "statement": "Device fleets fan into partitioned ingest topics and time-partitioned stores, so millions of devices scale by adding brokers and consumers."
+    },
+    {
+      "blueprint_slug": "multi-tenant-saas-analytics",
+      "rating": "moderate",
+      "statement": "Tenant-partitioned schemas or tables scale with tenant count, but a few very large tenants can create hotspots that require per-tenant isolation work."
+    },
+    {
+      "blueprint_slug": "kimball-data-warehouse",
+      "rating": "moderate",
+      "statement": "Dimensional models on an MPP warehouse scale well for reporting, but wide fact-table growth and conformed-dimension rebuilds add coordination cost."
+    },
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "moderate",
+      "statement": "CDC scales with source throughput and warehouse merge capacity, but high-churn tables and single-writer merge targets can become the limiting factor."
+    },
+    {
+      "blueprint_slug": "customer-360-cdp",
+      "rating": "moderate",
+      "statement": "Identity resolution and profile unification scale with the warehouse, but graph-style stitching over many sources grows super-linearly with match complexity."
+    },
+    {
+      "blueprint_slug": "data-vault-warehouse",
+      "rating": "moderate",
+      "statement": "Hub/link/satellite loads parallelize cleanly by pattern, but the many-join query pattern strains at scale and needs marts to stay performant."
+    },
+    {
+      "blueprint_slug": "query-federation",
+      "rating": "limited",
+      "statement": "Federated queries are bounded by the slowest and least scalable underlying source, so overall scale is capped by whatever leg cannot fan out."
+    },
+    {
+      "blueprint_slug": "small-data-duckdb-stack",
+      "rating": "limited",
+      "statement": "By design this is single-node in-process analytics, so it scales up only to one machine's memory and cores and cannot scale out horizontally."
+    },
+    {
+      "blueprint_slug": "hybrid-onprem-cloud-sync",
+      "rating": "limited",
+      "statement": "On-prem source capacity and sync bandwidth cap growth, so scaling often means a hardware refresh rather than adding elastic cloud resources."
+    },
+    {
+      "blueprint_slug": "reverse-etl-activation-loop",
+      "rating": "limited",
+      "statement": "Activation throughput is capped by downstream SaaS API rate limits, so the loop cannot scale past what the destination tools accept."
+    },
+    {
+      "blueprint_slug": "data-sharing-clean-room",
+      "rating": "moderate",
+      "statement": "Share-in-place scales to many consumers without cloning data, but concurrent collaborator queries all land on the provider's compute, which becomes the shared ceiling."
+    },
+    {
+      "blueprint_slug": "self-serve-data-platform-mesh",
+      "rating": "strong",
+      "statement": "Decentralized domain ownership on shared self-serve infrastructure scales organizationally, letting many teams ship data products in parallel without a central bottleneck team."
+    }
+  ],
+  "related_technology_slugs": [
+    "apache-kafka",
+    "apache-spark",
+    "snowflake",
+    "bigquery",
+    "apache-iceberg",
+    "trino"
+  ],
+  "related_quality_slugs": [
+    "elasticity",
+    "throughput"
+  ],
+  "position": 10,
+  "tradeoffs": [
+    {
+      "title": "Cost efficiency",
+      "note": "Scaling out means running more nodes, replicas, and coordination services, so total compute and storage spend climbs even when per-unit efficiency improves.",
+      "quality_slug": "cost-efficiency"
+    },
+    {
+      "title": "Consistency",
+      "note": "Partitioning and sharding data across nodes weakens cross-shard and global consistency, forcing you to accept eventual or bounded-staleness reads instead of a single authoritative view.",
+      "quality_slug": "consistency"
+    },
+    {
+      "title": "Latency",
+      "note": "Distributing work introduces cross-node coordination, data shuffling, and network hops that add overhead to each request, so a single query is often slower than on one machine.",
+      "quality_slug": "latency"
+    },
+    {
+      "title": "Operational complexity",
+      "note": "Distributed systems require rebalancing, partition management, and cross-node failure handling that are far harder to run and reason about than a single-node deployment.",
+      "quality_slug": "maintainability"
+    }
+  ]
+}

@@ -1,0 +1,375 @@
+{
+  "slug": "hipaa",
+  "name": "HIPAA",
+  "full_name": "Health Insurance Portability and Accountability Act — Privacy, Security, and Breach Notification Rules (45 CFR Parts 160, 164)",
+  "category": "healthcare",
+  "region": "us",
+  "jurisdiction": "United States",
+  "status": "in_force",
+  "effective_year": 2003,
+  "effective_date": "Privacy Rule 14 April 2003; Security Rule 20 April 2005; Breach Notification 2009",
+  "description": "HIPAA's administrative simplification rules govern how protected health information (PHI) is used, disclosed, and secured in the United States. The Privacy Rule limits uses and disclosures of PHI and gives patients rights over their records; the Security Rule mandates administrative, physical, and technical safeguards for electronic PHI; and the Breach Notification Rule requires notifying individuals, HHS, and sometimes the media when unsecured PHI is breached. The rules are enforced by the HHS Office for Civil Rights and, since the HITECH Act, extend directly to business associates.",
+  "who_is_impacted": [
+    "Covered entities: health plans, healthcare clearinghouses, and healthcare providers who transmit any health information electronically in connection with a HIPAA standard transaction (billing, eligibility, claims).",
+    "Business associates — vendors that create, receive, maintain, or transmit PHI on behalf of a covered entity, such as cloud providers, analytics firms, billing services, and SaaS platforms — are directly liable for Security Rule and many Privacy Rule requirements under the HITECH Act.",
+    "Subcontractors of business associates that handle PHI are themselves business associates and must sign business associate agreements down the chain.",
+    "Hybrid entities (e.g., a university with a medical center) must designate their healthcare components, which then carry the compliance obligations.",
+    "Employers acting purely as employers, most life insurers, workers' compensation carriers, and de-identified data are outside the rules' scope, though state medical-privacy laws may still apply.",
+    "Group health plan sponsors receiving PHI from their plans must implement firewalls and certifications restricting how that data is used for employment decisions."
+  ],
+  "penalties": "Tiered civil penalties from $137 to $68,928 per violation (annual caps ~$2M per provision); criminal penalties up to $250,000 and 10 years for offenses with intent to sell PHI",
+  "official_url": "https://www.hhs.gov/hipaa/for-professionals/index.html",
+  "unit_label": "section",
+  "triggering_data_classes": ["health_data"],
+  "articles": [
+    {
+      "number": "164.302",
+      "title": "Applicability (Security Rule)",
+      "chapter": "Security Rule (Subpart C)"
+    },
+    {
+      "number": "164.304",
+      "title": "Definitions (Security Rule)",
+      "chapter": "Security Rule (Subpart C)"
+    },
+    {
+      "number": "164.306",
+      "title": "Security Standards: General Rules",
+      "chapter": "Security Rule (Subpart C)",
+      "is_key": true,
+      "summary": "The umbrella standard of the Security Rule. Covered entities and business associates must ensure the confidentiality, integrity, and availability of all electronic PHI they create, receive, maintain, or transmit, protect against reasonably anticipated threats and impermissible disclosures, and ensure workforce compliance. The rule is deliberately flexible and scalable: organizations choose measures based on their size, complexity, technical infrastructure, costs, and risk. It also establishes the distinction between required and addressable implementation specifications — addressable ones may be met with documented equivalent alternatives, but never simply ignored.",
+      "key_requirements": [
+        "Ensure the confidentiality, integrity, and availability of all electronic PHI created, received, maintained, or transmitted.",
+        "Protect against reasonably anticipated threats or hazards to the security or integrity of ePHI.",
+        "Protect against reasonably anticipated impermissible uses or disclosures and ensure workforce compliance.",
+        "Apply the flexibility-of-approach factors (size, complexity, capabilities, cost, and probability/criticality of risks) when selecting security measures.",
+        "For addressable implementation specifications, assess reasonableness; implement, substitute a documented equivalent measure, or document why neither is appropriate."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)",
+          "text": "Covered entities and business associates must ensure the confidentiality, integrity, and availability of all electronic protected health information they create, receive, maintain, or transmit; protect against reasonably anticipated threats or hazards; protect against reasonably anticipated uses or disclosures not permitted under the Privacy Rule; and ensure compliance by their workforce."
+        },
+        {
+          "ref": "(b)",
+          "text": "Entities may use any security measures that allow them to reasonably and appropriately implement the standards, taking into account their size, complexity, and capabilities; their technical infrastructure, hardware, and software security capabilities; the costs of security measures; and the probability and criticality of potential risks to electronic PHI."
+        },
+        {
+          "ref": "(d)",
+          "text": "Implementation specifications are either required (must be implemented) or addressable: for addressable specifications the entity must assess whether the specification is reasonable and appropriate in its environment and either implement it, implement an equivalent alternative measure, or document why it would not be reasonable and appropriate."
+        }
+      ]
+    },
+    {
+      "number": "164.308",
+      "title": "Administrative Safeguards",
+      "chapter": "Security Rule (Subpart C)",
+      "is_key": true,
+      "summary": "The largest safeguard family: the management side of ePHI security. Its centerpiece is the security management process, which requires an accurate and thorough risk analysis and a risk management program — the most-cited gap in OCR enforcement. It also mandates a designated security official, workforce authorization and clearance procedures, security awareness training, incident response procedures, a contingency plan (data backup, disaster recovery, emergency mode operation), periodic evaluation, and written business associate contracts.",
+      "key_requirements": [
+        "Conduct an accurate and thorough risk analysis of threats to ePHI and implement risk management measures that reduce risks to a reasonable and appropriate level.",
+        "Apply a sanction policy for workforce noncompliance and regularly review information system activity (audit logs, access reports, incident tracking).",
+        "Designate a security official and implement workforce authorization, clearance, and termination procedures.",
+        "Run a security awareness and training program, including protection from malicious software, log-in monitoring, and password management.",
+        "Maintain incident response procedures and a contingency plan with data backup, disaster recovery, and emergency mode operation plans.",
+        "Obtain satisfactory assurances via business associate agreements before letting a vendor create, receive, maintain, or transmit ePHI."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)(1)",
+          "text": "Security management process: implement policies and procedures to prevent, detect, contain, and correct security violations, including a required risk analysis (accurate and thorough assessment of potential risks and vulnerabilities to ePHI), risk management (measures sufficient to reduce risks to a reasonable and appropriate level), a sanction policy, and information system activity review."
+        },
+        {
+          "ref": "(a)(3)",
+          "text": "Workforce security: implement policies and procedures to ensure that all workforce members have appropriate access to ePHI and to prevent those who should not have access from obtaining it, including authorization/supervision, workforce clearance, and access termination procedures."
+        },
+        {
+          "ref": "(a)(6)",
+          "text": "Security incident procedures: implement policies and procedures to address security incidents — identify and respond to suspected or known incidents, mitigate harmful effects to the extent practicable, and document incidents and their outcomes."
+        },
+        {
+          "ref": "(a)(7)",
+          "text": "Contingency plan: establish policies and procedures for responding to emergencies that damage systems containing ePHI, including a required data backup plan, disaster recovery plan, and emergency mode operation plan, plus addressable testing/revision procedures and applications-and-data criticality analysis."
+        },
+        {
+          "ref": "(b)",
+          "text": "Business associate contracts and other arrangements: a covered entity may permit a business associate to create, receive, maintain, or transmit ePHI on its behalf only if it obtains satisfactory assurances, documented in a written contract or other arrangement, that the business associate will appropriately safeguard the information."
+        }
+      ]
+    },
+    {
+      "number": "164.310",
+      "title": "Physical Safeguards",
+      "chapter": "Security Rule (Subpart C)",
+      "is_key": true,
+      "summary": "Physical measures protecting systems and facilities that hold ePHI. Facility access controls must limit physical access to systems while ensuring authorized access is allowed, covering contingency operations, facility security plans, access validation, and maintenance records. Workstation use and security standards govern how and where workstations that access ePHI are used. Device and media controls govern receipt, movement, reuse, and disposal of hardware and electronic media — improper disposal and lost unencrypted devices remain classic HIPAA breach patterns.",
+      "key_requirements": [
+        "Limit physical access to facilities and systems housing ePHI while ensuring properly authorized access (facility security plan, access control and validation).",
+        "Define policies for proper workstation use and physically safeguard workstations that access ePHI.",
+        "Implement device and media controls: track receipt and movement of hardware and electronic media containing ePHI.",
+        "Ensure final disposition of ePHI and media renders the data unrecoverable, and remove ePHI before media reuse.",
+        "Maintain records of media movements and the persons responsible, and create retrievable exact backups before moving equipment."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)",
+          "text": "Facility access controls: implement policies and procedures to limit physical access to electronic information systems and the facilities in which they are housed, while ensuring that properly authorized access is allowed — including contingency operations, a facility security plan, access control and validation procedures, and maintenance records."
+        },
+        {
+          "ref": "(b)-(c)",
+          "text": "Workstation use and workstation security: specify the proper functions to be performed at workstations that access ePHI, the manner of performing them, and the physical attributes of their surroundings; implement physical safeguards to restrict workstation access to authorized users."
+        },
+        {
+          "ref": "(d)",
+          "text": "Device and media controls: implement policies governing the receipt and removal of hardware and electronic media containing ePHI into, out of, and within a facility — required disposal and media re-use procedures (render ePHI unrecoverable before disposal or reuse), and addressable accountability records and data backup before equipment movement."
+        }
+      ]
+    },
+    {
+      "number": "164.312",
+      "title": "Technical Safeguards",
+      "chapter": "Security Rule (Subpart C)",
+      "is_key": true,
+      "summary": "The technology controls of the Security Rule, and the section data platforms map controls to most directly. It requires access control (unique user identification, emergency access, and addressable automatic logoff and encryption/decryption of stored ePHI), audit controls that record and examine activity in systems containing ePHI, integrity protections against improper alteration or destruction, person-or-entity authentication, and transmission security including integrity controls and encryption in transit. Encryption is formally \"addressable,\" but unencrypted data forfeits the breach-notification safe harbor, making it a de facto expectation.",
+      "key_requirements": [
+        "Implement access controls limiting ePHI to authorized persons and software: unique user identification, emergency access procedure, automatic logoff, and encryption/decryption of stored ePHI.",
+        "Deploy audit controls — hardware, software, and procedural mechanisms that record and examine activity in systems containing ePHI.",
+        "Protect ePHI integrity with mechanisms that corroborate data has not been improperly altered or destroyed.",
+        "Verify that persons or entities seeking access to ePHI are who they claim to be (authentication).",
+        "Guard ePHI transmitted over electronic networks with integrity controls and encryption in transit."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)",
+          "text": "Access control: implement technical policies and procedures for systems that maintain ePHI to allow access only to authorized persons or software programs — required unique user identification and emergency access procedures, and addressable automatic logoff and encryption and decryption of ePHI at rest (a)(2)(iv)."
+        },
+        {
+          "ref": "(b)",
+          "text": "Audit controls: implement hardware, software, and/or procedural mechanisms that record and examine activity in information systems that contain or use electronic protected health information."
+        },
+        {
+          "ref": "(c)",
+          "text": "Integrity: implement policies and procedures to protect ePHI from improper alteration or destruction, including an addressable mechanism to authenticate ePHI — corroborating that the information has not been altered or destroyed in an unauthorized manner."
+        },
+        {
+          "ref": "(d)",
+          "text": "Person or entity authentication: implement procedures to verify that a person or entity seeking access to electronic protected health information is the one claimed."
+        },
+        {
+          "ref": "(e)",
+          "text": "Transmission security: implement technical security measures to guard against unauthorized access to ePHI being transmitted over an electronic communications network, including addressable integrity controls and encryption of ePHI in transit whenever deemed appropriate."
+        }
+      ]
+    },
+    {
+      "number": "164.314",
+      "title": "Organizational Requirements (Business Associate Contracts; Group Health Plans)",
+      "chapter": "Security Rule (Subpart C)"
+    },
+    {
+      "number": "164.316",
+      "title": "Policies and Procedures and Documentation Requirements",
+      "chapter": "Security Rule (Subpart C)"
+    },
+    {
+      "number": "164.500",
+      "title": "Applicability (Privacy Rule)",
+      "chapter": "Privacy Rule (Subpart E)"
+    },
+    {
+      "number": "164.502",
+      "title": "Uses and Disclosures of Protected Health Information: General Rules",
+      "chapter": "Privacy Rule (Subpart E)",
+      "is_key": true,
+      "summary": "The core prohibition of the Privacy Rule: PHI may not be used or disclosed except as the rule permits or requires. Permitted uses include disclosures to the individual, treatment/payment/healthcare operations, and specific public-interest situations; required disclosures are to the individual and to HHS for enforcement. The minimum necessary standard obliges entities to limit most uses, disclosures, and requests to the least PHI needed for the purpose (treatment disclosures are exempt). The section also prohibits the sale of PHI without authorization and passes obligations to business associates and to deceased individuals' information for 50 years.",
+      "key_requirements": [
+        "Use or disclose PHI only as permitted or required by the Privacy Rule; everything else needs an individual authorization.",
+        "Apply the minimum necessary standard: limit uses, disclosures, and requests to the minimum PHI needed to accomplish the purpose.",
+        "Design role-based access so workforce members see only the PHI classes their role requires.",
+        "Do not sell PHI or use it for most marketing without a valid authorization.",
+        "Extend the same limits to business associates through contracts and treat decedents' PHI as protected for 50 years after death."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)",
+          "text": "A covered entity or business associate may not use or disclose protected health information except as permitted or required by the Privacy Rule. Permitted uses and disclosures include to the individual, for treatment, payment, or healthcare operations, pursuant to a valid authorization, and under the specific public-interest provisions; disclosures are required to the individual on request and to the Secretary for compliance investigations."
+        },
+        {
+          "ref": "(b)",
+          "text": "Minimum necessary: when using or disclosing PHI or requesting it from another covered entity, a covered entity or business associate must make reasonable efforts to limit the PHI to the minimum necessary to accomplish the intended purpose. The standard does not apply to disclosures for treatment, disclosures to the individual, uses under an authorization, or disclosures required by law."
+        },
+        {
+          "ref": "(a)(5)",
+          "text": "Prohibited uses and disclosures: a covered entity or business associate may not sell protected health information, and may not use or disclose genetic information for underwriting purposes, except as narrowly permitted (e.g., sale pursuant to a valid authorization that states remuneration is involved)."
+        }
+      ]
+    },
+    {
+      "number": "164.506",
+      "title": "Uses and Disclosures for Treatment, Payment, or Health Care Operations",
+      "chapter": "Privacy Rule (Subpart E)"
+    },
+    {
+      "number": "164.508",
+      "title": "Uses and Disclosures for Which an Authorization Is Required",
+      "chapter": "Privacy Rule (Subpart E)"
+    },
+    {
+      "number": "164.510",
+      "title": "Uses and Disclosures Requiring an Opportunity for the Individual to Agree or Object",
+      "chapter": "Privacy Rule (Subpart E)"
+    },
+    {
+      "number": "164.512",
+      "title": "Uses and Disclosures for Which an Authorization or Opportunity to Agree or Object Is Not Required (Public Interest)",
+      "chapter": "Privacy Rule (Subpart E)"
+    },
+    {
+      "number": "164.514",
+      "title": "Other Requirements Relating to Uses and Disclosures (De-Identification; Limited Data Sets)",
+      "chapter": "Privacy Rule (Subpart E)",
+      "is_key": true,
+      "summary": "The section that defines when health data stops being PHI — foundational for analytics, ML, and data sharing. Information is de-identified, and outside HIPAA entirely, via one of two methods: Expert Determination, where a qualified statistician documents that re-identification risk is very small, or Safe Harbor, where 18 enumerated identifier categories are removed and the entity has no actual knowledge the residual data could identify someone. The section also permits re-identification codes under strict conditions and defines limited data sets usable for research, public health, or operations under a data use agreement.",
+      "key_requirements": [
+        "Treat health information as de-identified (not PHI) only after applying Expert Determination or the Safe Harbor method.",
+        "Safe Harbor: strip all 18 identifier categories — names, geographic subdivisions smaller than a state (with limited 3-digit ZIP exceptions), all date elements except year, phone/fax/email, SSN, MRN, account and license numbers, device identifiers, URLs, IPs, biometrics, full-face photos, and any other unique identifying number, characteristic, or code.",
+        "Expert Determination: obtain documented analysis from a person with appropriate statistical/scientific knowledge that re-identification risk is very small.",
+        "Keep any re-identification code non-derivative of the identifiers, do not disclose it, and do not use it for any other purpose.",
+        "Use limited data sets (direct identifiers removed, dates and geography retained) only under a data use agreement for research, public health, or healthcare operations."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(b)(1)",
+          "text": "Expert Determination: health information is de-identified if a person with appropriate knowledge of and experience with generally accepted statistical and scientific principles and methods determines that the risk is very small that the information could be used, alone or in combination with other reasonably available information, to identify the individual, and documents the methods and results of that analysis."
+        },
+        {
+          "ref": "(b)(2)",
+          "text": "Safe Harbor: health information is de-identified if 18 categories of identifiers of the individual and of relatives, employers, and household members are removed — including names, all geographic subdivisions smaller than a state (initial three ZIP digits allowed only where the area exceeds 20,000 people), all elements of dates except year (with special handling for ages over 89), contact numbers and addresses, SSNs, medical record and account numbers, device and vehicle identifiers, URLs and IP addresses, biometric identifiers, full-face photographs, and any other unique identifying number, characteristic, or code — and the covered entity has no actual knowledge that the remaining information could identify an individual."
+        },
+        {
+          "ref": "(c)",
+          "text": "Re-identification: a covered entity may assign a code to allow de-identified information to be re-identified, provided the code is not derived from information about the individual and is not otherwise capable of being translated to identify the individual, and the entity does not use or disclose the code for any other purpose or disclose the mechanism for re-identification."
+        },
+        {
+          "ref": "(e)",
+          "text": "Limited data set: PHI that excludes direct identifiers (but may retain dates, city, state, ZIP code) may be used or disclosed only for research, public health, or healthcare operations, and only pursuant to a data use agreement that limits the recipient's uses and requires appropriate safeguards."
+        }
+      ]
+    },
+    {
+      "number": "164.520",
+      "title": "Notice of Privacy Practices for Protected Health Information",
+      "chapter": "Privacy Rule (Subpart E)"
+    },
+    {
+      "number": "164.522",
+      "title": "Rights to Request Privacy Protection for Protected Health Information (Restrictions; Confidential Communications)",
+      "chapter": "Privacy Rule (Subpart E)"
+    },
+    {
+      "number": "164.524",
+      "title": "Access of Individuals to Protected Health Information",
+      "chapter": "Privacy Rule (Subpart E)"
+    },
+    {
+      "number": "164.526",
+      "title": "Amendment of Protected Health Information",
+      "chapter": "Privacy Rule (Subpart E)"
+    },
+    {
+      "number": "164.528",
+      "title": "Accounting of Disclosures of Protected Health Information",
+      "chapter": "Privacy Rule (Subpart E)"
+    },
+    {
+      "number": "164.400",
+      "title": "Applicability (Breach Notification Rule)",
+      "chapter": "Breach Notification Rule (Subpart D)"
+    },
+    {
+      "number": "164.402",
+      "title": "Definitions: Breach and Unsecured Protected Health Information",
+      "chapter": "Breach Notification Rule (Subpart D)",
+      "is_key": true,
+      "summary": "Defines what counts as a reportable breach. A breach is the acquisition, access, use, or disclosure of PHI in violation of the Privacy Rule that compromises its security or privacy — and any impermissible use or disclosure is presumed a breach unless the entity demonstrates a low probability of compromise through a documented four-factor risk assessment. Narrow exceptions cover certain good-faith internal accesses and disclosures unlikely to be retained. Only \"unsecured\" PHI triggers notification, which creates the practical encryption safe harbor: PHI encrypted per HHS guidance is not unsecured, so its loss is not reportable.",
+      "key_requirements": [
+        "Treat every impermissible acquisition, access, use, or disclosure of PHI as a presumed breach unless proven otherwise.",
+        "Run and document the four-factor risk assessment: nature and extent of PHI involved, the unauthorized person, whether PHI was actually acquired or viewed, and the extent of mitigation.",
+        "Apply the three exceptions narrowly (good-faith workforce access, inadvertent internal disclosure between authorized persons, disclosure the recipient could not reasonably retain).",
+        "Encrypt PHI at rest and in transit per NIST-based HHS guidance to take lost or stolen data out of the \"unsecured PHI\" definition and its notification duty."
+      ],
+      "paragraphs": [
+        {
+          "ref": "Breach (1)-(2)",
+          "text": "Breach means the acquisition, access, use, or disclosure of protected health information in a manner not permitted by the Privacy Rule which compromises the security or privacy of the PHI; excluded are unintentional good-faith acquisition by a workforce member within authority, inadvertent disclosure between persons authorized to access PHI at the same entity or arrangement, and disclosures where the unauthorized recipient would not reasonably have been able to retain the information."
+        },
+        {
+          "ref": "Breach (2)",
+          "text": "An impermissible acquisition, access, use, or disclosure is presumed to be a breach unless the covered entity or business associate demonstrates a low probability that the PHI has been compromised, based on a risk assessment of at least: the nature and extent of the PHI involved (identifiers and likelihood of re-identification), the unauthorized person who used or received it, whether the PHI was actually acquired or viewed, and the extent to which the risk has been mitigated."
+        },
+        {
+          "ref": "Unsecured PHI",
+          "text": "Unsecured protected health information is PHI that has not been rendered unusable, unreadable, or indecipherable to unauthorized persons through a technology or methodology specified in HHS guidance — in practice, encryption meeting NIST standards or proper destruction. Breaches of secured PHI are not subject to the notification requirements."
+        }
+      ]
+    },
+    {
+      "number": "164.404",
+      "title": "Notification to Individuals",
+      "chapter": "Breach Notification Rule (Subpart D)",
+      "is_key": true,
+      "summary": "Following discovery of a breach of unsecured PHI, a covered entity must notify each affected individual without unreasonable delay and no later than 60 calendar days after discovery. A breach is \"discovered\" on the first day it is known, or would have been known with reasonable diligence, by anyone in the organization other than the person who committed it. Notices must be written in plain language and include what happened, the data types involved, steps individuals should take, what the entity is doing, and contact procedures; substitute notice (including website or media posting) applies when contact information is insufficient.",
+      "key_requirements": [
+        "Notify affected individuals without unreasonable delay and in no case later than 60 calendar days after discovery of the breach.",
+        "Start the clock at constructive discovery — when any workforce member or agent knew or should reasonably have known of the breach.",
+        "Include the required content: description of what happened and when, types of unsecured PHI involved, steps individuals should take, mitigation and investigation actions, and contact procedures including a toll-free number.",
+        "Provide written notice by first-class mail (or email if the individual agreed), with substitute notice — conspicuous website posting or major media for 90 days plus a toll-free line — when contact details are insufficient for 10 or more individuals.",
+        "Use urgent contact methods (e.g., telephone) in addition to written notice where there is possible imminent misuse."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)-(b)",
+          "text": "A covered entity shall, following the discovery of a breach of unsecured PHI, notify each individual whose information has been, or is reasonably believed to have been, accessed, acquired, used, or disclosed, without unreasonable delay and in no case later than 60 calendar days after discovery. A breach is treated as discovered on the first day it is known, or by exercising reasonable diligence would have been known, to any workforce member or agent other than the person who committed the breach."
+        },
+        {
+          "ref": "(c)",
+          "text": "The notification must be written in plain language and include, to the extent possible: a brief description of what happened including dates of breach and discovery; the types of unsecured PHI involved; steps individuals should take to protect themselves; a description of the entity's investigation, mitigation, and prevention efforts; and contact procedures including a toll-free telephone number, email, website, or postal address."
+        },
+        {
+          "ref": "(d)",
+          "text": "Notice is provided by first-class mail (or email where the individual has agreed) to the last known address; where contact information is insufficient or out-of-date for 10 or more individuals, substitute notice requires a conspicuous posting on the entity's website home page for 90 days or notice in major print or broadcast media, including a toll-free number active for at least 90 days."
+        }
+      ]
+    },
+    {
+      "number": "164.406",
+      "title": "Notification to the Media",
+      "chapter": "Breach Notification Rule (Subpart D)"
+    },
+    {
+      "number": "164.408",
+      "title": "Notification to the Secretary",
+      "chapter": "Breach Notification Rule (Subpart D)"
+    },
+    {
+      "number": "164.410",
+      "title": "Notification by a Business Associate",
+      "chapter": "Breach Notification Rule (Subpart D)"
+    },
+    {
+      "number": "164.414",
+      "title": "Administrative Requirements and Burden of Proof",
+      "chapter": "Breach Notification Rule (Subpart D)"
+    }
+  ],
+  "related_practice_slugs": [
+    "encryption-at-rest",
+    "encryption-in-transit",
+    "access-control-rbac-abac",
+    "audit-logging",
+    "data-anonymization",
+    "backup-recovery"
+  ],
+  "related_technology_slugs": ["microsoft-presidio", "immuta", "bigid"],
+  "position": 30
+}

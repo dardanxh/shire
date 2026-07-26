@@ -2220,6 +2220,360 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/archetypes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Archetypes
+         * @description Paginated catalog. Archived archetypes are hidden unless `include_archived`.
+         */
+        get: operations["list_archetypes_api_v1_archetypes_get"];
+        put?: never;
+        /** Create Archetype */
+        post: operations["create_archetype_api_v1_archetypes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/archetypes/{archetype_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Archetype */
+        get: operations["get_archetype_api_v1_archetypes__archetype_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Archetype
+         * @description Deletes the archetype.
+         */
+        delete: operations["delete_archetype_api_v1_archetypes__archetype_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Archetype */
+        patch: operations["update_archetype_api_v1_archetypes__archetype_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/blueprints": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Blueprints
+         * @description The library (small, unpaginated). `technology_id` matches recommended + alternatives;
+         *     `source` splits seed blueprints from user architectures.
+         */
+        get: operations["list_blueprints_api_v1_blueprints_get"];
+        put?: never;
+        /** Create Blueprint */
+        post: operations["create_blueprint_api_v1_blueprints_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/blueprints/{blueprint_id}/clone": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Clone Blueprint
+         * @description Copy a blueprint into a new editable user architecture (fresh stage ids).
+         */
+        post: operations["clone_blueprint_api_v1_blueprints__blueprint_id__clone_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/blueprints/{blueprint_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Blueprint */
+        get: operations["get_blueprint_api_v1_blueprints__blueprint_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Blueprint */
+        delete: operations["delete_blueprint_api_v1_blueprints__blueprint_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Blueprint */
+        patch: operations["update_blueprint_api_v1_blueprints__blueprint_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/technology-categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Category Tree
+         * @description The two-level category tree (groups with nested categories + technology counts).
+         */
+        get: operations["category_tree_api_v1_technology_categories_get"];
+        put?: never;
+        /** Create Category */
+        post: operations["create_category_api_v1_technology_categories_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/technology-categories/{category_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Category */
+        delete: operations["delete_category_api_v1_technology_categories__category_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Category */
+        patch: operations["update_category_api_v1_technology_categories__category_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/technologies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Technologies
+         * @description Paginated corpus search. `category` is a slug (a group slug includes its categories).
+         */
+        get: operations["list_technologies_api_v1_technologies_get"];
+        put?: never;
+        /** Create Technology */
+        post: operations["create_technology_api_v1_technologies_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/technologies/{technology_id}/blueprints": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Technology Blueprints
+         * @description Architecture blueprints whose stages recommend or list this technology.
+         */
+        get: operations["list_technology_blueprints_api_v1_technologies__technology_id__blueprints_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/technologies/{technology_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Technology */
+        get: operations["get_technology_api_v1_technologies__technology_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Technology */
+        delete: operations["delete_technology_api_v1_technologies__technology_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Technology */
+        patch: operations["update_technology_api_v1_technologies__technology_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/modelling-strategies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Modelling Strategies
+         * @description Paginated catalog, ordered by family, position, name.
+         */
+        get: operations["list_modelling_strategies_api_v1_modelling_strategies_get"];
+        put?: never;
+        /** Create Modelling Strategy */
+        post: operations["create_modelling_strategy_api_v1_modelling_strategies_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/modelling-strategies/{strategy_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Modelling Strategy */
+        get: operations["get_modelling_strategy_api_v1_modelling_strategies__strategy_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Modelling Strategy */
+        delete: operations["delete_modelling_strategy_api_v1_modelling_strategies__strategy_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Modelling Strategy */
+        patch: operations["update_modelling_strategy_api_v1_modelling_strategies__strategy_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/data-regulations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Data Regulations
+         * @description Paginated regulation catalog, ordered by position, name.
+         */
+        get: operations["list_data_regulations_api_v1_data_regulations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/data-regulations/{regulation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Data Regulation */
+        get: operations["get_data_regulation_api_v1_data_regulations__regulation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/data-safety-practices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Data Safety Practices
+         * @description Paginated practice catalog, ordered by category, position, name.
+         */
+        get: operations["list_data_safety_practices_api_v1_data_safety_practices_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/data-safety-practices/{practice_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Data Safety Practice */
+        get: operations["get_data_safety_practice_api_v1_data_safety_practices__practice_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/architecture-qualities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Architecture Qualities
+         * @description Paginated qualities catalog, ordered by category, position, name.
+         */
+        get: operations["list_architecture_qualities_api_v1_architecture_qualities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/architecture-qualities/{quality_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Architecture Quality */
+        get: operations["get_architecture_quality_api_v1_architecture_qualities__quality_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -2281,6 +2635,58 @@ export interface components {
             /** Tool Runs */
             tool_runs: components["schemas"]["ToolRun"][];
         };
+        /** ArchetypeResult */
+        ArchetypeResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /**
+             * Family
+             * @enum {string}
+             */
+            family: "acquisition-ingestion" | "movement-migration" | "transformation-modelling" | "storage-platform" | "streaming-realtime" | "orchestration-dataops" | "governance-security-compliance" | "analytics-serving" | "ml-ai-infrastructure" | "discovery-strategy";
+            /** Summary */
+            summary: string;
+            /** Description */
+            description: string;
+            /** Supports Greenfield */
+            supports_greenfield: boolean;
+            /** Supports Brownfield */
+            supports_brownfield: boolean;
+            /** Is Initiative */
+            is_initiative: boolean;
+            /** Typical Category Slugs */
+            typical_category_slugs: string[];
+            /** Default Blueprint Slugs */
+            default_blueprint_slugs: string[];
+            /** Seed Tier */
+            seed_tier: number;
+            /** Position */
+            position: number;
+            /** Archived */
+            archived: boolean;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "seed" | "user";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
         /**
          * ArchitectureDiagram
          * @description One diagram in the catalog. Always present; `mermaid` is filled once generated.
@@ -2305,6 +2711,54 @@ export interface components {
             generated_at?: string | null;
             /** Mermaid */
             mermaid?: string | null;
+        };
+        /** ArchitectureQualityResult */
+        ArchitectureQualityResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /**
+             * Category
+             * @enum {string}
+             */
+            category: "performance" | "reliability" | "recovery" | "data-integrity" | "operability";
+            /** Summary */
+            summary: string;
+            /** Description */
+            description: string;
+            /** Mechanisms */
+            mechanisms: components["schemas"]["QualityMechanism"][];
+            /** Manifestations */
+            manifestations: components["schemas"]["QualityManifestation"][];
+            /** Tradeoffs */
+            tradeoffs: components["schemas"]["QualityTradeoff"][];
+            /** Related Technology Slugs */
+            related_technology_slugs: string[];
+            /** Related Quality Slugs */
+            related_quality_slugs: string[];
+            /** Position */
+            position: number;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "seed" | "user";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /**
          * ArchitectureResult
@@ -2353,9 +2807,212 @@ export interface components {
         };
         /**
          * AuthMethod
-         * @enum {string}
+         * @description An authentication method that applies to a technology (e.g. username/password,
+         *     key pair) — the form template for saving a project credential.
          */
-        AuthMethod: "token" | "basic";
+        "AuthMethod-Output": {
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Fields */
+            fields?: components["schemas"]["AuthMethodField"][];
+        };
+        /**
+         * AuthMethodField
+         * @description One input of an auth method's credential form; `secret` values are encrypted at rest
+         *     and never returned by the API.
+         */
+        AuthMethodField: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /**
+             * Secret
+             * @default false
+             */
+            secret: boolean;
+            /**
+             * Required
+             * @default true
+             */
+            required: boolean;
+        };
+        /**
+         * BlueprintDiagram
+         * @description One rendered view of the architecture. Kinds used by the UI:
+         *     conceptual | logical | data_flow | sequence (free string for extensibility).
+         */
+        BlueprintDiagram: {
+            /** Kind */
+            kind: string;
+            /**
+             * Mermaid
+             * @default
+             */
+            mermaid: string;
+        };
+        /**
+         * BlueprintEvolution
+         * @description An edge to an architecture this one commonly grows into.
+         */
+        BlueprintEvolution: {
+            /** To Slug */
+            to_slug: string;
+            /**
+             * Reason
+             * @default
+             */
+            reason: string;
+        };
+        /**
+         * BlueprintFlow
+         * @description A directed data-flow edge between two stages (by stage id).
+         *
+         *     `kind` names the payload animated along the edge (file/message/batch/stream/…);
+         *     `line_style`/`color`/`width` control how the line itself is drawn.
+         */
+        BlueprintFlow: {
+            /** Id */
+            id: string;
+            /**
+             * Source Stage Id
+             * Format: uuid
+             */
+            source_stage_id: string;
+            /**
+             * Target Stage Id
+             * Format: uuid
+             */
+            target_stage_id: string;
+            /**
+             * Label
+             * @default
+             */
+            label: string;
+            /**
+             * Kind
+             * @default
+             */
+            kind: string;
+            /**
+             * Line Style
+             * @default
+             */
+            line_style: string;
+            /**
+             * Color
+             * @default
+             */
+            color: string;
+            /** Width */
+            width?: number | null;
+        };
+        /**
+         * BlueprintHotSpot
+         * @description A part of the architecture that commonly bites, with its failure mode.
+         */
+        BlueprintHotSpot: {
+            /** Title */
+            title: string;
+            /**
+             * Detail
+             * @default
+             */
+            detail: string;
+        };
+        /** BlueprintResult */
+        BlueprintResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Use Case */
+            use_case: string;
+            /** Description */
+            description: string;
+            /** When To Use */
+            when_to_use: string[];
+            /** When Not To Use */
+            when_not_to_use: string[];
+            /** Use Cases */
+            use_cases: string[];
+            /** Hot Spots */
+            hot_spots: components["schemas"]["BlueprintHotSpot"][];
+            /** Complexity */
+            complexity: string;
+            /** Evolution */
+            evolution: components["schemas"]["BlueprintEvolution"][];
+            /** Diagrams */
+            diagrams: components["schemas"]["BlueprintDiagram"][];
+            /** Family Tags */
+            family_tags: string[];
+            /** Archetype Slugs */
+            archetype_slugs: string[];
+            /** Flows */
+            flows: components["schemas"]["BlueprintFlow"][];
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "seed" | "user";
+            /** Position */
+            position: number;
+            /** Stages */
+            stages: components["schemas"]["BlueprintStageResult"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** BlueprintStageResult */
+        BlueprintStageResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Position */
+            position: number;
+            /** Name */
+            name: string;
+            /** Role */
+            role: string;
+            /** Recommended Technology Id */
+            recommended_technology_id: string | null;
+            /** Alternative Technology Ids */
+            alternative_technology_ids: string[];
+            /** Rationale */
+            rationale: string;
+            /** Pos X */
+            pos_x: number | null;
+            /** Pos Y */
+            pos_y: number | null;
+            /** Width */
+            width: number | null;
+            /** Height */
+            height: number | null;
+            /** Custom Color */
+            custom_color: string;
+            /** Environment */
+            environment: string;
+            /** Owner Name */
+            owner_name: string;
+            /** Owner Email */
+            owner_email: string;
+        };
         /**
          * BranchNamesResult
          * @description The cheap full branch-name list (for branch pickers), most recently committed first.
@@ -2521,6 +3178,14 @@ export interface components {
             version: string | null;
             /** Default Model */
             default_model: string;
+        };
+        /**
+         * CloneBlueprint
+         * @description Optional overrides when cloning a blueprint into a user architecture.
+         */
+        CloneBlueprint: {
+            /** Name */
+            name?: string | null;
         };
         /** CodeAgeCohort */
         CodeAgeCohort: {
@@ -3106,6 +3771,153 @@ export interface components {
              */
             tool_available: boolean;
         };
+        /** CreateArchetype */
+        CreateArchetype: {
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /**
+             * Family
+             * @enum {string}
+             */
+            family: "acquisition-ingestion" | "movement-migration" | "transformation-modelling" | "storage-platform" | "streaming-realtime" | "orchestration-dataops" | "governance-security-compliance" | "analytics-serving" | "ml-ai-infrastructure" | "discovery-strategy";
+            /**
+             * Summary
+             * @default
+             */
+            summary: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /**
+             * Supports Greenfield
+             * @default true
+             */
+            supports_greenfield: boolean;
+            /**
+             * Supports Brownfield
+             * @default true
+             */
+            supports_brownfield: boolean;
+            /**
+             * Is Initiative
+             * @default false
+             */
+            is_initiative: boolean;
+            /** Typical Category Slugs */
+            typical_category_slugs?: string[];
+            /** Default Blueprint Slugs */
+            default_blueprint_slugs?: string[];
+            /**
+             * Seed Tier
+             * @default 2
+             */
+            seed_tier: number;
+            /**
+             * Position
+             * @default 0
+             */
+            position: number;
+        };
+        /** CreateBlueprint */
+        CreateBlueprint: {
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /**
+             * Use Case
+             * @default
+             */
+            use_case: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** When To Use */
+            when_to_use?: string[];
+            /** When Not To Use */
+            when_not_to_use?: string[];
+            /** Use Cases */
+            use_cases?: string[];
+            /** Hot Spots */
+            hot_spots?: components["schemas"]["BlueprintHotSpot"][];
+            /**
+             * Complexity
+             * @default medium
+             */
+            complexity: string;
+            /** Evolution */
+            evolution?: components["schemas"]["BlueprintEvolution"][];
+            /** Diagrams */
+            diagrams?: components["schemas"]["BlueprintDiagram"][];
+            /** Family Tags */
+            family_tags?: string[];
+            /** Archetype Slugs */
+            archetype_slugs?: string[];
+            /** Flows */
+            flows?: components["schemas"]["BlueprintFlow"][];
+            /**
+             * Position
+             * @default 0
+             */
+            position: number;
+            /** Stages */
+            stages?: components["schemas"]["CreateBlueprintStage"][];
+        };
+        /** CreateBlueprintStage */
+        CreateBlueprintStage: {
+            /** Id */
+            id?: string | null;
+            /** Name */
+            name: string;
+            /**
+             * Role
+             * @default
+             */
+            role: string;
+            /** Recommended Technology Id */
+            recommended_technology_id?: string | null;
+            /** Alternative Technology Ids */
+            alternative_technology_ids?: string[];
+            /**
+             * Rationale
+             * @default
+             */
+            rationale: string;
+            /** Pos X */
+            pos_x?: number | null;
+            /** Pos Y */
+            pos_y?: number | null;
+            /** Width */
+            width?: number | null;
+            /** Height */
+            height?: number | null;
+            /**
+             * Custom Color
+             * @default
+             */
+            custom_color: string;
+            /**
+             * Environment
+             * @default
+             */
+            environment: string;
+            /**
+             * Owner Name
+             * @default
+             */
+            owner_name: string;
+            /**
+             * Owner Email
+             * @default
+             */
+            owner_email: string;
+        };
         /**
          * CreateConnection
          * @description Create input: a named credential set.
@@ -3113,7 +3925,7 @@ export interface components {
         CreateConnection: {
             provider: components["schemas"]["GitProvider"];
             /** @default token */
-            auth_method: components["schemas"]["AuthMethod"];
+            auth_method: components["schemas"]["shire__domain__connections__domain__AuthMethod"];
             /** Username */
             username?: string | null;
             /** Secret */
@@ -3218,6 +4030,61 @@ export interface components {
              */
             hobit_slugs: string[];
         };
+        /** CreateModellingStrategy */
+        CreateModellingStrategy: {
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /**
+             * Topic
+             * @default modelling
+             * @enum {string}
+             */
+            topic: "modelling" | "evolution" | "serialization";
+            /**
+             * Family
+             * @enum {string}
+             */
+            family: "normalization" | "warehouse-methodologies" | "dimensional-schemas" | "nosql" | "specialized" | "slowly-changing-dimensions" | "compatibility" | "migration-patterns" | "text-formats" | "binary-row-formats" | "columnar-formats";
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /**
+             * Best For
+             * @default
+             */
+            best_for: string;
+            /** Pros */
+            pros?: string[];
+            /** Cons */
+            cons?: string[];
+            /**
+             * Complexity
+             * @default medium
+             * @enum {string}
+             */
+            complexity: "low" | "medium" | "high";
+            /** Origin Year */
+            origin_year?: number | null;
+            /** Originator */
+            originator?: string | null;
+            example?: components["schemas"]["ModellingExample"] | null;
+            /**
+             * Diagram
+             * @default
+             */
+            diagram: string;
+            /** Related Technology Slugs */
+            related_technology_slugs?: string[];
+            /**
+             * Position
+             * @default 0
+             */
+            position: number;
+        };
         /** CreateNewsSource */
         CreateNewsSource: {
             /** Url */
@@ -3265,6 +4132,86 @@ export interface components {
             /** Repository Ids */
             repository_ids: string[];
         };
+        /** CreateTechCategory */
+        CreateTechCategory: {
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Parent Id */
+            parent_id?: string | null;
+            /**
+             * Position
+             * @default 0
+             */
+            position: number;
+        };
+        /** CreateTechnology */
+        CreateTechnology: {
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /**
+             * Category Id
+             * Format: uuid
+             */
+            category_id: string;
+            /** Secondary Category Ids */
+            secondary_category_ids?: string[];
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Homepage Url */
+            homepage_url?: string | null;
+            /** Aliases */
+            aliases?: string[];
+            /** Deployment Models */
+            deployment_models?: ("cloud" | "on_prem" | "hybrid" | "embedded" | "saas")[];
+            /**
+             * Oss
+             * @default false
+             */
+            oss: boolean;
+            /**
+             * Maturity
+             * @default established
+             * @enum {string}
+             */
+            maturity: "emerging" | "established" | "legacy";
+            /**
+             * Learning Curve
+             * @default moderate
+             * @enum {string}
+             */
+            learning_curve: "gentle" | "moderate" | "steep";
+            /**
+             * Time To Win
+             * @default days
+             * @enum {string}
+             */
+            time_to_win: "hours" | "days" | "weeks";
+            /**
+             * Cost Model
+             * @default free
+             * @enum {string}
+             */
+            cost_model: "free" | "usage_based" | "license" | "enterprise";
+            /**
+             * Cost Tier
+             * @default free
+             * @enum {string}
+             */
+            cost_tier: "free" | "low" | "medium" | "high";
+            /** Auth Methods */
+            auth_methods?: components["schemas"]["shire__domain__technology__schemas__AuthMethod"][];
+            /** Tags */
+            tags?: string[];
+            /** Notes */
+            notes?: string | null;
+        };
         /** DailyCommitCount */
         DailyCommitCount: {
             /**
@@ -3274,6 +4221,130 @@ export interface components {
             day: string;
             /** Count */
             count: number;
+        };
+        /** DataRegulationResult */
+        DataRegulationResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Full Name */
+            full_name: string;
+            /**
+             * Category
+             * @enum {string}
+             */
+            category: "privacy" | "healthcare" | "payments" | "financial" | "ai" | "resilience";
+            /**
+             * Region
+             * @enum {string}
+             */
+            region: "eu" | "us" | "canada" | "brazil" | "india" | "global";
+            /** Jurisdiction */
+            jurisdiction: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "in_force" | "phasing_in";
+            /** Effective Year */
+            effective_year: number | null;
+            /** Effective Date */
+            effective_date: string;
+            /** Description */
+            description: string;
+            /** Who Is Impacted */
+            who_is_impacted: string[];
+            /** Penalties */
+            penalties: string;
+            /** Official Url */
+            official_url: string;
+            /**
+             * Unit Label
+             * @enum {string}
+             */
+            unit_label: "article" | "section" | "requirement" | "principle";
+            /** Articles */
+            articles: components["schemas"]["RegulationArticle"][];
+            /** Triggering Data Classes */
+            triggering_data_classes: ("personal_data" | "health_data" | "payment_card_data" | "financial_records" | "biometric_data" | "children_data" | "ai_automated_decisions" | "critical_infrastructure_ops")[];
+            /** Related Practice Slugs */
+            related_practice_slugs: string[];
+            /** Related Technology Slugs */
+            related_technology_slugs: string[];
+            /** Position */
+            position: number;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "seed" | "user";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** DataSafetyPracticeResult */
+        DataSafetyPracticeResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /**
+             * Category
+             * @enum {string}
+             */
+            category: "encryption-keys" | "deidentification" | "access-control" | "data-lifecycle" | "monitoring-response";
+            /** Objective */
+            objective: string;
+            /** Description */
+            description: string;
+            /**
+             * Complexity
+             * @enum {string}
+             */
+            complexity: "low" | "medium" | "high";
+            /** Implementation Steps */
+            implementation_steps: string[];
+            /** Satisfies */
+            satisfies: components["schemas"]["PracticeSatisfies"][];
+            /** Related Technology Slugs */
+            related_technology_slugs: string[];
+            /** Related Practice Slugs */
+            related_practice_slugs: string[];
+            /** Position */
+            position: number;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "seed" | "user";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /** Dependency */
         Dependency: {
@@ -4334,6 +5405,103 @@ export interface components {
             /** Analyzed At */
             analyzed_at: string | null;
         };
+        /** ModellingExample */
+        ModellingExample: {
+            /**
+             * Narrative
+             * @default
+             */
+            narrative: string;
+            /** Tables */
+            tables?: components["schemas"]["ModellingExampleTable"][];
+            /** Snippets */
+            snippets?: components["schemas"]["ModellingExampleSnippet"][];
+            /** Decisions */
+            decisions?: string[];
+        };
+        /**
+         * ModellingExampleSnippet
+         * @description Verbatim code/format sample (JSON, YAML, .proto, ...) rendered as a code block.
+         */
+        ModellingExampleSnippet: {
+            /** Name */
+            name: string;
+            /**
+             * Code
+             * @default
+             */
+            code: string;
+        };
+        /** ModellingExampleTable */
+        ModellingExampleTable: {
+            /** Name */
+            name: string;
+            /** Columns */
+            columns?: string[];
+            /** Rows */
+            rows?: string[][];
+        };
+        /** ModellingStrategyResult */
+        ModellingStrategyResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /**
+             * Topic
+             * @enum {string}
+             */
+            topic: "modelling" | "evolution" | "serialization";
+            /**
+             * Family
+             * @enum {string}
+             */
+            family: "normalization" | "warehouse-methodologies" | "dimensional-schemas" | "nosql" | "specialized" | "slowly-changing-dimensions" | "compatibility" | "migration-patterns" | "text-formats" | "binary-row-formats" | "columnar-formats";
+            /** Description */
+            description: string;
+            /** Best For */
+            best_for: string;
+            /** Pros */
+            pros: string[];
+            /** Cons */
+            cons: string[];
+            /**
+             * Complexity
+             * @enum {string}
+             */
+            complexity: "low" | "medium" | "high";
+            /** Origin Year */
+            origin_year: number | null;
+            /** Originator */
+            originator: string | null;
+            example: components["schemas"]["ModellingExample"] | null;
+            /** Diagram */
+            diagram: string;
+            /** Related Technology Slugs */
+            related_technology_slugs: string[];
+            /** Position */
+            position: number;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "seed" | "user";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
         /**
          * MrComment
          * @description One structured comment from a hobit's review of the diff.
@@ -4568,6 +5736,32 @@ export interface components {
             /** First Repository Id */
             first_repository_id: string | null;
         };
+        /** Page[ArchetypeResult] */
+        Page_ArchetypeResult_: {
+            /** Items */
+            items: components["schemas"]["ArchetypeResult"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+            /** Pages */
+            pages: number;
+        };
+        /** Page[ArchitectureQualityResult] */
+        Page_ArchitectureQualityResult_: {
+            /** Items */
+            items: components["schemas"]["ArchitectureQualityResult"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+            /** Pages */
+            pages: number;
+        };
         /** Page[ConnectionResult] */
         Page_ConnectionResult_: {
             /** Items */
@@ -4594,6 +5788,32 @@ export interface components {
             /** Total Pages */
             total_pages: number;
         };
+        /** Page[DataRegulationResult] */
+        Page_DataRegulationResult_: {
+            /** Items */
+            items: components["schemas"]["DataRegulationResult"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+            /** Pages */
+            pages: number;
+        };
+        /** Page[DataSafetyPracticeResult] */
+        Page_DataSafetyPracticeResult_: {
+            /** Items */
+            items: components["schemas"]["DataSafetyPracticeResult"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+            /** Pages */
+            pages: number;
+        };
         /** Page[JobResult] */
         Page_JobResult_: {
             /** Items */
@@ -4619,6 +5839,19 @@ export interface components {
             page_size: number;
             /** Total Pages */
             total_pages: number;
+        };
+        /** Page[ModellingStrategyResult] */
+        Page_ModellingStrategyResult_: {
+            /** Items */
+            items: components["schemas"]["ModellingStrategyResult"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+            /** Pages */
+            pages: number;
         };
         /** Page[NewsItemResult] */
         Page_NewsItemResult_: {
@@ -4659,6 +5892,19 @@ export interface components {
             /** Total Pages */
             total_pages: number;
         };
+        /** Page[TechnologyResult] */
+        Page_TechnologyResult_: {
+            /** Items */
+            items: components["schemas"]["TechnologyResult"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+            /** Pages */
+            pages: number;
+        };
         /**
          * PortfolioHealthResult
          * @description Fleet-wide collaboration health — the headline, framed around resilience not ranking.
@@ -4676,6 +5922,21 @@ export interface components {
             single_member_repositories: number;
             /** Knowledge Concentration */
             knowledge_concentration: number;
+        };
+        /**
+         * PracticeSatisfies
+         * @description Soft reference to regulation articles a practice helps satisfy.
+         */
+        PracticeSatisfies: {
+            /** Regulation Slug */
+            regulation_slug: string;
+            /** Article Refs */
+            article_refs?: string[];
+            /**
+             * Note
+             * @default
+             */
+            note: string;
         };
         /**
          * PrincipleCheckResult
@@ -4762,6 +6023,48 @@ export interface components {
             violated_count: number;
         };
         /**
+         * QualityManifestation
+         * @description How a quality shows up in a specific architecture blueprint (soft slug ref).
+         */
+        QualityManifestation: {
+            /** Blueprint Slug */
+            blueprint_slug: string;
+            /**
+             * Rating
+             * @enum {string}
+             */
+            rating: "strong" | "moderate" | "limited" | "trade-off";
+            /** Statement */
+            statement: string;
+        };
+        /**
+         * QualityMechanism
+         * @description One "how it's achieved" technique (e.g. "Data partitioning", "Offset management").
+         */
+        QualityMechanism: {
+            /** Name */
+            name: string;
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+            /** Related Technology Slugs */
+            related_technology_slugs?: string[];
+        };
+        /**
+         * QualityTradeoff
+         * @description What you give up to achieve this quality; `quality_slug` links a catalog quality.
+         */
+        QualityTradeoff: {
+            /** Title */
+            title: string;
+            /** Note */
+            note: string;
+            /** Quality Slug */
+            quality_slug?: string | null;
+        };
+        /**
          * QuestionResult
          * @description One asked question and its (possibly still pending) answer, backed by a job row.
          */
@@ -4831,6 +6134,44 @@ export interface components {
             checked: number;
             /** Updated Item Ids */
             updated_item_ids: string[];
+        };
+        /** RegulationArticle */
+        RegulationArticle: {
+            /** Number */
+            number: string;
+            /** Title */
+            title: string;
+            /** Chapter */
+            chapter?: string | null;
+            /** Ref */
+            ref?: string | null;
+            /**
+             * Is Key
+             * @default false
+             */
+            is_key: boolean;
+            /**
+             * Summary
+             * @default
+             */
+            summary: string;
+            /** Key Requirements */
+            key_requirements?: string[];
+            /** Paragraphs */
+            paragraphs?: components["schemas"]["RegulationParagraph"][];
+        };
+        /**
+         * RegulationParagraph
+         * @description One paragraph/sub-provision of an article ("17(1)", "164.312(a)(2)(iv)").
+         */
+        RegulationParagraph: {
+            /** Ref */
+            ref: string;
+            /**
+             * Text
+             * @default
+             */
+            text: string;
         };
         /**
          * RepoAssessmentResult
@@ -5340,6 +6681,152 @@ export interface components {
             /** Branch */
             branch: string;
         };
+        /** TechCategoryResult */
+        TechCategoryResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Parent Id */
+            parent_id: string | null;
+            /** Position */
+            position: number;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "seed" | "user";
+        };
+        /**
+         * TechCategoryTreeResult
+         * @description One node of the two-level tree; group nodes carry their categories as children.
+         */
+        TechCategoryTreeResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Parent Id */
+            parent_id: string | null;
+            /** Position */
+            position: number;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "seed" | "user";
+            /** Technology Count */
+            technology_count: number;
+            /** Children */
+            children?: components["schemas"]["TechCategoryTreeResult"][];
+        };
+        /**
+         * TechnologyBlueprintRef
+         * @description One architecture blueprint stage that references a technology.
+         */
+        TechnologyBlueprintRef: {
+            /**
+             * Blueprint Id
+             * Format: uuid
+             */
+            blueprint_id: string;
+            /** Blueprint Name */
+            blueprint_name: string;
+            /** Stage Name */
+            stage_name: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "recommended" | "alternative";
+        };
+        /** TechnologyResult */
+        TechnologyResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /**
+             * Category Id
+             * Format: uuid
+             */
+            category_id: string;
+            /** Secondary Category Ids */
+            secondary_category_ids: string[];
+            /** Description */
+            description: string;
+            /** Homepage Url */
+            homepage_url: string | null;
+            /** Aliases */
+            aliases: string[];
+            /** Deployment Models */
+            deployment_models: ("cloud" | "on_prem" | "hybrid" | "embedded" | "saas")[];
+            /** Oss */
+            oss: boolean;
+            /**
+             * Maturity
+             * @enum {string}
+             */
+            maturity: "emerging" | "established" | "legacy";
+            /**
+             * Learning Curve
+             * @enum {string}
+             */
+            learning_curve: "gentle" | "moderate" | "steep";
+            /**
+             * Time To Win
+             * @enum {string}
+             */
+            time_to_win: "hours" | "days" | "weeks";
+            /**
+             * Cost Model
+             * @enum {string}
+             */
+            cost_model: "free" | "usage_based" | "license" | "enterprise";
+            /**
+             * Cost Tier
+             * @enum {string}
+             */
+            cost_tier: "free" | "low" | "medium" | "high";
+            /** Auth Methods */
+            auth_methods: components["schemas"]["AuthMethod-Output"][];
+            /** Tags */
+            tags: string[];
+            /** Notes */
+            notes: string | null;
+            /** Starred */
+            starred: boolean;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "seed" | "user";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
         /**
          * TestConnectionRequest
          * @description Test unsaved credentials (from the form, before persisting).
@@ -5347,7 +6834,7 @@ export interface components {
         TestConnectionRequest: {
             provider: components["schemas"]["GitProvider"];
             /** @default token */
-            auth_method: components["schemas"]["AuthMethod"];
+            auth_method: components["schemas"]["shire__domain__connections__domain__AuthMethod"];
             /** Username */
             username?: string | null;
             /** Secret */
@@ -5457,6 +6944,73 @@ export interface components {
             /** Body */
             body: string;
         };
+        /** UpdateArchetype */
+        UpdateArchetype: {
+            /** Slug */
+            slug?: string | null;
+            /** Name */
+            name?: string | null;
+            /** Family */
+            family?: ("acquisition-ingestion" | "movement-migration" | "transformation-modelling" | "storage-platform" | "streaming-realtime" | "orchestration-dataops" | "governance-security-compliance" | "analytics-serving" | "ml-ai-infrastructure" | "discovery-strategy") | null;
+            /** Summary */
+            summary?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Supports Greenfield */
+            supports_greenfield?: boolean | null;
+            /** Supports Brownfield */
+            supports_brownfield?: boolean | null;
+            /** Is Initiative */
+            is_initiative?: boolean | null;
+            /** Typical Category Slugs */
+            typical_category_slugs?: string[] | null;
+            /** Default Blueprint Slugs */
+            default_blueprint_slugs?: string[] | null;
+            /** Seed Tier */
+            seed_tier?: number | null;
+            /** Position */
+            position?: number | null;
+            /** Archived */
+            archived?: boolean | null;
+        };
+        /**
+         * UpdateBlueprint
+         * @description `stages`, when provided, is upserted by id (existing ids keep their identity).
+         */
+        UpdateBlueprint: {
+            /** Slug */
+            slug?: string | null;
+            /** Name */
+            name?: string | null;
+            /** Use Case */
+            use_case?: string | null;
+            /** Description */
+            description?: string | null;
+            /** When To Use */
+            when_to_use?: string[] | null;
+            /** When Not To Use */
+            when_not_to_use?: string[] | null;
+            /** Use Cases */
+            use_cases?: string[] | null;
+            /** Hot Spots */
+            hot_spots?: components["schemas"]["BlueprintHotSpot"][] | null;
+            /** Complexity */
+            complexity?: string | null;
+            /** Evolution */
+            evolution?: components["schemas"]["BlueprintEvolution"][] | null;
+            /** Diagrams */
+            diagrams?: components["schemas"]["BlueprintDiagram"][] | null;
+            /** Family Tags */
+            family_tags?: string[] | null;
+            /** Archetype Slugs */
+            archetype_slugs?: string[] | null;
+            /** Flows */
+            flows?: components["schemas"]["BlueprintFlow"][] | null;
+            /** Position */
+            position?: number | null;
+            /** Stages */
+            stages?: components["schemas"]["CreateBlueprintStage"][] | null;
+        };
         /**
          * UpdateConnection
          * @description Edit input. A blank/omitted `secret` keeps the existing one.
@@ -5548,6 +7102,38 @@ export interface components {
              */
             enabled: boolean;
         };
+        /** UpdateModellingStrategy */
+        UpdateModellingStrategy: {
+            /** Slug */
+            slug?: string | null;
+            /** Name */
+            name?: string | null;
+            /** Topic */
+            topic?: ("modelling" | "evolution" | "serialization") | null;
+            /** Family */
+            family?: ("normalization" | "warehouse-methodologies" | "dimensional-schemas" | "nosql" | "specialized" | "slowly-changing-dimensions" | "compatibility" | "migration-patterns" | "text-formats" | "binary-row-formats" | "columnar-formats") | null;
+            /** Description */
+            description?: string | null;
+            /** Best For */
+            best_for?: string | null;
+            /** Pros */
+            pros?: string[] | null;
+            /** Cons */
+            cons?: string[] | null;
+            /** Complexity */
+            complexity?: ("low" | "medium" | "high") | null;
+            /** Origin Year */
+            origin_year?: number | null;
+            /** Originator */
+            originator?: string | null;
+            example?: components["schemas"]["ModellingExample"] | null;
+            /** Diagram */
+            diagram?: string | null;
+            /** Related Technology Slugs */
+            related_technology_slugs?: string[] | null;
+            /** Position */
+            position?: number | null;
+        };
         /** UpdateNewsConfig */
         UpdateNewsConfig: {
             /** Cadence */
@@ -5634,6 +7220,56 @@ export interface components {
             /** Description */
             description?: string | null;
         };
+        /** UpdateTechCategory */
+        UpdateTechCategory: {
+            /** Slug */
+            slug?: string | null;
+            /** Name */
+            name?: string | null;
+            /** Parent Id */
+            parent_id?: string | null;
+            /** Position */
+            position?: number | null;
+        };
+        /** UpdateTechnology */
+        UpdateTechnology: {
+            /** Slug */
+            slug?: string | null;
+            /** Name */
+            name?: string | null;
+            /** Category Id */
+            category_id?: string | null;
+            /** Secondary Category Ids */
+            secondary_category_ids?: string[] | null;
+            /** Description */
+            description?: string | null;
+            /** Homepage Url */
+            homepage_url?: string | null;
+            /** Aliases */
+            aliases?: string[] | null;
+            /** Deployment Models */
+            deployment_models?: ("cloud" | "on_prem" | "hybrid" | "embedded" | "saas")[] | null;
+            /** Oss */
+            oss?: boolean | null;
+            /** Maturity */
+            maturity?: ("emerging" | "established" | "legacy") | null;
+            /** Learning Curve */
+            learning_curve?: ("gentle" | "moderate" | "steep") | null;
+            /** Time To Win */
+            time_to_win?: ("hours" | "days" | "weeks") | null;
+            /** Cost Model */
+            cost_model?: ("free" | "usage_based" | "license" | "enterprise") | null;
+            /** Cost Tier */
+            cost_tier?: ("free" | "low" | "medium" | "high") | null;
+            /** Auth Methods */
+            auth_methods?: components["schemas"]["shire__domain__technology__schemas__AuthMethod"][] | null;
+            /** Tags */
+            tags?: string[] | null;
+            /** Notes */
+            notes?: string | null;
+            /** Starred */
+            starred?: boolean | null;
+        };
         /**
          * UpsertHobitRunFeedback
          * @description The user's rating of one run's response (one per run; PUT replaces it).
@@ -5681,12 +7317,30 @@ export interface components {
             hobit_slug?: string | null;
         };
         /**
+         * AuthMethod
+         * @enum {string}
+         */
+        shire__domain__connections__domain__AuthMethod: "token" | "basic";
+        /**
          * MarkReadRequest
          * @description Mark all items read — scoped to one topic when `topic_id` is set, else the whole feed.
          */
         shire__domain__news__routes__MarkReadRequest: {
             /** Topic Id */
             topic_id?: string | null;
+        };
+        /**
+         * AuthMethod
+         * @description An authentication method that applies to a technology (e.g. username/password,
+         *     key pair) — the form template for saving a project credential.
+         */
+        shire__domain__technology__schemas__AuthMethod: {
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Fields */
+            fields?: components["schemas"]["AuthMethodField"][];
         };
     };
     responses: never;
@@ -10016,6 +11670,1048 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HomeStatusResult"];
+                };
+            };
+        };
+    };
+    list_archetypes_api_v1_archetypes_get: {
+        parameters: {
+            query?: {
+                family?: ("acquisition-ingestion" | "movement-migration" | "transformation-modelling" | "storage-platform" | "streaming-realtime" | "orchestration-dataops" | "governance-security-compliance" | "analytics-serving" | "ml-ai-infrastructure" | "discovery-strategy") | null;
+                kind?: ("greenfield" | "brownfield") | null;
+                is_initiative?: boolean | null;
+                q?: string | null;
+                include_archived?: boolean;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ArchetypeResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_archetype_api_v1_archetypes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateArchetype"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArchetypeResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_archetype_api_v1_archetypes__archetype_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                archetype_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArchetypeResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_archetype_api_v1_archetypes__archetype_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                archetype_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_archetype_api_v1_archetypes__archetype_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                archetype_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateArchetype"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArchetypeResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_blueprints_api_v1_blueprints_get: {
+        parameters: {
+            query?: {
+                family_tag?: string | null;
+                archetype?: string | null;
+                technology_id?: string | null;
+                q?: string | null;
+                source?: string | null;
+                use_case?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlueprintResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_blueprint_api_v1_blueprints_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBlueprint"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlueprintResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    clone_blueprint_api_v1_blueprints__blueprint_id__clone_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                blueprint_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["CloneBlueprint"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlueprintResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_blueprint_api_v1_blueprints__blueprint_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                blueprint_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlueprintResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_blueprint_api_v1_blueprints__blueprint_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                blueprint_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_blueprint_api_v1_blueprints__blueprint_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                blueprint_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateBlueprint"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlueprintResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    category_tree_api_v1_technology_categories_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TechCategoryTreeResult"][];
+                };
+            };
+        };
+    };
+    create_category_api_v1_technology_categories_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTechCategory"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TechCategoryResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_category_api_v1_technology_categories__category_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_category_api_v1_technology_categories__category_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTechCategory"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TechCategoryResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_technologies_api_v1_technologies_get: {
+        parameters: {
+            query?: {
+                category?: string | null;
+                q?: string | null;
+                maturity?: string | null;
+                deployment?: string | null;
+                oss?: boolean | null;
+                starred?: boolean | null;
+                time_to_win?: string | null;
+                cost_model?: string | null;
+                cost_tier?: string | null;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_TechnologyResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_technology_api_v1_technologies_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTechnology"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TechnologyResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_technology_blueprints_api_v1_technologies__technology_id__blueprints_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                technology_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TechnologyBlueprintRef"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_technology_api_v1_technologies__technology_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                technology_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TechnologyResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_technology_api_v1_technologies__technology_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                technology_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_technology_api_v1_technologies__technology_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                technology_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTechnology"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TechnologyResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_modelling_strategies_api_v1_modelling_strategies_get: {
+        parameters: {
+            query?: {
+                topic?: ("modelling" | "evolution" | "serialization") | null;
+                family?: ("normalization" | "warehouse-methodologies" | "dimensional-schemas" | "nosql" | "specialized" | "slowly-changing-dimensions" | "compatibility" | "migration-patterns" | "text-formats" | "binary-row-formats" | "columnar-formats") | null;
+                complexity?: ("low" | "medium" | "high") | null;
+                q?: string | null;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ModellingStrategyResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_modelling_strategy_api_v1_modelling_strategies_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateModellingStrategy"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModellingStrategyResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_modelling_strategy_api_v1_modelling_strategies__strategy_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                strategy_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModellingStrategyResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_modelling_strategy_api_v1_modelling_strategies__strategy_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                strategy_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_modelling_strategy_api_v1_modelling_strategies__strategy_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                strategy_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateModellingStrategy"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModellingStrategyResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_data_regulations_api_v1_data_regulations_get: {
+        parameters: {
+            query?: {
+                category?: ("privacy" | "healthcare" | "payments" | "financial" | "ai" | "resilience") | null;
+                region?: ("eu" | "us" | "canada" | "brazil" | "india" | "global") | null;
+                q?: string | null;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_DataRegulationResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_data_regulation_api_v1_data_regulations__regulation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                regulation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataRegulationResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_data_safety_practices_api_v1_data_safety_practices_get: {
+        parameters: {
+            query?: {
+                category?: ("encryption-keys" | "deidentification" | "access-control" | "data-lifecycle" | "monitoring-response") | null;
+                complexity?: ("low" | "medium" | "high") | null;
+                q?: string | null;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_DataSafetyPracticeResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_data_safety_practice_api_v1_data_safety_practices__practice_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                practice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataSafetyPracticeResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_architecture_qualities_api_v1_architecture_qualities_get: {
+        parameters: {
+            query?: {
+                category?: ("performance" | "reliability" | "recovery" | "data-integrity" | "operability") | null;
+                q?: string | null;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ArchitectureQualityResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_architecture_quality_api_v1_architecture_qualities__quality_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quality_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArchitectureQualityResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

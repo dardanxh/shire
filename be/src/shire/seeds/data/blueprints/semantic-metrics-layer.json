@@ -1,0 +1,159 @@
+{
+  "slug": "semantic-metrics-layer",
+  "name": "Semantic / metrics layer",
+  "use_case": "Every tool, one definition of every metric",
+  "description": "A semantic layer defines entities, dimensions, and metrics once — in versioned code between the warehouse and every consumer — and serves those definitions through SQL, REST, and BI-native APIs. 'Revenue' is declared exactly once, with its filters, grain, and time logic, and every dashboard, notebook, spreadsheet, and AI agent that asks for revenue gets the same number. This is headless BI: presentation tools stay, but definition authority moves out of them into a governed, code-reviewed model. It has become load-bearing for AI: a natural-language agent querying governed metrics is reliable; one writing raw SQL against a thousand tables is not.",
+  "when_to_use": [
+    "The same KPI returns different numbers in different tools, and metric consistency has become an executive-level complaint.",
+    "Multiple consumption surfaces — BI, embedded analytics, notebooks, internal apps, AI agents — need the same governed definitions.",
+    "Metric logic should be code-reviewed, versioned, and tested like software, not maintained per dashboard.",
+    "You are giving LLM agents access to company data and need a governed vocabulary rather than raw tables."
+  ],
+  "when_not_to_use": [
+    "One BI tool serves everyone — its built-in model is a simpler place for definitions until a second surface appears.",
+    "The warehouse layer beneath is still chaotic — semantic definitions over unmodeled data formalize the mess; do the layering first (26).",
+    "Only a handful of metrics exist and one analyst owns them all — process overhead exceeds the drift risk.",
+    "Consumers need raw row-level exploration, not governed aggregates — the layer constrains exactly what they want free."
+  ],
+  "use_cases": [
+    "reporting",
+    "self_serve",
+    "embedded",
+    "ai"
+  ],
+  "hot_spots": [
+    {
+      "title": "Definition bypass",
+      "detail": "Analysts querying raw tables around the layer re-create the metric drift it was built to kill — adoption is a governance problem, not a technical one."
+    },
+    {
+      "title": "Query performance",
+      "detail": "Every metric request compiles to warehouse SQL; without caching and pre-aggregation, dashboards stack latency on every widget."
+    },
+    {
+      "title": "Tool coverage gaps",
+      "detail": "A BI tool without a connector to the layer forces duplicated definitions, and the duplication spreads from there."
+    },
+    {
+      "title": "Ownership vacuum",
+      "detail": "When nobody arbitrates whose 'active user' wins, the layer becomes a graveyard of competing definitions instead of the single source."
+    }
+  ],
+  "complexity": "low",
+  "evolution": [],
+  "family_tags": [
+    "analytics-serving",
+    "transformation-modelling"
+  ],
+  "archetype_slugs": [
+    "semantic-metrics-layer",
+    "kpi-metric-standardization",
+    "self-service-analytics-enablement"
+  ],
+  "position": 30,
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|modeled upstream| WH[Warehouse Marts]:::store\n  WH -->|entities + joins| SEM[Semantic Model]:::process\n  SEM -->|metrics defined once| API[Metric APIs]:::process\n  API -->|consistent numbers| BI[BI + Notebooks + Apps]:::serve\n  API -->|governed context| AI[AI Agents]:::serve\n  CAT[Metric Catalog + Ownership]:::govern -. definitions + review .-> SEM"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  MART[(warehouse marts)]:::store -->|schema introspection| MODEL[Semantic Model in Git]:::process\n  MODEL -->|compile| ENG[Query Compilation Engine]:::process\n  ENG -->|generated SQL| MART\n  ENG -->|pre-aggregations| CACHE[(aggregate cache)]:::store\n  ENG -->|SQL API| T1[BI Tools]:::serve\n  ENG -->|REST + GraphQL| T2[Apps + Notebooks]:::serve\n  ENG -->|governed schema| T3[AI Agents]:::serve\n  CI[PR Review + Metric Tests]:::govern -. gate changes .-> MODEL"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([mart tables]):::store -->|declared once| B([entities + metrics]):::process\n  B -->|compiled per request| C([warehouse SQL]):::process\n  C -->|cached aggregates| D([metric results]):::store\n  D -->|same number everywhere| E([dashboards, apps, agents]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant B as BI Tool\n  participant A as AI Agent\n  participant S as Semantic Layer\n  participant C as Aggregate Cache\n  participant W as Warehouse\n  B->>S: revenue by region, Q3\n  S->>C: check pre-aggregation\n  C-->>S: hit — cached result\n  S-->>B: consistent number\n  A->>S: \"how did revenue trend?\"\n  S->>W: compiled governed SQL\n  W-->>S: rows\n  S-->>A: same definition, same number"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|modeled upstream| WH[\"Redshift marts<br/><i>Warehouse Marts</i>\"]:::store\n  WH -->|entities + joins| SEM[\"dbt Semantic Layer · Cube<br/><i>Semantic Model</i>\"]:::process\n  SEM -->|metrics defined once| API[Metric APIs: SQL · REST]:::process\n  API -->|consistent numbers| BI[\"QuickSight · Tableau<br/><i>BI + Notebooks + Apps</i>\"]:::serve\n  API -->|governed context| AI[AI Agents]:::serve\n  CAT[\"DataHub + git review<br/><i>Metric Catalog + Ownership</i>\"]:::govern -. definitions + review .-> SEM"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|modeled upstream| WH[\"Fabric warehouse marts<br/><i>Warehouse Marts</i>\"]:::store\n  WH -->|entities + joins| SEM[\"Power BI semantic models<br/><i>Semantic Model</i>\"]:::process\n  SEM -->|metrics defined once| API[Metric APIs: SQL · REST]:::process\n  API -->|consistent numbers| BI[\"Power BI · Excel<br/><i>BI + Notebooks + Apps</i>\"]:::serve\n  API -->|governed context| AI[AI Agents]:::serve\n  CAT[\"Purview + deployment pipelines<br/><i>Metric Catalog + Ownership</i>\"]:::govern -. definitions + review .-> SEM"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|modeled upstream| WH[\"BigQuery marts<br/><i>Warehouse Marts</i>\"]:::store\n  WH -->|entities + joins| SEM[\"Looker (LookML) · Cube<br/><i>Semantic Model</i>\"]:::process\n  SEM -->|metrics defined once| API[Metric APIs: SQL · REST]:::process\n  API -->|consistent numbers| BI[\"Looker · Looker Studio · Sheets<br/><i>BI + Notebooks + Apps</i>\"]:::serve\n  API -->|governed context| AI[AI Agents]:::serve\n  CAT[\"Dataplex + git review<br/><i>Metric Catalog + Ownership</i>\"]:::govern -. definitions + review .-> SEM"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|modeled upstream| WH[\"ClickHouse · Postgres marts<br/><i>Warehouse Marts</i>\"]:::store\n  WH -->|entities + joins| SEM[\"Cube<br/><i>Semantic Model</i>\"]:::process\n  SEM -->|metrics defined once| API[Metric APIs: SQL · REST]:::process\n  API -->|consistent numbers| BI[\"Superset · Metabase · Jupyter<br/><i>BI + Notebooks + Apps</i>\"]:::serve\n  API -->|governed context| AI[AI Agents]:::serve\n  CAT[\"OpenMetadata + PR review<br/><i>Metric Catalog + Ownership</i>\"]:::govern -. definitions + review .-> SEM"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|modeled upstream| WH[\"Snowflake marts<br/><i>Warehouse Marts</i>\"]:::store\n  WH -->|entities + joins| SEM[\"dbt Semantic Layer · Cube<br/><i>Semantic Model</i>\"]:::process\n  SEM -->|metrics defined once| API[Metric APIs: SQL · REST]:::process\n  API -->|consistent numbers| BI[\"Sigma · Tableau · Hex<br/><i>BI + Notebooks + Apps</i>\"]:::serve\n  API -->|governed context| AI[AI Agents]:::serve\n  CAT[\"Horizon + git review<br/><i>Metric Catalog + Ownership</i>\"]:::govern -. definitions + review .-> SEM"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|modeled upstream| WH[\"Databricks SQL marts<br/><i>Warehouse Marts</i>\"]:::store\n  WH -->|entities + joins| SEM[\"Unity Catalog metric views · dbt SL<br/><i>Semantic Model</i>\"]:::process\n  SEM -->|metrics defined once| API[Metric APIs: SQL · REST]:::process\n  API -->|consistent numbers| BI[\"AI/BI · Genie · Power BI<br/><i>BI + Notebooks + Apps</i>\"]:::serve\n  API -->|governed context| AI[AI Agents]:::serve\n  CAT[\"Unity Catalog<br/><i>Metric Catalog + Ownership</i>\"]:::govern -. definitions + review .-> SEM"
+    }
+  ],
+  "stages": [
+    {
+      "position": 0,
+      "name": "Warehouse marts",
+      "role": "Modeled, layered tables the semantic model builds on",
+      "recommended_technology_slug": "snowflake",
+      "alternative_technology_slugs": [
+        "bigquery",
+        "redshift",
+        "databricks-sql",
+        "clickhouse"
+      ],
+      "rationale": "The layer assumes clean marts beneath it — it standardizes definitions, it does not fix modeling debt."
+    },
+    {
+      "position": 1,
+      "name": "Semantic model",
+      "role": "Entities, dimensions, and metrics declared once in versioned code",
+      "recommended_technology_slug": "dbt-semantic-layer",
+      "alternative_technology_slugs": [
+        "cube",
+        "looker",
+        "atscale"
+      ],
+      "rationale": "dbt SL keeps metric definitions next to the models that feed them; Cube leads for embedded/API-first serving, LookML for Looker shops, AtScale for BI-heavy enterprises."
+    },
+    {
+      "position": 2,
+      "name": "Serving + caching",
+      "role": "SQL/REST APIs with pre-aggregations keeping metric queries fast",
+      "recommended_technology_slug": "cube",
+      "alternative_technology_slugs": [
+        "atscale",
+        "redis"
+      ],
+      "rationale": "Cube's pre-aggregation engine is what makes governed metrics dashboard-fast rather than warehouse-slow at every request."
+    },
+    {
+      "position": 3,
+      "name": "Metric governance",
+      "role": "Catalog, ownership, and review process for definitions",
+      "recommended_technology_slug": "datahub",
+      "alternative_technology_slugs": [
+        "collibra",
+        "alation",
+        "openmetadata"
+      ],
+      "rationale": "The catalog gives every metric an owner, a definition page, and lineage — the social contract that stops definition bypass."
+    },
+    {
+      "position": 4,
+      "name": "Consumers",
+      "role": "BI, notebooks, apps, and AI agents reading through the layer",
+      "recommended_technology_slug": "tableau",
+      "alternative_technology_slugs": [
+        "power-bi",
+        "hex",
+        "mode",
+        "apache-superset"
+      ],
+      "rationale": "Any consumer works if it connects through the layer's APIs; the discipline is that none connect around them."
+    }
+  ]
+}

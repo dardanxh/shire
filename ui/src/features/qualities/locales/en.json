@@ -1,0 +1,57 @@
+{
+  "qualities": {
+    "list": {
+      "title": "Architecture Qualities",
+      "subtitle": "The non-functional qualities that decide whether a data architecture stands the test of time.",
+      "search_placeholder": "Search qualities...",
+      "all_categories": "All categories",
+      "clear_filters": "Clear",
+      "count_one": "{{count}} quality",
+      "count_other": "{{count}} qualities",
+      "empty": "No qualities match these filters.",
+      "error": "Failed to load the qualities catalog."
+    },
+    "tab": {
+      "catalog": "Catalog",
+      "matrix": "Matrix"
+    },
+    "card": {
+      "architectures_one": "{{count}} architecture",
+      "architectures_other": "{{count}} architectures"
+    },
+    "view": {
+      "crumb": "Quality",
+      "how_achieved": "How it's achieved",
+      "tradeoffs": "Trade-offs",
+      "tradeoffs_subtitle": "What you give up to get it.",
+      "related_qualities": "Related qualities",
+      "related_technologies": "Related technologies",
+      "manifestations": "How it manifests across architectures",
+      "error": "Failed to load the quality."
+    },
+    "matrix": {
+      "title": "Qualities × architectures",
+      "subtitle": "How each quality manifests across every architecture. Empty = not notable.",
+      "legend": "Rating",
+      "empty_note": "empty = not notable",
+      "mobile_hint": "The matrix is best viewed on a wider screen — scroll horizontally to see all architectures."
+    },
+    "blueprint_section": {
+      "title": "Qualities",
+      "subtitle": "How this architecture fares on the qualities that matter."
+    },
+    "category": {
+      "performance": "Performance",
+      "reliability": "Reliability",
+      "recovery": "Recovery",
+      "data-integrity": "Data integrity",
+      "operability": "Operability"
+    },
+    "rating": {
+      "strong": "Strong",
+      "moderate": "Moderate",
+      "limited": "Limited",
+      "trade-off": "Trade-off"
+    }
+  }
+}

@@ -1,0 +1,183 @@
+{
+  "slug": "restartability",
+  "name": "Restartability",
+  "category": "recovery",
+  "summary": "The ability to resume a pipeline cleanly after a stop or failure without duplicating or losing work.",
+  "description": "Restartability measures how gracefully a system recovers from an interrupted run — a crashed worker, a killed job, a redeployment. A restartable system remembers exactly where it stopped (via offsets, checkpoints, or the last successful task) and picks up from there, neither reprocessing completed work as duplicates nor skipping incomplete work. It is strongest in streaming engines with durable checkpoints and orchestrators that retry at task granularity, and weakest where a failure forces a full, non-idempotent rerun.",
+  "mechanisms": [
+    {
+      "name": "Offset management",
+      "note": "Consumers commit their position in the log so a restart resumes from the last committed offset instead of re-reading the whole topic.",
+      "related_technology_slugs": [
+        "apache-kafka",
+        "apache-pulsar",
+        "redpanda",
+        "amazon-kinesis"
+      ]
+    },
+    {
+      "name": "Checkpointing and savepoints",
+      "note": "Stream processors periodically snapshot operator state and input positions to durable storage; on restart they restore from the last checkpoint or an operator-taken savepoint.",
+      "related_technology_slugs": [
+        "apache-flink",
+        "spark-structured-streaming",
+        "kafka-streams"
+      ]
+    },
+    {
+      "name": "Task-level retries and reruns",
+      "note": "Orchestrators track per-task success and rerun only failed or downstream tasks from the last successful boundary, avoiding a full DAG re-execution.",
+      "related_technology_slugs": [
+        "apache-airflow",
+        "dagster",
+        "prefect",
+        "temporal"
+      ]
+    },
+    {
+      "name": "Idempotent sinks",
+      "note": "Writing via MERGE/upsert on stable keys makes a re-run of the same batch safe, so a restart that partially reprocesses does not create duplicates.",
+      "related_technology_slugs": [
+        "snowflake",
+        "delta-lake",
+        "apache-iceberg",
+        "bigquery"
+      ]
+    },
+    {
+      "name": "Durable workflow state",
+      "note": "Persisting workflow execution state and history lets long-running processes resume mid-flight after a process or host crash without re-running completed steps.",
+      "related_technology_slugs": [
+        "temporal",
+        "aws-step-functions",
+        "argo-workflows"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "strong",
+      "statement": "Purpose-built for restartability: stream processors checkpoint operator state and input offsets to durable storage, so a killed job restores from its last checkpoint and resumes exactly where it stopped."
+    },
+    {
+      "blueprint_slug": "streaming-lakehouse",
+      "rating": "strong",
+      "statement": "Continuous stream commits carry checkpoint metadata; the writer resumes from the last committed offset and the transactional table format ensures partial writes are not exposed, so restarts neither duplicate nor lose rows."
+    },
+    {
+      "blueprint_slug": "event-driven-architecture",
+      "rating": "strong",
+      "statement": "Consumers commit offsets against a durable log, so a restarted service replays from its last committed position; combined with idempotent handlers, interrupted processing recovers cleanly."
+    },
+    {
+      "blueprint_slug": "real-time-analytics-serving",
+      "rating": "strong",
+      "statement": "Ingestion from a durable log with committed offsets and checkpointed stream state means a serving node can restart and rebuild in-flight state from the last checkpoint without a cold full reload."
+    },
+    {
+      "blueprint_slug": "iot-telemetry-platform",
+      "rating": "strong",
+      "statement": "Device streams land in a partitioned durable log; ingestion consumers commit offsets, so a restart resumes from the last acknowledged telemetry without re-ingesting the whole fleet's backlog."
+    },
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "strong",
+      "statement": "CDC connectors persist the source log position (LSN/binlog offset); on restart the connector resumes from the stored position and upserts by key, so interrupted replication catches up without duplicating changes."
+    },
+    {
+      "blueprint_slug": "classic-batch-etl",
+      "rating": "moderate",
+      "statement": "The orchestrator reruns from the last successful task, but restartability hinges on each task being idempotent; non-idempotent staged writes may need manual cleanup before a rerun is safe."
+    },
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "moderate",
+      "statement": "dbt models rebuild deterministically and the scheduler reruns failed models, so most restarts are clean; incremental models that failed mid-merge can need a full-refresh to guarantee a consistent restart."
+    },
+    {
+      "blueprint_slug": "layered-warehouse-dbt",
+      "rating": "moderate",
+      "statement": "Staging and mart layers rebuild from source on rerun and the DAG resumes from failed nodes, giving adequate restartability; incremental state is the main thing that must be reconciled after a mid-run failure."
+    },
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "moderate",
+      "statement": "Bronze retains raw input so any layer can be recomputed after a failure, and transactional commits keep partial writes hidden; restart cleanliness still depends on whether the silver/gold jobs are idempotent."
+    },
+    {
+      "blueprint_slug": "open-iceberg-lakehouse",
+      "rating": "moderate",
+      "statement": "Snapshot isolation means a failed write leaves the table at its prior snapshot, so a restart re-attempts against a known-good state; the compute job itself must still checkpoint or be idempotent to avoid redoing partial work."
+    },
+    {
+      "blueprint_slug": "lambda-batch-speed",
+      "rating": "moderate",
+      "statement": "The batch layer restarts by re-running deterministic jobs while the speed layer resumes from log offsets; the two paths recover differently, so operators must reason about restart in both."
+    },
+    {
+      "blueprint_slug": "ml-feature-pipeline",
+      "rating": "moderate",
+      "statement": "Offline feature jobs rerun from partitioned source and online materialization resumes from a checkpoint, but keeping offline/online consistent after a partial restart requires care to avoid point-in-time skew."
+    },
+    {
+      "blueprint_slug": "log-clickstream-analytics",
+      "rating": "moderate",
+      "statement": "Event ingestion from a durable log resumes on committed offsets, but high-volume aggregation jobs are only as restartable as their checkpointing; uncheckpointed batch rollups may need to reprocess a window."
+    },
+    {
+      "blueprint_slug": "reverse-etl-activation-loop",
+      "rating": "limited",
+      "statement": "A sync interrupted mid-flight is hard to resume precisely because progress lives in a remote SaaS API; without a durable per-record cursor a restart often re-sends a window of records, which is only safe if the destination is idempotent."
+    },
+    {
+      "blueprint_slug": "classic-raw-data-lake",
+      "rating": "limited",
+      "statement": "Landing jobs are often loosely orchestrated file drops with no committed progress marker, so a mid-load failure leaves partial files and forces a manual rerun-and-clean rather than a clean resume."
+    },
+    {
+      "blueprint_slug": "query-federation",
+      "rating": "limited",
+      "statement": "A federated query is a single in-memory execution against remote sources; if it fails partway there is no checkpoint to resume from, so restartability means re-running the whole query from scratch."
+    },
+    {
+      "blueprint_slug": "rag-pipeline",
+      "rating": "limited",
+      "statement": "Corpus embedding and indexing jobs frequently lack fine-grained checkpoints, so a crash mid-index often forces re-embedding a batch; restart cleanliness depends on the vector store rejecting duplicate document ids."
+    }
+  ],
+  "related_technology_slugs": [
+    "apache-flink",
+    "apache-kafka",
+    "temporal",
+    "dagster",
+    "spark-structured-streaming",
+    "delta-lake"
+  ],
+  "related_quality_slugs": [
+    "idempotency",
+    "resilience",
+    "replayability"
+  ],
+  "position": 10,
+  "tradeoffs": [
+    {
+      "title": "Throughput",
+      "note": "Frequent checkpointing and state snapshots add per-record bookkeeping and I/O overhead, reducing the steady-state rate at which the pipeline can process events.",
+      "quality_slug": "throughput"
+    },
+    {
+      "title": "Latency",
+      "note": "Checkpoint barriers and snapshot-alignment pauses briefly stall processing while in-flight state is flushed, adding jitter and periodic delay to end-to-end latency.",
+      "quality_slug": "latency"
+    },
+    {
+      "title": "Operational complexity",
+      "note": "Managing consumer offsets, savepoints, and durable state backends—and reasoning about exactly where a job resumes—adds significant operational surface to configure, monitor, and recover."
+    },
+    {
+      "title": "Developer effort",
+      "note": "Code must be structured so all progress is captured in externalized, restorable state rather than in-memory locals, forcing careful design of what to persist and when."
+    }
+  ]
+}

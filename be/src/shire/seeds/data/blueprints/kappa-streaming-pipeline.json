@@ -1,0 +1,141 @@
+{
+  "slug": "kappa-streaming-pipeline",
+  "name": "Kappa streaming pipeline",
+  "use_case": "Everything-is-a-stream processing",
+  "description": "Kappa treats the event log as the single source of truth: all data — including what would traditionally be 'batch' — flows through a durable broker, gets processed by one streaming engine, and lands in a real-time OLAP store for serving. Reprocessing is not a separate batch system but a replay: reset consumer offsets, rerun the same job over retained history, swap the output. A schema registry enforces contracts between producers and consumers, which becomes existential once multiple teams write to shared topics. The payoff is one codebase and one semantics for all processing; the price is that streaming engineering (state management, watermarks, exactly-once sinks) is simply harder than batch, full stop. The durable event log doubles as the landing layer: raw, replayable history lives in the log itself.",
+  "when_to_use": [
+    "Choose this when the business genuinely runs on events — fraud detection, live personalization, operational monitoring — and latency requirements are seconds or less across the board.",
+    "It fits teams with real streaming expertise who are tired of maintaining duplicate batch and speed code paths, and works best when broker retention (or tiered storage) can hold enough history to make replay a first-class reprocessing tool.",
+    "A single processing path is worth more to you than batch-era comfort."
+  ],
+  "when_not_to_use": [
+    "Do not adopt Kappa to make batch workloads feel modern — if hourly latency is acceptable, batch ELT is drastically cheaper to build and operate.",
+    "Long-window historical reprocessing via replay gets expensive and slow compared to scanning columnar files.",
+    "Most organizations are better served by batch-first with targeted streaming additions (blueprints 4 and 8) than by everything-as-a-stream."
+  ],
+  "use_cases": [
+    "realtime",
+    "integration"
+  ],
+  "hot_spots": [
+    {
+      "title": "Replay cost",
+      "detail": "Reprocessing the whole log for a logic change can take hours at scale."
+    },
+    {
+      "title": "Schema evolution",
+      "detail": "An incompatible event schema strands consumers mid-stream."
+    },
+    {
+      "title": "Processor state",
+      "detail": "Unbounded state blows memory and checkpoint times."
+    }
+  ],
+  "complexity": "high",
+  "evolution": [
+    {
+      "to_slug": "streaming-lakehouse",
+      "reason": "Land the stream in open-format tables so history stays queryable alongside real-time flow."
+    }
+  ],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Event Producers]:::source -->|event stream| LOG[Durable Event Log]:::store\n  LOG -->|ordered replayable stream| PROC[Stream Processing]:::process\n  PROC -->|materialized views| SRV[Serving Store]:::store\n  SRV -->|fresh queries| CONS[Consumers]:::serve\n  LOG -. full replay on logic change .-> PROC\n  SCH[Schema Governance]:::govern -. compatibility checks .-> LOG"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  P[Producer Services]:::source -->|publish events| MB[Message Broker Log]:::store\n  MB -->|consume| SP[Stream Processor]:::process\n  SP -->|upsert views| OLAP[Real-time OLAP Store]:::store\n  OLAP -->|queries| API[APIs + Dashboards]:::serve\n  REG[Schema Registry]:::govern -. contract validation .-> P"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([raw events]):::source -->|schema check| B([validated events]):::store\n  B -->|enrich and aggregate| C([derived streams]):::process\n  C -->|materialize| E([live views]):::store\n  E -->|serve| F([sub-second answers]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant P as Producer\n  participant L as Event Log\n  participant S as Stream Processor\n  participant V as Serving Store\n  participant C as Consumer\n  P->>L: append event\n  S->>L: consume ordered stream\n  S->>V: update materialized view\n  C->>V: query fresh state\n  Note over S,L: logic change? redeploy and replay the log"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Event Producers]:::source -->|event stream| LOG[\"Amazon Kinesis · MSK<br/><i>Durable Event Log</i>\"]:::store\n  LOG -->|ordered replayable stream| PROC[\"Amazon Managed Flink<br/><i>Stream Processing</i>\"]:::process\n  PROC -->|materialized views| SRV[\"Amazon OpenSearch<br/><i>Serving Store</i>\"]:::store\n  SRV -->|fresh queries| CONS[Consumers]:::serve\n  LOG -. full replay on logic change .-> PROC\n  SCH[\"AWS Glue Schema Registry<br/><i>Schema Governance</i>\"]:::govern -. compatibility checks .-> LOG"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Event Producers]:::source -->|event stream| LOG[\"Azure Event Hubs<br/><i>Durable Event Log</i>\"]:::store\n  LOG -->|ordered replayable stream| PROC[\"Azure Stream Analytics<br/><i>Stream Processing</i>\"]:::process\n  PROC -->|materialized views| SRV[\"Azure Data Explorer<br/><i>Serving Store</i>\"]:::store\n  SRV -->|fresh queries| CONS[Consumers]:::serve\n  LOG -. full replay on logic change .-> PROC\n  SCH[\"Event Hubs Schema Registry<br/><i>Schema Governance</i>\"]:::govern -. compatibility checks .-> LOG"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Event Producers]:::source -->|event stream| LOG[\"Google Pub/Sub<br/><i>Durable Event Log</i>\"]:::store\n  LOG -->|ordered replayable stream| PROC[\"Google Dataflow<br/><i>Stream Processing</i>\"]:::process\n  PROC -->|materialized views| SRV[\"BigQuery BI Engine<br/><i>Serving Store</i>\"]:::store\n  SRV -->|fresh queries| CONS[Consumers]:::serve\n  LOG -. full replay on logic change .-> PROC\n  SCH[\"Pub/Sub schemas<br/><i>Schema Governance</i>\"]:::govern -. compatibility checks .-> LOG"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Event Producers]:::source -->|event stream| LOG[\"Apache Kafka<br/><i>Durable Event Log</i>\"]:::store\n  LOG -->|ordered replayable stream| PROC[\"Apache Flink<br/><i>Stream Processing</i>\"]:::process\n  PROC -->|materialized views| SRV[\"Apache Pinot · ClickHouse<br/><i>Serving Store</i>\"]:::store\n  SRV -->|fresh queries| CONS[Consumers]:::serve\n  LOG -. full replay on logic change .-> PROC\n  SCH[\"Apicurio Registry<br/><i>Schema Governance</i>\"]:::govern -. compatibility checks .-> LOG"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Event Producers]:::source -->|event stream| LOG[\"Confluent Cloud<br/><i>Durable Event Log</i>\"]:::store\n  LOG -->|ordered replayable stream| PROC[\"Snowpark Streams + Tasks<br/><i>Stream Processing</i>\"]:::process\n  PROC -->|materialized views| SRV[\"Snowflake Dynamic Tables<br/><i>Serving Store</i>\"]:::store\n  SRV -->|fresh queries| CONS[Consumers]:::serve\n  LOG -. full replay on logic change .-> PROC\n  SCH[\"Confluent Schema Registry<br/><i>Schema Governance</i>\"]:::govern -. compatibility checks .-> LOG"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Event Producers]:::source -->|event stream| LOG[\"Apache Kafka · Confluent<br/><i>Durable Event Log</i>\"]:::store\n  LOG -->|ordered replayable stream| PROC[\"Spark Structured Streaming<br/><i>Stream Processing</i>\"]:::process\n  PROC -->|materialized views| SRV[\"Databricks SQL Serverless<br/><i>Serving Store</i>\"]:::store\n  SRV -->|fresh queries| CONS[Consumers]:::serve\n  LOG -. full replay on logic change .-> PROC\n  SCH[\"Unity Catalog schemas<br/><i>Schema Governance</i>\"]:::govern -. compatibility checks .-> LOG"
+    }
+  ],
+  "family_tags": [
+    "streaming-realtime"
+  ],
+  "archetype_slugs": [
+    "stream-processing-pipeline",
+    "streaming-ingestion",
+    "real-time-analytics-serving"
+  ],
+  "position": 5,
+  "stages": [
+    {
+      "position": 0,
+      "name": "Broker",
+      "role": "Durable, replayable event log; the system of record for all data in motion",
+      "recommended_technology_slug": "apache-kafka",
+      "alternative_technology_slugs": [
+        "redpanda",
+        "apache-pulsar",
+        "amazon-kinesis"
+      ],
+      "rationale": "Kafka's retained, partitioned log with tiered storage is what makes Kappa's replay-as-reprocessing story real, and its ecosystem (Connect, exactly-once transactions, every engine's best-tested source) is unmatched. Redpanda gives the same API with far lower operational burden and better tail latencies — the default pick for teams without a dedicated Kafka platform group. Pulsar wins on multi-tenancy and built-in tiered storage at very large multi-team scale; Kinesis only if AWS-managed matters more than replay ergonomics and ecosystem breadth."
+    },
+    {
+      "position": 1,
+      "name": "Processing",
+      "role": "Stateful stream transformation: joins, windows, aggregations, enrichment",
+      "recommended_technology_slug": "apache-flink",
+      "alternative_technology_slugs": [
+        "spark-structured-streaming",
+        "risingwave",
+        "kafka-streams"
+      ],
+      "rationale": "Flink is the reference engine for serious stateful streaming — event-time semantics, large managed state, exactly-once sinks, and now Flink SQL for the majority of jobs that do not need the DataStream API. Its operational complexity is real, so prefer managed offerings where possible. Spark Structured Streaming wins when the team already runs Spark and micro-batch latency (seconds) suffices; RisingWave offers streaming-SQL-with-Postgres-ergonomics that covers a surprising share of use cases with much less pain; Kafka Streams fits when processing should live inside existing JVM services rather than a separate cluster."
+    },
+    {
+      "position": 2,
+      "name": "Serving",
+      "role": "Real-time OLAP store answering sub-second queries over fresh events",
+      "recommended_technology_slug": "apache-pinot",
+      "alternative_technology_slugs": [
+        "clickhouse",
+        "apache-druid",
+        "starrocks"
+      ],
+      "rationale": "Pinot was built for exactly this seat — direct Kafka ingestion with seconds-level freshness, purpose-built indexes (star-tree, inverted, range), and proven user-facing analytics at LinkedIn/Uber scale and concurrency. ClickHouse is the pragmatic alternative: broader general-purpose SQL, a huge community, and simpler operations for internal-facing workloads, though high-concurrency point queries need more care. Druid is the incumbent with similar strengths to Pinot; StarRocks impresses on join-heavy real-time queries where the others force denormalization."
+    },
+    {
+      "position": 3,
+      "name": "Schema",
+      "role": "Enforce event contracts and compatibility between producers and consumers",
+      "recommended_technology_slug": "confluent-schema-registry",
+      "alternative_technology_slugs": [
+        "apicurio-registry",
+        "aws-glue-schema-registry"
+      ],
+      "rationale": "Confluent Schema Registry is the de facto standard — Avro/Protobuf/JSON Schema support, compatibility modes that stop breaking changes at produce time, and native integration in virtually every Kafka client and connector. Apicurio is the fully open-source (Apache-licensed) alternative that speaks the same API, relevant since Confluent's licensing; Glue Schema Registry fits AWS-native stacks on MSK/Kinesis. Whichever you run, turn on BACKWARD compatibility enforcement from day one — a registry that permits breaking changes is decoration."
+    }
+  ]
+}

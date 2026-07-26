@@ -1,0 +1,169 @@
+{
+  "slug": "elt-modern-data-stack",
+  "name": "ELT modern data stack",
+  "use_case": "Warehouse-native SQL transformation",
+  "description": "The default architecture for analytics in the 2020s: a managed EL tool lands raw source data into a cloud warehouse, and all transformation happens after load, in SQL, inside the warehouse's own engine. The inversion from ETL is the whole point — raw data is always present and replayable, so transformation logic can change without touching sources, and the modelling layer becomes version-controlled SQL that analysts can own.\n\nThe stack is deliberately modular: EL, warehouse, transformation, orchestration, and BI are separate products with clean seams, so each layer can be swapped as needs change. dbt sits at the centre — models, tests, docs, and lineage in one repo — with an orchestrator running EL and dbt on a cadence and a BI tool reading the resulting marts. Cost discipline is the main operational skill this stack demands: compute is elastic and it is easy to burn money on unpruned full-refresh models.\n\nThis is the highest-leverage starting point for most teams. It scales from a two-person data team to hundreds of models, the hiring market knows it, and every other blueprint in this catalog can bolt onto it later (CDC feeds it, reverse ETL reads from it, the semantic layer sits on top of it).",
+  "when_to_use": [
+    "Choose this for essentially any batch analytics use case on structured or semi-structured data — it is the default until proven otherwise.",
+    "It shines when analysts and analytics engineers should own transformation logic in SQL, when sources are common databases and SaaS tools with existing connectors, and when latency requirements are minutes-to-hours, not seconds.",
+    "You want analysts shipping transformations in SQL without waiting on data engineers."
+  ],
+  "when_not_to_use": [
+    "Not for sub-minute latency — that is the CDC (4) or streaming (5, 8) blueprints.",
+    "If data volumes are tiny and the org is a handful of people, the small-data DuckDB stack (11) delivers the same shape without warehouse spend.",
+    "Heavy unstructured data, ML feature pipelines, or code-first transformation needs point at the lakehouse (3) instead."
+  ],
+  "use_cases": [
+    "reporting",
+    "self_serve"
+  ],
+  "hot_spots": [
+    {
+      "title": "Warehouse spend",
+      "detail": "Pay-per-query transformation makes runaway SQL models a real bill shock."
+    },
+    {
+      "title": "Model sprawl",
+      "detail": "Hundreds of models without ownership rot into an untested dependency web."
+    },
+    {
+      "title": "Connector drift",
+      "detail": "Managed EL schema changes land silently and break downstream models."
+    }
+  ],
+  "complexity": "low",
+  "evolution": [
+    {
+      "to_slug": "medallion-lakehouse",
+      "reason": "Marts outgrow the warehouse — layer an open-format lakehouse under them."
+    },
+    {
+      "to_slug": "reverse-etl-activation-loop",
+      "reason": "Close the loop: push warehouse insights back into operational tools."
+    },
+    {
+      "to_slug": "layered-warehouse-dbt",
+      "reason": "Formalize transformations into staging/intermediate/mart layers as contributors multiply."
+    },
+    {
+      "to_slug": "semantic-metrics-layer",
+      "reason": "Centralize metric definitions once dashboards start disagreeing on the same KPI."
+    }
+  ],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw extracts| ING[Managed Ingestion]:::process\n  ING -->|landed raw data| RAW[Raw Zone]:::store\n  RAW -->|in-warehouse SQL| MOD[SQL Modeling]:::process\n  MOD -->|curated marts| MART[Curated Marts]:::store\n  MART -->|dashboards| BI[Analytics Consumers]:::serve\n  ORCH[Orchestration]:::govern -. sync and model schedule .-> ING\n  ORCH -. model runs .-> MOD"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  SRC[SaaS + Database Sources]:::source -->|connector syncs| EL[Managed EL Connectors]:::process\n  EL -->|raw tables| WH[Cloud Warehouse raw schema]:::store\n  WH -->|staging models| TF[SQL Transformation Framework]:::process\n  TF -->|marts schema| MART[Warehouse marts]:::store\n  MART -->|metrics queries| BI[BI Layer]:::serve\n  WF[Workflow Orchestrator]:::govern -. schedules .-> EL"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([source tables]):::source -->|incremental sync| B([raw tables]):::store\n  B -->|staging models| C([staged views]):::process\n  C -->|business logic| E([marts]):::store\n  E -->|semantic queries| F([dashboards]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant S as Scheduler\n  participant C as EL Connectors\n  participant W as Warehouse\n  participant M as SQL Models\n  participant B as BI\n  S->>C: hourly sync\n  C->>W: load raw tables\n  S->>M: run model DAG\n  M->>W: rebuild marts\n  B->>W: query marts\n  W-->>B: fresh metrics"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw extracts| ING[\"Amazon AppFlow · AWS Glue<br/><i>Managed Ingestion</i>\"]:::process\n  ING -->|landed raw data| RAW[\"Redshift raw schema<br/><i>Raw Zone</i>\"]:::store\n  RAW -->|in-warehouse SQL| MOD[\"dbt on Redshift<br/><i>SQL Modeling</i>\"]:::process\n  MOD -->|curated marts| MART[\"Redshift marts<br/><i>Curated Marts</i>\"]:::store\n  MART -->|dashboards| BI[Analytics Consumers]:::serve\n  ORCH[\"AWS Step Functions<br/><i>Orchestration</i>\"]:::govern -. sync and model schedule .-> ING\n  ORCH -. model runs .-> MOD"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw extracts| ING[\"ADF connectors<br/><i>Managed Ingestion</i>\"]:::process\n  ING -->|landed raw data| RAW[\"Synapse raw schema<br/><i>Raw Zone</i>\"]:::store\n  RAW -->|in-warehouse SQL| MOD[\"dbt on Synapse<br/><i>SQL Modeling</i>\"]:::process\n  MOD -->|curated marts| MART[\"Synapse marts<br/><i>Curated Marts</i>\"]:::store\n  MART -->|dashboards| BI[Analytics Consumers]:::serve\n  ORCH[\"Azure Data Factory<br/><i>Orchestration</i>\"]:::govern -. sync and model schedule .-> ING\n  ORCH -. model runs .-> MOD"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw extracts| ING[\"Google Cloud Data Fusion<br/><i>Managed Ingestion</i>\"]:::process\n  ING -->|landed raw data| RAW[\"BigQuery raw dataset<br/><i>Raw Zone</i>\"]:::store\n  RAW -->|in-warehouse SQL| MOD[\"Dataform · dbt<br/><i>SQL Modeling</i>\"]:::process\n  MOD -->|curated marts| MART[\"BigQuery marts<br/><i>Curated Marts</i>\"]:::store\n  MART -->|dashboards| BI[Analytics Consumers]:::serve\n  ORCH[\"Cloud Composer<br/><i>Orchestration</i>\"]:::govern -. sync and model schedule .-> ING\n  ORCH -. model runs .-> MOD"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw extracts| ING[\"Airbyte · dlt<br/><i>Managed Ingestion</i>\"]:::process\n  ING -->|landed raw data| RAW[\"ClickHouse raw schema<br/><i>Raw Zone</i>\"]:::store\n  RAW -->|in-warehouse SQL| MOD[\"dbt Core<br/><i>SQL Modeling</i>\"]:::process\n  MOD -->|curated marts| MART[\"ClickHouse marts<br/><i>Curated Marts</i>\"]:::store\n  MART -->|dashboards| BI[Analytics Consumers]:::serve\n  ORCH[\"Apache Airflow · Dagster<br/><i>Orchestration</i>\"]:::govern -. sync and model schedule .-> ING\n  ORCH -. model runs .-> MOD"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw extracts| ING[\"Fivetran · Matillion<br/><i>Managed Ingestion</i>\"]:::process\n  ING -->|landed raw data| RAW[\"Snowflake RAW database<br/><i>Raw Zone</i>\"]:::store\n  RAW -->|in-warehouse SQL| MOD[\"dbt Cloud<br/><i>SQL Modeling</i>\"]:::process\n  MOD -->|curated marts| MART[\"Snowflake marts<br/><i>Curated Marts</i>\"]:::store\n  MART -->|dashboards| BI[Analytics Consumers]:::serve\n  ORCH[\"Apache Airflow<br/><i>Orchestration</i>\"]:::govern -. sync and model schedule .-> ING\n  ORCH -. model runs .-> MOD"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw extracts| ING[\"LakeFlow Connect · Fivetran<br/><i>Managed Ingestion</i>\"]:::process\n  ING -->|landed raw data| RAW[\"Delta Lake bronze<br/><i>Raw Zone</i>\"]:::store\n  RAW -->|in-warehouse SQL| MOD[\"dbt on Databricks<br/><i>SQL Modeling</i>\"]:::process\n  MOD -->|curated marts| MART[\"Databricks gold schema<br/><i>Curated Marts</i>\"]:::store\n  MART -->|dashboards| BI[Analytics Consumers]:::serve\n  ORCH[\"Databricks Workflows<br/><i>Orchestration</i>\"]:::govern -. sync and model schedule .-> ING\n  ORCH -. model runs .-> MOD"
+    }
+  ],
+  "family_tags": [
+    "transformation-modelling",
+    "analytics-serving"
+  ],
+  "archetype_slugs": [
+    "elt-transformation-layer",
+    "saas-connector-rollout",
+    "bi-dashboard-build"
+  ],
+  "position": 2,
+  "stages": [
+    {
+      "position": 0,
+      "name": "EL",
+      "role": "Land raw source data in the warehouse with minimal transformation",
+      "recommended_technology_slug": "fivetran",
+      "alternative_technology_slugs": [
+        "dlt",
+        "airbyte",
+        "stitch"
+      ],
+      "rationale": "Fivetran is the buy-side benchmark: connectors that genuinely work unattended, automatic schema-drift handling, and log-based replication for databases — you pay (increasingly steeply, MAR-based pricing bites at scale) to never think about extraction again. dlt is the build-side counterweight: open-source Python, declarative schema evolution, runs anywhere your orchestrator does, and wins whenever a source is custom, quota-constrained, or Fivetran's pricing crosses the line — many mature teams run Fivetran for the boring 80% and dlt for the rest. Airbyte sits between: huge connector catalog and self-hostable, but budget real engineering time for connector quality variance. Stitch remains a cheap, simple option for small workloads on common sources."
+    },
+    {
+      "position": 1,
+      "name": "Warehouse",
+      "role": "Store raw and transformed data; execute all transformation compute",
+      "recommended_technology_slug": "snowflake",
+      "alternative_technology_slugs": [
+        "bigquery",
+        "databricks-sql",
+        "redshift",
+        "motherduck"
+      ],
+      "rationale": "Snowflake's separation of storage and compute, zero-copy cloning, and near-zero administration make it the safest default across clouds — its ecosystem gravity means every tool in this stack integrates with it first. BigQuery is the better pick when you are on GCP or your workload suits on-demand pricing: nothing to size, and slot-based reservations tame costs at scale. Databricks SQL wins when the same platform must also serve Spark/ML workloads; Redshift mainly when deep AWS integration and existing reserved capacity dominate; MotherDuck when your data is small enough that a warehouse is overkill but you want the managed shape. The real cost lever in all of them is modelling discipline, not vendor choice."
+    },
+    {
+      "position": 2,
+      "name": "Transform",
+      "role": "Version-controlled SQL models: staging, marts, tests, docs, lineage",
+      "recommended_technology_slug": "dbt",
+      "alternative_technology_slugs": [
+        "sqlmesh",
+        "dataform",
+        "coalesce"
+      ],
+      "rationale": "dbt is the industry standard and that standardness is the feature: every orchestrator, warehouse, catalog, and observability tool integrates with it, and every analytics engineer you hire knows it. Its weaknesses — full-refresh-by-default thinking, ref-graph sprawl past a few hundred models, and jinja-templated SQL testing — are exactly where SQLMesh wins: real column-level lineage, virtual environments, and properly incremental-by-default execution make it worth evaluating for greenfield builds with strong engineers. Dataform fits BigQuery-only shops wanting the GCP-native path; Coalesce trades code-first purity for a GUI that some enterprise teams genuinely ship faster with."
+    },
+    {
+      "position": 3,
+      "name": "Orchestrate",
+      "role": "Schedule EL syncs and dbt runs; own the dependency graph and alerting",
+      "recommended_technology_slug": "dagster",
+      "alternative_technology_slugs": [
+        "apache-airflow",
+        "prefect",
+        "kestra"
+      ],
+      "rationale": "Dagster's asset-oriented model maps one-to-one onto this stack — dbt models, Fivetran syncs, and dlt pipelines all appear as software-defined assets in a single lineage graph, and its dbt integration is the best in class. Airflow wins on ubiquity: if the org already runs it, or you need its operator long tail and managed offerings, the switching cost rarely pays back. Prefect suits dynamic, Python-heavy workflows; Kestra is a rising declarative-YAML option worth a look for platform teams. At the smallest scale, cron plus dbt Cloud's scheduler is honestly enough — add an orchestrator when cross-tool dependencies appear."
+    },
+    {
+      "position": 4,
+      "name": "BI",
+      "role": "Expose marts to the business: dashboards, self-serve exploration",
+      "recommended_technology_slug": "metabase",
+      "alternative_technology_slugs": [
+        "lightdash",
+        "power-bi",
+        "looker",
+        "apache-superset"
+      ],
+      "rationale": "Metabase gets non-technical users self-serving faster than anything else — open-source, quick to deploy, and its question-builder means the data team stops being a dashboard factory. Lightdash is the pick when you want BI defined in the dbt repo itself (metrics as code, no drift between models and dashboards). Power BI wins by default in Microsoft-centric enterprises; Looker when governed, modelled self-serve at large scale justifies its price and LookML investment; Superset for teams wanting open-source with more visualization power than Metabase."
+    }
+  ]
+}

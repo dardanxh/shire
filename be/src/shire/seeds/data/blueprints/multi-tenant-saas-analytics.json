@@ -1,0 +1,171 @@
+{
+  "slug": "multi-tenant-saas-analytics",
+  "name": "Multi-tenant SaaS analytics",
+  "use_case": "Tenant-isolated analytics inside a product",
+  "description": "A SaaS product serving analytics back to its customers needs one pipeline and many audiences: product data replicates into an analytics store where every table is tenant-keyed, an isolation layer guarantees each customer sees only their rows — via row-level security, per-tenant schemas, or per-tenant databases — and dashboards embed into the product behind that boundary. The design axis is the isolation model: pooled tables with RLS are cheap and scale to thousands of tenants; schema-per-tenant eases compliance and noisy-neighbor control; database-per-tenant maximizes isolation at maximum operational cost. Most platforms mix models by customer tier.",
+  "when_to_use": [
+    "Customer-facing analytics is a product feature: every tenant needs dashboards over their own slice of the same schema.",
+    "Tenant counts are large enough that per-customer manual BI provisioning cannot scale.",
+    "Enterprise tiers demand stronger isolation or residency guarantees than the pooled tier provides — the model must support mixing.",
+    "Usage-based pricing or plan limits require per-tenant metering of analytics workloads."
+  ],
+  "when_not_to_use": [
+    "Analytics is internal-only — ordinary warehouse layering (2, 26) with standard embedded dashboards (22) is enough.",
+    "There are a handful of large customers — dedicated per-customer stacks may be simpler than a generic isolation layer.",
+    "Dashboard latency demands are sub-second at high concurrency and the warehouse can't serve it — add a real-time OLAP store (8) behind the same isolation layer.",
+    "The product has no analytics surface yet — validate demand with simple exports before building tenancy machinery."
+  ],
+  "use_cases": [
+    "embedded",
+    "reporting",
+    "operational"
+  ],
+  "hot_spots": [
+    {
+      "title": "Tenant leakage",
+      "detail": "One missing tenant filter in one query path exposes another customer's data — the single worst incident this architecture can produce."
+    },
+    {
+      "title": "Noisy neighbors",
+      "detail": "One large tenant's queries starve everyone else's dashboards unless workload isolation and quotas are designed in."
+    },
+    {
+      "title": "Schema sprawl",
+      "detail": "Per-tenant schemas multiply every migration by the tenant count; at thousands of tenants, deploys become the bottleneck."
+    },
+    {
+      "title": "Cost attribution",
+      "detail": "Without per-tenant metering you cannot price plans, cap abuse, or explain why the warehouse bill doubled."
+    }
+  ],
+  "complexity": "medium",
+  "evolution": [],
+  "family_tags": [
+    "analytics-serving",
+    "storage-platform"
+  ],
+  "archetype_slugs": [
+    "embedded-analytics",
+    "data-api-data-as-a-product",
+    "access-control-rollout"
+  ],
+  "position": 28,
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|per-tenant app data| APP[Product Database]:::store\n  APP -->|CDC / ELT| REP[Replication]:::process\n  REP -->|tenant-keyed tables| AN[Analytics Store]:::store\n  AN -->|tenant-scoped queries| ISO[Isolation + Semantic API]:::process\n  ISO -->|embedded, tenant-safe| EMB[Embedded Analytics]:::serve\n  EMB --> CONS[Tenant End Users]:::serve\n  GOV[Isolation Policies + Cost Attribution]:::govern -. row/schema security .-> AN"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  APP[App Databases]:::source -->|change streams| CDC[CDC Pipeline]:::process\n  CDC -->|tenant_id on every row| AN[(pooled analytics tables)]:::store\n  AN -->|row-level security| RLS[Policy Layer]:::govern\n  ENT[Enterprise Tenants]:::source -.->|dedicated schemas| ISO2[(isolated schemas)]:::store\n  RLS -->|tenant-scoped SQL| API[Semantic + Query API]:::process\n  ISO2 --> API\n  API -->|signed tenant context| EMB[Embedded Dashboards]:::serve\n  METER[Per-tenant Metering]:::govern -. usage + cost .-> API"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([tenant app writes]):::source -->|CDC, minutes| B([tenant-keyed tables]):::store\n  B -->|policy-filtered| C([tenant-scoped views]):::store\n  C -->|semantic API| D([embedded dashboards]):::serve\n  D -->|only their rows| E([each tenant]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant U as Tenant User\n  participant P as SaaS App\n  participant E as Embed Layer\n  participant Q as Query API\n  participant W as Analytics Store\n  U->>P: open analytics tab\n  P->>E: request embed (signed tenant claim)\n  E->>Q: query with tenant context\n  Q->>W: SQL + row-level policy\n  W-->>Q: tenant-only rows\n  Q-->>E: results\n  E-->>U: rendered dashboard\n  Note over Q,W: tenant filter enforced in the store,<br/>not in application code"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|per-tenant app data| APP[\"Amazon Aurora<br/><i>Product Database</i>\"]:::store\n  APP -->|CDC / ELT| REP[\"AWS DMS · Debezium on MSK<br/><i>Replication</i>\"]:::process\n  REP -->|tenant-keyed tables| AN[\"Amazon Redshift (RLS)<br/><i>Analytics Store</i>\"]:::store\n  AN -->|tenant-scoped queries| ISO[\"Cube on ECS<br/><i>Isolation + Semantic API</i>\"]:::process\n  ISO -->|embedded, tenant-safe| BI[\"QuickSight Embedded<br/><i>Embedded Analytics</i>\"]:::serve\n  BI --> CONS[Tenant End Users]:::serve\n  GOV[Isolation Policies + Cost Attribution]:::govern -. row/schema security .-> AN"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|per-tenant app data| APP[\"Azure SQL · Cosmos DB<br/><i>Product Database</i>\"]:::store\n  APP -->|CDC / ELT| REP[\"Azure Data Factory · Debezium<br/><i>Replication</i>\"]:::process\n  REP -->|tenant-keyed tables| AN[\"Microsoft Fabric (RLS)<br/><i>Analytics Store</i>\"]:::store\n  AN -->|tenant-scoped queries| ISO[\"Cube on AKS<br/><i>Isolation + Semantic API</i>\"]:::process\n  ISO -->|embedded, tenant-safe| BI[\"Power BI Embedded<br/><i>Embedded Analytics</i>\"]:::serve\n  BI --> CONS[Tenant End Users]:::serve\n  GOV[Isolation Policies + Cost Attribution]:::govern -. row/schema security .-> AN"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|per-tenant app data| APP[\"Cloud SQL<br/><i>Product Database</i>\"]:::store\n  APP -->|CDC / ELT| REP[\"Datastream<br/><i>Replication</i>\"]:::process\n  REP -->|tenant-keyed tables| AN[\"BigQuery (authorized views)<br/><i>Analytics Store</i>\"]:::store\n  AN -->|tenant-scoped queries| ISO[\"Cube on GKE<br/><i>Isolation + Semantic API</i>\"]:::process\n  ISO -->|embedded, tenant-safe| BI[\"Looker embed<br/><i>Embedded Analytics</i>\"]:::serve\n  BI --> CONS[Tenant End Users]:::serve\n  GOV[Isolation Policies + Cost Attribution]:::govern -. row/schema security .-> AN"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|per-tenant app data| APP[\"PostgreSQL<br/><i>Product Database</i>\"]:::store\n  APP -->|CDC / ELT| REP[\"Debezium + Kafka<br/><i>Replication</i>\"]:::process\n  REP -->|tenant-keyed tables| AN[\"ClickHouse (row policies)<br/><i>Analytics Store</i>\"]:::store\n  AN -->|tenant-scoped queries| ISO[\"Cube<br/><i>Isolation + Semantic API</i>\"]:::process\n  ISO -->|embedded, tenant-safe| BI[\"Superset · Metabase embed<br/><i>Embedded Analytics</i>\"]:::serve\n  BI --> CONS[Tenant End Users]:::serve\n  GOV[Isolation Policies + Cost Attribution]:::govern -. row/schema security .-> AN"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|per-tenant app data| APP[\"PostgreSQL · Aurora<br/><i>Product Database</i>\"]:::store\n  APP -->|CDC / ELT| REP[\"Fivetran · Snowpipe<br/><i>Replication</i>\"]:::process\n  REP -->|tenant-keyed tables| AN[\"Snowflake (row access policies)<br/><i>Analytics Store</i>\"]:::store\n  AN -->|tenant-scoped queries| ISO[\"Cube · secure views<br/><i>Isolation + Semantic API</i>\"]:::process\n  ISO -->|embedded, tenant-safe| BI[\"Sigma embed · Streamlit<br/><i>Embedded Analytics</i>\"]:::serve\n  BI --> CONS[Tenant End Users]:::serve\n  GOV[Isolation Policies + Cost Attribution]:::govern -. row/schema security .-> AN"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|per-tenant app data| APP[\"PostgreSQL · Cosmos DB<br/><i>Product Database</i>\"]:::store\n  APP -->|CDC / ELT| REP[\"Lakeflow Connect<br/><i>Replication</i>\"]:::process\n  REP -->|tenant-keyed tables| AN[\"Databricks SQL (Unity RLS)<br/><i>Analytics Store</i>\"]:::store\n  AN -->|tenant-scoped queries| ISO[\"Cube · serverless SQL<br/><i>Isolation + Semantic API</i>\"]:::process\n  ISO -->|embedded, tenant-safe| BI[\"AI/BI embedded<br/><i>Embedded Analytics</i>\"]:::serve\n  BI --> CONS[Tenant End Users]:::serve\n  GOV[Isolation Policies + Cost Attribution]:::govern -. row/schema security .-> AN"
+    }
+  ],
+  "stages": [
+    {
+      "position": 0,
+      "name": "Product database",
+      "role": "Operational multi-tenant application data",
+      "recommended_technology_slug": "postgresql",
+      "alternative_technology_slugs": [
+        "mysql",
+        "amazon-aurora",
+        "azure-cosmos-db",
+        "mongodb"
+      ],
+      "rationale": "Whatever the product runs on — the analytics stack's job is to replicate from it without adding load."
+    },
+    {
+      "position": 1,
+      "name": "Replication",
+      "role": "Continuous, low-impact copy of tenant data into the analytics store",
+      "recommended_technology_slug": "debezium",
+      "alternative_technology_slugs": [
+        "fivetran",
+        "airbyte",
+        "aws-dms",
+        "qlik-replicate"
+      ],
+      "rationale": "CDC keeps tenant dashboards minutes-fresh without hammering the product database; managed EL works when hourly freshness is acceptable."
+    },
+    {
+      "position": 2,
+      "name": "Analytics store",
+      "role": "Tenant-keyed analytical tables with native isolation primitives",
+      "recommended_technology_slug": "clickhouse",
+      "alternative_technology_slugs": [
+        "snowflake",
+        "bigquery",
+        "apache-pinot",
+        "redshift"
+      ],
+      "rationale": "ClickHouse row policies plus high-concurrency, low-latency reads fit customer-facing dashboards; Snowflake row access policies and BigQuery authorized views are the managed equivalents."
+    },
+    {
+      "position": 3,
+      "name": "Isolation + semantic API",
+      "role": "The layer that injects tenant context and guarantees scoped queries",
+      "recommended_technology_slug": "cube",
+      "alternative_technology_slugs": [
+        "dbt-semantic-layer",
+        "graphql"
+      ],
+      "rationale": "Cube's security context binds every query to the signed tenant claim and adds caching — enforcing isolation in one place instead of every dashboard."
+    },
+    {
+      "position": 4,
+      "name": "Embedded analytics",
+      "role": "Dashboards rendered inside the product behind the tenant boundary",
+      "recommended_technology_slug": "apache-superset",
+      "alternative_technology_slugs": [
+        "metabase",
+        "power-bi",
+        "looker",
+        "sigma"
+      ],
+      "rationale": "Superset and Metabase embed cheaply at scale; Power BI Embedded and Looker fit when buyers expect a commercial BI experience."
+    },
+    {
+      "position": 5,
+      "name": "Metering + cost attribution",
+      "role": "Per-tenant usage tracking for pricing, quotas, and cost control",
+      "recommended_technology_slug": "grafana",
+      "alternative_technology_slugs": [
+        "prometheus",
+        "victoriametrics"
+      ],
+      "rationale": "Query logs tagged with tenant context feed dashboards that price plans and catch noisy neighbors before other tenants notice."
+    }
+  ]
+}

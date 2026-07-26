@@ -1,0 +1,647 @@
+[
+  {
+    "slug": "encryption-at-rest",
+    "name": "Encryption at rest",
+    "category": "encryption-keys",
+    "objective": "Render stored data unreadable to anyone without the decryption keys, so lost disks, snapshots, or exfiltrated files stay protected.",
+    "description": "Encrypt data where it lives — databases, object storage, file systems, backups, and snapshots — using strong algorithms (AES-256) with keys held outside the data store. Full coverage means every copy: primaries, replicas, backups, exports, and analytics extracts. Cloud providers offer transparent server-side encryption, but regulated workloads usually need customer-managed keys (CMK/BYOK) so key rotation and revocation stay under your control.",
+    "complexity": "medium",
+    "implementation_steps": [
+      "Inventory every place data is persisted: databases, warehouses, object stores, queues, backups, snapshots, laptops, and exports.",
+      "Enable server-side encryption on each store, preferring customer-managed keys (CMK/BYOK) over provider-managed defaults for regulated data.",
+      "Store keys in a dedicated KMS/HSM, never alongside the data they protect.",
+      "Encrypt backups and snapshots with the same rigor as primaries — they are the most commonly forgotten copy.",
+      "Add database- or column-level encryption for the most sensitive fields (payment data, health records) on top of disk-level encryption.",
+      "Verify coverage continuously: alert on any new unencrypted volume, bucket, or database."
+    ],
+    "satisfies": [
+      {
+        "regulation_slug": "gdpr",
+        "article_refs": ["32"],
+        "note": "Art. 32(1)(a) names encryption explicitly as an appropriate technical measure."
+      },
+      {
+        "regulation_slug": "hipaa",
+        "article_refs": ["164.312"],
+        "note": "§ 164.312(a)(2)(iv) — encryption and decryption of ePHI at rest (addressable)."
+      },
+      {
+        "regulation_slug": "pci-dss",
+        "article_refs": ["3"],
+        "note": "Requirement 3 — protect stored account data; PAN must be unreadable wherever stored."
+      },
+      {
+        "regulation_slug": "lgpd",
+        "article_refs": ["46"],
+        "note": "Art. 46 requires technical measures to protect personal data from unauthorized access."
+      },
+      {
+        "regulation_slug": "glba",
+        "article_refs": ["314.4"],
+        "note": "Safeguards Rule § 314.4(c)(3) requires encryption of customer information at rest."
+      },
+      {
+        "regulation_slug": "nis2",
+        "article_refs": ["21"],
+        "note": "Art. 21(2)(h) lists policies on the use of cryptography and encryption."
+      },
+      {
+        "regulation_slug": "dora",
+        "article_refs": ["9"],
+        "note": "Art. 9 requires protection of data at rest as part of ICT risk management."
+      }
+    ],
+    "related_technology_slugs": ["aws-kms", "azure-key-vault", "google-cloud-kms", "hashicorp-vault"],
+    "related_practice_slugs": ["encryption-in-transit", "key-management", "backup-recovery"],
+    "position": 10
+  },
+  {
+    "slug": "encryption-in-transit",
+    "name": "Encryption in transit",
+    "category": "encryption-keys",
+    "objective": "Protect data moving between clients, services, and data stores from interception and tampering.",
+    "description": "Every network hop that carries data — user to app, app to database, service to service, replication between regions — must run over an encrypted channel (TLS 1.2+, ideally 1.3). Internal traffic counts: the \"trusted network\" assumption dies the moment one workload is compromised. Mutual TLS (mTLS), often via a service mesh, adds workload identity so both ends authenticate each other.",
+    "complexity": "low",
+    "implementation_steps": [
+      "Enforce TLS 1.2+ on every public endpoint; redirect or reject plaintext connections.",
+      "Encrypt internal traffic too: app-to-database connections, message brokers, replication links, and admin interfaces.",
+      "Adopt mTLS for service-to-service traffic where workload identity matters — a service mesh automates certificate issuance and rotation.",
+      "Automate certificate lifecycle (issuance, renewal, revocation) so expiry never causes an outage or a plaintext fallback.",
+      "Disable legacy protocols and weak cipher suites; scan endpoints regularly for downgrade paths.",
+      "Verify third-party integrations and data-transfer jobs (SFTP, ETL connectors) use encrypted channels end to end."
+    ],
+    "satisfies": [
+      {
+        "regulation_slug": "gdpr",
+        "article_refs": ["32"],
+        "note": "Art. 32 requires appropriate technical measures; encrypted transmission is the baseline."
+      },
+      {
+        "regulation_slug": "hipaa",
+        "article_refs": ["164.312"],
+        "note": "§ 164.312(e) — transmission security for ePHI over electronic networks."
+      },
+      {
+        "regulation_slug": "pci-dss",
+        "article_refs": ["4"],
+        "note": "Requirement 4 — protect cardholder data with strong cryptography during transmission over open networks."
+      },
+      {
+        "regulation_slug": "glba",
+        "article_refs": ["314.4"],
+        "note": "Safeguards Rule § 314.4(c)(3) requires encryption of customer information in transit over external networks."
+      },
+      {
+        "regulation_slug": "nis2",
+        "article_refs": ["21"],
+        "note": "Art. 21(2)(h) — cryptography policies cover data in transit."
+      }
+    ],
+    "related_technology_slugs": ["hashicorp-vault"],
+    "related_practice_slugs": ["encryption-at-rest", "key-management"],
+    "position": 20
+  },
+  {
+    "slug": "key-management",
+    "name": "Key management",
+    "category": "encryption-keys",
+    "objective": "Keep encryption keys generated, stored, rotated, and revoked under strict control — encryption is only as strong as its key handling.",
+    "description": "Centralize key custody in a KMS or HSM with hardware-backed protection, separate key-admin duties from data access, rotate keys on schedule, and keep audited control over who (and what) can use each key. Envelope encryption — data keys wrapped by key-encryption keys — makes rotation cheap and blast radius small. Losing control of keys silently defeats every encryption control built on top of them.",
+    "complexity": "high",
+    "implementation_steps": [
+      "Centralize keys in a managed KMS or HSM; eliminate keys embedded in code, config files, or environment variables.",
+      "Use envelope encryption: per-dataset data keys wrapped by a small number of tightly guarded key-encryption keys.",
+      "Define rotation schedules per key class and automate them; manual rotation never happens on time.",
+      "Enforce separation of duties — key administrators must not have access to the encrypted data, and vice versa.",
+      "Grant key usage via IAM policies scoped to specific services and operations (encrypt-only, decrypt-only).",
+      "Log every key operation and alert on anomalies (unusual decrypt volume, access from new principals).",
+      "Plan and rehearse key revocation and re-encryption for compromise scenarios."
+    ],
+    "satisfies": [
+      {
+        "regulation_slug": "gdpr",
+        "article_refs": ["32"],
+        "note": "Effective key custody is what makes Art. 32 encryption an actual safeguard."
+      },
+      {
+        "regulation_slug": "pci-dss",
+        "article_refs": ["3"],
+        "note": "Requirement 3 mandates documented key-management processes (3.6, 3.7): generation, distribution, rotation, retirement."
+      },
+      {
+        "regulation_slug": "hipaa",
+        "article_refs": ["164.312"],
+        "note": "§ 164.312(a)(2)(iv) implies managed decryption capability and controlled key access."
+      },
+      {
+        "regulation_slug": "dora",
+        "article_refs": ["9"],
+        "note": "Art. 9(4)(d) — strong mechanisms for cryptographic key protection."
+      }
+    ],
+    "related_technology_slugs": ["aws-kms", "azure-key-vault", "google-cloud-kms", "hashicorp-vault"],
+    "related_practice_slugs": ["encryption-at-rest", "encryption-in-transit", "access-control-rbac-abac"],
+    "position": 30
+  },
+  {
+    "slug": "tokenization",
+    "name": "Tokenization",
+    "category": "encryption-keys",
+    "objective": "Replace sensitive values with meaningless tokens so downstream systems never touch the real data.",
+    "description": "Tokenization swaps a sensitive value (card number, SSN, account ID) for a surrogate token; the real value lives only in a hardened token vault. Unlike encryption, tokens have no mathematical relationship to the original — there is nothing to crack. Systems that operate on tokens fall out of compliance scope, which is why tokenization is the workhorse of PCI scope reduction and a strong pseudonymization technique under GDPR.",
+    "complexity": "medium",
+    "implementation_steps": [
+      "Identify the fields whose raw values downstream systems don't actually need (PANs, national IDs, account numbers).",
+      "Choose format-preserving tokens where consumers validate shape (e.g. 16-digit tokens that pass Luhn checks for card flows).",
+      "Deploy or buy a token vault with strict access control, encryption, and detokenization audit logging.",
+      "Tokenize at the earliest ingestion point so raw values never spread through pipelines and analytics stores.",
+      "Restrict detokenization to the minimal set of services with a genuine need, each with its own audited credential.",
+      "Document scope reduction: which systems now hold only tokens, and re-verify at every architecture change."
+    ],
+    "satisfies": [
+      {
+        "regulation_slug": "pci-dss",
+        "article_refs": ["3"],
+        "note": "Tokenization renders PAN unreadable (Req. 3.4) and shrinks the cardholder data environment."
+      },
+      {
+        "regulation_slug": "gdpr",
+        "article_refs": ["25", "32"],
+        "note": "A pseudonymization technique named in Art. 32(1)(a) and central to data protection by design (Art. 25)."
+      },
+      {
+        "regulation_slug": "ccpa-cpra",
+        "article_refs": ["1798.150"],
+        "note": "Tokenized data is far less useful in a breach, limiting private-right-of-action exposure."
+      }
+    ],
+    "related_technology_slugs": ["skyflow", "hashicorp-vault", "privitar"],
+    "related_practice_slugs": ["pseudonymization", "data-masking", "encryption-at-rest"],
+    "position": 40
+  },
+  {
+    "slug": "data-anonymization",
+    "name": "Data anonymization",
+    "category": "deidentification",
+    "objective": "Irreversibly transform data so individuals can no longer be identified — taking it out of privacy-regulation scope entirely.",
+    "description": "True anonymization removes any realistic path back to the individual: direct identifiers go, and quasi-identifiers (ZIP + birth date + gender re-identify most people) are generalized, suppressed, or perturbed until linkage attacks fail. Techniques include k-anonymity, l-diversity, differential privacy, and synthetic data generation. Anonymized data is no longer \"personal data\" under GDPR/LGPD — but the bar is high, and sloppy anonymization that can be reversed is just pseudonymization with extra risk.",
+    "complexity": "high",
+    "implementation_steps": [
+      "Classify direct identifiers (names, emails, IDs) and quasi-identifiers (age, ZIP, job title, rare attributes) in the dataset.",
+      "Pick techniques per column: suppression, generalization (age → age band), perturbation, or aggregation.",
+      "Apply a formal privacy model — k-anonymity as the floor, l-diversity/t-closeness for sensitive attributes, differential privacy for query interfaces.",
+      "Test re-identification: attempt linkage attacks against public and internal datasets before declaring data anonymous.",
+      "Consider synthetic data generation when analytics need realistic structure but no real individuals.",
+      "Document the assessment — regulators expect evidence that re-identification risk is remote, re-evaluated as auxiliary data grows."
+    ],
+    "satisfies": [
+      {
+        "regulation_slug": "gdpr",
+        "article_refs": ["5", "25"],
+        "note": "Recital 26: truly anonymized data falls outside GDPR; supports data minimisation (Art. 5(1)(c))."
+      },
+      {
+        "regulation_slug": "hipaa",
+        "article_refs": ["164.514"],
+        "note": "§ 164.514(b) defines the Safe Harbor and Expert Determination de-identification standards."
+      },
+      {
+        "regulation_slug": "lgpd",
+        "article_refs": ["12"],
+        "note": "Art. 12 — anonymized data is not personal data unless the process can be reversed."
+      },
+      {
+        "regulation_slug": "eu-ai-act",
+        "article_refs": ["10"],
+        "note": "Art. 10 data-governance duties favour anonymized training data where feasible."
+      }
+    ],
+    "related_technology_slugs": ["arx", "gretel", "tonic-ai", "microsoft-presidio"],
+    "related_practice_slugs": ["pseudonymization", "data-masking", "data-classification"],
+    "position": 10
+  },
+  {
+    "slug": "pseudonymization",
+    "name": "Pseudonymization",
+    "category": "deidentification",
+    "objective": "Replace identifiers with pseudonyms, keeping re-identification possible but locked behind separately guarded mapping keys.",
+    "description": "Pseudonymization substitutes direct identifiers with consistent surrogates (hashes, tokens, random IDs) while a protected mapping allows authorized re-identification. Data stays \"personal data\" under GDPR, but the regulation explicitly rewards the technique: it enables analytics, testing, and cross-system joins with dramatically reduced exposure. The mapping table is the crown jewel — stored separately, encrypted, and access-audited.",
+    "complexity": "medium",
+    "implementation_steps": [
+      "Choose a pseudonym scheme: keyed hashing (HMAC) for deterministic joins, random surrogate IDs for maximum unlinkability.",
+      "Keep the pseudonym↔identity mapping in a separate, hardened store — never in the analytical environment it protects.",
+      "Pseudonymize at ingestion so downstream pipelines, warehouses, and dashboards only ever see surrogates.",
+      "Rotate or re-key pseudonyms when a mapping compromise is suspected.",
+      "Gate re-identification behind an approval workflow with per-request audit logging.",
+      "Verify consistency requirements — analytics teams need the same individual to map to the same pseudonym across datasets."
+    ],
+    "satisfies": [
+      {
+        "regulation_slug": "gdpr",
+        "article_refs": ["25", "32"],
+        "note": "Named in Art. 32(1)(a) and Art. 25(1) as a flagship data-protection-by-design measure."
+      },
+      {
+        "regulation_slug": "lgpd",
+        "article_refs": ["13"],
+        "note": "Art. 13 endorses pseudonymization for public-health research use."
+      },
+      {
+        "regulation_slug": "dpdp-act",
+        "article_refs": ["8"],
+        "note": "Supports the reasonable security safeguards duty in Sec. 8(5)."
+      }
+    ],
+    "related_technology_slugs": ["microsoft-presidio", "skyflow", "privitar"],
+    "related_practice_slugs": ["data-anonymization", "tokenization", "key-management"],
+    "position": 20
+  },
+  {
+    "slug": "data-masking",
+    "name": "Data masking",
+    "category": "deidentification",
+    "objective": "Show each audience only the version of a field it needs — full value, partial reveal, or fully obscured.",
+    "description": "Masking policies transform sensitive values at query or copy time: static masking rewrites non-production copies for dev/test, while dynamic masking rewrites results per role at query time (support agents see •••-••-1234, fraud analysts see the full SSN). Modern warehouses (Snowflake, BigQuery, Databricks) support policy-as-code masking bound to columns and roles — define once centrally, enforce everywhere the column appears.",
+    "complexity": "medium",
+    "implementation_steps": [
+      "Classify columns needing masking and define the reveal level per role (none, partial, full).",
+      "Write masking policies as code in the warehouse/database (masking functions bound to column + role), reviewed like any other code.",
+      "Apply static masking to every non-production copy — dev and test environments must never hold real sensitive values.",
+      "Use deterministic masking where referential integrity across tables matters in test data.",
+      "Attach policies through a central catalog/policy engine so a column tagged once is masked in every derived dataset.",
+      "Audit mask bypasses: log who queried unmasked values, and review the privileged-role membership regularly."
+    ],
+    "satisfies": [
+      {
+        "regulation_slug": "gdpr",
+        "article_refs": ["25", "32"],
+        "note": "Implements least-exposure access to personal data by design."
+      },
+      {
+        "regulation_slug": "pci-dss",
+        "article_refs": ["3"],
+        "note": "Req. 3.3 — mask PAN when displayed; first six/last four are the maximum shown without need."
+      },
+      {
+        "regulation_slug": "hipaa",
+        "article_refs": ["164.502"],
+        "note": "Supports the minimum-necessary standard for PHI uses and disclosures."
+      },
+      {
+        "regulation_slug": "ccpa-cpra",
+        "article_refs": ["1798.100"],
+        "note": "Supports the reasonable-security duty in § 1798.100(e)."
+      }
+    ],
+    "related_technology_slugs": ["immuta", "privacera", "microsoft-presidio", "bigid"],
+    "related_practice_slugs": ["data-anonymization", "pseudonymization", "access-control-rbac-abac", "data-classification"],
+    "position": 30
+  },
+  {
+    "slug": "access-control-rbac-abac",
+    "name": "Access control (RBAC/ABAC)",
+    "category": "access-control",
+    "objective": "Ensure every human and service can touch exactly the data their role or attributes justify — nothing more.",
+    "description": "Role-based access control (RBAC) grants permissions through roles mapped to job functions; attribute-based access control (ABAC) adds context — user department, data sensitivity tag, geography, time — for finer decisions at scale. Data platforms need both: coarse warehouse roles plus row/column-level policies driven by data classification tags. Centralize policy definition so the same rule governs the lake, the warehouse, and the BI layer.",
+    "complexity": "high",
+    "implementation_steps": [
+      "Model roles from actual job functions and map every dataset to the roles that legitimately need it.",
+      "Adopt deny-by-default: new datasets are inaccessible until an owner grants a role.",
+      "Layer ABAC policies (sensitivity tags, region, purpose) for row- and column-level control in shared datasets.",
+      "Centralize policy in one engine (e.g. Ranger, Immuta, Privacera, warehouse-native policies) instead of per-tool ACLs.",
+      "Integrate with the identity provider for SSO, MFA, and automatic deprovisioning on offboarding.",
+      "Review grants quarterly with data owners; expire unused entitlements automatically."
+    ],
+    "satisfies": [
+      {
+        "regulation_slug": "gdpr",
+        "article_refs": ["5", "32"],
+        "note": "Enforces purpose limitation and integrity/confidentiality principles technically."
+      },
+      {
+        "regulation_slug": "hipaa",
+        "article_refs": ["164.308", "164.312"],
+        "note": "§ 164.308(a)(4) information access management; § 164.312(a) access control with unique user IDs."
+      },
+      {
+        "regulation_slug": "pci-dss",
+        "article_refs": ["7", "8"],
+        "note": "Req. 7 restricts access by business need-to-know; Req. 8 mandates unique IDs and MFA."
+      },
+      {
+        "regulation_slug": "sox",
+        "article_refs": ["404"],
+        "note": "Access control over financial data is a core internal control under § 404."
+      },
+      {
+        "regulation_slug": "glba",
+        "article_refs": ["314.4"],
+        "note": "§ 314.4(c)(1) — access controls to authenticate and permit only authorized users."
+      },
+      {
+        "regulation_slug": "nis2",
+        "article_refs": ["21"],
+        "note": "Art. 21(2)(i)-(j) — access control policies and multi-factor authentication."
+      },
+      {
+        "regulation_slug": "dpdp-act",
+        "article_refs": ["8"],
+        "note": "Part of reasonable security safeguards under Sec. 8(5)."
+      }
+    ],
+    "related_technology_slugs": ["apache-ranger", "immuta", "privacera"],
+    "related_practice_slugs": ["least-privilege-reviews", "data-classification", "data-masking"],
+    "position": 10
+  },
+  {
+    "slug": "least-privilege-reviews",
+    "name": "Least privilege & access reviews",
+    "category": "access-control",
+    "objective": "Keep permissions shrinking toward the minimum over time, instead of accumulating forever.",
+    "description": "Access rots: people change teams, projects end, service accounts outlive their purpose, and grants pile up. Periodic access reviews (recertification) put every entitlement in front of the data owner to confirm or revoke; just-in-time elevation replaces standing admin rights with short-lived, approved, audited sessions. The goal is that a compromised credential is worth as little as possible.",
+    "complexity": "medium",
+    "implementation_steps": [
+      "Build an entitlement inventory: who (human and service) holds which grant on which dataset, and when it was last used.",
+      "Run quarterly recertification campaigns where data owners approve or revoke each grant — revoke by default on no response.",
+      "Replace standing privileged access with just-in-time elevation: time-boxed, approval-gated, session-recorded.",
+      "Alert on privilege creep: new admin grants, dormant-but-privileged accounts, and toxic combinations (e.g. developer + production DBA).",
+      "Auto-expire grants tied to projects or contractors at their end date.",
+      "Feed review outcomes back into role design — repeated one-off grants signal a missing or bloated role."
+    ],
+    "satisfies": [
+      {
+        "regulation_slug": "gdpr",
+        "article_refs": ["5", "32"],
+        "note": "Data minimisation applied to access; regular testing of measures per Art. 32(1)(d)."
+      },
+      {
+        "regulation_slug": "hipaa",
+        "article_refs": ["164.308"],
+        "note": "§ 164.308(a)(3)-(4) workforce clearance and periodic access review."
+      },
+      {
+        "regulation_slug": "pci-dss",
+        "article_refs": ["7"],
+        "note": "Req. 7.2.4 — review all user accounts and access privileges at least every six months."
+      },
+      {
+        "regulation_slug": "sox",
+        "article_refs": ["404"],
+        "note": "Access recertification is standard evidence for § 404 control effectiveness."
+      },
+      {
+        "regulation_slug": "glba",
+        "article_refs": ["314.4"],
+        "note": "§ 314.4(c) — periodically review access controls on customer information."
+      }
+    ],
+    "related_technology_slugs": ["apache-ranger", "immuta"],
+    "related_practice_slugs": ["access-control-rbac-abac", "audit-logging"],
+    "position": 20
+  },
+  {
+    "slug": "data-classification",
+    "name": "Data classification",
+    "category": "data-lifecycle",
+    "objective": "Know what data you hold and how sensitive it is — the prerequisite for every other control.",
+    "description": "Classification assigns each dataset and column a sensitivity level (public → internal → confidential → restricted) and tags regulated categories (PII, PHI, payment data, special-category data). Automated scanners find sensitive data in the wild — the customer emails in a debug log, the SSN column nobody documented. Tags then drive downstream enforcement: masking policies, access rules, retention schedules, and encryption requirements all key off classification.",
+    "complexity": "medium",
+    "implementation_steps": [
+      "Define a small classification taxonomy (4-5 levels) plus regulated-category tags (PII, PHI, PCI, special-category).",
+      "Run automated discovery/scanning across databases, warehouses, lakes, and file shares to find sensitive data where it actually lives.",
+      "Record classifications as machine-readable tags in a data catalog, attached at column level where possible.",
+      "Bind controls to tags: masking, access policies, retention, and encryption requirements derive from classification, not from per-table decisions.",
+      "Classify at creation: schema reviews and pipeline templates require a classification before new data lands.",
+      "Re-scan on a schedule — sensitive data migrates into new tables, exports, and logs constantly."
+    ],
+    "satisfies": [
+      {
+        "regulation_slug": "gdpr",
+        "article_refs": ["30", "9"],
+        "note": "Records of processing (Art. 30) and special-category handling (Art. 9) both presuppose knowing what you hold."
+      },
+      {
+        "regulation_slug": "hipaa",
+        "article_refs": ["164.308"],
+        "note": "Risk analysis under § 164.308(a)(1) requires identifying where ePHI is created, stored, and transmitted."
+      },
+      {
+        "regulation_slug": "ccpa-cpra",
+        "article_refs": ["1798.100", "1798.121"],
+        "note": "Consumer-rights responses and sensitive-PI limits require an inventory of personal information categories."
+      },
+      {
+        "regulation_slug": "dpdp-act",
+        "article_refs": ["8"],
+        "note": "Fiduciary duties presuppose knowing which systems process digital personal data."
+      },
+      {
+        "regulation_slug": "eu-ai-act",
+        "article_refs": ["10"],
+        "note": "Art. 10 requires knowing and governing the provenance and content of training data."
+      }
+    ],
+    "related_technology_slugs": ["bigid", "microsoft-presidio", "immuta"],
+    "related_practice_slugs": ["data-retention-deletion", "data-masking", "access-control-rbac-abac"],
+    "position": 10
+  },
+  {
+    "slug": "data-retention-deletion",
+    "name": "Data retention & deletion",
+    "category": "data-lifecycle",
+    "objective": "Keep data exactly as long as a purpose or law requires — then reliably destroy every copy.",
+    "description": "Retention schedules map each data category to how long it may (or must) be kept and on what legal basis. Deletion must then actually happen — across primaries, replicas, backups, caches, and downstream copies — and be provable. Right-to-erasure requests (GDPR Art. 17, CCPA § 1798.105) add per-individual deletion with deadlines, which is an engineering problem: you need to find every copy of one person's data and remove it without breaking referential integrity.",
+    "complexity": "high",
+    "implementation_steps": [
+      "Build a retention schedule per data category, reconciling minimum-keep laws (tax, SOX records) with maximum-keep privacy principles.",
+      "Automate expiry: partition or tag data by age so deletion jobs are cheap, verifiable, and routine.",
+      "Design an erasure pipeline for individual requests: locate all copies via lineage/catalog, delete or anonymize, and record completion within statutory deadlines.",
+      "Handle backups explicitly — either expire them on schedule or maintain deletion lists reapplied on restore.",
+      "Propagate deletions to processors and downstream consumers holding copies.",
+      "Produce deletion evidence: logs proving what was destroyed, when, and under which schedule or request."
+    ],
+    "satisfies": [
+      {
+        "regulation_slug": "gdpr",
+        "article_refs": ["5", "17"],
+        "note": "Storage limitation (Art. 5(1)(e)) and the right to erasure (Art. 17)."
+      },
+      {
+        "regulation_slug": "ccpa-cpra",
+        "article_refs": ["1798.105"],
+        "note": "§ 1798.105 — consumer right to delete, including notifying service providers."
+      },
+      {
+        "regulation_slug": "lgpd",
+        "article_refs": ["15", "18"],
+        "note": "Art. 15-16 termination of processing and elimination; Art. 18 data subject deletion rights."
+      },
+      {
+        "regulation_slug": "sox",
+        "article_refs": ["802"],
+        "note": "§ 802 mandates minimum retention for audit workpapers — deletion schedules must respect legal holds."
+      },
+      {
+        "regulation_slug": "dpdp-act",
+        "article_refs": ["8"],
+        "note": "Sec. 8(7) — erase personal data once purpose is served and retention is no longer required."
+      },
+      {
+        "regulation_slug": "pipeda",
+        "article_refs": ["4.5"],
+        "note": "Principle 4.5 — limiting use, disclosure, and retention."
+      }
+    ],
+    "related_technology_slugs": ["bigid", "immuta"],
+    "related_practice_slugs": ["data-classification", "backup-recovery"],
+    "position": 20
+  },
+  {
+    "slug": "backup-recovery",
+    "name": "Backup & recovery",
+    "category": "data-lifecycle",
+    "objective": "Guarantee data survives disasters, ransomware, and human error — with restores that are tested, not assumed.",
+    "description": "Backups are the availability half of data protection: regulations increasingly require restoring access to data after an incident, not just preventing leaks. The 3-2-1 pattern (three copies, two media, one off-site) plus immutability (WORM/object-lock) defends against ransomware that targets backups first. A backup that has never been restored is a hope, not a control — recovery time (RTO) and recovery point (RPO) objectives only mean something when rehearsed.",
+    "complexity": "medium",
+    "implementation_steps": [
+      "Define RTO/RPO per dataset tier and design backup frequency and replication to meet them.",
+      "Follow 3-2-1: at least three copies on two media types with one off-site/off-account copy.",
+      "Make one copy immutable (object lock/WORM) and isolate backup credentials from production credentials.",
+      "Encrypt backups and manage their keys with the same rigor as production data.",
+      "Test restores on a schedule — full recovery drills for critical systems, spot restores for the rest; measure against RTO/RPO.",
+      "Apply retention and deletion schedules to backups so they don't become an immortal copy of data you were required to erase."
+    ],
+    "satisfies": [
+      {
+        "regulation_slug": "gdpr",
+        "article_refs": ["32"],
+        "note": "Art. 32(1)(c) — restore availability and access to personal data in a timely manner after an incident."
+      },
+      {
+        "regulation_slug": "hipaa",
+        "article_refs": ["164.308"],
+        "note": "§ 164.308(a)(7) contingency plan: data backup, disaster recovery, and emergency-mode operation."
+      },
+      {
+        "regulation_slug": "dora",
+        "article_refs": ["12"],
+        "note": "Art. 12 — backup policies, restoration and recovery procedures and methods."
+      },
+      {
+        "regulation_slug": "nis2",
+        "article_refs": ["21"],
+        "note": "Art. 21(2)(c) — business continuity, backup management and disaster recovery."
+      },
+      {
+        "regulation_slug": "sox",
+        "article_refs": ["802"],
+        "note": "Retention of financial records depends on durable, recoverable storage."
+      }
+    ],
+    "related_technology_slugs": [],
+    "related_practice_slugs": ["encryption-at-rest", "data-retention-deletion"],
+    "position": 30
+  },
+  {
+    "slug": "audit-logging",
+    "name": "Audit logging & monitoring",
+    "category": "monitoring-response",
+    "objective": "Record who did what to which data, tamper-proof the record, and actually watch it.",
+    "description": "Audit logs answer the questions every incident and every auditor asks: who accessed this record, when, from where, and what changed. Data-layer logging (queries against sensitive tables, exports, permission changes, key usage) matters more than generic infrastructure logs. Logs must be centralized, integrity-protected, retained per regulation, and monitored — an unread log satisfies no one. Alerting on anomalous access (bulk exports, off-hours queries, dormant accounts waking up) turns the record into a detection control.",
+    "complexity": "medium",
+    "implementation_steps": [
+      "Enable audit logging at the data layer: queries on sensitive datasets, exports, schema changes, grants, and key operations.",
+      "Centralize logs in a dedicated store with restricted, append-only access — attackers and admins alike must not be able to edit history.",
+      "Protect integrity (hash chains, WORM storage) and retain per the strictest applicable regulation.",
+      "Define alert rules for anomalies: bulk reads, unusual principals, disabled-account activity, mask-bypass queries.",
+      "Wire alerts into an incident-response runbook with named owners and escalation paths.",
+      "Review logging coverage whenever a new data store or pipeline ships — unlogged systems are invisible in investigations."
+    ],
+    "satisfies": [
+      {
+        "regulation_slug": "gdpr",
+        "article_refs": ["30", "33"],
+        "note": "Supports accountability and the 72-hour breach notification clock — you can't report what you can't see."
+      },
+      {
+        "regulation_slug": "hipaa",
+        "article_refs": ["164.312", "164.308"],
+        "note": "§ 164.312(b) audit controls; § 164.308(a)(1)(ii)(D) information system activity review."
+      },
+      {
+        "regulation_slug": "pci-dss",
+        "article_refs": ["10"],
+        "note": "Requirement 10 — log and monitor all access to system components and cardholder data."
+      },
+      {
+        "regulation_slug": "sox",
+        "article_refs": ["302", "404"],
+        "note": "Audit trails over financial data changes are core § 404 control evidence."
+      },
+      {
+        "regulation_slug": "nis2",
+        "article_refs": ["21", "23"],
+        "note": "Incident handling capability and 24-hour early-warning reporting require monitoring."
+      },
+      {
+        "regulation_slug": "dora",
+        "article_refs": ["10", "17"],
+        "note": "Art. 10 anomaly detection; Art. 17 ICT incident management process."
+      },
+      {
+        "regulation_slug": "dpdp-act",
+        "article_refs": ["8"],
+        "note": "Breach notification to the Board and affected individuals under Sec. 8(6) requires detection capability."
+      }
+    ],
+    "related_technology_slugs": ["apache-ranger", "immuta", "privacera"],
+    "related_practice_slugs": ["least-privilege-reviews", "data-loss-prevention"],
+    "position": 10
+  },
+  {
+    "slug": "data-loss-prevention",
+    "name": "Data loss prevention (DLP)",
+    "category": "monitoring-response",
+    "objective": "Detect and block sensitive data leaving through unsanctioned channels — email, uploads, exports, prompts.",
+    "description": "DLP inspects data in motion and at rest for sensitive content (classification tags, pattern matches, fingerprints) and enforces policy: block, quarantine, encrypt, or alert. Modern data-platform DLP focuses on egress points — warehouse export jobs, BI downloads, notebook environments, SaaS sync, and increasingly LLM prompts. Tuned policies matter: a DLP that cries wolf gets bypassed, one aligned to classification catches what matters.",
+    "complexity": "high",
+    "implementation_steps": [
+      "Map egress channels for sensitive data: email, cloud storage sync, warehouse exports, BI downloads, APIs, notebooks, and AI tools.",
+      "Reuse classification tags and detection patterns (regexes, ML classifiers, document fingerprints) as the single definition of \"sensitive\".",
+      "Start in monitor-only mode to baseline flows, then enforce blocking on the highest-confidence, highest-impact rules.",
+      "Cover endpoints and SaaS, not just the network perimeter — data leaves through browsers and laptops.",
+      "Route violations into the incident process with user coaching for accidental leaks and escalation for patterns.",
+      "Measure and tune false-positive rates quarterly; stale DLP rules erode both coverage and trust."
+    ],
+    "satisfies": [
+      {
+        "regulation_slug": "gdpr",
+        "article_refs": ["32", "33"],
+        "note": "Prevents the unauthorized disclosures that trigger Art. 33/34 notification duties."
+      },
+      {
+        "regulation_slug": "hipaa",
+        "article_refs": ["164.308", "164.402"],
+        "note": "Technical safeguard against impermissible PHI disclosures that would constitute breaches."
+      },
+      {
+        "regulation_slug": "pci-dss",
+        "article_refs": ["3", "12"],
+        "note": "Supports keeping PAN out of unsanctioned storage and enforcing security policies."
+      },
+      {
+        "regulation_slug": "glba",
+        "article_refs": ["314.4"],
+        "note": "§ 314.4(c) — monitor and log activity of authorized users to detect unauthorized use of customer information."
+      },
+      {
+        "regulation_slug": "ccpa-cpra",
+        "article_refs": ["1798.150"],
+        "note": "Reduces exfiltration risk that carries statutory damages exposure."
+      }
+    ],
+    "related_technology_slugs": ["bigid", "microsoft-presidio"],
+    "related_practice_slugs": ["data-classification", "audit-logging"],
+    "position": 20
+  }
+]

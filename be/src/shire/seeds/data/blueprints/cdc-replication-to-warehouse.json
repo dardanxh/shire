@@ -1,0 +1,158 @@
+{
+  "slug": "cdc-replication-to-warehouse",
+  "name": "CDC replication to warehouse",
+  "use_case": "Low-latency operational mirror for analytics",
+  "description": "Log-based change data capture reads the database's transaction log (Postgres WAL, MySQL binlog) and streams every insert, update, and delete downstream — giving analytics a near-real-time mirror of operational data with negligible load on the source, where batch extraction would hammer it and still miss intra-day changes and hard deletes. Debezium captures, Kafka transports and buffers, a streaming sink lands changes in the warehouse continuously, and dbt incremental models turn the raw change feed into query-ready current-state and history tables.\n\nThe hard parts are all operational, and this blueprint is opinionated about them. Initial snapshots must be planned (a large table's first sync can take days and bloat source log retention); schema evolution needs a strategy before the first ALTER TABLE hits production; deletes and out-of-order events must be handled explicitly in the modelling layer (soft-delete flags, primary-key deduplication on the latest LSN). Log retention on the source is the classic footgun — if the pipeline falls behind further than the log window, you are resnapshotting.\n\nDone well, this pattern quietly becomes the backbone of the platform: the same change streams that feed the warehouse can fan out to search indexes, caches, and event consumers (see blueprint 5 and the cdc-to-stream-fanout archetype), making CDC an investment that compounds.",
+  "when_to_use": [
+    "Choose this when analytics needs operational data fresher than batch windows allow — operational dashboards, fraud/risk checks, inventory views — or when batch extraction is hurting the source database.",
+    "It is also the correct way to capture hard deletes and full row history, which snapshot-based EL fundamentally cannot see.",
+    "Analytics must reflect operational reality within minutes, not after tonight's batch."
+  ],
+  "when_not_to_use": [
+    "Skip it if daily or hourly batch is genuinely fine — Fivetran/dlt-style EL delivers the same tables with a tenth of the moving parts, and managed EL tools use log-based CDC under the hood anyway.",
+    "Avoid it when you cannot get log-level access to the source (many managed/vendor databases), or when no one on the team can own Kafka and connector operations on-call.",
+    "Your sources cannot expose transaction logs or any change-capture hook."
+  ],
+  "use_cases": [
+    "realtime",
+    "reporting",
+    "operational"
+  ],
+  "hot_spots": [
+    {
+      "title": "Schema evolution",
+      "detail": "An upstream ALTER TABLE can silently break the change stream."
+    },
+    {
+      "title": "Replication lag",
+      "detail": "An unnoticed lag spike serves stale data as 'current' state."
+    },
+    {
+      "title": "Deletes and tombstones",
+      "detail": "Mishandled deletes leave ghost rows in the warehouse mirror."
+    },
+    {
+      "title": "Initial snapshot",
+      "detail": "Bootstrapping large tables while changes keep flowing is the hardest edge case."
+    }
+  ],
+  "complexity": "medium",
+  "evolution": [
+    {
+      "to_slug": "kappa-streaming-pipeline",
+      "reason": "Generalize the change streams into full event stream processing."
+    }
+  ],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Operational Databases]:::source -->|transaction log| CAP[Change Capture]:::process\n  CAP -->|ordered change events| TRAN[Event Transport]:::process\n  TRAN -->|streamed changes| SINK[Continuous Sink]:::process\n  SINK -->|append raw changes| LAND[Raw Change Landing]:::store\n  LAND -->|bulk load| WH[Analytics Store]:::store\n  WH -->|deduped current state| MODEL[Change Modeling]:::process\n  MODEL -->|current + history tables| CONS[Analytics Consumers]:::serve\n  MON[Replication Monitoring]:::govern -. lag alerts .-> TRAN"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  DB[OLTP Database]:::source -->|log tailing| CDC[Log-based CDC Connector]:::process\n  CDC -->|change topics| MB[Message Broker]:::store\n  MB -->|streaming ingest| SI[Streaming Sink Service]:::process\n  SI -->|raw change files| LL[Object Storage Raw Landing]:::store\n  LL -->|bulk COPY loads| WH[Cloud Warehouse]:::store\n  WH -->|incremental SQL models| TF[Transformation Layer]:::process\n  TF -->|current state + SCD2| BI[BI Layer]:::serve"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([transaction log entries]):::source -->|parse and order| B([change events]):::process\n  B -->|buffer durably| C([change stream]):::store\n  C -->|append| E([raw change tables]):::store\n  E -->|dedupe and merge| F([current-state tables]):::store\n  F -->|track versions| G([history tables]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant A as App Database\n  participant C as Change Capture\n  participant B as Broker\n  participant K as Sink\n  participant L as Raw Landing\n  participant W as Warehouse\n  participant M as Modeler\n  A->>A: commit transaction\n  C->>A: tail the log\n  C->>B: publish change event\n  K->>B: consume stream\n  K->>L: land raw change\n  L->>W: bulk load batches\n  M->>W: merge to current state + history"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[\"Amazon Aurora · RDS<br/><i>Operational Databases</i>\"]:::source -->|transaction log| CAP[\"AWS DMS<br/><i>Change Capture</i>\"]:::process\n  CAP -->|ordered change events| TRAN[\"Amazon Kinesis<br/><i>Event Transport</i>\"]:::process\n  TRAN -->|streamed changes| SINK[\"Kinesis Firehose<br/><i>Continuous Sink</i>\"]:::process\n  SINK -->|append raw changes| LAND[\"Amazon S3 raw changes<br/><i>Raw Change Landing</i>\"]:::store\n  LAND -->|bulk load| WH[\"Amazon Redshift<br/><i>Analytics Store</i>\"]:::store\n  WH -->|deduped current state| MODEL[\"dbt incremental on Redshift<br/><i>Change Modeling</i>\"]:::process\n  MODEL -->|current + history tables| CONS[Analytics Consumers]:::serve\n  MON[\"Amazon CloudWatch<br/><i>Replication Monitoring</i>\"]:::govern -. lag alerts .-> TRAN"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[\"Azure SQL Database<br/><i>Operational Databases</i>\"]:::source -->|transaction log| CAP[\"Azure Data Factory CDC<br/><i>Change Capture</i>\"]:::process\n  CAP -->|ordered change events| TRAN[\"Azure Event Hubs<br/><i>Event Transport</i>\"]:::process\n  TRAN -->|streamed changes| SINK[\"Event Hubs Capture<br/><i>Continuous Sink</i>\"]:::process\n  SINK -->|append raw changes| LAND[\"ADLS raw changes<br/><i>Raw Change Landing</i>\"]:::store\n  LAND -->|bulk load| WH[\"Azure Synapse Analytics<br/><i>Analytics Store</i>\"]:::store\n  WH -->|deduped current state| MODEL[\"dbt on Synapse<br/><i>Change Modeling</i>\"]:::process\n  MODEL -->|current + history tables| CONS[Analytics Consumers]:::serve\n  MON[\"Azure Monitor<br/><i>Replication Monitoring</i>\"]:::govern -. lag alerts .-> TRAN"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[\"Cloud SQL<br/><i>Operational Databases</i>\"]:::source -->|transaction log| CAP[\"Google Datastream<br/><i>Change Capture</i>\"]:::process\n  CAP -->|ordered change events| TRAN[\"Google Pub/Sub<br/><i>Event Transport</i>\"]:::process\n  TRAN -->|streamed changes| SINK[\"Dataflow to BigQuery<br/><i>Continuous Sink</i>\"]:::process\n  SINK -->|append raw changes| LAND[\"GCS raw changes<br/><i>Raw Change Landing</i>\"]:::store\n  LAND -->|bulk load| WH[\"BigQuery<br/><i>Analytics Store</i>\"]:::store\n  WH -->|deduped current state| MODEL[\"Dataform incremental<br/><i>Change Modeling</i>\"]:::process\n  MODEL -->|current + history tables| CONS[Analytics Consumers]:::serve\n  MON[\"Google Cloud Monitoring<br/><i>Replication Monitoring</i>\"]:::govern -. lag alerts .-> TRAN"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[\"PostgreSQL · MySQL<br/><i>Operational Databases</i>\"]:::source -->|transaction log| CAP[\"Debezium<br/><i>Change Capture</i>\"]:::process\n  CAP -->|ordered change events| TRAN[\"Apache Kafka<br/><i>Event Transport</i>\"]:::process\n  TRAN -->|streamed changes| SINK[\"Kafka Connect sink<br/><i>Continuous Sink</i>\"]:::process\n  SINK -->|append raw changes| LAND[\"MinIO raw changes<br/><i>Raw Change Landing</i>\"]:::store\n  LAND -->|bulk load| WH[\"ClickHouse<br/><i>Analytics Store</i>\"]:::store\n  WH -->|deduped current state| MODEL[\"dbt Core incremental<br/><i>Change Modeling</i>\"]:::process\n  MODEL -->|current + history tables| CONS[Analytics Consumers]:::serve\n  MON[\"Prometheus · Grafana<br/><i>Replication Monitoring</i>\"]:::govern -. lag alerts .-> TRAN"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Operational Databases]:::source -->|transaction log| CAP[\"Fivetran CDC<br/><i>Change Capture</i>\"]:::process\n  CAP -->|ordered change events| TRAN[\"Confluent Cloud<br/><i>Event Transport</i>\"]:::process\n  TRAN -->|streamed changes| SINK[\"Snowpipe Streaming<br/><i>Continuous Sink</i>\"]:::process\n  SINK -->|append raw changes| LAND[\"Snowflake RAW schema<br/><i>Raw Change Landing</i>\"]:::store\n  LAND -->|bulk load| WH[\"Snowflake<br/><i>Analytics Store</i>\"]:::store\n  WH -->|deduped current state| MODEL[\"dbt Cloud + Dynamic Tables<br/><i>Change Modeling</i>\"]:::process\n  MODEL -->|current + history tables| CONS[Analytics Consumers]:::serve\n  MON[\"Grafana · Monte Carlo<br/><i>Replication Monitoring</i>\"]:::govern -. lag alerts .-> TRAN"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Operational Databases]:::source -->|transaction log| CAP[\"LakeFlow Connect CDC<br/><i>Change Capture</i>\"]:::process\n  CAP -->|ordered change events| TRAN[\"Apache Kafka · Confluent<br/><i>Event Transport</i>\"]:::process\n  TRAN -->|streamed changes| SINK[\"Auto Loader<br/><i>Continuous Sink</i>\"]:::process\n  SINK -->|append raw changes| LAND[\"Delta Lake bronze<br/><i>Raw Change Landing</i>\"]:::store\n  LAND -->|bulk load| WH[\"Databricks SQL<br/><i>Analytics Store</i>\"]:::store\n  WH -->|deduped current state| MODEL[\"Delta Live Tables<br/><i>Change Modeling</i>\"]:::process\n  MODEL -->|current + history tables| CONS[Analytics Consumers]:::serve\n  MON[\"Lakehouse Monitoring<br/><i>Replication Monitoring</i>\"]:::govern -. lag alerts .-> TRAN"
+    }
+  ],
+  "family_tags": [
+    "acquisition-ingestion",
+    "streaming-realtime"
+  ],
+  "archetype_slugs": [
+    "change-data-capture",
+    "cdc-to-stream-fanout"
+  ],
+  "position": 4,
+  "stages": [
+    {
+      "position": 0,
+      "name": "Capture",
+      "role": "Read the source transaction log and emit ordered change events",
+      "recommended_technology_slug": "debezium",
+      "alternative_technology_slugs": [
+        "aws-dms",
+        "estuary-flow",
+        "striim",
+        "qlik-replicate"
+      ],
+      "rationale": "Debezium is the open-source standard: battle-tested connectors for Postgres, MySQL, SQL Server, Oracle and more, precise change semantics (before/after images, transaction metadata), and both Kafka Connect and standalone Debezium Server deployment modes. Its cost is operational — you own connector tuning, snapshot orchestration, and slot/binlog hygiene on the source. AWS DMS wins when you want managed and are AWS-native, accepting cruder semantics and famously opaque failure modes; Estuary Flow is the strong managed pick that collapses capture and transport into one service; Striim and Qlik Replicate earn their licenses in heterogeneous enterprise estates, especially Oracle-heavy ones."
+    },
+    {
+      "position": 1,
+      "name": "Transport",
+      "role": "Buffer and durably transport change events; decouple capture from sinks",
+      "recommended_technology_slug": "apache-kafka",
+      "alternative_technology_slugs": [
+        "redpanda",
+        "amazon-kinesis",
+        "google-pubsub"
+      ],
+      "rationale": "Kafka is Debezium's native habitat and gives you the property that makes CDC compound: retained, replayable, ordered-per-key change topics that any number of downstream consumers can read independently — today the warehouse, tomorrow search indexing and cache invalidation. Redpanda is API-compatible with materially simpler operations (no JVM, no ZooKeeper) and is an easy win for smaller teams. Kinesis or Pub/Sub fit if you are all-in on AWS/GCP and only ever need the warehouse sink; but if fanout is even a possibility, the Kafka API's retention and consumer-group model is worth it. If the warehouse is truly the only consumer ever, consider skipping the broker entirely with Debezium Server or a managed pipeline."
+    },
+    {
+      "position": 2,
+      "name": "Sink",
+      "role": "Continuously land change events into the analytical store — the doc's 'Snowpipe Streaming' is Snowflake's native ingest path, so the warehouse itself is the recommendation",
+      "recommended_technology_slug": "snowflake",
+      "alternative_technology_slugs": [
+        "apache-iceberg",
+        "bigquery",
+        "clickhouse"
+      ],
+      "rationale": "Snowpipe Streaming (Snowflake's row-level streaming ingest, driven from the Kafka connector) lands changes with seconds of latency at a fraction of file-based Snowpipe's cost, making Snowflake the smoothest warehouse target for CDC today. The lakehouse alternative — sinking to Iceberg tables via Kafka Connect or Flink — keeps the change history in open storage where multiple engines can read it, at the price of owning compaction and MERGE scheduling yourself. BigQuery's Storage Write API is the GCP equivalent; ClickHouse is the pick when the point of the exercise is sub-second operational analytics rather than a general warehouse mirror. Land the raw append-only change log first and derive state later — never MERGE directly in the sink path."
+    },
+    {
+      "name": "Raw landing",
+      "role": "Append-only landing of raw change records before warehouse loads",
+      "recommended_technology_slug": "amazon-s3",
+      "alternative_technology_slugs": [
+        "azure-blob-storage",
+        "google-cloud-storage",
+        "minio"
+      ],
+      "rationale": "Cheap immutable object storage as the landing layer decouples ingestion from processing: replays, backfills, and audits read the raw dump instead of re-extracting from sources."
+    },
+    {
+      "position": 3,
+      "name": "Model",
+      "role": "Turn the raw change feed into deduplicated current-state tables and history (SCD2)",
+      "recommended_technology_slug": "dbt",
+      "alternative_technology_slugs": [
+        "sqlmesh",
+        "materialize"
+      ],
+      "rationale": "dbt incremental models are the pragmatic way to collapse a change log into current state: deduplicate on primary key by latest offset/LSN, respect delete flags, and snapshot into SCD2 where history matters — all tested and versioned like the rest of the analytics layer. The known sharp edges are late-arriving and out-of-order events, so key the incremental logic on source LSN/commit timestamp, never on load time. SQLMesh handles exactly this class of incremental correctness more rigorously if you are choosing fresh; Materialize replaces the whole batch-modelling step with incrementally-maintained views when the latency target is seconds rather than minutes."
+    }
+  ]
+}

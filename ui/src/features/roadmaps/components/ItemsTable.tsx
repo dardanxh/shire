@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { DataTable } from "@/components/shared/DataTable";
+import { Card } from "@/components/ui/card";
 import type { RoadmapDetailOut, RoadmapItemOut } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { EffortBadge, ItemStatusBadge, LabelBadge } from "./chips";
@@ -105,16 +106,18 @@ export function ItemsTable({
           </button>
         ))}
       </div>
-      <DataTable
-        columns={columns}
-        data={rows}
-        onRowClick={(row) => onOpenItem(row.id)}
-        emptyState={
-          <p className="py-8 text-center text-sm text-muted-foreground">
-            {t("roadmaps.items.empty")}
-          </p>
-        }
-      />
+      <Card className="overflow-hidden p-0">
+        <DataTable
+          columns={columns}
+          data={rows}
+          onRowClick={(row) => onOpenItem(row.id)}
+          emptyState={
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              {t("roadmaps.items.empty")}
+            </p>
+          }
+        />
+      </Card>
     </div>
   );
 }

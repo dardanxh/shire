@@ -1,0 +1,181 @@
+{
+  "slug": "backfill-capability",
+  "name": "Backfill capability",
+  "category": "recovery",
+  "summary": "The ability to populate or repair historical data after the fact — a new column, corrected logic, or late-arriving records.",
+  "description": "Backfill capability is how easily a system can go back and fill in or fix history: adding a column across all past partitions, re-deriving a metric after a logic change, or absorbing late-arriving data into the right time buckets. It is strongest where a target can be reprocessed by partition or date range from retained raw, and where models support a full-refresh or MERGE without disrupting live reads. It is limited in pure-streaming designs that lack a bounded batch path, and constrained wherever history was not retained or the target cannot be selectively rewritten.",
+  "mechanisms": [
+    {
+      "name": "Partitioned reprocessing",
+      "note": "Rewriting only the affected date/key partitions lets a backfill target a bounded slice of history without recomputing the entire table.",
+      "related_technology_slugs": [
+        "apache-spark",
+        "apache-iceberg",
+        "delta-lake",
+        "dbt"
+      ]
+    },
+    {
+      "name": "Incremental models with full-refresh",
+      "note": "Transformation frameworks expose a full-refresh switch to rebuild an incremental model end-to-end after logic changes, then resume incremental runs.",
+      "related_technology_slugs": [
+        "dbt",
+        "sqlmesh",
+        "dataform",
+        "coalesce"
+      ]
+    },
+    {
+      "name": "Parameterized date-range runs",
+      "note": "Orchestrated jobs accept start/end parameters so a backfill can be scheduled across historical windows, often as fan-out per-partition tasks.",
+      "related_technology_slugs": [
+        "apache-airflow",
+        "dagster",
+        "prefect",
+        "kestra"
+      ]
+    },
+    {
+      "name": "MERGE / upsert into target",
+      "note": "Backfilled rows are merged on key so re-filling a window updates or inserts without duplicating existing records or disturbing untouched partitions.",
+      "related_technology_slugs": [
+        "snowflake",
+        "bigquery",
+        "delta-lake",
+        "apache-iceberg"
+      ]
+    },
+    {
+      "name": "Immutable raw retention",
+      "note": "Keeping source data append-only means the inputs needed to reconstruct any past period are always available to feed a backfill.",
+      "related_technology_slugs": [
+        "amazon-s3",
+        "google-cloud-storage",
+        "azure-data-lake-storage",
+        "apache-hudi"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "strong",
+      "statement": "Immutable bronze retains all raw history and silver/gold rebuild by partition, so adding a column or fixing logic is a routine partitioned reprocess merged into the affected windows."
+    },
+    {
+      "blueprint_slug": "layered-warehouse-dbt",
+      "rating": "strong",
+      "statement": "Staging preserves source data and dbt incremental models support full-refresh, so backfilling a new column or corrected metric across history is a first-class, well-tooled operation."
+    },
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "strong",
+      "statement": "Raw is loaded warehouse-native and dbt full-refresh plus parameterized runs make date-range backfills straightforward, bounded mainly by warehouse compute cost, not by capability."
+    },
+    {
+      "blueprint_slug": "open-iceberg-lakehouse",
+      "rating": "strong",
+      "statement": "Partition-level rewrites and MERGE let a backfill surgically replace or fill specific historical partitions while snapshot isolation keeps live readers on a consistent version throughout."
+    },
+    {
+      "blueprint_slug": "streaming-lakehouse",
+      "rating": "strong",
+      "statement": "Continuous commits still land in a partitioned table format, so a bounded batch job can backfill or correct historical partitions alongside the live stream without stopping it."
+    },
+    {
+      "blueprint_slug": "lambda-batch-speed",
+      "rating": "strong",
+      "statement": "The batch layer exists specifically to recompute authoritative history from master data, making backfills of corrected logic or late data a designed-for responsibility of the architecture."
+    },
+    {
+      "blueprint_slug": "classic-batch-etl",
+      "rating": "moderate",
+      "statement": "Parameterized date-range reruns can backfill a target, but success depends on retained raw extracts and idempotent loads; overwritten sources cap how far a backfill can reach."
+    },
+    {
+      "blueprint_slug": "kimball-data-warehouse",
+      "rating": "moderate",
+      "statement": "Facts can be reloaded by partition and dimensions re-keyed, but backfilling a new attribute across historical Type-2 rows is fiddly and may require reconstructing surrogate-key lineage."
+    },
+    {
+      "blueprint_slug": "data-vault-warehouse",
+      "rating": "moderate",
+      "statement": "Insert-only satellites make it clean to add new attributes going forward and recompute marts, but truly backfilling values into past effective-dated records requires careful new satellite loads."
+    },
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "moderate",
+      "statement": "A one-time snapshot re-seed can backfill the mirror, but because CDC tracks only current state, backfilling historical as-of values requires an external archive of change events the mirror doesn't keep."
+    },
+    {
+      "blueprint_slug": "iot-telemetry-platform",
+      "rating": "moderate",
+      "statement": "Late-arriving device data is absorbed by re-aggregating affected time windows from retained raw, though very high volume and short hot-tier retention can limit how far back a backfill is practical."
+    },
+    {
+      "blueprint_slug": "ml-feature-pipeline",
+      "rating": "moderate",
+      "statement": "Offline features backfill by recomputing point-in-time-correct values over history, but keeping the online store consistent with a backfilled offline store adds real operational complexity."
+    },
+    {
+      "blueprint_slug": "classic-raw-data-lake",
+      "rating": "moderate",
+      "statement": "Immutable raw retention means the inputs for any backfill are available, but with no managed target the backfill itself is bespoke per consumer rather than a standard partitioned rewrite."
+    },
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "limited",
+      "statement": "With no batch path, backfilling a new column or late correction means replaying the whole log through a reprocessing job — feasible but heavyweight, and awkward for targeted historical fixes."
+    },
+    {
+      "blueprint_slug": "real-time-analytics-serving",
+      "rating": "limited",
+      "statement": "Serving stores are tuned for fresh low-latency reads with short retention, so correcting deep history usually means a full rebuild from an upstream source rather than an in-place backfill."
+    },
+    {
+      "blueprint_slug": "event-driven-architecture",
+      "rating": "limited",
+      "statement": "Backfilling means re-emitting or replaying historical events, but downstream consumers may not tolerate old events arriving late, so retroactive corrections are constrained by consumer contracts."
+    },
+    {
+      "blueprint_slug": "reverse-etl-activation-loop",
+      "rating": "limited",
+      "statement": "Backfilling into SaaS destinations re-pushes history into live business tools, which is often unsafe or rate-limited; the destination, not the pipeline, dictates whether a backfill is even permitted."
+    },
+    {
+      "blueprint_slug": "query-federation",
+      "rating": "limited",
+      "statement": "Federation materializes nothing of its own, so there is no target to backfill; any historical correction must happen in the underlying source systems it merely queries."
+    }
+  ],
+  "related_technology_slugs": [
+    "dbt",
+    "apache-iceberg",
+    "delta-lake",
+    "apache-airflow",
+    "amazon-s3",
+    "sqlmesh"
+  ],
+  "related_quality_slugs": [
+    "replayability",
+    "data-quality"
+  ],
+  "position": 30,
+  "tradeoffs": [
+    {
+      "title": "Cost efficiency",
+      "note": "Backfilling means recomputing large historical ranges and retaining immutable raw history to recompute from, both of which consume substantial extra compute and storage.",
+      "quality_slug": "cost-efficiency"
+    },
+    {
+      "title": "Throughput",
+      "note": "A large backfill contends with live loads for cluster and warehouse resources, degrading the effective throughput of current pipelines while it runs.",
+      "quality_slug": "throughput"
+    },
+    {
+      "title": "Maintainability",
+      "note": "Pipelines must be idempotent and fully parameterized by date range so any window can be re-run safely, forcing disciplined partition and re-run design across every job.",
+      "quality_slug": "maintainability"
+    }
+  ]
+}

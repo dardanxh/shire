@@ -1,0 +1,4036 @@
+[
+  {
+    "slug": "sagemaker",
+    "name": "Amazon SageMaker",
+    "category_slug": "analytics-ai/ml-platforms",
+    "secondary_category_slugs": [
+      "analytics-ai/model-serving"
+    ],
+    "description": "AWS's sprawling managed ML platform covering notebooks, training, pipelines, registry, endpoints, and feature store, all wired into IAM and the AWS data stack. The default on AWS when you want managed infrastructure over stitching OSS tools; breadth comes with a real learning curve.",
+    "homepage_url": "https://aws.amazon.com/sagemaker/",
+    "aliases": [
+      "AWS SageMaker",
+      "SageMaker AI"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "mlops",
+      "aws",
+      "training",
+      "model-serving"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "anthropic",
+    "name": "Anthropic",
+    "category_slug": "analytics-ai/foundation-models",
+    "secondary_category_slugs": [],
+    "description": "Closed-weights provider of the Claude model family, positioned around long-context reasoning, coding, and safety-oriented behavior. Pick it when you need large context windows, strong agentic/tool-use performance, or a compliance-friendly vendor story. Trade-offs: SaaS-only lock-in, premium pricing, and a narrower non-text modality lineup than some competitors.",
+    "homepage_url": "https://www.anthropic.com",
+    "aliases": [
+      "Claude",
+      "Claude API",
+      "Opus",
+      "Sonnet"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "api",
+      "closed-weights",
+      "long-context"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "apache-superset",
+    "name": "Apache Superset",
+    "category_slug": "analytics-ai/bi-visualization",
+    "secondary_category_slugs": [],
+    "description": "The most capable fully open-source BI platform: rich chart library, SQL Lab, dashboard filtering, and row-level security, born at Airbnb. Pick it when you want a self-hosted, no-per-seat-cost alternative to commercial BI and have the engineering capacity to run it.",
+    "homepage_url": "https://superset.apache.org",
+    "aliases": [
+      "Superset"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "bi",
+      "dashboards",
+      "sql",
+      "open-source"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "arize-phoenix",
+    "name": "Arize Phoenix",
+    "category_slug": "analytics-ai/llm-ops",
+    "secondary_category_slugs": [],
+    "description": "Open-source, OpenTelemetry-native tracing and evaluation tool for LLM and RAG applications, built around OpenInference instrumentation and notebook-friendly workflows. Pick it when you want an OSS tracer you can run locally or embed in experiments, with strong retrieval/RAG debugging and a smooth path to Arize's hosted platform. Trade-offs: production-scale monitoring and drift analysis push you toward the paid Arize AX product.",
+    "homepage_url": "https://phoenix.arize.com",
+    "aliases": [
+      "Phoenix"
+    ],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "observability",
+      "tracing",
+      "rag"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "atscale",
+    "name": "AtScale",
+    "category_slug": "analytics-ai/semantic-layers",
+    "secondary_category_slugs": [],
+    "description": "Enterprise semantic layer that presents warehouse data as virtual OLAP cubes, speaking MDX/DAX so Excel and Power BI users query governed models live against Snowflake or Databricks. Pick it when Excel pivot-table and legacy-cube compatibility on modern warehouses is the actual requirement.",
+    "homepage_url": "https://www.atscale.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "API token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "semantic-layer",
+      "olap",
+      "mdx",
+      "enterprise"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "aws-bedrock",
+    "name": "AWS Bedrock",
+    "category_slug": "analytics-ai/foundation-models",
+    "secondary_category_slugs": [
+      "analytics-ai/llm-gateways"
+    ],
+    "description": "AWS-managed gateway that serves foundation models from multiple providers (Anthropic, Meta, Mistral, Amazon Nova, Cohere) behind a single API. Pick it when you're already on AWS and want unified billing, IAM, VPC isolation, and guardrails across model vendors without managing infrastructure. Trade-offs: newest models often land here later than on native provider APIs, and you inherit AWS-specific quotas and abstractions.",
+    "homepage_url": "https://aws.amazon.com/bedrock",
+    "aliases": [
+      "Bedrock",
+      "Amazon Bedrock"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "gateway",
+      "managed",
+      "multi-model",
+      "aws"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "azure-ml",
+    "name": "Azure Machine Learning",
+    "category_slug": "analytics-ai/ml-platforms",
+    "secondary_category_slugs": [
+      "analytics-ai/model-serving"
+    ],
+    "description": "Azure's managed ML platform with designer and code-first workflows, MLOps pipelines, registries, and managed endpoints, integrated with Entra ID governance. The default for Microsoft-centric enterprises; strongest where compliance and Azure data services already anchor the stack.",
+    "homepage_url": "https://azure.microsoft.com/en-us/products/machine-learning",
+    "aliases": [
+      "Azure ML",
+      "AML"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials (service principal)",
+        "fields": [
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "mlops",
+      "azure",
+      "training",
+      "model-serving"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "azure-openai",
+    "name": "Azure OpenAI",
+    "category_slug": "analytics-ai/foundation-models",
+    "secondary_category_slugs": [
+      "analytics-ai/llm-gateways"
+    ],
+    "description": "Microsoft's hosting of OpenAI models on Azure with enterprise networking, regional data residency, and compliance controls. Choose it when you want GPT-class models under an Azure contract with private networking, content filtering, and Azure AD integration. Trade-offs: model availability can lag OpenAI's direct API, and deployment/quota management adds Azure-specific overhead.",
+    "homepage_url": "https://azure.microsoft.com/products/ai-services/openai-service",
+    "aliases": [
+      "Azure OpenAI Service",
+      "AOAI"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Endpoint URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials (Entra ID)",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Endpoint URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "gateway",
+      "managed",
+      "enterprise",
+      "azure"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "bentoml",
+    "name": "BentoML",
+    "category_slug": "analytics-ai/model-serving",
+    "secondary_category_slugs": [],
+    "description": "Python-first framework for packaging models into 'bentos' — versioned, containerized services with batching and adaptive scaling built in. The most developer-friendly path from trained model to production API; BentoCloud offers the managed version.",
+    "homepage_url": "https://www.bentoml.com",
+    "aliases": [],
+    "deployment_models": [
+      "embedded",
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "model-serving",
+      "python",
+      "containers",
+      "inference"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "braintrust",
+    "name": "Braintrust",
+    "category_slug": "analytics-ai/llm-ops",
+    "secondary_category_slugs": [],
+    "description": "Evaluation-first platform for iterating on LLM applications, pairing dataset-driven experiments and scoring with logging and a prompt playground. Pick it when eval and regression-testing of prompts and chains is your primary workflow rather than production tracing alone. Trade-offs: SaaS-centric and closed-source, so self-hosting and full data residency require an enterprise arrangement.",
+    "homepage_url": "https://www.braintrust.dev",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "evaluation",
+      "experimentation",
+      "observability"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "cloudflare-ai-gateway",
+    "name": "Cloudflare AI Gateway",
+    "category_slug": "analytics-ai/llm-gateways",
+    "secondary_category_slugs": [],
+    "description": "Cloudflare's managed proxy that sits in front of LLM providers to add caching, rate limiting, retries, analytics, and request logging at the edge. Choose it when you are already on Cloudflare and want observability and cost controls for AI traffic with minimal setup. Trade-offs: proprietary and cloud-only, tied to Cloudflare's platform.",
+    "homepage_url": "https://developers.cloudflare.com/ai-gateway",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "API token",
+        "fields": [
+          {
+            "key": "account_id",
+            "label": "Account ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "gateway_id",
+            "label": "Gateway ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "gateway",
+      "router",
+      "edge",
+      "observability"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "cohere",
+    "name": "Cohere",
+    "category_slug": "analytics-ai/foundation-models",
+    "secondary_category_slugs": [],
+    "description": "Enterprise-focused provider of the Command generation models plus best-in-class Embed and Rerank models for retrieval. Reach for it when RAG quality and enterprise/VPC deployment matter more than consumer-grade chat, or when you want strong multilingual embeddings. Trade-offs: less consumer mindshare and a smaller general-chat reputation than OpenAI/Anthropic.",
+    "homepage_url": "https://cohere.com",
+    "aliases": [
+      "Command",
+      "Cohere Embed",
+      "Cohere Rerank"
+    ],
+    "deployment_models": [
+      "saas",
+      "hybrid"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "api",
+      "embeddings",
+      "rerank",
+      "enterprise"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "crewai",
+    "name": "CrewAI",
+    "category_slug": "analytics-ai/llm-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Opinionated Python framework for orchestrating role-playing autonomous agents that collaborate as a \"crew\" with defined roles, goals, and task pipelines. Pick it when you want to stand up multi-agent workflows quickly with high-level abstractions and minimal wiring. Trade-offs: the role/crew metaphor is less flexible than graph-based orchestration when you need bespoke control flow or tight determinism.",
+    "homepage_url": "https://www.crewai.com",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "llm",
+      "agents",
+      "multi-agent",
+      "orchestration"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "cube",
+    "name": "Cube",
+    "category_slug": "analytics-ai/semantic-layers",
+    "secondary_category_slugs": [],
+    "description": "Open-source universal semantic layer with data modeling, caching/pre-aggregations, and access control, exposed over REST, GraphQL, and SQL APIs. The strongest pick for embedded analytics and powering multiple downstream tools from one metrics definition; self-host or use Cube Cloud.",
+    "homepage_url": "https://cube.dev",
+    "aliases": [
+      "Cube.js"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "API token (JWT)",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "semantic-layer",
+      "metrics",
+      "api",
+      "caching",
+      "embedded-analytics"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "databricks-ml",
+    "name": "Databricks ML",
+    "category_slug": "analytics-ai/ml-platforms",
+    "secondary_category_slugs": [
+      "analytics-ai/feature-stores",
+      "analytics-ai/model-serving"
+    ],
+    "description": "Databricks' ML surface on the lakehouse: managed MLflow, feature engineering in Unity Catalog, AutoML, and Mosaic AI model serving and training. The natural choice when Databricks is already your data platform — features, training data, and models share one governance layer.",
+    "homepage_url": "https://www.databricks.com/product/machine-learning",
+    "aliases": [
+      "Databricks Machine Learning",
+      "Mosaic AI"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Personal access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Workspace URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials (service principal)",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Workspace URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "mlops",
+      "lakehouse",
+      "mlflow",
+      "feature-store"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "dbt-semantic-layer",
+    "name": "dbt Semantic Layer",
+    "category_slug": "analytics-ai/semantic-layers",
+    "secondary_category_slugs": [],
+    "description": "dbt Labs' metrics layer built on MetricFlow: metrics defined alongside dbt models are served consistently to BI tools, spreadsheets, and APIs via dbt Cloud. The path of least resistance for teams already deep in dbt, though the serving layer is gated behind a dbt Cloud subscription.",
+    "homepage_url": "https://www.getdbt.com/product/semantic-layer",
+    "aliases": [
+      "MetricFlow"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Service token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Semantic Layer host",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "environment_id",
+            "label": "Environment ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Service token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "semantic-layer",
+      "metrics",
+      "dbt",
+      "sql"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "deepeval",
+    "name": "DeepEval",
+    "category_slug": "analytics-ai/llm-ops",
+    "secondary_category_slugs": [],
+    "description": "Open-source, Pytest-style evaluation framework for LLM outputs, shipping metrics for hallucination, relevancy, faithfulness, and red-teaming that plug into unit tests. Pick it when you want LLM evals to feel like software testing and to gate releases in CI. Trade-offs: metrics call judge models (cost and non-determinism), and richer analytics live in its companion Confident AI platform.",
+    "homepage_url": "https://deepeval.com",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "llm",
+      "evaluation",
+      "testing",
+      "metrics"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "deepseek",
+    "name": "DeepSeek",
+    "category_slug": "analytics-ai/foundation-models",
+    "secondary_category_slugs": [],
+    "description": "Chinese lab releasing strong open-weight models (DeepSeek-V3, R1) with a reputation for frontier-competitive reasoning at low training and inference cost. Pick it when you want open weights with excellent price-performance for reasoning and coding, self-hostable for control. Trade-offs: data-governance and geopolitical concerns around the hosted API, and its inference-time compute can be heavy for reasoning models.",
+    "homepage_url": "https://www.deepseek.com",
+    "aliases": [
+      "DeepSeek-V3",
+      "DeepSeek R1",
+      "DeepSeek-Coder"
+    ],
+    "deployment_models": [
+      "cloud",
+      "on_prem",
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "open-weights",
+      "reasoning",
+      "self-hostable"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "dspy",
+    "name": "DSPy",
+    "category_slug": "analytics-ai/llm-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Stanford-born framework that replaces hand-written prompts with declarative programs whose prompts and few-shot examples are compiled and optimized against your metrics. Pick it when you want systematic, measurable prompt optimization instead of prompt-string tinkering; the paradigm is powerful but still maturing.",
+    "homepage_url": "https://dspy.ai",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "llm",
+      "prompt-optimization",
+      "python",
+      "declarative"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "evidence",
+    "name": "Evidence",
+    "category_slug": "analytics-ai/bi-visualization",
+    "secondary_category_slugs": [],
+    "description": "BI-as-code framework where reports are Markdown files with embedded SQL, built into fast static sites with polished charts. Pick it when you want version-controlled, narrative-style reporting that ships through CI like software, rather than a drag-and-drop dashboard tool.",
+    "homepage_url": "https://evidence.dev",
+    "aliases": [
+      "Evidence.dev"
+    ],
+    "deployment_models": [
+      "embedded",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "bi-as-code",
+      "markdown",
+      "sql",
+      "static-site"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "faker",
+    "name": "Faker",
+    "category_slug": "analytics-ai/synthetic-data",
+    "secondary_category_slugs": [],
+    "description": "The ubiquitous library for generating fake names, addresses, and domain-specific values, with locale support and ports across Python, JavaScript, PHP, and more. The zero-friction choice for seeding test databases and fixtures; it fabricates plausible values, not statistically realistic datasets.",
+    "homepage_url": "https://faker.readthedocs.io",
+    "aliases": [
+      "Python Faker",
+      "Faker.js"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "test-data",
+      "synthetic-data",
+      "python",
+      "fixtures"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "feast",
+    "name": "Feast",
+    "category_slug": "analytics-ai/feature-stores",
+    "secondary_category_slugs": [],
+    "description": "The leading open-source feature store: define features as code, then serve them consistently offline for training and online for low-latency inference, backed by your existing warehouse and key-value stores. Pick it when you want feature-store semantics without a proprietary platform; you operate the infrastructure.",
+    "homepage_url": "https://feast.dev",
+    "aliases": [],
+    "deployment_models": [
+      "embedded",
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "feature-store",
+      "mlops",
+      "python",
+      "serving"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "fireworks-ai",
+    "name": "Fireworks AI",
+    "category_slug": "analytics-ai/foundation-models",
+    "secondary_category_slugs": [
+      "analytics-ai/llm-serving"
+    ],
+    "description": "Fast, cost-optimized inference platform for serving and fine-tuning open-weight LLMs and multimodal models via an OpenAI-compatible API. Choose it when you want low-latency, production-grade serving of open models with function calling and structured output support. Trade-offs: catalog centers on open models, and advanced tuning/optimization features add configuration complexity.",
+    "homepage_url": "https://fireworks.ai",
+    "aliases": [
+      "Fireworks",
+      "Fireworks Inference"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "inference",
+      "fine-tuning",
+      "api",
+      "open-weights"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "google-gemini",
+    "name": "Google Gemini",
+    "category_slug": "analytics-ai/foundation-models",
+    "secondary_category_slugs": [],
+    "description": "Google's closed-weights multimodal model family, offered via the Gemini API and deeply integrated with Vertex AI and Google Cloud. Choose it for native multimodality (text, image, audio, video), very large context, and tight GCP integration. Trade-offs: API surface and model naming churn frequently, and you're tied to Google's cloud and pricing.",
+    "homepage_url": "https://ai.google.dev",
+    "aliases": [
+      "Gemini",
+      "Gemini API",
+      "Bard"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "api",
+      "closed-weights",
+      "multimodal"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "google-looker-studio",
+    "name": "Google Looker Studio",
+    "category_slug": "analytics-ai/bi-visualization",
+    "secondary_category_slugs": [],
+    "description": "Free, self-service business intelligence and dashboarding tool (formerly Data Studio) that connects to BigQuery, Google Sheets, and hundreds of other sources to build shareable reports. It is the lightweight GCP analog to Power BI, Tableau, and Amazon QuickSight. Pick it for quick, no-cost dashboards and self-serve reporting, stepping up to Looker when you need a governed semantic model.",
+    "homepage_url": "https://cloud.google.com/looker-studio",
+    "aliases": [
+      "Data Studio"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "service_account_json",
+            "label": "Service account key JSON",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "impersonate_user",
+            "label": "User email to impersonate",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "gcp",
+      "bi",
+      "dashboards",
+      "visualization",
+      "reporting"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "grafana",
+    "name": "Grafana",
+    "category_slug": "analytics-ai/bi-visualization",
+    "secondary_category_slugs": [],
+    "description": "The standard open-source dashboarding tool for operational and time-series data, with data-source plugins for Prometheus, Loki, SQL databases, and dozens more. Pick it for monitoring and real-time operational dashboards; it is not a business-analytics BI replacement.",
+    "homepage_url": "https://grafana.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Service account token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "dashboards",
+      "monitoring",
+      "time-series",
+      "observability"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "groq",
+    "name": "Groq",
+    "category_slug": "analytics-ai/foundation-models",
+    "secondary_category_slugs": [
+      "analytics-ai/llm-serving"
+    ],
+    "description": "Inference-as-a-service provider running open-weight models (Llama, Mixtral, and others) on custom LPU hardware for extremely low latency. Reach for it when token throughput and time-to-first-token dominate your requirements and you're fine using open models. Trade-offs: model catalog is limited to what they host, and you don't get proprietary frontier models here.",
+    "homepage_url": "https://groq.com",
+    "aliases": [
+      "GroqCloud",
+      "Groq API"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "inference",
+      "low-latency",
+      "api",
+      "open-weights"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "guidance",
+    "name": "Guidance",
+    "category_slug": "analytics-ai/llm-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Programming paradigm from Microsoft for interleaving generation, prompting, and control flow, using constrained decoding and grammars to steer model output precisely. Pick it when you want fine-grained, template-like control over what the model generates token by token, especially with open-weight models. Trade-offs: its custom control-flow syntax has a learning curve and is most powerful when you control the inference stack.",
+    "homepage_url": "https://github.com/guidance-ai/guidance",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "llm",
+      "structured-output",
+      "constrained-decoding",
+      "prompting"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "haystack",
+    "name": "Haystack",
+    "category_slug": "analytics-ai/llm-frameworks",
+    "secondary_category_slugs": [],
+    "description": "deepset's production-oriented LLM framework built around explicit, composable pipelines with typed component connections — less magic, easier debugging than its peers. A solid pick for teams that value stable APIs and predictable behavior in production RAG and search systems.",
+    "homepage_url": "https://haystack.deepset.ai",
+    "aliases": [
+      "deepset Haystack"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "llm",
+      "rag",
+      "pipelines",
+      "python",
+      "search"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "helicone",
+    "name": "Helicone",
+    "category_slug": "analytics-ai/llm-ops",
+    "secondary_category_slugs": [
+      "analytics-ai/llm-gateways"
+    ],
+    "description": "Open-source LLM observability and gateway platform that captures logs, cost, and latency by proxying provider traffic, requiring only a base-URL change to instrument. Pick it when you want near-zero-code observability plus caching, rate-limiting, and prompt experiments in front of your model calls. Trade-offs: the proxy model adds a network hop and centralizes traffic, and deep eval workflows are lighter than dedicated eval tools.",
+    "homepage_url": "https://www.helicone.ai",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "observability",
+      "gateway",
+      "cost"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "hopsworks",
+    "name": "Hopsworks",
+    "category_slug": "analytics-ai/feature-stores",
+    "secondary_category_slugs": [
+      "analytics-ai/ml-platforms"
+    ],
+    "description": "Feature-store-centric ML platform, available open source and managed, notable for strong on-prem and air-gapped support alongside its offline/online store. Pick it when you need a serious feature store outside the big clouds — European enterprises and regulated industries are its sweet spot.",
+    "homepage_url": "https://www.hopsworks.ai",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Host",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "project",
+            "label": "Project",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "feature-store",
+      "mlops",
+      "on-prem",
+      "python"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "license",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "hugging-face",
+    "name": "Hugging Face",
+    "category_slug": "analytics-ai/foundation-models",
+    "secondary_category_slugs": [
+      "analytics-ai/ml-frameworks"
+    ],
+    "description": "The Hub is the central registry and community for open models, datasets, and demos, plus hosted Inference and Transformers tooling. Reach for it when you want to discover, download, and serve open-weight models, or standardize on the transformers/datasets libraries. Trade-offs: it aggregates rather than trains frontier models, and model quality/licensing on the Hub varies widely and needs vetting.",
+    "homepage_url": "https://huggingface.co",
+    "aliases": [
+      "HF",
+      "The Hub",
+      "Transformers"
+    ],
+    "deployment_models": [
+      "saas",
+      "cloud",
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "token",
+            "label": "Access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "model-hub",
+      "open-weights",
+      "transformers",
+      "registry"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "text-generation-inference",
+    "name": "Hugging Face TGI",
+    "category_slug": "analytics-ai/llm-serving",
+    "secondary_category_slugs": [],
+    "description": "Hugging Face's production toolkit for deploying and serving large language models with tensor parallelism, continuous batching, and token streaming. Choose it when you want tight integration with the Hugging Face ecosystem and a battle-tested serving stack. Trade-offs: license terms have shifted over time and it is less flexible than vLLM for cutting-edge kernels.",
+    "homepage_url": "https://huggingface.co/docs/text-generation-inference",
+    "aliases": [
+      "TGI"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "inference",
+      "serving",
+      "huggingface",
+      "streaming"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "transformers",
+    "name": "Hugging Face Transformers",
+    "category_slug": "analytics-ai/ml-frameworks",
+    "secondary_category_slugs": [
+      "analytics-ai/llm-frameworks"
+    ],
+    "description": "The de-facto library for pretrained transformer models, providing unified APIs to download, fine-tune, and run tens of thousands of models across NLP, vision, audio, and multimodal tasks. Use it whenever you want to build on existing checkpoints rather than train from scratch; it is the primary bridge from open-weight LLMs to production and interoperates with PyTorch, TensorFlow, and JAX.",
+    "homepage_url": "https://huggingface.co/docs/transformers",
+    "aliases": [
+      "huggingface-transformers",
+      "hf-transformers"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "ml",
+      "deep-learning",
+      "nlp",
+      "llm",
+      "python"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "instructor",
+    "name": "Instructor",
+    "category_slug": "analytics-ai/llm-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Popular library for getting structured, validated outputs from LLMs by patching provider clients to return Pydantic models with automatic retries on validation failure. Pick it when you mainly need reliable JSON/structured extraction across many providers without adopting a full agent framework. Trade-offs: it is scoped to structured output, so orchestration, memory, and tool loops are out of scope.",
+    "homepage_url": "https://python.useinstructor.com",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "llm",
+      "structured-output",
+      "validation",
+      "pydantic"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "jax",
+    "name": "JAX",
+    "category_slug": "analytics-ai/ml-frameworks",
+    "secondary_category_slugs": [],
+    "description": "NumPy-compatible library for composable function transformations (grad, jit, vmap, pmap) compiled to accelerators via XLA. Pick it over PyTorch/TensorFlow when you want a functional, purely-composable programming model and top-tier performance for large-scale training and scientific computing; expect a steeper learning curve and a thinner high-level ecosystem (often paired with Flax or Haiku).",
+    "homepage_url": "https://jax.readthedocs.io",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "ml",
+      "deep-learning",
+      "python",
+      "xla",
+      "autodiff"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "keras",
+    "name": "Keras",
+    "category_slug": "analytics-ai/ml-frameworks",
+    "secondary_category_slugs": [],
+    "description": "High-level, human-friendly deep-learning API for quickly building and training neural networks with minimal boilerplate. Keras 3 is multi-backend, running on top of TensorFlow, JAX, or PyTorch, so pick it when you want a fast, readable modeling layer without committing to one backend engine; drop to the raw framework when you need low-level control.",
+    "homepage_url": "https://keras.io",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "ml",
+      "deep-learning",
+      "python",
+      "high-level-api"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "kong-ai-gateway",
+    "name": "Kong AI Gateway",
+    "category_slug": "analytics-ai/llm-gateways",
+    "secondary_category_slugs": [],
+    "description": "A set of AI-specific plugins on top of the Kong API gateway that provide multi-provider LLM routing, prompt governance, semantic caching, and token-based rate limiting. Pick it when you want AI traffic management to live within an existing Kong/API-gateway platform and self-hosted control plane. Trade-offs: inherits Kong's operational surface and is best suited to teams already invested in Kong.",
+    "homepage_url": "https://konghq.com/products/kong-ai-gateway",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key (key-auth plugin)",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Gateway URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "gateway",
+      "router",
+      "api-management",
+      "governance"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "license",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "kserve",
+    "name": "KServe",
+    "category_slug": "analytics-ai/model-serving",
+    "secondary_category_slugs": [],
+    "description": "Kubernetes-native model inference platform (formerly KFServing) providing serverless InferenceService CRDs, autoscaling to zero, canary rollouts, and pluggable runtimes including Triton and vLLM. The standard-bearer for standardized model serving on Kubernetes; assumes real K8s operational maturity.",
+    "homepage_url": "https://kserve.github.io/website/",
+    "aliases": [
+      "KFServing"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "model-serving",
+      "kubernetes",
+      "inference",
+      "serverless"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "kubeflow",
+    "name": "Kubeflow",
+    "category_slug": "analytics-ai/ml-platforms",
+    "secondary_category_slugs": [],
+    "description": "The Kubernetes-native ML toolkit: pipelines, notebooks, distributed training operators, and Katib hyperparameter tuning, all as K8s custom resources. Pick it when you have real Kubernetes expertise and need cloud-agnostic, self-hosted ML infrastructure; operational overhead is the tax.",
+    "homepage_url": "https://www.kubeflow.org",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Bearer token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "username_password",
+        "name": "Username & password (Dex)",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "mlops",
+      "kubernetes",
+      "pipelines",
+      "training"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "langchain",
+    "name": "LangChain",
+    "category_slug": "analytics-ai/llm-frameworks",
+    "secondary_category_slugs": [],
+    "description": "The most widely adopted LLM application framework, with a huge integration catalog and the LangGraph library for stateful agent workflows; LangSmith adds commercial observability. Pick it for breadth of integrations and ecosystem momentum, and accept that its abstractions move fast.",
+    "homepage_url": "https://www.langchain.com",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "llm",
+      "agents",
+      "rag",
+      "python",
+      "orchestration"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "langfuse",
+    "name": "Langfuse",
+    "category_slug": "analytics-ai/llm-ops",
+    "secondary_category_slugs": [],
+    "description": "Open-source LLM engineering platform for tracing, prompt management, evaluations, and cost analytics, framework-agnostic via OpenTelemetry and native SDKs. Pick it when you want LangSmith-style observability without vendor lock-in and value the option to self-host on your own infrastructure. Trade-offs: newer than incumbent APM tools, so some enterprise features (SSO, fine-grained RBAC) sit behind the commercial tier.",
+    "homepage_url": "https://langfuse.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API keys (public & secret)",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Host",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "public_key",
+            "label": "Public key",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_key",
+            "label": "Secret key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "observability",
+      "tracing",
+      "evaluation"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "langgraph",
+    "name": "LangGraph",
+    "category_slug": "analytics-ai/llm-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Low-level orchestration framework from the LangChain team for building stateful, graph-based agent workflows with explicit nodes, edges, and durable checkpointing. Pick it when you need fine-grained control over multi-step or multi-agent control flow, human-in-the-loop, and persistence rather than a high-level abstraction. Trade-offs: more boilerplate than opinionated agent kits, and its power comes with a steeper learning curve.",
+    "homepage_url": "https://www.langchain.com/langgraph",
+    "aliases": [
+      "LangChain LangGraph"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "llm",
+      "agents",
+      "orchestration",
+      "workflows"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "langsmith",
+    "name": "LangSmith",
+    "category_slug": "analytics-ai/llm-ops",
+    "secondary_category_slugs": [],
+    "description": "Commercial observability, evaluation, and prompt-management platform from the LangChain team, tightly integrated with LangChain/LangGraph but usable with any stack via its SDK. Pick it when you already live in the LangChain ecosystem and want tracing, dataset-driven evals, and a prompt hub in one hosted product. Trade-offs: closed-source and SaaS-first, so it locks you into a vendor and its self-hosted tier is enterprise-gated.",
+    "homepage_url": "https://www.langchain.com/langsmith",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "observability",
+      "evaluation",
+      "tracing"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "lightdash",
+    "name": "Lightdash",
+    "category_slug": "analytics-ai/bi-visualization",
+    "secondary_category_slugs": [
+      "analytics-ai/semantic-layers"
+    ],
+    "description": "Open-source BI that treats your dbt project as the semantic layer: metrics and dimensions are defined in dbt YAML and instantly explorable. The natural choice for dbt-centric teams who want Looker-style governed exploration without LookML or Looker pricing.",
+    "homepage_url": "https://www.lightdash.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Personal access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Personal access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "bi",
+      "dbt",
+      "semantic-layer",
+      "open-source"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "lightgbm",
+    "name": "LightGBM",
+    "category_slug": "analytics-ai/ml-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Microsoft's gradient-boosting framework using histogram-based, leaf-wise tree growth for fast training and low memory on large datasets. Prefer it over XGBoost when speed and scale matter or you have many categorical/high-cardinality features (native categorical support); XGBoost may still edge it on robustness and tuning maturity for smaller data.",
+    "homepage_url": "https://lightgbm.readthedocs.io",
+    "aliases": [
+      "lgbm",
+      "lgb"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "ml",
+      "gradient-boosting",
+      "tabular",
+      "python"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "litellm",
+    "name": "LiteLLM",
+    "category_slug": "analytics-ai/llm-gateways",
+    "secondary_category_slugs": [],
+    "description": "An open-source Python SDK and proxy server that presents a unified OpenAI-compatible interface across 100+ LLM providers, with routing, fallbacks, budgets, and cost tracking. Pick it to abstract away provider differences and centralize spend/rate-limit control, either embedded as a library or run as a gateway. Trade-offs: broad provider coverage means feature parity and edge-case behavior can vary by backend.",
+    "homepage_url": "https://docs.litellm.ai",
+    "aliases": [],
+    "deployment_models": [
+      "embedded",
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Proxy URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "gateway",
+      "router",
+      "proxy",
+      "observability"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "llama-cpp",
+    "name": "llama.cpp",
+    "category_slug": "analytics-ai/llm-serving",
+    "secondary_category_slugs": [],
+    "description": "A C/C++ inference engine for running LLMs efficiently on CPUs and consumer GPUs via the GGUF format and aggressive quantization. Choose it when you need portable, dependency-light inference on commodity or edge hardware. Trade-offs: lower peak throughput than CUDA-native servers and more manual tuning for production serving.",
+    "homepage_url": "https://github.com/ggml-org/llama.cpp",
+    "aliases": [
+      "ggml",
+      "gguf"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "embedded",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "inference",
+      "serving",
+      "cpu",
+      "quantization"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "llamaindex",
+    "name": "LlamaIndex",
+    "category_slug": "analytics-ai/llm-frameworks",
+    "secondary_category_slugs": [],
+    "description": "LLM data framework specialized in connecting models to your data: document loaders, chunking, indexing, and advanced retrieval strategies for RAG. Pick it over LangChain when retrieval quality over private documents is the core problem rather than general agent orchestration.",
+    "homepage_url": "https://www.llamaindex.ai",
+    "aliases": [
+      "GPT Index"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "llm",
+      "rag",
+      "retrieval",
+      "python"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "lmdeploy",
+    "name": "LMDeploy",
+    "category_slug": "analytics-ai/llm-serving",
+    "secondary_category_slugs": [],
+    "description": "A toolkit from the InternLM/OpenMMLab community for compressing and serving LLMs via its high-performance TurboMind engine with quantization and KV-cache management. Pick it for efficient multi-model serving on NVIDIA GPUs, especially for InternLM-family and multimodal models. Trade-offs: smaller community footprint and less documentation reach than vLLM or TGI.",
+    "homepage_url": "https://lmdeploy.readthedocs.io",
+    "aliases": [
+      "turbomind"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "inference",
+      "serving",
+      "quantization",
+      "gpu"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "looker",
+    "name": "Looker",
+    "category_slug": "analytics-ai/bi-visualization",
+    "secondary_category_slugs": [
+      "analytics-ai/semantic-layers"
+    ],
+    "description": "Google Cloud's governed BI platform whose real differentiator is LookML — a version-controlled modeling layer that defines metrics once and serves them consistently to dashboards, embeds, and APIs. Pick it when a single source of truth for metrics and embedded analytics outweigh ad-hoc visual exploration.",
+    "homepage_url": "https://cloud.google.com/looker",
+    "aliases": [
+      "Google Looker"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "API client credentials",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Instance URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "bi",
+      "semantic-layer",
+      "lookml",
+      "embedded-analytics"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "meta-llama",
+    "name": "Meta Llama",
+    "category_slug": "analytics-ai/foundation-models",
+    "secondary_category_slugs": [],
+    "description": "Meta's family of open-weight LLMs (Llama 2/3/4) that anchors much of the open-model ecosystem and can be run anywhere. Choose it when you need full control over weights, on-prem or edge deployment, and a huge fine-tuning/tooling community. Trade-offs: no first-party managed API (you host it yourself or via a serving provider), and its community license carries usage restrictions rather than being fully OSI-open.",
+    "homepage_url": "https://www.llama.com",
+    "aliases": [
+      "Llama",
+      "Llama 3",
+      "LLaMA"
+    ],
+    "deployment_models": [
+      "cloud",
+      "on_prem",
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "llm",
+      "open-weights",
+      "self-hostable",
+      "fine-tuning"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "metabase",
+    "name": "Metabase",
+    "category_slug": "analytics-ai/bi-visualization",
+    "secondary_category_slugs": [],
+    "description": "The easiest open-source BI tool to stand up: point at a database and non-technical users get question-builder exploration and dashboards in minutes. The pragmatic pick for startups and internal analytics where speed of adoption beats advanced modeling; a hosted cloud option exists.",
+    "homepage_url": "https://www.metabase.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "bi",
+      "dashboards",
+      "self-service",
+      "open-source"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "metaflow",
+    "name": "Metaflow",
+    "category_slug": "analytics-ai/ml-platforms",
+    "secondary_category_slugs": [],
+    "description": "Netflix's human-centric ML framework: Python decorators turn code into versioned, resumable workflows that scale from a laptop to AWS or Kubernetes without rewrites. Pick it when data-scientist ergonomics matter most and you want infrastructure abstracted, not another platform to administer.",
+    "homepage_url": "https://metaflow.org",
+    "aliases": [],
+    "deployment_models": [
+      "embedded",
+      "cloud",
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "mlops",
+      "python",
+      "workflows",
+      "netflix"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "autogen",
+    "name": "Microsoft AutoGen",
+    "category_slug": "analytics-ai/llm-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Microsoft Research framework for building multi-agent systems as conversations between agents, with an event-driven, asynchronous core and a layered API. Pick it when you want research-grade multi-agent conversation patterns, code-executing agents, and group-chat orchestration. Trade-offs: the API has churned across major versions, so pinning and migration effort are real considerations.",
+    "homepage_url": "https://microsoft.github.io/autogen/",
+    "aliases": [
+      "AutoGen"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "llm",
+      "agents",
+      "multi-agent",
+      "orchestration"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "mistral-ai",
+    "name": "Mistral AI",
+    "category_slug": "analytics-ai/foundation-models",
+    "secondary_category_slugs": [],
+    "description": "European AI lab shipping both open-weight models (Mistral, Mixtral) and hosted commercial models via La Plateforme. Pick it when you want strong open weights you can self-host for data-residency or cost reasons, with a managed API as a fallback. Trade-offs: top-end quality trails the largest closed frontier models, and the open/commercial split can be confusing.",
+    "homepage_url": "https://mistral.ai",
+    "aliases": [
+      "Mistral",
+      "Mixtral",
+      "La Plateforme"
+    ],
+    "deployment_models": [
+      "cloud",
+      "on_prem",
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "open-weights",
+      "api",
+      "self-hostable"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "mlflow",
+    "name": "MLflow",
+    "category_slug": "analytics-ai/ml-platforms",
+    "secondary_category_slugs": [
+      "analytics-ai/model-serving"
+    ],
+    "description": "The de facto open-source standard for experiment tracking, model registry, and packaging, framework-agnostic and now extended with LLM tracing and evaluation. Pick it as the neutral MLOps backbone that works everywhere — locally, self-hosted, or managed inside Databricks.",
+    "homepage_url": "https://mlflow.org",
+    "aliases": [],
+    "deployment_models": [
+      "embedded",
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Tracking server URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Tracking server URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "mlops",
+      "experiment-tracking",
+      "model-registry",
+      "python"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "mockaroo",
+    "name": "Mockaroo",
+    "category_slug": "analytics-ai/synthetic-data",
+    "secondary_category_slugs": [],
+    "description": "Web-based mock data generator: pick from 150+ field types, set distributions and formulas, and download realistic CSV/JSON/SQL datasets or serve them from mock APIs. Handy for quick schema-shaped test data without writing code; not built for production-scale anonymization.",
+    "homepage_url": "https://www.mockaroo.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "test-data",
+      "mock-data",
+      "csv",
+      "api"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "mode",
+    "name": "Mode",
+    "category_slug": "analytics-ai/bi-visualization",
+    "secondary_category_slugs": [],
+    "description": "SaaS analytics workspace blending a SQL editor, Python/R notebooks, and shareable reports, aimed at analyst teams who live in SQL but occasionally need notebook firepower. Acquired by ThoughtSpot in 2023; pick it for analyst-driven ad-hoc reporting rather than governed enterprise BI.",
+    "homepage_url": "https://mode.com",
+    "aliases": [
+      "Mode Analytics"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "API token & secret",
+        "fields": [
+          {
+            "key": "workspace",
+            "label": "Workspace",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_token",
+            "label": "API token",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_secret",
+            "label": "API secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "bi",
+      "sql",
+      "notebooks",
+      "reporting"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "license",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "tensorrt-llm",
+    "name": "NVIDIA TensorRT-LLM",
+    "category_slug": "analytics-ai/llm-serving",
+    "secondary_category_slugs": [],
+    "description": "NVIDIA's library for compiling and running LLMs with optimized TensorRT kernels, in-flight batching, and FP8/INT4 quantization for maximum performance on NVIDIA GPUs. Pick it when you need the lowest latency and highest throughput on NVIDIA hardware, typically paired with Triton. Trade-offs: NVIDIA-only, with a heavier build/compile step and steeper operational complexity.",
+    "homepage_url": "https://nvidia.github.io/TensorRT-LLM",
+    "aliases": [
+      "trt-llm"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "llm",
+      "inference",
+      "serving",
+      "nvidia",
+      "gpu"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "triton-inference-server",
+    "name": "NVIDIA Triton Inference Server",
+    "category_slug": "analytics-ai/model-serving",
+    "secondary_category_slugs": [],
+    "description": "NVIDIA's open-source, high-performance inference server supporting TensorRT, PyTorch, ONNX, and Python backends with dynamic batching and concurrent model execution on GPUs. The pick when raw GPU inference throughput matters; often run as the engine underneath KServe or SageMaker endpoints.",
+    "homepage_url": "https://developer.nvidia.com/triton-inference-server",
+    "aliases": [
+      "Triton"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "model-serving",
+      "gpu",
+      "inference",
+      "nvidia"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "ollama",
+    "name": "Ollama",
+    "category_slug": "analytics-ai/llm-serving",
+    "secondary_category_slugs": [],
+    "description": "A single-binary runtime that makes running quantized open models locally trivial, with a simple pull/run workflow and an OpenAI-compatible endpoint. Pick it for local development, prototyping, and edge/desktop deployments where ergonomics beat raw throughput. Trade-offs: not built for high-concurrency multi-GPU production serving.",
+    "homepage_url": "https://ollama.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "embedded",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "inference",
+      "serving",
+      "local",
+      "quantization"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "onnx-runtime",
+    "name": "ONNX Runtime",
+    "category_slug": "analytics-ai/ml-frameworks",
+    "secondary_category_slugs": [
+      "analytics-ai/model-serving"
+    ],
+    "description": "Cross-platform, high-performance inference engine for models exported to the open ONNX interchange format, decoupling training frameworks from deployment. Use it to run PyTorch/TensorFlow/scikit-learn models with hardware-accelerated, low-latency inference across CPU, GPU, and edge targets; ONNX itself is the neutral interchange standard that makes framework portability possible.",
+    "homepage_url": "https://onnxruntime.ai",
+    "aliases": [
+      "ort",
+      "onnxruntime"
+    ],
+    "deployment_models": [
+      "embedded",
+      "cloud",
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "ml",
+      "inference",
+      "onnx",
+      "model-serving",
+      "cross-platform"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "openai",
+    "name": "OpenAI",
+    "category_slug": "analytics-ai/foundation-models",
+    "secondary_category_slugs": [],
+    "description": "Closed-weights frontier model provider offering the GPT family plus embeddings, audio, and image models through a mature hosted API. Reach for it when you want the strongest general-purpose reasoning and the broadest tooling/SDK ecosystem out of the box. Trade-offs: you're locked to their cloud, pricing is premium at scale, and you have no control over model weights or data residency beyond their contractual guarantees.",
+    "homepage_url": "https://openai.com",
+    "aliases": [
+      "GPT",
+      "ChatGPT API",
+      "GPT-4"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "api",
+      "closed-weights",
+      "embeddings"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "openai-agents-sdk",
+    "name": "OpenAI Agents SDK",
+    "category_slug": "analytics-ai/llm-frameworks",
+    "secondary_category_slugs": [],
+    "description": "OpenAI's lightweight, provider-agnostic framework for building agents with handoffs, guardrails, sessions, and built-in tracing, evolved from the Swarm experiment. Pick it when you want a minimal, unopinionated primitive set for agent loops and multi-agent handoffs with first-class OpenAI support. Trade-offs: deliberately thin, so complex stateful orchestration or durable workflows require you to build more yourself.",
+    "homepage_url": "https://openai.github.io/openai-agents-python/",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "llm",
+      "agents",
+      "orchestration",
+      "multi-agent"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "openrouter",
+    "name": "OpenRouter",
+    "category_slug": "analytics-ai/llm-gateways",
+    "secondary_category_slugs": [],
+    "description": "A hosted aggregation service that exposes hundreds of models from many providers behind a single OpenAI-compatible API and billing account, with automatic routing and fallbacks. Pick it to access a wide catalog of models with one key and unified billing, avoiding per-provider contracts. Trade-offs: proprietary SaaS that adds a third-party dependency and margin between you and the underlying providers.",
+    "homepage_url": "https://openrouter.ai",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "gateway",
+      "router",
+      "aggregator",
+      "foundation-models"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "outlines",
+    "name": "Outlines",
+    "category_slug": "analytics-ai/llm-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Structured-generation library that constrains LLM decoding to guarantee outputs match regex, JSON Schema, or context-free grammars, enforced at the token level. Pick it when you need hard guarantees on output structure with open-weight models and control over the sampling loop. Trade-offs: token-level constraints work best with local/self-hosted models and integrate less cleanly with black-box hosted APIs.",
+    "homepage_url": "https://dottxt-ai.github.io/outlines/",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "llm",
+      "structured-output",
+      "constrained-decoding",
+      "grammar"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "portkey",
+    "name": "Portkey",
+    "category_slug": "analytics-ai/llm-gateways",
+    "secondary_category_slugs": [
+      "analytics-ai/llm-ops"
+    ],
+    "description": "An AI gateway and control panel providing unified routing across providers, caching, retries, guardrails, and observability, offered as a managed SaaS with an open-source gateway core. Choose it when you want turnkey reliability and governance features without operating your own routing layer. Trade-offs: the richest features and analytics are tied to the hosted platform.",
+    "homepage_url": "https://portkey.ai",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "virtual_key",
+            "label": "Virtual key",
+            "secret": true,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "gateway",
+      "router",
+      "observability",
+      "guardrails"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "power-bi",
+    "name": "Power BI",
+    "category_slug": "analytics-ai/bi-visualization",
+    "secondary_category_slugs": [
+      "analytics-ai/semantic-layers"
+    ],
+    "description": "Microsoft's BI platform, dominant by seat count thanks to Microsoft 365 bundling, with a genuinely powerful semantic model (DAX, tabular datasets) under the approachable surface. The default in Microsoft shops and now the front door to Microsoft Fabric; less natural outside that ecosystem.",
+    "homepage_url": "https://www.microsoft.com/en-us/power-platform/products/power-bi",
+    "aliases": [
+      "Microsoft Power BI"
+    ],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials (service principal)",
+        "fields": [
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "bi",
+      "dashboards",
+      "dax",
+      "microsoft",
+      "semantic-model"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "license",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "promptfoo",
+    "name": "promptfoo",
+    "category_slug": "analytics-ai/llm-ops",
+    "secondary_category_slugs": [],
+    "description": "Open-source, config-driven CLI for testing, comparing, and red-teaming prompts and models across providers using declarative YAML test suites. Pick it when you want a lightweight, CI-friendly way to benchmark prompt variants and scan for vulnerabilities without a hosted service. Trade-offs: it is a local tool oriented at test-and-compare rather than continuous production monitoring.",
+    "homepage_url": "https://www.promptfoo.dev",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "llm",
+      "evaluation",
+      "testing",
+      "red-teaming"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "pydantic-ai",
+    "name": "Pydantic AI",
+    "category_slug": "analytics-ai/llm-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Agent framework from the Pydantic team that brings type-safe, model-agnostic agent building with structured outputs, dependency injection, and validated tool calls. Pick it when you want a Pythonic, strongly-typed developer experience and already lean on Pydantic for validation. Trade-offs: younger than incumbent frameworks, so its ecosystem of prebuilt integrations is still growing.",
+    "homepage_url": "https://ai.pydantic.dev",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "llm",
+      "agents",
+      "structured-output",
+      "type-safety"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "pytorch",
+    "name": "PyTorch",
+    "category_slug": "analytics-ai/ml-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Deep-learning framework built around dynamic (define-by-run) computation graphs, making it the default choice for research and rapid experimentation. Pick it over TensorFlow when you value Pythonic ergonomics, debuggability, and the dominant ecosystem (Hugging Face, Lightning, torch.compile); pick JAX instead when you need functional transforms and XLA-first performance at scale.",
+    "homepage_url": "https://pytorch.org",
+    "aliases": [
+      "torch"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "ml",
+      "deep-learning",
+      "python",
+      "neural-networks"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "qlik-sense",
+    "name": "Qlik Sense",
+    "category_slug": "analytics-ai/bi-visualization",
+    "secondary_category_slugs": [],
+    "description": "Qlik's modern BI offering, built on an in-memory associative engine that lets users pivot across any field relationships without predefined drill paths. Strong in enterprises with existing QlikView estates; the associative model is its distinctive selling point over Tableau/Power BI.",
+    "homepage_url": "https://www.qlik.com/us/products/qlik-sense",
+    "aliases": [
+      "Qlik"
+    ],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Tenant URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Tenant URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "bi",
+      "dashboards",
+      "associative-engine",
+      "self-service"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "license",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "ragas",
+    "name": "Ragas",
+    "category_slug": "analytics-ai/llm-ops",
+    "secondary_category_slugs": [],
+    "description": "Open-source Python library for evaluating RAG pipelines with reference-free, LLM-as-judge metrics like faithfulness, answer relevancy, and context precision. Pick it when you need to score retrieval-augmented systems programmatically in CI or notebooks rather than run a hosted platform. Trade-offs: metrics rely on judge-model calls (cost and variance), and it is a library, so you build the surrounding harness and dashboards yourself.",
+    "homepage_url": "https://docs.ragas.io",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "llm",
+      "evaluation",
+      "rag",
+      "metrics"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "ray-serve",
+    "name": "Ray Serve",
+    "category_slug": "analytics-ai/llm-serving",
+    "secondary_category_slugs": [
+      "analytics-ai/model-serving"
+    ],
+    "description": "A scalable model-serving library on top of Ray that composes multiple models and business logic into distributed deployments, with first-class support for LLM serving via vLLM engines. Choose it when you need to orchestrate heterogeneous models and autoscale across a cluster from Python. Trade-offs: pulls in the Ray runtime and is more of a serving framework than a turnkey single-model endpoint.",
+    "homepage_url": "https://docs.ray.io/en/latest/serve/index.html",
+    "aliases": [
+      "rayllm"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "llm",
+      "serving",
+      "model-serving",
+      "distributed",
+      "python"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "redash",
+    "name": "Redash",
+    "category_slug": "analytics-ai/bi-visualization",
+    "secondary_category_slugs": [],
+    "description": "SQL-first open-source query and dashboard tool that was a staple of early data teams; acquired by Databricks in 2020, after which the hosted service shut down and development slowed to community maintenance. Fine if you already run it, but Superset or Metabase are better new deployments.",
+    "homepage_url": "https://redash.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "bi",
+      "sql",
+      "dashboards",
+      "open-source"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "replicate",
+    "name": "Replicate",
+    "category_slug": "analytics-ai/foundation-models",
+    "secondary_category_slugs": [
+      "analytics-ai/llm-serving"
+    ],
+    "description": "API platform for running and deploying open-source models (LLMs, image, audio, video) packaged as containers via Cog, billed per-second. Reach for it when you want to spin up diverse community models quickly without managing GPUs, or publish your own model as an API. Trade-offs: cold starts and per-second GPU pricing can get expensive for steady high-volume traffic.",
+    "homepage_url": "https://replicate.com",
+    "aliases": [
+      "Replicate API",
+      "Cog"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "API token",
+        "fields": [
+          {
+            "key": "token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "inference",
+      "api",
+      "open-weights",
+      "multimodal"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "scikit-learn",
+    "name": "scikit-learn",
+    "category_slug": "analytics-ai/ml-frameworks",
+    "secondary_category_slugs": [],
+    "description": "The canonical Python library for classical (non-deep) machine learning: regression, classification, clustering, dimensionality reduction, and preprocessing behind a consistent fit/predict API. Reach for it first on tabular data and small-to-medium datasets; when you need maximum accuracy on structured data, pair or replace it with gradient-boosting libraries like XGBoost or LightGBM.",
+    "homepage_url": "https://scikit-learn.org",
+    "aliases": [
+      "sklearn"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "ml",
+      "classical-ml",
+      "python",
+      "tabular"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "seldon-core",
+    "name": "Seldon Core",
+    "category_slug": "analytics-ai/model-serving",
+    "secondary_category_slugs": [],
+    "description": "Kubernetes framework for deploying complex inference graphs — ensembles, transformers, explainers, and drift detectors as composable pipeline steps. Strong when serving logic is genuinely multi-stage; note the 2024 relicense of Core 2 to the source-available BSL, ending its fully open-source era.",
+    "homepage_url": "https://www.seldon.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "tags": [
+      "model-serving",
+      "kubernetes",
+      "inference-graph",
+      "mlops"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "license",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "semantic-kernel",
+    "name": "Semantic Kernel",
+    "category_slug": "analytics-ai/llm-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Microsoft's enterprise-oriented SDK for integrating LLMs into applications via plugins, planners, and agents, with first-class C#, Python, and Java support. Pick it when you are in the Microsoft/.NET ecosystem and want a stable, Azure-friendly path to add AI orchestration to existing services. Trade-offs: broader and more enterprise-abstracted than lean agent libraries, and its planner story has shifted toward agent/function-calling patterns.",
+    "homepage_url": "https://learn.microsoft.com/en-us/semantic-kernel/",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "llm",
+      "agents",
+      "orchestration",
+      "dotnet"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "sglang",
+    "name": "SGLang",
+    "category_slug": "analytics-ai/llm-serving",
+    "secondary_category_slugs": [],
+    "description": "A fast serving engine featuring RadixAttention for automatic prefix-cache reuse and a structured generation frontend, targeting complex, multi-call LLM programs. Choose it when workloads share large prompt prefixes or need structured/agentic control flow at high throughput. Trade-offs: newer project with a smaller ecosystem than vLLM.",
+    "homepage_url": "https://docs.sglang.ai",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "inference",
+      "serving",
+      "gpu",
+      "structured-generation"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "sigma",
+    "name": "Sigma",
+    "category_slug": "analytics-ai/bi-visualization",
+    "secondary_category_slugs": [],
+    "description": "Cloud BI with a spreadsheet-style interface that compiles every interaction to live SQL against Snowflake, Databricks, or BigQuery — no extracts, no cubes. The strongest pick when business users think in spreadsheets but you want all computation pushed down to the warehouse.",
+    "homepage_url": "https://www.sigmacomputing.com",
+    "aliases": [
+      "Sigma Computing"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "API base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "bi",
+      "spreadsheet",
+      "cloud-warehouse",
+      "self-service"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "license",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "smolagents",
+    "name": "Smolagents",
+    "category_slug": "analytics-ai/llm-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Minimalist agent library from Hugging Face centered on code-writing agents that express actions as executable Python rather than JSON tool calls. Pick it when you want a tiny, hackable framework for code-first agents with easy access to the Hugging Face model ecosystem. Trade-offs: the small surface area means fewer batteries-included integrations, and running generated code needs sandboxing.",
+    "homepage_url": "https://huggingface.co/docs/smolagents",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "llm",
+      "agents",
+      "code-agents",
+      "orchestration"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "spacy",
+    "name": "spaCy",
+    "category_slug": "analytics-ai/ml-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Industrial-strength NLP library optimized for fast, production-grade text processing: tokenization, POS tagging, NER, dependency parsing, and pipeline orchestration. Choose it over research toolkits like NLTK when you need speed, robust pretrained pipelines, and a clean production API; complement it with Transformers when state-of-the-art transformer accuracy outweighs raw throughput.",
+    "homepage_url": "https://spacy.io",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "ml",
+      "nlp",
+      "python",
+      "text-processing"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "streamlit",
+    "name": "Streamlit",
+    "category_slug": "analytics-ai/bi-visualization",
+    "secondary_category_slugs": [],
+    "description": "Python framework that turns scripts into interactive data apps with a few lines of code — the fastest path from a DataFrame or model to something stakeholders can click. Owned by Snowflake; pick it for bespoke internal tools and ML demos, not governed dashboard estates.",
+    "homepage_url": "https://streamlit.io",
+    "aliases": [],
+    "deployment_models": [
+      "embedded",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "python",
+      "data-apps",
+      "prototyping",
+      "visualization"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "tableau",
+    "name": "Tableau",
+    "category_slug": "analytics-ai/bi-visualization",
+    "secondary_category_slugs": [],
+    "description": "The long-time leader in drag-and-drop visual analytics, unmatched for exploratory analysis and polished interactive dashboards in the hands of analysts. Pick it when visualization craft and business-user self-service matter more than code-based workflows; now part of Salesforce.",
+    "homepage_url": "https://www.tableau.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Personal access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Server URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "site",
+            "label": "Site (content URL)",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "token_name",
+            "label": "Token name",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token_value",
+            "label": "Token value",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Server URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "site",
+            "label": "Site (content URL)",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "bi",
+      "dashboards",
+      "visualization",
+      "self-service"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "license",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "tecton",
+    "name": "Tecton",
+    "category_slug": "analytics-ai/feature-stores",
+    "secondary_category_slugs": [],
+    "description": "Fully managed feature platform from Feast's original creators, adding managed batch/streaming/real-time feature pipelines, monitoring, and enterprise SLAs on top of feature serving. The pick when production real-time ML (fraud, ranking, risk) justifies paying to not operate feature infrastructure.",
+    "homepage_url": "https://www.tecton.ai",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Tecton URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "feature-store",
+      "real-time",
+      "streaming",
+      "mlops"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "tensorflow",
+    "name": "TensorFlow",
+    "category_slug": "analytics-ai/ml-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Google's end-to-end deep-learning platform with mature production tooling (TF Serving, TFLite, TFX, TensorFlow.js) and strong edge/mobile deployment. Choose it over PyTorch when you need a hardened, standardized production-serving path across servers, mobile, and browser; most new research has shifted to PyTorch, so weigh ecosystem momentum against deployment breadth.",
+    "homepage_url": "https://www.tensorflow.org",
+    "aliases": [
+      "tf"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "ml",
+      "deep-learning",
+      "python",
+      "neural-networks"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "together-ai",
+    "name": "Together AI",
+    "category_slug": "analytics-ai/foundation-models",
+    "secondary_category_slugs": [
+      "analytics-ai/llm-serving"
+    ],
+    "description": "Hosted API and GPU cloud for running, fine-tuning, and serving a broad catalog of open-weight models at competitive prices. Pick it when you want one endpoint to access many open models plus dedicated fine-tuning and training capacity. Trade-offs: it serves open models rather than closed frontier ones, and dedicated deployments require capacity planning.",
+    "homepage_url": "https://www.together.ai",
+    "aliases": [
+      "Together",
+      "Together Inference"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "inference",
+      "fine-tuning",
+      "api",
+      "open-weights"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "trulens",
+    "name": "TruLens",
+    "category_slug": "analytics-ai/llm-ops",
+    "secondary_category_slugs": [],
+    "description": "Open-source library for evaluating and tracking LLM apps via programmable feedback functions (the \"RAG triad\" of groundedness, context relevance, and answer relevance) with local instrumentation. Pick it when you want in-code, iterative eval and comparison of app versions without adopting a full SaaS platform. Trade-offs: feedback functions require configuration, and the dashboard is lightweight compared with dedicated observability products.",
+    "homepage_url": "https://www.trulens.org",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "llm",
+      "evaluation",
+      "rag",
+      "feedback"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "txtai",
+    "name": "txtai",
+    "category_slug": "analytics-ai/llm-frameworks",
+    "secondary_category_slugs": [
+      "databases/vector"
+    ],
+    "description": "All-in-one embeddings database and framework for semantic search, RAG, and LLM workflow orchestration, bundling a vector index with pipelines and agents. Pick it when you want a single dependency that combines retrieval and orchestration for RAG apps without wiring separate vector stores. Trade-offs: as an integrated toolkit it is less specialized than dedicated agent frameworks or standalone vector databases at large scale.",
+    "homepage_url": "https://neuml.github.io/txtai/",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "llm",
+      "rag",
+      "embeddings",
+      "semantic-search"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "vertex-ai",
+    "name": "Vertex AI",
+    "category_slug": "analytics-ai/ml-platforms",
+    "secondary_category_slugs": [
+      "analytics-ai/model-serving"
+    ],
+    "description": "Google Cloud's unified ML and generative AI platform: AutoML, custom training, pipelines, endpoints, and first-party access to Gemini models. The obvious pick on GCP, especially when BigQuery integration and Google's foundation models are part of the plan.",
+    "homepage_url": "https://cloud.google.com/vertex-ai",
+    "aliases": [
+      "Google Vertex AI"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "service_account_json",
+            "label": "Service account key JSON",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "mlops",
+      "gcp",
+      "genai",
+      "training"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "vllm",
+    "name": "vLLM",
+    "category_slug": "analytics-ai/llm-serving",
+    "secondary_category_slugs": [],
+    "description": "A high-throughput inference and serving engine built around PagedAttention and continuous batching, exposing an OpenAI-compatible API. Pick it as the default self-hosted engine when you need to maximize GPU throughput for concurrent traffic. Trade-offs: primarily NVIDIA/CUDA-oriented and heavier to operate than single-binary runtimes.",
+    "homepage_url": "https://docs.vllm.ai",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "inference",
+      "serving",
+      "gpu",
+      "batching"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "weights-and-biases",
+    "name": "Weights & Biases",
+    "category_slug": "analytics-ai/ml-platforms",
+    "secondary_category_slugs": [],
+    "description": "The best-in-class experiment tracking and visualization product, with sweeps, artifact lineage, and the Weave toolkit for LLM tracing and evaluation; acquired by CoreWeave in 2025. Pick it when researcher experience and collaborative experiment analysis justify a commercial tool over self-hosted MLflow.",
+    "homepage_url": "https://wandb.ai",
+    "aliases": [
+      "W&B",
+      "wandb"
+    ],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Host (for self-hosted)",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "experiment-tracking",
+      "mlops",
+      "llmops",
+      "visualization"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "xai-grok",
+    "name": "xAI Grok",
+    "category_slug": "analytics-ai/foundation-models",
+    "secondary_category_slugs": [],
+    "description": "xAI's closed-weights Grok model family offered via an OpenAI-compatible API, with real-time signals from the X platform. Choose it when you want a frontier-class chat model with an easy migration path from OpenAI SDKs and access to fresh web/social context. Trade-offs: younger ecosystem and tooling, and vendor coupling to the X/xAI orbit.",
+    "homepage_url": "https://x.ai",
+    "aliases": [
+      "Grok",
+      "Grok API"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "llm",
+      "api",
+      "closed-weights",
+      "realtime"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "xgboost",
+    "name": "XGBoost",
+    "category_slug": "analytics-ai/ml-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Scalable gradient-boosted-tree library that is a perennial winner on tabular and structured-data problems and Kaggle competitions. Choose it when you want battle-tested accuracy and rich regularization on medium-to-large tabular datasets; consider LightGBM instead when training speed and memory on very large or high-cardinality data are the priority.",
+    "homepage_url": "https://xgboost.ai",
+    "aliases": [
+      "xgb"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "ml",
+      "gradient-boosting",
+      "tabular",
+      "python"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "zenml",
+    "name": "ZenML",
+    "category_slug": "analytics-ai/ml-platforms",
+    "secondary_category_slugs": [],
+    "description": "Open-source MLOps framework that abstracts pipelines from infrastructure via swappable 'stacks' — write once, run on Airflow, Kubeflow, SageMaker, or Vertex. Attractive when you want portability across orchestrators and clouds instead of committing to one platform early.",
+    "homepage_url": "https://www.zenml.io",
+    "aliases": [],
+    "deployment_models": [
+      "embedded",
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "Service account API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Server URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Server URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "mlops",
+      "pipelines",
+      "python",
+      "portability"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  }
+]

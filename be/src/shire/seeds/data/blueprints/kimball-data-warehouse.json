@@ -1,0 +1,155 @@
+{
+  "slug": "kimball-data-warehouse",
+  "name": "Data warehouse (Kimball)",
+  "use_case": "Dimensional enterprise reporting",
+  "description": "The Kimball method, executed on modern tooling: raw data staged in the warehouse, transformed by dbt into conformed dimensions and fact tables organized around business processes, slowly-changing dimensions tracked where history matters, a semantic layer defining metrics once, and enterprise BI on top. Dimensional modelling survives because it encodes business meaning in structure — facts are events at a declared grain, dimensions are the nouns everyone slices by, conformance is what lets 'revenue' mean the same thing in every report. The star schema's original performance rationale has faded on columnar engines; its comprehension rationale has not.",
+  "when_to_use": [
+    "Choose this when the mission is trustworthy, consistent enterprise reporting — finance, operations, regulatory — where metric definitions must be agreed, auditable, and stable across departments.",
+    "It fits organizations with real BI user bases who slice the same facts many ways, and where dimension history (customer moved segments, product reclassified) genuinely changes answers.",
+    "Business users need consistent, governed metrics across every report."
+  ],
+  "when_not_to_use": [
+    "Skip full dimensional rigor for exploratory or fast-moving product analytics — wide denormalized marts iterate faster when definitions churn weekly.",
+    "Data-science feature work prefers raw grain over stars.",
+    "If sources are few and reports simple, staging-plus-marts without formal facts/dims is honest pragmatism; and audit-heavy multi-source integration at the storage layer is Data Vault's territory (13), with Kimball marts layered on top."
+  ],
+  "use_cases": [
+    "reporting",
+    "compliance"
+  ],
+  "hot_spots": [
+    {
+      "title": "SCD handling",
+      "detail": "Botched slowly-changing-dimension merges rewrite history or duplicate rows."
+    },
+    {
+      "title": "Conformed dimensions",
+      "detail": "Two teams defining 'customer' differently forks every report."
+    },
+    {
+      "title": "Late-arriving facts",
+      "detail": "Facts landing before their dimensions strand orphan keys."
+    }
+  ],
+  "complexity": "medium",
+  "evolution": [
+    {
+      "to_slug": "elt-modern-data-stack",
+      "reason": "Keep the dimensional models, modernize the pipeline that feeds them."
+    }
+  ],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw extracts| STG[Staging]:::store\n  STG -->|conformed data| DIM[Dimensional Modeling]:::process\n  DIM -->|facts and dimensions| WH[Star Schemas]:::store\n  WH -->|business metrics| SEM[Semantic Layer]:::process\n  SEM -->|reports| BI[Enterprise Reporting]:::serve\n  HIST[Change History]:::govern -. dimension versions .-> WH"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  SRC[Source Systems]:::source -->|ETL jobs| STG[Staging Schema]:::store\n  STG -->|conform and load| DW[Facts + Dimension Tables]:::store\n  DW -->|SCD merge jobs| SCD[Change Tracking]:::process\n  SCD -->|versioned dimensions| DW\n  DW -->|metric definitions| SEM[Metrics Layer]:::process\n  SEM -->|governed reports| BI[Enterprise BI]:::serve"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([source extracts]):::source -->|conform| B([dimension records]):::store\n  A -->|grain checks| C([fact records]):::store\n  B -->|version changes| E([SCD2 history]):::store\n  B -->|define| F([business metrics]):::process\n  C -->|define| F\n  F -->|consume| G([dashboards + reports]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant S as Scheduler\n  participant E as ETL\n  participant G as Staging\n  participant W as Warehouse\n  participant M as Semantic Layer\n  participant A as Analyst\n  S->>E: nightly batch\n  E->>G: land extracts\n  E->>W: upsert dimensions (SCD)\n  E->>W: append facts\n  M->>W: expose conformed metrics\n  A->>M: explore reports"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw extracts| STG[\"Redshift staging schema<br/><i>Staging</i>\"]:::store\n  STG -->|conformed data| DIM[\"dbt dimensional models<br/><i>Dimensional Modeling</i>\"]:::process\n  DIM -->|facts and dimensions| WH[\"Amazon Redshift<br/><i>Star Schemas</i>\"]:::store\n  WH -->|business metrics| SEM[\"Amazon QuickSight datasets<br/><i>Semantic Layer</i>\"]:::process\n  SEM -->|reports| BI[Enterprise Reporting]:::serve\n  HIST[\"dbt snapshots<br/><i>Change History</i>\"]:::govern -. dimension versions .-> WH"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw extracts| STG[\"Synapse staging schema<br/><i>Staging</i>\"]:::store\n  STG -->|conformed data| DIM[\"dbt dimensional models<br/><i>Dimensional Modeling</i>\"]:::process\n  DIM -->|facts and dimensions| WH[\"Azure Synapse Analytics<br/><i>Star Schemas</i>\"]:::store\n  WH -->|business metrics| SEM[\"Power BI semantic models<br/><i>Semantic Layer</i>\"]:::process\n  SEM -->|reports| BI[Enterprise Reporting]:::serve\n  HIST[\"dbt snapshots<br/><i>Change History</i>\"]:::govern -. dimension versions .-> WH"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw extracts| STG[\"BigQuery staging dataset<br/><i>Staging</i>\"]:::store\n  STG -->|conformed data| DIM[\"Dataform dimensional models<br/><i>Dimensional Modeling</i>\"]:::process\n  DIM -->|facts and dimensions| WH[\"BigQuery<br/><i>Star Schemas</i>\"]:::store\n  WH -->|business metrics| SEM[\"Looker (LookML)<br/><i>Semantic Layer</i>\"]:::process\n  SEM -->|reports| BI[Enterprise Reporting]:::serve\n  HIST[\"Dataform snapshots<br/><i>Change History</i>\"]:::govern -. dimension versions .-> WH"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw extracts| STG[\"ClickHouse staging<br/><i>Staging</i>\"]:::store\n  STG -->|conformed data| DIM[\"dbt Core dimensional models<br/><i>Dimensional Modeling</i>\"]:::process\n  DIM -->|facts and dimensions| WH[\"ClickHouse<br/><i>Star Schemas</i>\"]:::store\n  WH -->|business metrics| SEM[\"Cube · MetricFlow<br/><i>Semantic Layer</i>\"]:::process\n  SEM -->|reports| BI[Enterprise Reporting]:::serve\n  HIST[\"dbt Core snapshots<br/><i>Change History</i>\"]:::govern -. dimension versions .-> WH"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw extracts| STG[\"Snowflake STAGING database<br/><i>Staging</i>\"]:::store\n  STG -->|conformed data| DIM[\"dbt Cloud dimensional models<br/><i>Dimensional Modeling</i>\"]:::process\n  DIM -->|facts and dimensions| WH[\"Snowflake<br/><i>Star Schemas</i>\"]:::store\n  WH -->|business metrics| SEM[\"Snowflake Semantic Views · Cube<br/><i>Semantic Layer</i>\"]:::process\n  SEM -->|reports| BI[Enterprise Reporting]:::serve\n  HIST[\"dbt Cloud snapshots<br/><i>Change History</i>\"]:::govern -. dimension versions .-> WH"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw extracts| STG[\"Delta Lake staging<br/><i>Staging</i>\"]:::store\n  STG -->|conformed data| DIM[\"dbt on Databricks<br/><i>Dimensional Modeling</i>\"]:::process\n  DIM -->|facts and dimensions| WH[\"Databricks SQL<br/><i>Star Schemas</i>\"]:::store\n  WH -->|business metrics| SEM[\"Unity Catalog metrics · AtScale<br/><i>Semantic Layer</i>\"]:::process\n  SEM -->|reports| BI[Enterprise Reporting]:::serve\n  HIST[\"Delta Lake SCD merges<br/><i>Change History</i>\"]:::govern -. dimension versions .-> WH"
+    }
+  ],
+  "family_tags": [
+    "transformation-modelling",
+    "analytics-serving"
+  ],
+  "archetype_slugs": [
+    "dimensional-model",
+    "data-warehouse-design-build",
+    "semantic-metrics-layer",
+    "bi-dashboard-build"
+  ],
+  "position": 12,
+  "stages": [
+    {
+      "position": 0,
+      "name": "Staging",
+      "role": "Land and lightly standardize raw source data: one staging model per source table, renamed and typed",
+      "recommended_technology_slug": "dbt",
+      "alternative_technology_slugs": [
+        "fivetran",
+        "sqlmesh"
+      ],
+      "rationale": "Staging in the modern Kimball stack is a dbt convention, not a separate tool: one view/model per source entity doing renames, typing, and light cleanup — the stable interface the dimensional layer builds on, so source weirdness never leaks into facts. Fivetran (or any EL tool from blueprint 2) does the physical landing upstream; SQLMesh is the equivalent convention if it is your modelling engine. Resist business logic here — staging that transforms is staging you cannot trust."
+    },
+    {
+      "position": 1,
+      "name": "Facts & dims",
+      "role": "Build conformed dimensions and fact tables at declared grains around business processes",
+      "recommended_technology_slug": "dbt",
+      "alternative_technology_slugs": [
+        "sqlmesh",
+        "coalesce",
+        "dataform"
+      ],
+      "rationale": "dbt is where dimensional modelling lives now — surrogate keys via hashing macros, conformed dimensions as shared upstream models, incremental fact loads, and tests asserting grain uniqueness and referential integrity between facts and dims. The method is in the modeller, not the tool: declare the grain first, conform dimensions across business processes, and resist fact-to-fact joins. Coalesce is notable here specifically because its GUI has first-class dimensional patterns some enterprise teams ship faster with; SQLMesh and Dataform are the code-first alternates."
+    },
+    {
+      "position": 2,
+      "name": "SCD handling",
+      "role": "Track slowly-changing dimension history — Type 2 rows with validity ranges; a technique within the modelling tool, not a separate product",
+      "recommended_technology_slug": "dbt",
+      "alternative_technology_slugs": [
+        "sqlmesh",
+        "debezium"
+      ],
+      "rationale": "dbt snapshots implement SCD Type 2 out of the box — check or timestamp strategies, valid_from/valid_to columns — which covers most dimensions; there is no separate SCD product to buy, hence dbt again. Decide per-dimension whether history matters (Type 2) or overwrite is fine (Type 1); tracking history nobody asked for bloats joins forever. Snapshots only see state at run time, so rapidly-changing sources that must capture every intermediate state need CDC feeds (Debezium, blueprint 4) as the input instead. SQLMesh models SCD2 natively with stronger guarantees."
+    },
+    {
+      "position": 3,
+      "name": "Semantic layer",
+      "role": "Define metrics and dimensional joins once; serve them consistently to every BI surface",
+      "recommended_technology_slug": "cube",
+      "alternative_technology_slugs": [
+        "dbt-semantic-layer",
+        "atscale",
+        "looker"
+      ],
+      "rationale": "Cube turns the star schema into governed, cached, API-accessible metrics — one definition of revenue serving Power BI, embedded apps, and notebooks alike, with pre-aggregations doing the performance work stars used to. The dbt Semantic Layer keeps metric definitions in the same repo as the models, attractive for dbt-centric teams though the consumption ecosystem is younger. AtScale targets enterprise OLAP-cube replacement at scale; Looker's LookML is a semantic layer too, if you accept it being welded to one BI tool. Skip the layer entirely only if exactly one BI tool will ever consume the marts."
+    },
+    {
+      "position": 4,
+      "name": "BI",
+      "role": "Enterprise reporting and self-serve analysis over the dimensional model",
+      "recommended_technology_slug": "power-bi",
+      "alternative_technology_slugs": [
+        "tableau",
+        "looker",
+        "qlik-sense",
+        "metabase"
+      ],
+      "rationale": "Power BI dominates the enterprise-reporting seat this blueprint serves — Microsoft-ecosystem ubiquity, per-user pricing the CFO already approved, and a model layer (DAX over star schemas) literally designed for Kimball-shaped data. Tableau wins on visualization depth and analyst affection; Looker where governed self-serve through LookML is the priority; Qlik in estates that grew up on it. Metabase is the lightweight option when 'enterprise BI' overstates the actual need."
+    }
+  ]
+}

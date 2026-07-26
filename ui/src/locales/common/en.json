@@ -6,7 +6,9 @@
     },
     "settings": {
       "title": "Settings",
-      "theme": "Theme"
+      "theme": "Theme",
+      "archetypes_title": "Archetypes",
+      "archetypes_description": "Manage the catalog of project archetypes."
     },
     "theme": {
       "light": "Light",
@@ -27,14 +29,27 @@
       "jobs": "Jobs",
       "principles": "Principles",
       "expand": "Expand sidebar",
-      "collapse": "Collapse sidebar"
+      "collapse": "Collapse sidebar",
+      "architectures": "Architectures",
+      "technologies": "Technologies",
+      "modelling": "Data",
+      "security": "Security",
+      "qualities": "Qualities",
+      "sizing": "Sizing",
+      "group_knowledge": "Knowledge",
+      "group_apps": "Apps"
     },
     "actions": {
       "add": "Add",
       "cancel": "Cancel",
       "refresh": "Refresh",
       "retry": "Retry",
-      "back": "Back"
+      "back": "Back",
+      "clear_filters": "Clear filters",
+      "delete": "Delete",
+      "edit": "Edit",
+      "open_menu": "Open menu",
+      "save": "Save"
     },
     "states": {
       "loading": "Loading…",
@@ -48,6 +63,9 @@
       "page_of": "Page {{page}} of {{count}}",
       "previous": "Previous",
       "next": "Next"
+    },
+    "table": {
+      "error": "Failed to load data"
     }
   }
 }

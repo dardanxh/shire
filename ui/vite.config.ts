@@ -23,12 +23,12 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173,
+    port: Number(process.env.VITE_PORT) || 5173,
     proxy: {
       // The backend serves under /api/v1 (see be/main.py). We forward /api/*
       // verbatim so the browser stays same-origin (no CORS) in dev.
       "/api": {
-        target: "http://localhost:8000",
+        target: process.env.VITE_API_TARGET || "http://localhost:8000",
         changeOrigin: true,
       },
     },

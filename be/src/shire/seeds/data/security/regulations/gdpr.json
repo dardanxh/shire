@@ -1,0 +1,429 @@
+{
+  "slug": "gdpr",
+  "name": "GDPR",
+  "full_name": "General Data Protection Regulation (EU) 2016/679",
+  "category": "privacy",
+  "region": "eu",
+  "jurisdiction": "European Union / EEA",
+  "status": "in_force",
+  "effective_year": 2018,
+  "effective_date": "25 May 2018",
+  "description": "The GDPR is the European Union's comprehensive data protection law governing how personal data of people in the EU/EEA is collected, used, stored, and shared. It gives individuals enforceable rights over their data — such as access, erasure, and portability — and places accountability obligations on the organizations that process it. It applies to controllers and processors worldwide when they handle data of people in the EU, and it is enforced by national supervisory authorities with the power to impose substantial fines.",
+  "who_is_impacted": [
+    "Controllers and processors established in the EU, regardless of where the actual processing of personal data happens.",
+    "Organizations outside the EU that offer goods or services (even for free) to individuals located in the EU.",
+    "Organizations outside the EU that monitor the behaviour of individuals in the EU, for example through tracking, profiling, or analytics.",
+    "Processors and sub-processors handling personal data on behalf of a controller, who carry their own direct obligations under the regulation.",
+    "Public authorities and bodies processing personal data, with limited carve-outs for law enforcement covered by a separate directive.",
+    "Purely personal or household activity by a natural person is exempt, as is processing falling outside the scope of Union law."
+  ],
+  "penalties": "Up to €20M or 4% of global annual turnover (whichever is higher) for severe violations; up to €10M or 2% for others.",
+  "official_url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj",
+  "unit_label": "article",
+  "related_practice_slugs": [
+    "encryption-at-rest",
+    "encryption-in-transit",
+    "pseudonymization",
+    "data-anonymization",
+    "data-masking",
+    "access-control-rbac-abac",
+    "data-retention-deletion",
+    "audit-logging",
+    "data-classification",
+    "data-loss-prevention"
+  ],
+  "related_technology_slugs": [
+    "microsoft-presidio",
+    "arx",
+    "bigid",
+    "immuta",
+    "hashicorp-vault"
+  ],
+  "position": 10,
+  "triggering_data_classes": ["personal_data", "health_data", "biometric_data", "children_data", "ai_automated_decisions"],
+  "articles": [
+    { "number": "1", "title": "Subject-matter and objectives", "chapter": "Chapter I — General Provisions" },
+    { "number": "2", "title": "Material scope", "chapter": "Chapter I — General Provisions" },
+    { "number": "3", "title": "Territorial scope", "chapter": "Chapter I — General Provisions" },
+    { "number": "4", "title": "Definitions", "chapter": "Chapter I — General Provisions" },
+    {
+      "number": "5",
+      "title": "Principles relating to processing of personal data",
+      "chapter": "Chapter II — Principles",
+      "is_key": true,
+      "summary": "Article 5 lays down the core principles every processing operation must follow: lawfulness, fairness and transparency; purpose limitation; data minimisation; accuracy; storage limitation; and integrity and confidentiality. It also introduces the accountability principle: the controller is responsible for compliance and must be able to demonstrate it. These principles are the backbone of the regulation and the yardstick against which supervisory authorities assess processing.",
+      "key_requirements": [
+        "Process personal data lawfully, fairly, and transparently towards the data subject.",
+        "Collect data only for specified, explicit, and legitimate purposes and do not reuse it in incompatible ways.",
+        "Limit collection to what is adequate, relevant, and necessary (data minimisation).",
+        "Keep data accurate and up to date, correcting or deleting inaccurate data without delay.",
+        "Retain data in identifiable form no longer than necessary for the purposes (storage limitation).",
+        "Secure data against unauthorised processing, loss, or damage, and be able to demonstrate compliance (accountability)."
+      ],
+      "paragraphs": [
+        { "ref": "5(1)(a)-(c)", "text": "Personal data must be processed lawfully, fairly, and transparently; collected for specified, explicit, and legitimate purposes and not further processed incompatibly with them; and be adequate, relevant, and limited to what is necessary for those purposes." },
+        { "ref": "5(1)(d)-(e)", "text": "Data must be accurate and kept up to date, with inaccurate data erased or rectified without delay, and kept in a form permitting identification of data subjects no longer than necessary, with longer retention allowed only for archiving, research, or statistical purposes with safeguards." },
+        { "ref": "5(1)(f)", "text": "Data must be processed with appropriate security, including protection against unauthorised or unlawful processing and against accidental loss, destruction, or damage, using appropriate technical or organisational measures." },
+        { "ref": "5(2)", "text": "The controller is responsible for, and must be able to demonstrate compliance with, all of the principles in paragraph 1 (accountability)." }
+      ]
+    },
+    {
+      "number": "6",
+      "title": "Lawfulness of processing",
+      "chapter": "Chapter II — Principles",
+      "is_key": true,
+      "summary": "Article 6 defines the six legal bases that make processing of personal data lawful: consent, contract, legal obligation, vital interests, public task, and legitimate interests. Every processing activity must rest on at least one of them, chosen before processing starts. It also sets the compatibility test for reusing data for a new purpose beyond the one it was collected for.",
+      "key_requirements": [
+        "Identify and document a valid legal basis for each processing purpose before processing begins.",
+        "Rely on legitimate interests only after balancing them against the data subject's interests, rights, and freedoms.",
+        "Note that public authorities cannot rely on legitimate interests for processing done in the performance of their tasks.",
+        "Apply the compatibility test (link between purposes, context, nature of data, consequences, safeguards) before reusing data for a new purpose not based on consent or law."
+      ],
+      "paragraphs": [
+        { "ref": "6(1)", "text": "Processing is lawful only if at least one applies: the data subject has consented; processing is necessary for a contract with the data subject; for compliance with a legal obligation; to protect vital interests; for a task in the public interest or official authority; or for the controller's or a third party's legitimate interests, except where overridden by the data subject's interests, rights, and freedoms (particularly for children)." },
+        { "ref": "6(1) final subparagraph", "text": "The legitimate-interests basis is not available to public authorities for processing carried out in the performance of their tasks." },
+        { "ref": "6(3)", "text": "Where processing rests on a legal obligation or public task, the basis must be laid down in Union or Member State law, which may specify conditions such as purposes, data types, recipients, and retention periods." },
+        { "ref": "6(4)", "text": "Processing for a purpose other than the one the data was collected for, when not based on consent or law, requires assessing compatibility, considering the link between purposes, the collection context, the nature of the data, possible consequences for data subjects, and the existence of safeguards such as encryption or pseudonymisation." }
+      ]
+    },
+    {
+      "number": "7",
+      "title": "Conditions for consent",
+      "chapter": "Chapter II — Principles",
+      "is_key": true,
+      "summary": "Article 7 sets the bar for valid consent when it is used as a legal basis. The controller must be able to prove consent was given, requests must be clear and distinguishable from other matters, and consent must be as easy to withdraw as to give. Consent obtained by bundling it with a service that does not need the data is unlikely to count as freely given.",
+      "key_requirements": [
+        "Keep records demonstrating that each data subject actually consented.",
+        "Present consent requests in clear, plain language, clearly separated from other terms and conditions.",
+        "Make withdrawing consent as easy as giving it, and tell people about the right to withdraw before they consent.",
+        "Do not condition access to a service on consent to processing that is not necessary for that service."
+      ],
+      "paragraphs": [
+        { "ref": "7(1)", "text": "Where processing is based on consent, the controller must be able to demonstrate that the data subject has consented to the processing of their personal data." },
+        { "ref": "7(2)", "text": "If consent is given in a written declaration that also concerns other matters, the consent request must be presented clearly distinguishable, in an intelligible and easily accessible form, using clear and plain language; non-compliant parts are not binding." },
+        { "ref": "7(3)", "text": "The data subject may withdraw consent at any time; withdrawal does not affect prior processing, the person must be informed of this right before consenting, and withdrawing must be as easy as giving consent." },
+        { "ref": "7(4)", "text": "In assessing whether consent is freely given, utmost account is taken of whether performance of a contract or service is conditional on consent to processing that is not necessary for that contract." }
+      ]
+    },
+    { "number": "8", "title": "Conditions applicable to child's consent in relation to information society services", "chapter": "Chapter II — Principles" },
+    {
+      "number": "9",
+      "title": "Processing of special categories of personal data",
+      "chapter": "Chapter II — Principles",
+      "is_key": true,
+      "summary": "Article 9 prohibits processing of especially sensitive data — revealing racial or ethnic origin, political opinions, religious beliefs, trade union membership, genetic data, biometric data for identification, health data, or data about sex life or sexual orientation — unless a specific exception applies. Exceptions include explicit consent, employment and social security law, vital interests, and substantial public interest, each with safeguards. Systems handling such data need to classify it and apply stricter controls than for ordinary personal data.",
+      "key_requirements": [
+        "Identify and classify special-category data in your systems and treat it under the default prohibition.",
+        "Process it only when one of the Article 9(2) exceptions applies, such as explicit consent or a specific legal provision.",
+        "Apply heightened safeguards (e.g. encryption, pseudonymisation, strict access control) proportionate to the sensitivity.",
+        "Check Member State law, which may add conditions or limits for genetic, biometric, or health data."
+      ],
+      "paragraphs": [
+        { "ref": "9(1)", "text": "Processing of personal data revealing racial or ethnic origin, political opinions, religious or philosophical beliefs, or trade union membership, and processing of genetic data, biometric data for uniquely identifying a person, health data, or data concerning sex life or sexual orientation, is prohibited." },
+        { "ref": "9(2)(a)-(c)", "text": "The prohibition does not apply where the data subject has given explicit consent for specified purposes; where processing is necessary under employment, social security, or social protection law; or to protect vital interests when the person is incapable of consenting." },
+        { "ref": "9(2)(g)-(j)", "text": "Further exceptions cover processing necessary for substantial public interest, for preventive or occupational medicine and health care, for public health, and for archiving, scientific or historical research, or statistical purposes — each requiring a basis in law and suitable safeguards." },
+        { "ref": "9(4)", "text": "Member States may maintain or introduce further conditions, including limitations, on the processing of genetic data, biometric data, or data concerning health." }
+      ]
+    },
+    { "number": "10", "title": "Processing of personal data relating to criminal convictions and offences", "chapter": "Chapter II — Principles" },
+    { "number": "11", "title": "Processing which does not require identification", "chapter": "Chapter II — Principles" },
+    { "number": "12", "title": "Transparent information, communication and modalities for the exercise of the rights of the data subject", "chapter": "Chapter III — Rights of the Data Subject" },
+    { "number": "13", "title": "Information to be provided where personal data are collected from the data subject", "chapter": "Chapter III — Rights of the Data Subject" },
+    { "number": "14", "title": "Information to be provided where personal data have not been obtained from the data subject", "chapter": "Chapter III — Rights of the Data Subject" },
+    {
+      "number": "15",
+      "title": "Right of access by the data subject",
+      "chapter": "Chapter III — Rights of the Data Subject",
+      "is_key": true,
+      "summary": "Article 15 gives individuals the right to find out whether an organization is processing their personal data and, if so, to get a copy of it together with information about the purposes, categories, recipients, retention, their other rights, and the source of the data. This is the basis for data subject access requests (DSARs), which must generally be answered within one month and free of charge for the first copy.",
+      "key_requirements": [
+        "Confirm on request whether you process a person's data and provide a copy of it.",
+        "Disclose the purposes, categories of data, recipients (especially in third countries), and the envisaged retention period.",
+        "Inform the person of their rights to rectification, erasure, restriction, objection, and to complain to a supervisory authority.",
+        "Provide the first copy free of charge; further copies may carry a reasonable administrative fee.",
+        "Ensure providing a copy does not adversely affect the rights and freedoms of others."
+      ],
+      "paragraphs": [
+        { "ref": "15(1)", "text": "The data subject has the right to obtain confirmation of whether their data is being processed and, if so, access to the data plus information including the purposes, categories of data, recipients or categories of recipients (particularly in third countries), the envisaged storage period, their rights to rectification, erasure, restriction, and objection, the right to lodge a complaint, the source of the data if not collected from them, and the existence of automated decision-making including profiling with meaningful information about its logic and consequences." },
+        { "ref": "15(2)", "text": "Where data is transferred to a third country or international organisation, the data subject has the right to be informed of the appropriate safeguards relating to the transfer." },
+        { "ref": "15(3)", "text": "The controller must provide a copy of the personal data undergoing processing; further copies may incur a reasonable fee based on administrative costs, and requests made electronically should be answered in a commonly used electronic form unless otherwise requested." },
+        { "ref": "15(4)", "text": "The right to obtain a copy must not adversely affect the rights and freedoms of others." }
+      ]
+    },
+    { "number": "16", "title": "Right to rectification", "chapter": "Chapter III — Rights of the Data Subject" },
+    {
+      "number": "17",
+      "title": "Right to erasure ('right to be forgotten')",
+      "chapter": "Chapter III — Rights of the Data Subject",
+      "is_key": true,
+      "summary": "Article 17 lets individuals demand deletion of their personal data without undue delay when specific grounds apply — for example when the data is no longer needed, consent is withdrawn, they object, or the processing was unlawful. Controllers who made the data public must take reasonable steps to tell other controllers to erase links and copies. The right is not absolute: it yields to freedom of expression, legal obligations, public health, research, and legal claims.",
+      "key_requirements": [
+        "Erase personal data without undue delay when a valid erasure ground applies (data no longer necessary, consent withdrawn, successful objection, unlawful processing, legal obligation, or data collected from a child for online services).",
+        "Build deletion capabilities into data stores and pipelines so erasure actually propagates, including to backups per your retention policy.",
+        "If the data was made public, take reasonable steps, including technical measures, to inform other controllers processing it of the erasure request.",
+        "Assess and document exemptions before refusing, such as freedom of expression, legal obligations, public interest, research, or defence of legal claims."
+      ],
+      "paragraphs": [
+        { "ref": "17(1)", "text": "The data subject has the right to have their personal data erased without undue delay where: the data is no longer necessary for the purposes it was collected for; consent is withdrawn and no other legal basis exists; they object under Article 21 and no overriding legitimate grounds exist; the data was unlawfully processed; erasure is required by a legal obligation; or the data was collected from a child in relation to information society services." },
+        { "ref": "17(2)", "text": "Where the controller has made the data public and is obliged to erase it, it must, taking account of available technology and implementation cost, take reasonable steps including technical measures to inform other controllers processing the data that the data subject has requested erasure of any links to, or copies or replications of, that data." },
+        { "ref": "17(3)", "text": "The right does not apply to the extent processing is necessary for exercising freedom of expression and information, compliance with a legal obligation or a public interest task, public health, archiving, scientific or historical research or statistical purposes, or the establishment, exercise, or defence of legal claims." }
+      ]
+    },
+    { "number": "18", "title": "Right to restriction of processing", "chapter": "Chapter III — Rights of the Data Subject" },
+    { "number": "19", "title": "Notification obligation regarding rectification or erasure of personal data or restriction of processing", "chapter": "Chapter III — Rights of the Data Subject" },
+    {
+      "number": "20",
+      "title": "Right to data portability",
+      "chapter": "Chapter III — Rights of the Data Subject",
+      "is_key": true,
+      "summary": "Article 20 gives individuals the right to receive the personal data they provided to a controller in a structured, commonly used, machine-readable format, and to move it to another controller without hindrance. It applies when processing is based on consent or contract and carried out by automated means, and where technically feasible the data may be transmitted directly between controllers. For data platforms this translates into export capabilities in open formats like JSON or CSV.",
+      "key_requirements": [
+        "Provide exports of data the individual supplied in a structured, commonly used, machine-readable format (e.g. JSON, CSV).",
+        "Apply the right only to processing based on consent or contract that is carried out by automated means.",
+        "Support direct controller-to-controller transmission where technically feasible.",
+        "Ensure exports do not adversely affect the rights and freedoms of other data subjects whose data may be mixed in."
+      ],
+      "paragraphs": [
+        { "ref": "20(1)", "text": "The data subject has the right to receive personal data they provided to a controller in a structured, commonly used, and machine-readable format, and to transmit it to another controller without hindrance, where processing is based on consent or contract and carried out by automated means." },
+        { "ref": "20(2)", "text": "In exercising this right, the data subject has the right to have the data transmitted directly from one controller to another, where technically feasible." },
+        { "ref": "20(3)-(4)", "text": "The right is without prejudice to Article 17, does not apply to processing necessary for a public interest task or official authority, and must not adversely affect the rights and freedoms of others." }
+      ]
+    },
+    { "number": "21", "title": "Right to object", "chapter": "Chapter III — Rights of the Data Subject" },
+    { "number": "22", "title": "Automated individual decision-making, including profiling", "chapter": "Chapter III — Rights of the Data Subject" },
+    { "number": "23", "title": "Restrictions", "chapter": "Chapter III — Rights of the Data Subject" },
+    { "number": "24", "title": "Responsibility of the controller", "chapter": "Chapter IV — Controller and Processor" },
+    {
+      "number": "25",
+      "title": "Data protection by design and by default",
+      "chapter": "Chapter IV — Controller and Processor",
+      "is_key": true,
+      "summary": "Article 25 requires controllers to bake data protection into systems from the design stage and to make privacy-protective settings the default. Measures such as pseudonymisation and data minimisation must be chosen with regard to the state of the art, cost, and the risks to individuals, both when deciding how to process and during processing itself. By default, only the data necessary for each specific purpose should be processed, and data must not be made accessible to an indefinite number of people without the individual's intervention.",
+      "key_requirements": [
+        "Integrate technical and organisational safeguards (e.g. pseudonymisation, minimisation) into system design, not as an afterthought.",
+        "Consider the state of the art, implementation cost, and the nature, scope, context, and risks of processing when choosing measures.",
+        "Default settings must limit processing to what each specific purpose requires — in the amount of data, extent of processing, retention, and accessibility.",
+        "Ensure personal data is not made publicly accessible by default without the individual's action.",
+        "Approved certification mechanisms may be used to demonstrate compliance."
+      ],
+      "paragraphs": [
+        { "ref": "25(1)", "text": "Taking into account the state of the art, implementation cost, and the nature, scope, context, purposes, and risks of processing, the controller must implement appropriate technical and organisational measures — such as pseudonymisation — designed to implement the data protection principles, such as data minimisation, both when determining the means of processing and during processing itself." },
+        { "ref": "25(2)", "text": "The controller must implement measures ensuring that, by default, only personal data necessary for each specific purpose is processed — applying to the amount of data collected, the extent of processing, the storage period, and accessibility — and in particular that data is not made accessible to an indefinite number of people without the individual's intervention." },
+        { "ref": "25(3)", "text": "An approved certification mechanism under Article 42 may be used as an element to demonstrate compliance with these requirements." }
+      ]
+    },
+    { "number": "26", "title": "Joint controllers", "chapter": "Chapter IV — Controller and Processor" },
+    { "number": "27", "title": "Representatives of controllers or processors not established in the Union", "chapter": "Chapter IV — Controller and Processor" },
+    {
+      "number": "28",
+      "title": "Processor",
+      "chapter": "Chapter IV — Controller and Processor",
+      "is_key": true,
+      "summary": "Article 28 governs the relationship between controllers and the vendors that process data on their behalf. Controllers may only use processors that provide sufficient guarantees of GDPR compliance, and processing must be governed by a binding contract — the data processing agreement (DPA) — with mandatory clauses on instructions, confidentiality, security, sub-processors, assistance, deletion or return of data, and audits. Sub-processors need prior authorisation and must be bound by equivalent obligations.",
+      "key_requirements": [
+        "Engage only processors offering sufficient guarantees of appropriate technical and organisational measures.",
+        "Put a written data processing agreement in place covering the mandatory Article 28(3) clauses.",
+        "Require prior specific or general written authorisation before a processor engages sub-processors, with a right to object to changes.",
+        "Ensure processors process only on documented instructions, bind staff to confidentiality, and implement Article 32 security.",
+        "Provide for deletion or return of data at end of service and for audits and inspections by the controller."
+      ],
+      "paragraphs": [
+        { "ref": "28(1)", "text": "The controller may use only processors providing sufficient guarantees to implement appropriate technical and organisational measures such that processing meets the requirements of the regulation and protects the rights of data subjects." },
+        { "ref": "28(2)", "text": "The processor may not engage another processor without prior specific or general written authorisation of the controller; under general authorisation, the processor must inform the controller of intended changes so the controller can object." },
+        { "ref": "28(3)", "text": "Processing must be governed by a contract binding the processor to the controller, stipulating among other things: processing only on documented instructions (including for international transfers), confidentiality commitments for authorised persons, Article 32 security measures, conditions for sub-processors, assistance with data subject rights and with Articles 32-36, deletion or return of data at the end of the service, and making available information and allowing audits to demonstrate compliance." },
+        { "ref": "28(4)", "text": "Where a sub-processor is engaged, the same data protection obligations must be imposed on it by contract; the initial processor remains fully liable to the controller for the sub-processor's performance." },
+        { "ref": "28(10)", "text": "A processor that determines the purposes and means of processing in breach of the regulation is considered a controller in respect of that processing." }
+      ]
+    },
+    { "number": "29", "title": "Processing under the authority of the controller or processor", "chapter": "Chapter IV — Controller and Processor" },
+    {
+      "number": "30",
+      "title": "Records of processing activities",
+      "chapter": "Chapter IV — Controller and Processor",
+      "is_key": true,
+      "summary": "Article 30 requires controllers and processors to maintain a written (including electronic) record of their processing activities — often called the RoPA. Controllers record purposes, data categories, recipients, transfers, retention, and security measures; processors record the processing carried out for each controller. The record must be made available to the supervisory authority on request. Organizations with fewer than 250 employees are exempt unless the processing is risky, non-occasional, or involves special-category or criminal data.",
+      "key_requirements": [
+        "Maintain a controller record listing purposes, categories of data subjects and data, recipients, third-country transfers with safeguards, retention timelines, and a general description of Article 32 security measures.",
+        "As a processor, maintain a record of processing categories carried out for each controller, including transfers and security measures.",
+        "Keep records in writing, including electronic form, and keep them current.",
+        "Make the record available to the supervisory authority on request.",
+        "Apply the sub-250-employee exemption carefully: it does not cover risky, regular, or special-category processing."
+      ],
+      "paragraphs": [
+        { "ref": "30(1)", "text": "Each controller must maintain a record of processing activities containing: its name and contact details (and those of any joint controller, representative, and DPO); the purposes of processing; categories of data subjects and personal data; categories of recipients, including in third countries; transfers to third countries with identification of safeguards where applicable; envisaged erasure time limits where possible; and a general description of the Article 32(1) technical and organisational security measures where possible." },
+        { "ref": "30(2)", "text": "Each processor must maintain a record of all categories of processing carried out on behalf of each controller, including the controller's details, categories of processing, third-country transfers, and a general description of security measures." },
+        { "ref": "30(3)-(4)", "text": "Records must be in writing, including electronic form, and controllers and processors must make them available to the supervisory authority on request." },
+        { "ref": "30(5)", "text": "The obligation does not apply to organisations employing fewer than 250 persons, unless the processing is likely to result in a risk to data subjects' rights and freedoms, is not occasional, or includes special categories of data or data on criminal convictions and offences." }
+      ]
+    },
+    { "number": "31", "title": "Cooperation with the supervisory authority", "chapter": "Chapter IV — Controller and Processor" },
+    {
+      "number": "32",
+      "title": "Security of processing",
+      "chapter": "Chapter IV — Controller and Processor",
+      "is_key": true,
+      "summary": "Article 32 is the GDPR's core security clause. Controllers and processors must implement technical and organisational measures appropriate to the risk, and the regulation explicitly names pseudonymisation and encryption of personal data as example measures, alongside ensuring confidentiality, integrity, availability, and resilience, restoring availability after incidents, and regularly testing the measures. The appropriate level is judged against the state of the art, cost, and the likelihood and severity of risks to individuals.",
+      "key_requirements": [
+        "Implement risk-appropriate security measures, explicitly including encryption and pseudonymisation of personal data.",
+        "Ensure the ongoing confidentiality, integrity, availability, and resilience of processing systems and services.",
+        "Be able to restore availability and access to personal data in a timely manner after a physical or technical incident (backup and recovery).",
+        "Regularly test, assess, and evaluate the effectiveness of security measures.",
+        "Ensure anyone acting under the controller's or processor's authority processes data only on instructions.",
+        "Assess risks especially from accidental or unlawful destruction, loss, alteration, unauthorised disclosure, or access."
+      ],
+      "paragraphs": [
+        { "ref": "32(1)(a)", "text": "Taking into account the state of the art, implementation costs, and the nature, scope, context, purposes, and risks of processing, the controller and processor must implement appropriate technical and organisational measures, including inter alia the pseudonymization and encryption of personal data." },
+        { "ref": "32(1)(b)-(d)", "text": "Measures must also ensure the ongoing confidentiality, integrity, availability, and resilience of processing systems and services; the ability to restore availability and access to personal data in a timely manner after a physical or technical incident; and a process for regularly testing, assessing, and evaluating the effectiveness of the measures." },
+        { "ref": "32(2)", "text": "In assessing the appropriate level of security, account must be taken in particular of the risks presented by processing, especially from accidental or unlawful destruction, loss, alteration, unauthorised disclosure of, or access to personal data transmitted, stored, or otherwise processed." },
+        { "ref": "32(3)", "text": "Adherence to an approved code of conduct or an approved certification mechanism may be used as an element to demonstrate compliance with these security requirements." },
+        { "ref": "32(4)", "text": "The controller and processor must ensure that any natural person acting under their authority who has access to personal data does not process it except on instructions from the controller, unless required by Union or Member State law." }
+      ]
+    },
+    {
+      "number": "33",
+      "title": "Notification of a personal data breach to the supervisory authority",
+      "chapter": "Chapter IV — Controller and Processor",
+      "is_key": true,
+      "summary": "Article 33 obliges controllers to notify the supervisory authority of a personal data breach without undue delay and, where feasible, within 72 hours of becoming aware of it, unless the breach is unlikely to risk individuals' rights and freedoms. Late notifications must explain the delay. Processors must tell their controllers without undue delay, and every breach — notified or not — must be documented so the authority can verify compliance.",
+      "key_requirements": [
+        "Notify the supervisory authority of a breach without undue delay and, where feasible, within 72 hours of becoming aware of it.",
+        "If notification is later than 72 hours, include reasons for the delay; information may be provided in phases.",
+        "As a processor, notify the controller without undue delay after becoming aware of a breach.",
+        "Include in the notification the nature of the breach, categories and approximate numbers of data subjects and records, the DPO's contact, likely consequences, and measures taken or proposed.",
+        "Document all breaches — facts, effects, and remedial action — even those not notified, to enable supervisory verification."
+      ],
+      "paragraphs": [
+        { "ref": "33(1)", "text": "In the case of a personal data breach, the controller must notify the competent supervisory authority without undue delay and, where feasible, not later than 72 hours after becoming aware of it, unless the breach is unlikely to result in a risk to the rights and freedoms of natural persons; if notification is not made within 72 hours, it must be accompanied by reasons for the delay." },
+        { "ref": "33(2)", "text": "The processor must notify the controller without undue delay after becoming aware of a personal data breach." },
+        { "ref": "33(3)", "text": "The notification must at least describe the nature of the breach including, where possible, the categories and approximate number of data subjects and records concerned; communicate the name and contact details of the DPO or other contact point; describe the likely consequences; and describe the measures taken or proposed to address the breach and mitigate its effects." },
+        { "ref": "33(4)", "text": "Where it is not possible to provide all information at the same time, it may be provided in phases without undue further delay." },
+        { "ref": "33(5)", "text": "The controller must document any personal data breaches — the facts, their effects, and the remedial action taken — in a way that enables the supervisory authority to verify compliance with this article." }
+      ]
+    },
+    {
+      "number": "34",
+      "title": "Communication of a personal data breach to the data subject",
+      "chapter": "Chapter IV — Controller and Processor",
+      "is_key": true,
+      "summary": "Article 34 requires controllers to tell affected individuals about a breach without undue delay when it is likely to result in a high risk to their rights and freedoms, in clear and plain language. Communication is not required if the data was protected by measures such as encryption, if subsequent measures have removed the high risk, or if individual notice would take disproportionate effort — in which case a public communication suffices. The supervisory authority can compel communication if it disagrees with the controller's risk assessment.",
+      "key_requirements": [
+        "Communicate high-risk breaches to affected data subjects without undue delay, in clear and plain language.",
+        "Include at least the DPO or contact point, the likely consequences, and the measures taken or proposed, per Article 33(3).",
+        "Communication is not required if effective protection such as encryption rendered the data unintelligible, or if subsequent measures removed the high risk.",
+        "Where individual notice would involve disproportionate effort, use an equally effective public communication instead.",
+        "Be prepared for the supervisory authority to require communication after its own risk assessment."
+      ],
+      "paragraphs": [
+        { "ref": "34(1)", "text": "When a personal data breach is likely to result in a high risk to the rights and freedoms of natural persons, the controller must communicate the breach to the data subject without undue delay." },
+        { "ref": "34(2)", "text": "The communication must describe in clear and plain language the nature of the breach and contain at least the information and measures referred to in Article 33(3)(b), (c), and (d)." },
+        { "ref": "34(3)", "text": "Communication is not required if: the controller had applied appropriate protection measures, in particular those rendering the data unintelligible to unauthorised persons, such as encryption; subsequent measures ensure the high risk is no longer likely to materialise; or it would involve disproportionate effort, in which case a public communication or similar equally effective measure must be used instead." },
+        { "ref": "34(4)", "text": "If the controller has not communicated the breach, the supervisory authority may, after considering the likelihood of high risk, require it to do so or decide that one of the exemption conditions is met." }
+      ]
+    },
+    {
+      "number": "35",
+      "title": "Data protection impact assessment",
+      "chapter": "Chapter IV — Controller and Processor",
+      "is_key": true,
+      "summary": "Article 35 requires a data protection impact assessment (DPIA) before starting processing that is likely to result in a high risk to individuals — particularly systematic and extensive profiling with significant effects, large-scale processing of special-category data, or large-scale systematic monitoring of public areas. The DPIA must describe the processing, assess its necessity and proportionality, evaluate the risks, and set out the mitigating measures. If it shows unmitigated high risk, the controller must consult the supervisory authority before proceeding (Article 36).",
+      "key_requirements": [
+        "Run a DPIA before high-risk processing, especially when using new technologies, and seek the DPO's advice where designated.",
+        "Always assess: systematic extensive automated evaluation/profiling with legal or similar effects, large-scale special-category or criminal data processing, and large-scale systematic monitoring of publicly accessible areas.",
+        "Check the supervisory authority's published lists of processing kinds requiring (or not requiring) a DPIA.",
+        "Cover at minimum: a systematic description of the processing and purposes, necessity and proportionality, the risks to data subjects, and the safeguards and measures addressing them.",
+        "Review the DPIA when the risk profile of the processing changes, and consult the authority if residual risk remains high."
+      ],
+      "paragraphs": [
+        { "ref": "35(1)", "text": "Where a type of processing, in particular using new technologies, is likely to result in a high risk to the rights and freedoms of natural persons, the controller must, prior to processing, carry out an assessment of the impact of the envisaged processing on the protection of personal data; a single assessment may cover a set of similar high-risk operations." },
+        { "ref": "35(3)", "text": "A DPIA is required in particular for: systematic and extensive evaluation of personal aspects based on automated processing, including profiling, producing legal or similarly significant effects; large-scale processing of special categories of data or criminal conviction data; and systematic monitoring of a publicly accessible area on a large scale." },
+        { "ref": "35(4)-(5)", "text": "The supervisory authority must establish and publish a list of processing operations requiring a DPIA, and may publish a list of operations for which no DPIA is required, communicating both to the European Data Protection Board." },
+        { "ref": "35(7)", "text": "The assessment must contain at least: a systematic description of the envisaged processing and its purposes (including any legitimate interest pursued); an assessment of the necessity and proportionality of the processing; an assessment of the risks to data subjects; and the measures envisaged to address the risks, including safeguards and security measures to protect personal data and demonstrate compliance." },
+        { "ref": "35(11)", "text": "Where necessary, the controller must carry out a review to assess whether processing is performed in accordance with the DPIA, at least when there is a change in the risk represented by the processing operations." }
+      ]
+    },
+    { "number": "36", "title": "Prior consultation", "chapter": "Chapter IV — Controller and Processor" },
+    { "number": "37", "title": "Designation of the data protection officer", "chapter": "Chapter IV — Controller and Processor" },
+    { "number": "38", "title": "Position of the data protection officer", "chapter": "Chapter IV — Controller and Processor" },
+    { "number": "39", "title": "Tasks of the data protection officer", "chapter": "Chapter IV — Controller and Processor" },
+    { "number": "40", "title": "Codes of conduct", "chapter": "Chapter IV — Controller and Processor" },
+    { "number": "41", "title": "Monitoring of approved codes of conduct", "chapter": "Chapter IV — Controller and Processor" },
+    { "number": "42", "title": "Certification", "chapter": "Chapter IV — Controller and Processor" },
+    { "number": "43", "title": "Certification bodies", "chapter": "Chapter IV — Controller and Processor" },
+    { "number": "44", "title": "General principle for transfers", "chapter": "Chapter V — Transfers of Personal Data to Third Countries" },
+    { "number": "45", "title": "Transfers on the basis of an adequacy decision", "chapter": "Chapter V — Transfers of Personal Data to Third Countries" },
+    { "number": "46", "title": "Transfers subject to appropriate safeguards", "chapter": "Chapter V — Transfers of Personal Data to Third Countries" },
+    { "number": "47", "title": "Binding corporate rules", "chapter": "Chapter V — Transfers of Personal Data to Third Countries" },
+    { "number": "48", "title": "Transfers or disclosures not authorised by Union law", "chapter": "Chapter V — Transfers of Personal Data to Third Countries" },
+    { "number": "49", "title": "Derogations for specific situations", "chapter": "Chapter V — Transfers of Personal Data to Third Countries" },
+    { "number": "50", "title": "International cooperation for the protection of personal data", "chapter": "Chapter V — Transfers of Personal Data to Third Countries" },
+    { "number": "51", "title": "Supervisory authority", "chapter": "Chapter VI — Independent Supervisory Authorities" },
+    { "number": "52", "title": "Independence", "chapter": "Chapter VI — Independent Supervisory Authorities" },
+    { "number": "53", "title": "General conditions for the members of the supervisory authority", "chapter": "Chapter VI — Independent Supervisory Authorities" },
+    { "number": "54", "title": "Rules on the establishment of the supervisory authority", "chapter": "Chapter VI — Independent Supervisory Authorities" },
+    { "number": "55", "title": "Competence", "chapter": "Chapter VI — Independent Supervisory Authorities" },
+    { "number": "56", "title": "Competence of the lead supervisory authority", "chapter": "Chapter VI — Independent Supervisory Authorities" },
+    { "number": "57", "title": "Tasks", "chapter": "Chapter VI — Independent Supervisory Authorities" },
+    { "number": "58", "title": "Powers", "chapter": "Chapter VI — Independent Supervisory Authorities" },
+    { "number": "59", "title": "Activity reports", "chapter": "Chapter VI — Independent Supervisory Authorities" },
+    { "number": "60", "title": "Cooperation between the lead supervisory authority and the other supervisory authorities concerned", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "61", "title": "Mutual assistance", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "62", "title": "Joint operations of supervisory authorities", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "63", "title": "Consistency mechanism", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "64", "title": "Opinion of the Board", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "65", "title": "Dispute resolution by the Board", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "66", "title": "Urgency procedure", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "67", "title": "Exchange of information", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "68", "title": "European Data Protection Board", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "69", "title": "Independence", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "70", "title": "Tasks of the Board", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "71", "title": "Reports", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "72", "title": "Procedure", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "73", "title": "Chair", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "74", "title": "Tasks of the Chair", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "75", "title": "Secretariat", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "76", "title": "Confidentiality", "chapter": "Chapter VII — Cooperation and Consistency" },
+    { "number": "77", "title": "Right to lodge a complaint with a supervisory authority", "chapter": "Chapter VIII — Remedies, Liability and Penalties" },
+    { "number": "78", "title": "Right to an effective judicial remedy against a supervisory authority", "chapter": "Chapter VIII — Remedies, Liability and Penalties" },
+    { "number": "79", "title": "Right to an effective judicial remedy against a controller or processor", "chapter": "Chapter VIII — Remedies, Liability and Penalties" },
+    { "number": "80", "title": "Representation of data subjects", "chapter": "Chapter VIII — Remedies, Liability and Penalties" },
+    { "number": "81", "title": "Suspension of proceedings", "chapter": "Chapter VIII — Remedies, Liability and Penalties" },
+    { "number": "82", "title": "Right to compensation and liability", "chapter": "Chapter VIII — Remedies, Liability and Penalties" },
+    {
+      "number": "83",
+      "title": "General conditions for imposing administrative fines",
+      "chapter": "Chapter VIII — Remedies, Liability and Penalties",
+      "is_key": true,
+      "summary": "Article 83 defines how supervisory authorities set administrative fines. Fines must be effective, proportionate, and dissuasive, weighed against factors like the nature and gravity of the infringement, intent, mitigation, past violations, and cooperation. It establishes the two fine tiers: up to €10 million or 2% of worldwide annual turnover for infringements of controller/processor obligations (such as security, records, and breach notification), and up to €20 million or 4% for infringements of the basic principles, data subject rights, transfer rules, or orders of a supervisory authority — whichever amount is higher.",
+      "key_requirements": [
+        "Fines are set case by case and must be effective, proportionate, and dissuasive.",
+        "Aggravating and mitigating factors include the nature, gravity, and duration of the infringement, intent or negligence, mitigation actions, degree of responsibility, previous infringements, cooperation, data categories affected, and how the authority learned of it.",
+        "Tier 1: infringements of obligations such as Articles 8, 11, 25-39, 42, and 43 attract fines up to €10 million or 2% of total worldwide annual turnover, whichever is higher.",
+        "Tier 2: infringements of the basic principles (Articles 5, 6, 7, 9), data subject rights (Articles 12-22), transfer rules (Articles 44-49), and non-compliance with supervisory orders attract fines up to €20 million or 4% of total worldwide annual turnover, whichever is higher.",
+        "For combined infringements in the same processing, the total fine may not exceed the amount for the gravest infringement."
+      ],
+      "paragraphs": [
+        { "ref": "83(1)-(2)", "text": "Administrative fines must be effective, proportionate, and dissuasive in each individual case, with due regard to factors including the nature, gravity, and duration of the infringement, its intentional or negligent character, mitigation of damage, technical and organisational measures implemented, previous infringements, cooperation with the authority, categories of data affected, and adherence to codes of conduct or certification." },
+        { "ref": "83(3)", "text": "If a controller or processor infringes several provisions of the regulation for the same or linked processing operations, the total fine may not exceed the amount specified for the gravest infringement." },
+        { "ref": "83(4)", "text": "Infringements of the obligations of controllers and processors under Articles 8, 11, 25 to 39, 42, and 43 (including security, records, and breach notification), and of certification and monitoring bodies, are subject to fines up to €10,000,000 or, for an undertaking, up to 2% of total worldwide annual turnover of the preceding financial year, whichever is higher." },
+        { "ref": "83(5)", "text": "Infringements of the basic principles for processing including conditions for consent (Articles 5, 6, 7, and 9), data subjects' rights (Articles 12 to 22), transfer rules (Articles 44 to 49), Member State laws adopted under Chapter IX, and non-compliance with supervisory authority orders are subject to fines up to €20,000,000 or, for an undertaking, up to 4% of total worldwide annual turnover of the preceding financial year, whichever is higher." },
+        { "ref": "83(6)", "text": "Non-compliance with an order by the supervisory authority under Article 58(2) is subject to fines up to €20,000,000 or, for an undertaking, up to 4% of total worldwide annual turnover, whichever is higher." }
+      ]
+    },
+    { "number": "84", "title": "Penalties", "chapter": "Chapter VIII — Remedies, Liability and Penalties" },
+    { "number": "85", "title": "Processing and freedom of expression and information", "chapter": "Chapter IX — Provisions Relating to Specific Processing Situations" },
+    { "number": "86", "title": "Processing and public access to official documents", "chapter": "Chapter IX — Provisions Relating to Specific Processing Situations" },
+    { "number": "87", "title": "Processing of the national identification number", "chapter": "Chapter IX — Provisions Relating to Specific Processing Situations" },
+    { "number": "88", "title": "Processing in the context of employment", "chapter": "Chapter IX — Provisions Relating to Specific Processing Situations" },
+    { "number": "89", "title": "Safeguards and derogations relating to processing for archiving purposes in the public interest, scientific or historical research purposes or statistical purposes", "chapter": "Chapter IX — Provisions Relating to Specific Processing Situations" },
+    { "number": "90", "title": "Obligations of secrecy", "chapter": "Chapter IX — Provisions Relating to Specific Processing Situations" },
+    { "number": "91", "title": "Existing data protection rules of churches and religious associations", "chapter": "Chapter IX — Provisions Relating to Specific Processing Situations" },
+    { "number": "92", "title": "Exercise of the delegation", "chapter": "Chapter X — Delegated Acts and Implementing Acts" },
+    { "number": "93", "title": "Committee procedure", "chapter": "Chapter X — Delegated Acts and Implementing Acts" },
+    { "number": "94", "title": "Repeal of Directive 95/46/EC", "chapter": "Chapter XI — Final Provisions" },
+    { "number": "95", "title": "Relationship with Directive 2002/58/EC", "chapter": "Chapter XI — Final Provisions" },
+    { "number": "96", "title": "Relationship with previously concluded Agreements", "chapter": "Chapter XI — Final Provisions" },
+    { "number": "97", "title": "Commission reports", "chapter": "Chapter XI — Final Provisions" },
+    { "number": "98", "title": "Review of other Union legal acts on data protection", "chapter": "Chapter XI — Final Provisions" },
+    { "number": "99", "title": "Entry into force and application", "chapter": "Chapter XI — Final Provisions" }
+  ]
+}

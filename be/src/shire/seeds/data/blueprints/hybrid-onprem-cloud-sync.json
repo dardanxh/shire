@@ -1,0 +1,145 @@
+{
+  "slug": "hybrid-onprem-cloud-sync",
+  "name": "Hybrid on-prem → cloud sync",
+  "use_case": "Incremental cloud adoption",
+  "description": "The pragmatic migration shape for estates that cannot big-bang: CDC capture on the on-prem systems (Oracle, SQL Server, DB2) streams changes through a secure transport channel into a cloud landing zone, keeping cloud copies continuously current while on-prem remains the system of record. Workloads then cut over progressively — reporting first, then applications, source by source — with dual-run validation proving parity before each switch, and the sync direction eventually flips or retires. The CDC-based mirror is what makes 'incremental' real: because the cloud copy is always fresh, each cutover is a low-drama traffic switch rather than a weekend freeze-and-copy, and rollback is simply pointing back.",
+  "when_to_use": [
+    "Choose this when on-prem systems must keep running during a multi-quarter migration — regulatory or latency constraints pin some workloads locally, application rewrites lag data readiness, or the estate is too interdependent to move at once.",
+    "It also serves steady-state hybrid operation, where cloud analytics permanently mirrors on-prem transactional systems.",
+    "Regulations or latency pin some systems on-prem while analytics moves to the cloud."
+  ],
+  "when_not_to_use": [
+    "If sources can tolerate a freeze window and dependencies are few, a one-shot lift (DMS full load, backup-restore, export/import) is far less machinery than standing CDC infrastructure.",
+    "Greenfield builds have nothing to sync — start in the cloud.",
+    "And where the real driver is a database engine change rather than location, that is the database-migration archetype with schema conversion at its heart; treat this blueprint's transport as just one component of it."
+  ],
+  "use_cases": [
+    "integration",
+    "operational",
+    "reporting"
+  ],
+  "hot_spots": [
+    {
+      "title": "Parity validation",
+      "detail": "Without count and checksum checks, cloud and on-prem quietly diverge."
+    },
+    {
+      "title": "Cutover sequencing",
+      "detail": "Moving readers before writers, or vice versa, splits the source of truth."
+    },
+    {
+      "title": "Network constraints",
+      "detail": "Bandwidth ceilings turn a nightly sync into a weekend sync."
+    }
+  ],
+  "complexity": "medium",
+  "evolution": [
+    {
+      "to_slug": "medallion-lakehouse",
+      "reason": "Once data lands in the cloud, standardize refinement on lakehouse layers."
+    }
+  ],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[On-prem Data Sources]:::source -->|captured changes| CAP[Capture Agents]:::process\n  CAP -->|encrypted batches| SEC[Secure Transport]:::process\n  SEC -->|landed data| LZ[Cloud Landing Zone]:::store\n  LZ -->|synced datasets| CA[Cloud Analytics]:::serve\n  CUT[Cutover Control]:::govern -. progressive workload routing .-> CA\n  PAR[Parity Validation]:::govern -. count and checksum compare .-> LZ"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  DB[On-prem Databases]:::source -->|CDC + batch agents| AG[Capture Agents]:::process\n  AG -->|private link transfer| TR[Secure Transfer Channel]:::process\n  TR -->|files + streams| OBJ[Cloud Object Storage]:::store\n  OBJ -->|load| CW[Cloud Warehouse]:::store\n  CW -->|serving| BI[Cloud BI]:::serve\n  MC[Migration Controller]:::govern -. staged cutover .-> BI"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([on-prem records]):::source -->|capture window| B([change batches]):::process\n  B -->|encrypt + ship| C([landed files]):::store\n  C -->|load| E([cloud tables]):::store\n  E -->|compare with source| F([verified datasets]):::store\n  F -->|serve| G([cloud analytics]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant S as Scheduler\n  participant A as Capture Agent\n  participant T as Secure Transport\n  participant L as Landing Zone\n  participant W as Cloud Warehouse\n  participant V as Validator\n  S->>A: capture window\n  A->>T: encrypted batch\n  T->>L: deliver files\n  L->>W: load tables\n  V->>W: compare counts + checksums\n  V-->>S: parity confirmed\n  Note over W: reads shift to cloud stage by stage"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[On-prem Data Sources]:::source -->|captured changes| CAP[\"AWS DMS agents<br/><i>Capture Agents</i>\"]:::process\n  CAP -->|encrypted batches| SEC[\"AWS Direct Connect + S3 Transfer<br/><i>Secure Transport</i>\"]:::process\n  SEC -->|landed data| LZ[\"Amazon S3<br/><i>Cloud Landing Zone</i>\"]:::store\n  LZ -->|synced datasets| CA[\"Amazon Redshift + QuickSight<br/><i>Cloud Analytics</i>\"]:::serve\n  CUT[\"Amazon CloudWatch<br/><i>Cutover Control</i>\"]:::govern -. progressive workload routing .-> CA\n  PAR[\"AWS DMS validation<br/><i>Parity Validation</i>\"]:::govern -. count and checksum compare .-> LZ"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[On-prem Data Sources]:::source -->|captured changes| CAP[\"Azure Data Factory SHIR<br/><i>Capture Agents</i>\"]:::process\n  CAP -->|encrypted batches| SEC[\"ExpressRoute + azcopy<br/><i>Secure Transport</i>\"]:::process\n  SEC -->|landed data| LZ[\"Azure Data Lake Storage<br/><i>Cloud Landing Zone</i>\"]:::store\n  LZ -->|synced datasets| CA[\"Synapse + Power BI<br/><i>Cloud Analytics</i>\"]:::serve\n  CUT[\"Azure Monitor<br/><i>Cutover Control</i>\"]:::govern -. progressive workload routing .-> CA\n  PAR[\"ADF validation runs<br/><i>Parity Validation</i>\"]:::govern -. count and checksum compare .-> LZ"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[On-prem Data Sources]:::source -->|captured changes| CAP[\"Google Datastream<br/><i>Capture Agents</i>\"]:::process\n  CAP -->|encrypted batches| SEC[\"Cloud Interconnect + Storage Transfer<br/><i>Secure Transport</i>\"]:::process\n  SEC -->|landed data| LZ[\"Google Cloud Storage<br/><i>Cloud Landing Zone</i>\"]:::store\n  LZ -->|synced datasets| CA[\"BigQuery + Looker<br/><i>Cloud Analytics</i>\"]:::serve\n  CUT[\"Google Cloud Monitoring<br/><i>Cutover Control</i>\"]:::govern -. progressive workload routing .-> CA\n  PAR[\"Datastream validation<br/><i>Parity Validation</i>\"]:::govern -. count and checksum compare .-> LZ"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[On-prem Data Sources]:::source -->|captured changes| CAP[\"Debezium · rsync jobs<br/><i>Capture Agents</i>\"]:::process\n  CAP -->|encrypted batches| SEC[\"WireGuard + object sync<br/><i>Secure Transport</i>\"]:::process\n  SEC -->|landed data| LZ[\"MinIO<br/><i>Cloud Landing Zone</i>\"]:::store\n  LZ -->|synced datasets| CA[\"ClickHouse + Superset<br/><i>Cloud Analytics</i>\"]:::serve\n  CUT[\"Prometheus · Grafana<br/><i>Cutover Control</i>\"]:::govern -. progressive workload routing .-> CA\n  PAR[\"Great Expectations parity suites<br/><i>Parity Validation</i>\"]:::govern -. count and checksum compare .-> LZ"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[On-prem Data Sources]:::source -->|captured changes| CAP[\"Fivetran HVR<br/><i>Capture Agents</i>\"]:::process\n  CAP -->|encrypted batches| SEC[\"Fivetran HVR secure channel<br/><i>Secure Transport</i>\"]:::process\n  SEC -->|landed data| LZ[\"Snowflake stage<br/><i>Cloud Landing Zone</i>\"]:::store\n  LZ -->|synced datasets| CA[\"Snowflake + Tableau<br/><i>Cloud Analytics</i>\"]:::serve\n  CUT[\"Grafana · Monte Carlo<br/><i>Cutover Control</i>\"]:::govern -. progressive workload routing .-> CA\n  PAR[\"HVR compare<br/><i>Parity Validation</i>\"]:::govern -. count and checksum compare .-> LZ"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[On-prem Data Sources]:::source -->|captured changes| CAP[\"LakeFlow Connect agents<br/><i>Capture Agents</i>\"]:::process\n  CAP -->|encrypted batches| SEC[\"Private Link + Auto Loader<br/><i>Secure Transport</i>\"]:::process\n  SEC -->|landed data| LZ[\"Delta Lake on object storage<br/><i>Cloud Landing Zone</i>\"]:::store\n  LZ -->|synced datasets| CA[\"Databricks SQL + Power BI<br/><i>Cloud Analytics</i>\"]:::serve\n  CUT[\"Lakehouse Monitoring<br/><i>Cutover Control</i>\"]:::govern -. progressive workload routing .-> CA\n  PAR[\"Delta parity checks<br/><i>Parity Validation</i>\"]:::govern -. count and checksum compare .-> LZ"
+    }
+  ],
+  "family_tags": [
+    "movement-migration"
+  ],
+  "archetype_slugs": [
+    "cloud-data-migration",
+    "change-data-capture",
+    "database-migration-upgrade"
+  ],
+  "position": 21,
+  "stages": [
+    {
+      "position": 0,
+      "name": "On-prem capture",
+      "role": "Log-based CDC on legacy transactional systems with minimal source impact",
+      "recommended_technology_slug": "oracle-goldengate",
+      "alternative_technology_slugs": [
+        "debezium",
+        "aws-dms",
+        "qlik-replicate",
+        "striim"
+      ],
+      "rationale": "GoldenGate remains the reference for capturing from the Oracle estates that dominate serious on-prem migrations — deepest log-mining integration, DDL replication, and vendor support that risk-averse change boards accept; its license cost is the price of that pedigree. Debezium is the open-source pick when sources are Postgres/MySQL/SQL Server and the team can operate it — dramatically cheaper at equal fidelity there. AWS DMS is serviceable for straightforward moves into AWS despite rough edges on complex schemas; Qlik Replicate and Striim earn their keep in heterogeneous estates (DB2, mainframe-adjacent sources) where breadth of certified sources is the constraint."
+    },
+    {
+      "position": 1,
+      "name": "Secure transport",
+      "role": "Move change streams across the network boundary encrypted and buffered — the private link/VPN itself is network infrastructure with no corpus entry; the data-plane buffer is the pick",
+      "recommended_technology_slug": "apache-kafka",
+      "alternative_technology_slugs": [
+        "azure-event-hubs",
+        "amazon-kinesis",
+        "sftp"
+      ],
+      "rationale": "The security layer is Direct Connect/ExpressRoute/VPN plus TLS and is bought from the network team, not this corpus; the architectural choice here is the data plane riding it. Kafka (on-prem cluster, or mirrored to cloud via replication) is the strongest pattern: it buffers through WAN outages, preserves ordering, and decouples capture cadence from load cadence — the property that keeps a flaky link from becoming a resnapshot. Event Hubs or Kinesis serve as the managed cloud-side termination when running Kafka is unwanted; batch-file relay over SFTP remains legitimate for low-frequency sources and shops whose security review only knows how to approve file transfer. Whatever the plane, size retention to survive your longest plausible link outage."
+    },
+    {
+      "position": 2,
+      "name": "Cloud landing",
+      "role": "Durable landing zone for change streams and bulk loads; staging for cloud warehouses and applications",
+      "recommended_technology_slug": "amazon-s3",
+      "alternative_technology_slugs": [
+        "azure-data-lake-storage",
+        "google-cloud-storage",
+        "snowflake",
+        "apache-iceberg"
+      ],
+      "rationale": "Object storage as the landing zone (S3, or ADLS/GCS per cloud) keeps the migration uncommitted: raw change files land cheap and replayable, and any downstream — Snowflake, Databricks, cloud-native apps — loads from the same source of truth, so warehouse choice does not gate the migration's start. Landing directly into Snowflake is the shortcut when analytics is the only consumer and volume is modest; Iceberg tables on the object store are the upgrade when the landing zone should double as the future lakehouse bronze layer (3). Partition by source and load timestamp from day one — cutover validation lives off this layout."
+    },
+    {
+      "position": 3,
+      "name": "Progressive cutover",
+      "role": "Validate parity, switch consumers workload by workload, retire on-prem incrementally — a process discipline, not a product; validation tooling is the closest software",
+      "recommended_technology_slug": null,
+      "alternative_technology_slugs": [
+        "great-expectations",
+        "soda",
+        "dbt"
+      ],
+      "rationale": "No tool performs a cutover; what software can do is make each switch boring. Reconciliation checks — row counts, sums, checksums per table between on-prem and cloud — belong in Great Expectations or Soda running on schedule, with dbt tests guarding the modelled layer, so 'are we in parity' is a dashboard rather than a debate. The process discipline: rank workloads by risk, cut reporting before applications, dual-run each consumer against both sides through at least one business cycle, keep the rollback path (repoint to on-prem) tested, and define the retirement criterion per source up front — synced systems nobody dares to switch off are how hybrid becomes a permanent double bill."
+    }
+  ]
+}

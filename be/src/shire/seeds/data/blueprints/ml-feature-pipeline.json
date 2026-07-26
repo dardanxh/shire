@@ -1,0 +1,161 @@
+{
+  "slug": "ml-feature-pipeline",
+  "name": "ML feature pipeline",
+  "use_case": "Point-in-time-correct features, offline+online",
+  "description": "Feature engineering industrialized: source data is transformed into feature values, registered in a feature store that maintains two synchronized views — an offline store for training (with point-in-time-correct joins that prevent label leakage) and an online store serving the same features at inference latency. The dual-store design attacks the two failure modes that quietly ruin ML systems: training/serving skew (features computed differently in the notebook and in production) and temporal leakage (training on information that was not knowable at prediction time). The feature store's registry also turns features into shared, discoverable assets across teams instead of per-model snowflakes.",
+  "when_to_use": [
+    "Choose this when models are in production and being retrained — multiple models sharing features, online inference needing fresh feature values in milliseconds, or a team that has already been burned by skew or leakage.",
+    "Point-in-time correctness stops being academic the moment a time-dependent feature (rolling spend, recent activity) enters a model.",
+    "Models keep failing in production because training features do not match serving."
+  ],
+  "when_not_to_use": [
+    "Skip it for batch-scoring-only workloads — precompute features in warehouse tables with dbt and score offline; no online store, no feature store, much less machinery.",
+    "One model with a handful of static features does not justify the operational surface.",
+    "Adopt the feature store when feature sharing and online serving are real, not anticipated."
+  ],
+  "use_cases": [
+    "ml",
+    "realtime"
+  ],
+  "hot_spots": [
+    {
+      "title": "Training/serving skew",
+      "detail": "Features computed differently offline vs online quietly degrade models."
+    },
+    {
+      "title": "Point-in-time leakage",
+      "detail": "Future data leaking into training sets fakes accuracy that vanishes in production."
+    },
+    {
+      "title": "Feature staleness",
+      "detail": "Delayed online syncs serve outdated features to live predictions."
+    }
+  ],
+  "complexity": "high",
+  "evolution": [],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw signals| LAKE[Raw Data Lake]:::store\n  LAKE -->|curated inputs| FE[Feature Engineering]:::process\n  FE -->|point-in-time features| OFF[Offline Feature Store]:::store\n  OFF -->|training sets| TR[Model Training]:::process\n  TR -->|model artifacts| REG[Model Registry]:::store\n  OFF -->|synced latest values| ON[Online Feature Store]:::store\n  ON -->|low-latency lookups| SRV[Model Serving]:::serve\n  REG -->|deployed models| SRV"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  SRC[Databases + Streams]:::source -->|raw data| LZL[Object Storage Lake]:::store\n  LZL -->|curated reads| TF[Feature Transformation]:::process\n  TF -->|historical values| OFS[Offline Store in Warehouse]:::store\n  TF -->|latest values| ONS[Online Key-Value Store]:::store\n  OFS -->|point-in-time joins| TP[Training Platform]:::process\n  TP -->|artifacts| MR[Model Registry]:::store\n  ONS -->|feature vectors| INF[Inference Services]:::serve\n  MR -->|models| INF"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([raw events + tables]):::source -->|land| LD2([landed raw data]):::store\n  LD2 -->|engineer| B([feature values]):::store\n  B -->|point-in-time snapshot| C([training datasets]):::store\n  C -->|train| E([model artifacts]):::store\n  B -->|sync latest| F([online features]):::store\n  F -->|serve with model| G([predictions]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant S as Scheduler\n  participant P as Feature Pipeline\n  participant D as Raw Data Lake\n  participant O as Offline Store\n  participant N as Online Store\n  participant T as Trainer\n  participant I as Inference\n  S->>P: compute features\n  P->>D: read landed raw data\n  P->>O: write historical values\n  P->>N: sync latest values\n  T->>O: fetch point-in-time dataset\n  T->>T: train + register model\n  I->>N: fetch features at request time\n  I-->>I: predict with same features as training"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw signals| LAKE[\"Amazon S3 + Iceberg<br/><i>Raw Data Lake</i>\"]:::store\n  LAKE -->|curated inputs| FE[\"Amazon SageMaker Processing<br/><i>Feature Engineering</i>\"]:::process\n  FE -->|point-in-time features| OFF[\"SageMaker Feature Store offline<br/><i>Offline Feature Store</i>\"]:::store\n  OFF -->|training sets| TR[\"Amazon SageMaker Training<br/><i>Model Training</i>\"]:::process\n  TR -->|model artifacts| REG[\"SageMaker Model Registry<br/><i>Model Registry</i>\"]:::store\n  OFF -->|synced latest values| ON[\"SageMaker Feature Store online<br/><i>Online Feature Store</i>\"]:::store\n  ON -->|low-latency lookups| SRV[\"SageMaker Endpoints<br/><i>Model Serving</i>\"]:::serve\n  REG -->|deployed models| SRV"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw signals| LAKE[\"ADLS + Delta<br/><i>Raw Data Lake</i>\"]:::store\n  LAKE -->|curated inputs| FE[\"Azure ML pipelines<br/><i>Feature Engineering</i>\"]:::process\n  FE -->|point-in-time features| OFF[\"Azure ML feature store offline<br/><i>Offline Feature Store</i>\"]:::store\n  OFF -->|training sets| TR[\"Azure Machine Learning<br/><i>Model Training</i>\"]:::process\n  TR -->|model artifacts| REG[\"Azure ML registry<br/><i>Model Registry</i>\"]:::store\n  OFF -->|synced latest values| ON[\"Azure Cache for Redis<br/><i>Online Feature Store</i>\"]:::store\n  ON -->|low-latency lookups| SRV[\"Azure ML endpoints<br/><i>Model Serving</i>\"]:::serve\n  REG -->|deployed models| SRV"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw signals| LAKE[\"GCS + Iceberg<br/><i>Raw Data Lake</i>\"]:::store\n  LAKE -->|curated inputs| FE[\"Vertex AI Pipelines<br/><i>Feature Engineering</i>\"]:::process\n  FE -->|point-in-time features| OFF[\"Vertex AI Feature Store offline<br/><i>Offline Feature Store</i>\"]:::store\n  OFF -->|training sets| TR[\"Vertex AI Training<br/><i>Model Training</i>\"]:::process\n  TR -->|model artifacts| REG[\"Vertex AI Model Registry<br/><i>Model Registry</i>\"]:::store\n  OFF -->|synced latest values| ON[\"Vertex AI Feature Store online<br/><i>Online Feature Store</i>\"]:::store\n  ON -->|low-latency lookups| SRV[\"Vertex AI Prediction<br/><i>Model Serving</i>\"]:::serve\n  REG -->|deployed models| SRV"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw signals| LAKE[\"MinIO + Iceberg<br/><i>Raw Data Lake</i>\"]:::store\n  LAKE -->|curated inputs| FE[\"Apache Spark + Feast transforms<br/><i>Feature Engineering</i>\"]:::process\n  FE -->|point-in-time features| OFF[\"Feast offline store<br/><i>Offline Feature Store</i>\"]:::store\n  OFF -->|training sets| TR[\"MLflow + PyTorch<br/><i>Model Training</i>\"]:::process\n  TR -->|model artifacts| REG[\"MLflow Model Registry<br/><i>Model Registry</i>\"]:::store\n  OFF -->|synced latest values| ON[\"Feast + Redis<br/><i>Online Feature Store</i>\"]:::store\n  ON -->|low-latency lookups| SRV[\"KServe · BentoML<br/><i>Model Serving</i>\"]:::serve\n  REG -->|deployed models| SRV"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw signals| LAKE[\"Snowflake Iceberg tables<br/><i>Raw Data Lake</i>\"]:::store\n  LAKE -->|curated inputs| FE[\"Snowpark feature pipelines<br/><i>Feature Engineering</i>\"]:::process\n  FE -->|point-in-time features| OFF[\"Snowflake Feature Store<br/><i>Offline Feature Store</i>\"]:::store\n  OFF -->|training sets| TR[\"Snowpark ML<br/><i>Model Training</i>\"]:::process\n  TR -->|model artifacts| REG[\"Snowflake Model Registry<br/><i>Model Registry</i>\"]:::store\n  OFF -->|synced latest values| ON[\"Snowflake hybrid tables<br/><i>Online Feature Store</i>\"]:::store\n  ON -->|low-latency lookups| SRV[\"Snowpark Container Services<br/><i>Model Serving</i>\"]:::serve\n  REG -->|deployed models| SRV"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw signals| LAKE[\"Delta Lake<br/><i>Raw Data Lake</i>\"]:::store\n  LAKE -->|curated inputs| FE[\"Databricks Feature Engineering<br/><i>Feature Engineering</i>\"]:::process\n  FE -->|point-in-time features| OFF[\"Databricks Feature Store<br/><i>Offline Feature Store</i>\"]:::store\n  OFF -->|training sets| TR[\"Databricks ML · MLflow<br/><i>Model Training</i>\"]:::process\n  TR -->|model artifacts| REG[\"Unity Catalog models<br/><i>Model Registry</i>\"]:::store\n  OFF -->|synced latest values| ON[\"Databricks online tables<br/><i>Online Feature Store</i>\"]:::store\n  ON -->|low-latency lookups| SRV[\"Databricks Model Serving<br/><i>Model Serving</i>\"]:::serve\n  REG -->|deployed models| SRV"
+    }
+  ],
+  "family_tags": [
+    "ml-ai-infrastructure"
+  ],
+  "archetype_slugs": [
+    "feature-store-implementation",
+    "ml-training-data-pipeline",
+    "real-time-feature-computation"
+  ],
+  "position": 15,
+  "stages": [
+    {
+      "position": 0,
+      "name": "Sources",
+      "role": "Upstream data feeding features — warehouse tables, event streams, operational databases; your existing estate, not a single tool",
+      "recommended_technology_slug": null,
+      "alternative_technology_slugs": [
+        "snowflake",
+        "apache-kafka",
+        "postgresql"
+      ],
+      "rationale": "Features are derived from whatever the platform already has: warehouse marts (batch features like 90-day spend), event streams (real-time features like session counts), and operational databases (current account state). The architectural requirement sources must meet is timestamped history — point-in-time-correct training joins are impossible over sources that only keep current state, which is an argument for CDC (4) or event capture upstream of any serious feature pipeline."
+    },
+    {
+      "name": "Landing",
+      "role": "Raw data lake feeding feature engineering — reproducible backfills of features",
+      "recommended_technology_slug": "amazon-s3",
+      "alternative_technology_slugs": [
+        "azure-blob-storage",
+        "google-cloud-storage",
+        "minio"
+      ],
+      "rationale": "Cheap immutable object storage as the landing layer decouples ingestion from processing: replays, backfills, and audits read the raw dump instead of re-extracting from sources."
+    },
+    {
+      "position": 1,
+      "name": "Transform",
+      "role": "Compute feature values from raw sources: aggregations, windows, encodings — batch and streaming",
+      "recommended_technology_slug": "apache-spark",
+      "alternative_technology_slugs": [
+        "dbt",
+        "apache-flink",
+        "polars"
+      ],
+      "rationale": "Spark covers both halves of feature computation — large-scale batch backfills over history and Structured Streaming for fresh values — with one engine and one codebase, which directly serves the anti-skew goal. In practice most tabular batch features are honestly SQL, and dbt-in-the-warehouse is the simpler path for those, reserving Spark for what SQL cannot express; Flink takes over when real-time features need event-time windowed correctness at low latency; Polars for single-node Python pipelines. Define each feature's logic exactly once, wherever it runs — dual implementations are how skew gets in."
+    },
+    {
+      "position": 2,
+      "name": "Feature store",
+      "role": "Registry and consistency layer: feature definitions, point-in-time training retrieval, offline/online sync",
+      "recommended_technology_slug": "feast",
+      "alternative_technology_slugs": [
+        "tecton",
+        "hopsworks",
+        "databricks-ml"
+      ],
+      "rationale": "Feast is the open-source standard: feature definitions as code, point-in-time joins for training-set construction, and materialization to pluggable online stores — importantly it orchestrates rather than computes, sitting cleanly atop the warehouse/Spark transforms you already run. Tecton is the managed heavyweight that adds the transformation layer itself (declarative pipelines, streaming features) and wins when feature freshness SLAs justify its cost; Hopsworks bundles a full platform; Databricks Feature Store is the low-friction pick if you live on Databricks. Start with Feast unless streaming-feature SLAs demand Tecton."
+    },
+    {
+      "position": 3,
+      "name": "Online store",
+      "role": "Serve current feature values at inference time with millisecond reads",
+      "recommended_technology_slug": "redis",
+      "alternative_technology_slugs": [
+        "dynamodb",
+        "valkey",
+        "cassandra"
+      ],
+      "rationale": "Redis delivers sub-millisecond reads at high concurrency and is Feast's most battle-tested online backend — the default for latency-sensitive inference. DynamoDB trades a little latency for zero operations and serverless scaling, compelling on AWS; Valkey is the open-license Redis fork with an identical profile; Cassandra/Scylla when feature rows are huge and write volume dominates. Watch the materialization freshness gap — the online store only knows what was last pushed, so its update cadence is part of every feature's real SLA."
+    },
+    {
+      "position": 4,
+      "name": "Training/serving",
+      "role": "Consume features: build training sets offline, look up feature vectors at inference; tracked and deployed via MLOps tooling",
+      "recommended_technology_slug": "mlflow",
+      "alternative_technology_slugs": [
+        "sagemaker",
+        "vertex-ai",
+        "bentoml",
+        "kserve"
+      ],
+      "rationale": "MLflow is the neutral backbone for the consuming side — experiment tracking against feature-store-built training sets, a model registry, and deployment hand-off — and it runs anywhere this pipeline does. SageMaker and Vertex are the full managed platforms when you are committed to AWS/GCP; BentoML and KServe cover the serving half specifically, packaging models whose request path calls the online store for feature vectors. The discipline that ties it together: log the feature-store snapshot/version with every training run, so any model can be traced to exactly the feature data that built it."
+    }
+  ]
+}

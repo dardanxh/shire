@@ -1,0 +1,957 @@
+{
+  "slug": "eu-ai-act",
+  "name": "EU AI Act",
+  "full_name": "Regulation (EU) 2024/1689 laying down harmonised rules on artificial intelligence",
+  "category": "ai",
+  "region": "eu",
+  "jurisdiction": "European Union",
+  "status": "phasing_in",
+  "effective_year": 2024,
+  "effective_date": "1 August 2024 (obligations phase in through 2027)",
+  "description": "The EU AI Act is the world's first comprehensive law regulating artificial intelligence. It takes a risk-based approach: a small set of AI practices are banned outright, high-risk AI systems face strict requirements around risk management, data governance, transparency and human oversight, and general-purpose AI models get their own obligation tier. The rules entered into force on 1 August 2024 and phase in gradually — prohibitions from February 2025, general-purpose AI obligations from August 2025, and most high-risk requirements from August 2026 onward.",
+  "who_is_impacted": [
+    "Providers that develop AI systems or general-purpose AI models and place them on the EU market or put them into service in the EU, regardless of where the provider is established.",
+    "Deployers — organisations using AI systems under their own authority — that are located in the EU, plus providers and deployers in third countries whose system output is used in the EU.",
+    "Importers and distributors of AI systems, and product manufacturers that place products on the market with an embedded AI system under their own name or trademark.",
+    "Providers of general-purpose AI models, with heavier obligations for models designated as having systemic risk, such as those trained above the compute threshold.",
+    "Public bodies and private entities providing public services face extra duties, including fundamental rights impact assessments before deploying certain high-risk systems.",
+    "Notable exemptions: AI used exclusively for military, defence or national security purposes, activities of scientific research and development, and purely personal non-professional use; free and open-source models enjoy lighter obligations unless they pose systemic risk."
+  ],
+  "penalties": "Up to €35M or 7% of global annual turnover for prohibited practices; up to €15M or 3% for most other violations",
+  "official_url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+  "unit_label": "article",
+  "triggering_data_classes": ["ai_automated_decisions"],
+  "articles": [
+    {
+      "number": "1",
+      "title": "Subject matter",
+      "chapter": "Chapter I — General Provisions"
+    },
+    {
+      "number": "2",
+      "title": "Scope",
+      "chapter": "Chapter I — General Provisions"
+    },
+    {
+      "number": "3",
+      "title": "Definitions",
+      "chapter": "Chapter I — General Provisions"
+    },
+    {
+      "number": "4",
+      "title": "AI literacy",
+      "chapter": "Chapter I — General Provisions"
+    },
+    {
+      "number": "5",
+      "title": "Prohibited AI practices",
+      "chapter": "Chapter II — Prohibited AI Practices",
+      "is_key": true,
+      "summary": "Bans AI practices the EU considers an unacceptable risk, applying from 2 February 2025. Prohibited practices include manipulative or exploitative techniques that cause significant harm, social scoring, certain predictive policing based solely on profiling, untargeted scraping of facial images, emotion recognition in workplaces and schools, and biometric categorisation to infer sensitive attributes. Real-time remote biometric identification in publicly accessible spaces for law enforcement is banned except in narrowly defined, authorised situations.",
+      "key_requirements": [
+        "Do not deploy AI that uses subliminal or purposefully manipulative techniques that materially distort behaviour and cause significant harm",
+        "Do not exploit vulnerabilities linked to age, disability, or social or economic situation",
+        "No social scoring that leads to detrimental or disproportionate treatment in unrelated contexts",
+        "No untargeted scraping of facial images from the internet or CCTV to build facial recognition databases",
+        "No emotion recognition in workplaces or education institutions, except for medical or safety reasons",
+        "Real-time remote biometric identification in public spaces for law enforcement only under narrow exceptions with prior authorisation"
+      ],
+      "paragraphs": [
+        {
+          "ref": "5(1)(a)-(b)",
+          "text": "Prohibits placing on the market or using AI systems that deploy subliminal, purposefully manipulative or deceptive techniques, or that exploit vulnerabilities due to age, disability or social/economic situation, where this materially distorts behaviour and causes or is reasonably likely to cause significant harm."
+        },
+        {
+          "ref": "5(1)(c)",
+          "text": "Prohibits social scoring — evaluating or classifying people based on social behaviour or personal characteristics where the score leads to detrimental treatment in unrelated contexts or treatment that is unjustified or disproportionate."
+        },
+        {
+          "ref": "5(1)(e)-(g)",
+          "text": "Prohibits untargeted scraping of facial images from the internet or CCTV to create facial recognition databases, emotion inference in workplaces and education institutions (except medical or safety reasons), and biometric categorisation to deduce race, political opinions, trade union membership, religious beliefs, sex life or sexual orientation."
+        },
+        {
+          "ref": "5(1)(h)",
+          "text": "Prohibits real-time remote biometric identification in publicly accessible spaces for law enforcement, unless strictly necessary to search for victims of abduction or trafficking, prevent a specific and imminent threat to life or a foreseeable terrorist attack, or locate suspects of serious crimes."
+        },
+        {
+          "ref": "5(3)",
+          "text": "Any permitted use of real-time remote biometric identification requires prior authorisation by a judicial authority or independent administrative authority, based on a request justifying necessity and proportionality."
+        }
+      ]
+    },
+    {
+      "number": "6",
+      "title": "Classification rules for high-risk AI systems",
+      "chapter": "Chapter III — High-Risk AI Systems",
+      "is_key": true,
+      "summary": "Sets the rules that decide whether an AI system is high-risk. A system is high-risk if it is a product, or a safety component of a product, covered by the Annex I EU harmonisation legislation and subject to third-party conformity assessment, or if it falls under one of the Annex III use cases (biometrics, critical infrastructure, education, employment, essential services, law enforcement, migration, justice). Annex III systems can escape the classification if they do not pose a significant risk to health, safety or fundamental rights, but profiling of natural persons always keeps a system high-risk.",
+      "key_requirements": [
+        "Classify as high-risk any AI system that is a safety component of, or itself is, a product covered by Annex I legislation requiring third-party conformity assessment",
+        "Classify as high-risk any AI system falling under the Annex III use-case areas",
+        "A provider relying on the Article 6(3) derogation must document its assessment before placing the system on the market and register the system",
+        "AI systems that perform profiling of natural persons are always considered high-risk"
+      ],
+      "paragraphs": [
+        {
+          "ref": "6(1)",
+          "text": "An AI system is high-risk where it is intended as a safety component of a product, or is itself a product, covered by the Union harmonisation legislation in Annex I and required to undergo third-party conformity assessment."
+        },
+        {
+          "ref": "6(2)",
+          "text": "In addition, AI systems referred to in Annex III (e.g. biometrics, critical infrastructure, education, employment, essential public and private services, law enforcement, migration, administration of justice) are considered high-risk."
+        },
+        {
+          "ref": "6(3)",
+          "text": "An Annex III system is not high-risk where it does not pose a significant risk of harm to health, safety or fundamental rights — for example where it performs a narrow procedural task or a preparatory task — but a system that performs profiling of natural persons is always high-risk."
+        },
+        {
+          "ref": "6(4)",
+          "text": "A provider who considers an Annex III system not to be high-risk must document its assessment before placing the system on the market or putting it into service, and provide it to national authorities on request."
+        }
+      ]
+    },
+    {
+      "number": "7",
+      "title": "Amendments to Annex III",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "8",
+      "title": "Compliance with the requirements",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "9",
+      "title": "Risk management system",
+      "chapter": "Chapter III — High-Risk AI Systems",
+      "is_key": true,
+      "summary": "Requires providers of high-risk AI systems to establish, implement, document and maintain a risk management system that runs as a continuous, iterative process across the entire lifecycle. Risks to health, safety and fundamental rights must be identified, estimated and evaluated, and addressed with targeted mitigation measures so residual risk is acceptable. Testing underpins the process, and impacts on persons under 18 and other vulnerable groups must be specifically considered.",
+      "key_requirements": [
+        "Establish and maintain a documented, continuously iterated risk management system across the system lifecycle",
+        "Identify and analyse reasonably foreseeable risks to health, safety and fundamental rights, including under reasonably foreseeable misuse",
+        "Adopt targeted risk management measures so that residual risks are judged acceptable",
+        "Test the system to identify the most appropriate risk management measures, including against predefined metrics and thresholds",
+        "Give specific consideration to impacts on persons under 18 and other vulnerable groups"
+      ],
+      "paragraphs": [
+        {
+          "ref": "9(1)-(2)",
+          "text": "A risk management system must be established, implemented, documented and maintained for high-risk AI systems, understood as a continuous iterative process planned and run throughout the entire lifecycle and requiring regular systematic review and updating."
+        },
+        {
+          "ref": "9(2)(a)-(d)",
+          "text": "The process must identify and analyse known and reasonably foreseeable risks to health, safety or fundamental rights, estimate and evaluate risks arising in intended use and reasonably foreseeable misuse, evaluate risks from post-market monitoring data, and adopt appropriate targeted risk management measures."
+        },
+        {
+          "ref": "9(5)",
+          "text": "Risk management measures must ensure residual risk is judged acceptable: eliminate or reduce risks as far as technically feasible through design, apply mitigation and control measures for risks that cannot be eliminated, and provide the information and training required under Article 13."
+        },
+        {
+          "ref": "9(6)-(8)",
+          "text": "High-risk AI systems must be tested to identify the most appropriate and targeted risk management measures, at any point in development and before market placement, against prior-defined metrics and probabilistic thresholds appropriate to the intended purpose."
+        },
+        {
+          "ref": "9(9)",
+          "text": "When implementing the risk management system, providers must give consideration to whether the system, in view of its intended purpose, is likely to have an adverse impact on persons under the age of 18 and, as appropriate, other vulnerable groups."
+        }
+      ]
+    },
+    {
+      "number": "10",
+      "title": "Data and data governance",
+      "chapter": "Chapter III — High-Risk AI Systems",
+      "is_key": true,
+      "summary": "Sets data quality and governance requirements for high-risk AI systems that are trained on data. Training, validation and testing datasets must be managed under documented governance practices covering design choices, provenance, collection, preparation and assumptions, and must be examined for biases that could affect health, safety or fundamental rights. Datasets must be relevant, sufficiently representative and, to the best extent possible, free of errors and complete for the intended purpose. Special categories of personal data may be processed for bias detection and correction only when strictly necessary and under strong safeguards.",
+      "key_requirements": [
+        "Apply data governance and management practices covering design choices, data provenance and origin, collection processes, and preparation operations such as annotation, labelling, cleaning and aggregation",
+        "Examine datasets for possible biases likely to affect health, safety or fundamental rights or lead to prohibited discrimination, and take measures to detect, prevent and mitigate them",
+        "Ensure training, validation and testing datasets are relevant, sufficiently representative and, to the best extent possible, free of errors and complete in view of the intended purpose",
+        "Take into account the characteristics of the specific geographical, contextual, behavioural or functional setting in which the system will be used",
+        "Process special categories of personal data for bias detection and correction only when strictly necessary, with safeguards such as access restrictions, no onward transfer, and deletion once bias is corrected"
+      ],
+      "paragraphs": [
+        {
+          "ref": "10(1)-(2)",
+          "text": "High-risk AI systems using techniques involving model training must be developed on training, validation and testing datasets that meet the quality criteria of this Article, subject to data governance and management practices appropriate for the intended purpose — covering design choices, data origin and collection, preparation operations, assumptions, availability and suitability assessment, bias examination and mitigation, and identification of data gaps."
+        },
+        {
+          "ref": "10(2)(f)-(g)",
+          "text": "Governance practices must include examination in view of possible biases that are likely to affect health and safety, negatively impact fundamental rights or lead to discrimination prohibited under Union law, and appropriate measures to detect, prevent and mitigate those biases."
+        },
+        {
+          "ref": "10(3)",
+          "text": "Training, validation and testing datasets must be relevant, sufficiently representative, and to the best extent possible free of errors and complete in view of the intended purpose, with appropriate statistical properties for the persons on whom the system is intended to be used."
+        },
+        {
+          "ref": "10(4)",
+          "text": "Datasets must take into account, to the extent required by the intended purpose, the characteristics or elements particular to the specific geographical, contextual, behavioural or functional setting within which the high-risk AI system is intended to be used."
+        },
+        {
+          "ref": "10(5)",
+          "text": "Providers may exceptionally process special categories of personal data where strictly necessary for bias detection and correction, subject to safeguards: bias correction cannot be achieved with other data, the data are protected and access-restricted, not transmitted or made available to others, and deleted once the bias is corrected or the retention period ends."
+        }
+      ]
+    },
+    {
+      "number": "11",
+      "title": "Technical documentation",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "12",
+      "title": "Record-keeping",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "13",
+      "title": "Transparency and provision of information to deployers",
+      "chapter": "Chapter III — High-Risk AI Systems",
+      "is_key": true,
+      "summary": "Requires high-risk AI systems to be designed so their operation is sufficiently transparent for deployers to interpret the output and use it appropriately. Systems must ship with instructions for use in an accessible format covering the provider's identity, the system's characteristics, capabilities and limitations, its accuracy levels, known risks, human oversight measures, and expected lifetime and maintenance needs.",
+      "key_requirements": [
+        "Design high-risk AI systems so deployers can interpret the output and use the system appropriately",
+        "Provide instructions for use in an appropriate digital or other format, concise, complete, correct and clear",
+        "Document the system's intended purpose, accuracy (including metrics), robustness and cybersecurity levels, and known or foreseeable circumstances that may affect them",
+        "Describe human oversight measures and the technical measures that help deployers interpret outputs",
+        "State computational and hardware requirements, expected lifetime, and necessary maintenance and care measures"
+      ],
+      "paragraphs": [
+        {
+          "ref": "13(1)",
+          "text": "High-risk AI systems must be designed and developed so their operation is sufficiently transparent to enable deployers to interpret a system's output and use it appropriately, ensuring providers and deployers can comply with their obligations."
+        },
+        {
+          "ref": "13(2)",
+          "text": "Systems must be accompanied by instructions for use in an appropriate digital format or otherwise, containing concise, complete, correct and clear information that is relevant, accessible and comprehensible to deployers."
+        },
+        {
+          "ref": "13(3)",
+          "text": "Instructions must cover the provider's identity, the system's characteristics, capabilities and limitations of performance — including intended purpose, accuracy metrics, robustness and cybersecurity — foreseeable misuse risks, human oversight measures per Article 14, needed computational resources, expected lifetime and maintenance, and mechanisms for log collection and interpretation."
+        }
+      ]
+    },
+    {
+      "number": "14",
+      "title": "Human oversight",
+      "chapter": "Chapter III — High-Risk AI Systems",
+      "is_key": true,
+      "summary": "Requires high-risk AI systems to be designed with appropriate human-machine interface tools so natural persons can effectively oversee them during use. Oversight aims to prevent or minimise risks to health, safety and fundamental rights, and must be proportionate to the system's risks and context. Overseers must be able to understand the system, remain aware of automation bias, correctly interpret output, decide not to use it, and intervene or stop the system. Certain biometric identification systems require verification by at least two competent persons.",
+      "key_requirements": [
+        "Design systems with human-machine interface tools enabling effective oversight by natural persons during use",
+        "Enable overseers to understand the system's capacities and limitations and to monitor its operation for anomalies and unexpected performance",
+        "Guard against automation bias — over-reliance on system output — particularly for systems providing information or recommendations for human decisions",
+        "Enable the overseer to correctly interpret output, disregard or override it, decide not to use the system, and intervene or halt it via a stop control",
+        "For remote biometric identification systems under Annex III point 1(a), require separate verification by at least two competent natural persons before acting on an identification"
+      ],
+      "paragraphs": [
+        {
+          "ref": "14(1)-(2)",
+          "text": "High-risk AI systems must be designed so they can be effectively overseen by natural persons during use, including through appropriate human-machine interface tools, with oversight aimed at preventing or minimising risks to health, safety or fundamental rights in intended use and reasonably foreseeable misuse."
+        },
+        {
+          "ref": "14(3)",
+          "text": "Oversight measures must be commensurate with the risks, level of autonomy and context of use, delivered either through measures built into the system by the provider or measures identified by the provider for the deployer to implement."
+        },
+        {
+          "ref": "14(4)",
+          "text": "Persons assigned to oversight must be enabled, as appropriate and proportionate, to understand the system's capacities and limitations, remain aware of automation bias, correctly interpret output, decide not to use the system or disregard or reverse its output, and intervene in or interrupt the system through a stop button or similar procedure."
+        },
+        {
+          "ref": "14(5)",
+          "text": "For remote biometric identification systems listed in Annex III point 1(a), no action or decision may be taken by the deployer on the basis of an identification unless it has been separately verified and confirmed by at least two natural persons with the necessary competence, training and authority (with exceptions for certain law enforcement, migration and border contexts where this would be disproportionate)."
+        }
+      ]
+    },
+    {
+      "number": "15",
+      "title": "Accuracy, robustness and cybersecurity",
+      "chapter": "Chapter III — High-Risk AI Systems",
+      "is_key": true,
+      "summary": "Requires high-risk AI systems to achieve appropriate accuracy, robustness and cybersecurity, and to perform consistently on those measures throughout their lifecycle. Accuracy levels and metrics must be declared in the instructions for use. Systems must be resilient to errors, faults and inconsistencies, with feedback-loop bias mitigation for continuously learning systems, and protected against AI-specific attacks such as data poisoning, model poisoning, adversarial examples and confidentiality attacks.",
+      "key_requirements": [
+        "Design and develop high-risk AI systems to achieve appropriate levels of accuracy, robustness and cybersecurity, performed consistently across the lifecycle",
+        "Declare accuracy levels and relevant accuracy metrics in the accompanying instructions for use",
+        "Make systems resilient to errors, faults and inconsistencies, including through technical redundancy such as backup or fail-safe plans",
+        "For systems that continue learning after deployment, eliminate or reduce the risk of biased feedback loops influencing future operations",
+        "Protect systems against attempts to exploit vulnerabilities, including data poisoning, model poisoning, adversarial examples or model evasion, and confidentiality attacks"
+      ],
+      "paragraphs": [
+        {
+          "ref": "15(1)-(2)",
+          "text": "High-risk AI systems must be designed and developed to achieve an appropriate level of accuracy, robustness and cybersecurity and to perform consistently in those respects throughout their lifecycle; the Commission shall encourage the development of benchmarks and measurement methodologies."
+        },
+        {
+          "ref": "15(3)",
+          "text": "The levels of accuracy and the relevant accuracy metrics of high-risk AI systems shall be declared in the accompanying instructions of use."
+        },
+        {
+          "ref": "15(4)",
+          "text": "Systems must be as resilient as possible regarding errors, faults or inconsistencies within the system or its environment, including through technical redundancy solutions; systems that continue to learn after deployment must be developed to eliminate or reduce the risk of biased outputs influencing input for future operations (feedback loops), with appropriate mitigation measures."
+        },
+        {
+          "ref": "15(5)",
+          "text": "Systems must be resilient against attempts by unauthorised third parties to alter their use, outputs or performance by exploiting vulnerabilities; technical solutions must be appropriate to the circumstances and risks and address, where appropriate, data poisoning, model poisoning, adversarial examples or model evasion, and confidentiality attacks."
+        }
+      ]
+    },
+    {
+      "number": "16",
+      "title": "Obligations of providers of high-risk AI systems",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "17",
+      "title": "Quality management system",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "18",
+      "title": "Documentation keeping",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "19",
+      "title": "Automatically generated logs",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "20",
+      "title": "Corrective actions and duty of information",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "21",
+      "title": "Cooperation with competent authorities",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "22",
+      "title": "Authorised representatives of providers of high-risk AI systems",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "23",
+      "title": "Obligations of importers",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "24",
+      "title": "Obligations of distributors",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "25",
+      "title": "Responsibilities along the AI value chain",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "26",
+      "title": "Obligations of deployers of high-risk AI systems",
+      "chapter": "Chapter III — High-Risk AI Systems",
+      "is_key": true,
+      "summary": "Sets the obligations of deployers (organisations using high-risk AI systems under their authority). Deployers must use systems in accordance with the instructions for use, assign competent human oversight, ensure relevant and representative input data to the extent they control it, monitor operation, and keep automatically generated logs for at least six months. Workplace deployers must inform workers before use, public-sector deployers must be registered, and affected natural persons must be informed when a high-risk system makes or helps make decisions about them.",
+      "key_requirements": [
+        "Take appropriate technical and organisational measures to use the system in accordance with its instructions for use",
+        "Assign human oversight to natural persons with the necessary competence, training, authority and support",
+        "Ensure, to the extent the deployer exercises control over input data, that it is relevant and sufficiently representative for the intended purpose",
+        "Monitor operation, inform the provider and authorities of risks or serious incidents, and suspend use where a risk arises",
+        "Keep automatically generated logs under the deployer's control for at least six months",
+        "Inform workers' representatives and affected workers before using high-risk AI in the workplace, and inform natural persons subject to decisions made with the system"
+      ],
+      "paragraphs": [
+        {
+          "ref": "26(1)-(2)",
+          "text": "Deployers must take appropriate technical and organisational measures to ensure they use high-risk AI systems in accordance with the instructions for use, and must assign human oversight to natural persons who have the necessary competence, training and authority as well as the necessary support."
+        },
+        {
+          "ref": "26(4)",
+          "text": "To the extent the deployer exercises control over the input data, it must ensure that input data is relevant and sufficiently representative in view of the intended purpose of the high-risk AI system."
+        },
+        {
+          "ref": "26(5)-(6)",
+          "text": "Deployers must monitor operation on the basis of the instructions for use, inform providers and relevant authorities where use may present a risk or where a serious incident is identified and suspend use, and keep the automatically generated logs under their control for a period appropriate to the intended purpose, of at least six months."
+        },
+        {
+          "ref": "26(7)",
+          "text": "Before putting into service or using a high-risk AI system at the workplace, deployers who are employers must inform workers' representatives and the affected workers that they will be subject to the use of the system."
+        },
+        {
+          "ref": "26(8)-(11)",
+          "text": "Public authority deployers must not use unregistered Annex III systems and must register themselves as deployers; deployers must use provider-supplied information to carry out data protection impact assessments where applicable and must inform natural persons that they are subject to a high-risk AI system used to make or assist decisions about them."
+        }
+      ]
+    },
+    {
+      "number": "27",
+      "title": "Fundamental rights impact assessment for high-risk AI systems",
+      "chapter": "Chapter III — High-Risk AI Systems",
+      "is_key": true,
+      "summary": "Requires certain deployers to complete a fundamental rights impact assessment before first using a high-risk AI system. This applies to bodies governed by public law, private entities providing public services, and deployers of high-risk systems for creditworthiness assessment or life and health insurance pricing. The assessment covers the usage process, affected persons, risks of harm, human oversight and complaint mechanisms, and its results must be notified to the market surveillance authority.",
+      "key_requirements": [
+        "Perform the assessment before first use of the high-risk AI system if you are a public body, a private provider of public services, or use credit-scoring or insurance risk-pricing systems",
+        "Describe the deployment process, period and frequency of use, and the categories of natural persons and groups likely to be affected",
+        "Identify the specific risks of harm to those persons, taking into account the provider's instructions for use",
+        "Describe the human oversight measures and the measures to be taken if risks materialise, including internal governance and complaint mechanisms",
+        "Notify the market surveillance authority of the assessment results, using the template questionnaire"
+      ],
+      "paragraphs": [
+        {
+          "ref": "27(1)",
+          "text": "Before deploying a high-risk Annex III system (except critical infrastructure), deployers that are bodies governed by public law, private entities providing public services, or deployers of creditworthiness/credit-scoring and life/health insurance risk-pricing systems must assess the impact on fundamental rights, covering the usage process, period and frequency of use, affected categories of persons, specific risks of harm, human oversight measures, and measures if risks materialise."
+        },
+        {
+          "ref": "27(2)-(3)",
+          "text": "The obligation applies to the first use, may rely on previously conducted assessments where circumstances are similar, must be updated when elements change, and once performed the deployer must notify the market surveillance authority of the results, submitting the filled-out template."
+        },
+        {
+          "ref": "27(4)",
+          "text": "Where a data protection impact assessment under Article 35 GDPR or Article 27 of Directive (EU) 2016/680 already covers any of the obligations, the fundamental rights impact assessment complements that assessment."
+        }
+      ]
+    },
+    {
+      "number": "28",
+      "title": "Notifying authorities",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "29",
+      "title": "Application of a conformity assessment body for notification",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "30",
+      "title": "Notification procedure",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "31",
+      "title": "Requirements relating to notified bodies",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "32",
+      "title": "Presumption of conformity with requirements relating to notified bodies",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "33",
+      "title": "Subsidiaries of notified bodies and subcontracting",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "34",
+      "title": "Operational obligations of notified bodies",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "35",
+      "title": "Identification numbers and lists of notified bodies",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "36",
+      "title": "Changes to notifications",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "37",
+      "title": "Challenge to the competence of notified bodies",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "38",
+      "title": "Coordination of notified bodies",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "39",
+      "title": "Conformity assessment bodies of third countries",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "40",
+      "title": "Harmonised standards and standardisation deliverables",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "41",
+      "title": "Common specifications",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "42",
+      "title": "Presumption of conformity with certain requirements",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "43",
+      "title": "Conformity assessment",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "44",
+      "title": "Certificates",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "45",
+      "title": "Information obligations of notified bodies",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "46",
+      "title": "Derogation from conformity assessment procedure",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "47",
+      "title": "EU declaration of conformity",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "48",
+      "title": "CE marking",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "49",
+      "title": "Registration",
+      "chapter": "Chapter III — High-Risk AI Systems"
+    },
+    {
+      "number": "50",
+      "title": "Transparency obligations for providers and deployers of certain AI systems",
+      "chapter": "Chapter IV — Transparency Obligations for Providers and Deployers of Certain AI Systems",
+      "is_key": true,
+      "summary": "Lays down transparency duties for certain AI systems regardless of risk level. People must be told when they interact with an AI system, synthetic audio, image, video or text content must be marked as artificially generated in a machine-readable way, and deployers must disclose deepfakes and AI-generated text published to inform the public on matters of public interest. Deployers of emotion recognition or biometric categorisation systems must inform the exposed persons.",
+      "key_requirements": [
+        "Inform natural persons that they are interacting with an AI system, unless this is obvious from context",
+        "Mark outputs of generative AI systems (synthetic audio, image, video, text) as artificially generated or manipulated in a machine-readable, detectable format",
+        "Inform exposed persons about the operation of emotion recognition or biometric categorisation systems",
+        "Disclose that deepfake image, audio or video content has been artificially generated or manipulated",
+        "Disclose AI-generated or manipulated text published to inform the public on matters of public interest, unless subject to human editorial review"
+      ],
+      "paragraphs": [
+        {
+          "ref": "50(1)",
+          "text": "Providers must ensure AI systems intended to interact directly with natural persons are designed so those persons are informed that they are interacting with an AI system, unless obvious from the point of view of a reasonably well-informed person, with exceptions for authorised law enforcement uses."
+        },
+        {
+          "ref": "50(2)",
+          "text": "Providers of AI systems generating synthetic audio, image, video or text content must ensure outputs are marked in a machine-readable format and detectable as artificially generated or manipulated, with technical solutions that are effective, interoperable, robust and reliable as far as technically feasible."
+        },
+        {
+          "ref": "50(3)",
+          "text": "Deployers of an emotion recognition system or a biometric categorisation system must inform the natural persons exposed thereto of the operation of the system and process personal data in line with applicable data protection law."
+        },
+        {
+          "ref": "50(4)",
+          "text": "Deployers of systems generating or manipulating deepfake content must disclose that the content has been artificially generated or manipulated; deployers who publish AI-generated or manipulated text to inform the public on matters of public interest must disclose this, unless the content has undergone human review and a person holds editorial responsibility."
+        }
+      ]
+    },
+    {
+      "number": "51",
+      "title": "Classification of general-purpose AI models as general-purpose AI models with systemic risk",
+      "chapter": "Chapter V — General-Purpose AI Models"
+    },
+    {
+      "number": "52",
+      "title": "Procedure for classification of general-purpose AI models with systemic risk",
+      "chapter": "Chapter V — General-Purpose AI Models"
+    },
+    {
+      "number": "53",
+      "title": "Obligations for providers of general-purpose AI models",
+      "chapter": "Chapter V — General-Purpose AI Models",
+      "is_key": true,
+      "summary": "Sets the baseline obligations for providers of general-purpose AI (GPAI) models. Providers must maintain technical documentation for the AI Office and national authorities, supply information and documentation to downstream providers who integrate the model, put in place a policy to comply with EU copyright law including reservations of rights (text-and-data-mining opt-outs), and publish a sufficiently detailed summary of the training content using the AI Office template. Free and open-source models are exempt from the documentation duties unless they carry systemic risk.",
+      "key_requirements": [
+        "Draw up and keep up to date technical documentation of the model, including training and testing process and evaluation results (Annex XI), for the AI Office and national competent authorities",
+        "Provide information and documentation to downstream AI system providers to help them understand the model's capabilities and limitations and comply with their obligations (Annex XII)",
+        "Put in place a policy to comply with Union copyright law, in particular to identify and respect reservations of rights under Article 4(3) of Directive (EU) 2019/790",
+        "Make publicly available a sufficiently detailed summary of the content used for training, according to the AI Office template",
+        "Note: the documentation obligations do not apply to free and open-source models with public weights and architecture, unless the model is a GPAI model with systemic risk"
+      ],
+      "paragraphs": [
+        {
+          "ref": "53(1)(a)-(b)",
+          "text": "Providers of general-purpose AI models must draw up and keep up to date technical documentation of the model — including its training and testing process and evaluation results (Annex XI) — for supply on request to the AI Office and national competent authorities, and must make information and documentation available to providers who intend to integrate the model into their AI systems (Annex XII)."
+        },
+        {
+          "ref": "53(1)(c)-(d)",
+          "text": "Providers must put in place a policy to comply with Union law on copyright and related rights, in particular to identify and comply with reservations of rights expressed under Article 4(3) of Directive (EU) 2019/790, and must draw up and make publicly available a sufficiently detailed summary of the content used for training the model, according to a template provided by the AI Office."
+        },
+        {
+          "ref": "53(2)",
+          "text": "The obligations in points (a) and (b) do not apply to providers of AI models released under a free and open-source licence whose parameters, including weights, architecture and usage information, are made publicly available — unless the model is a general-purpose AI model with systemic risk."
+        },
+        {
+          "ref": "53(4)",
+          "text": "Providers may rely on codes of practice within the meaning of Article 56 to demonstrate compliance until a harmonised standard is published; compliance with harmonised standards grants a presumption of conformity."
+        }
+      ]
+    },
+    {
+      "number": "54",
+      "title": "Authorised representatives of providers of general-purpose AI models",
+      "chapter": "Chapter V — General-Purpose AI Models"
+    },
+    {
+      "number": "55",
+      "title": "Obligations of providers of general-purpose AI models with systemic risk",
+      "chapter": "Chapter V — General-Purpose AI Models",
+      "is_key": true,
+      "summary": "Adds obligations for providers of general-purpose AI models classified as having systemic risk (for example, models trained above the compute threshold). Beyond the Article 53 baseline, these providers must run state-of-the-art model evaluations including adversarial testing, assess and mitigate possible systemic risks at Union level, track and report serious incidents to the AI Office without undue delay, and ensure adequate cybersecurity for the model and its physical infrastructure.",
+      "key_requirements": [
+        "Perform model evaluation in accordance with standardised protocols and tools, including conducting and documenting adversarial testing to identify and mitigate systemic risks",
+        "Assess and mitigate possible systemic risks at Union level, including their sources, that may stem from development, placing on the market, or use of the model",
+        "Keep track of, document and report serious incidents and possible corrective measures to the AI Office and, as appropriate, national competent authorities without undue delay",
+        "Ensure an adequate level of cybersecurity protection for the model and its physical infrastructure"
+      ],
+      "paragraphs": [
+        {
+          "ref": "55(1)(a)-(b)",
+          "text": "Providers of general-purpose AI models with systemic risk must perform model evaluation in accordance with standardised protocols and tools reflecting the state of the art — including conducting and documenting adversarial testing of the model — and must assess and mitigate possible systemic risks at Union level, including their sources."
+        },
+        {
+          "ref": "55(1)(c)-(d)",
+          "text": "They must keep track of, document and report without undue delay to the AI Office (and, as appropriate, national competent authorities) relevant information about serious incidents and possible corrective measures, and must ensure an adequate level of cybersecurity protection for the model and its physical infrastructure."
+        },
+        {
+          "ref": "55(2)",
+          "text": "Providers may rely on codes of practice within the meaning of Article 56 to demonstrate compliance until a harmonised standard is published; compliance with European harmonised standards grants a presumption of conformity."
+        }
+      ]
+    },
+    {
+      "number": "56",
+      "title": "Codes of practice",
+      "chapter": "Chapter V — General-Purpose AI Models"
+    },
+    {
+      "number": "57",
+      "title": "AI regulatory sandboxes",
+      "chapter": "Chapter VI — Measures in Support of Innovation"
+    },
+    {
+      "number": "58",
+      "title": "Detailed arrangements for, and functioning of, AI regulatory sandboxes",
+      "chapter": "Chapter VI — Measures in Support of Innovation"
+    },
+    {
+      "number": "59",
+      "title": "Further processing of personal data for developing certain AI systems in the public interest in the AI regulatory sandbox",
+      "chapter": "Chapter VI — Measures in Support of Innovation"
+    },
+    {
+      "number": "60",
+      "title": "Testing of high-risk AI systems in real world conditions outside AI regulatory sandboxes",
+      "chapter": "Chapter VI — Measures in Support of Innovation"
+    },
+    {
+      "number": "61",
+      "title": "Informed consent to participate in testing in real world conditions",
+      "chapter": "Chapter VI — Measures in Support of Innovation"
+    },
+    {
+      "number": "62",
+      "title": "Measures for providers and deployers, in particular SMEs, including start-ups",
+      "chapter": "Chapter VI — Measures in Support of Innovation"
+    },
+    {
+      "number": "63",
+      "title": "Derogations for specific operators",
+      "chapter": "Chapter VI — Measures in Support of Innovation"
+    },
+    {
+      "number": "64",
+      "title": "AI Office",
+      "chapter": "Chapter VII — Governance"
+    },
+    {
+      "number": "65",
+      "title": "Establishment and structure of the European Artificial Intelligence Board",
+      "chapter": "Chapter VII — Governance"
+    },
+    {
+      "number": "66",
+      "title": "Tasks of the Board",
+      "chapter": "Chapter VII — Governance"
+    },
+    {
+      "number": "67",
+      "title": "Advisory forum",
+      "chapter": "Chapter VII — Governance"
+    },
+    {
+      "number": "68",
+      "title": "Scientific panel of independent experts",
+      "chapter": "Chapter VII — Governance"
+    },
+    {
+      "number": "69",
+      "title": "Access to the pool of experts by the Member States",
+      "chapter": "Chapter VII — Governance"
+    },
+    {
+      "number": "70",
+      "title": "Designation of national competent authorities and single points of contact",
+      "chapter": "Chapter VII — Governance"
+    },
+    {
+      "number": "71",
+      "title": "EU database for high-risk AI systems listed in Annex III",
+      "chapter": "Chapter VIII — EU Database for High-Risk AI Systems"
+    },
+    {
+      "number": "72",
+      "title": "Post-market monitoring by providers and post-market monitoring plan for high-risk AI systems",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "73",
+      "title": "Reporting of serious incidents",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "74",
+      "title": "Market surveillance and control of AI systems in the Union market",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "75",
+      "title": "Mutual assistance, market surveillance and control of general-purpose AI systems",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "76",
+      "title": "Supervision of testing in real world conditions by market surveillance authorities",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "77",
+      "title": "Powers of authorities protecting fundamental rights",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "78",
+      "title": "Confidentiality",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "79",
+      "title": "Procedure at national level for dealing with AI systems presenting a risk",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "80",
+      "title": "Procedure for dealing with AI systems classified by the provider as non-high-risk in application of Annex III",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "81",
+      "title": "Union safeguard procedure",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "82",
+      "title": "Compliant AI systems which present a risk",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "83",
+      "title": "Formal non-compliance",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "84",
+      "title": "Union AI testing support structures",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "85",
+      "title": "Right to lodge a complaint with a market surveillance authority",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "86",
+      "title": "Right to explanation of individual decision-making",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "87",
+      "title": "Reporting of infringements and protection of reporting persons",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "88",
+      "title": "Enforcement of the obligations of providers of general-purpose AI models",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "89",
+      "title": "Monitoring actions",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "90",
+      "title": "Alerts of systemic risks by the scientific panel",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "91",
+      "title": "Power to request documentation and information",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "92",
+      "title": "Power to conduct evaluations",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "93",
+      "title": "Power to request measures",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "94",
+      "title": "Procedural rights of economic operators of the general-purpose AI model",
+      "chapter": "Chapter IX — Post-Market Monitoring, Information Sharing and Market Surveillance"
+    },
+    {
+      "number": "95",
+      "title": "Codes of conduct for voluntary application of specific requirements",
+      "chapter": "Chapter X — Codes of Conduct and Guidelines"
+    },
+    {
+      "number": "96",
+      "title": "Guidelines from the Commission on the implementation of this Regulation",
+      "chapter": "Chapter X — Codes of Conduct and Guidelines"
+    },
+    {
+      "number": "97",
+      "title": "Exercise of the delegation",
+      "chapter": "Chapter XI — Delegation of Power and Committee Procedure"
+    },
+    {
+      "number": "98",
+      "title": "Committee procedure",
+      "chapter": "Chapter XI — Delegation of Power and Committee Procedure"
+    },
+    {
+      "number": "99",
+      "title": "Penalties",
+      "chapter": "Chapter XII — Penalties",
+      "is_key": true,
+      "summary": "Establishes the penalty regime. Member States set the rules, but the Regulation fixes the ceilings: non-compliance with the Article 5 prohibitions can draw administrative fines up to €35 million or 7% of total worldwide annual turnover, whichever is higher. Most other operator obligations carry fines up to €15 million or 3%, and supplying incorrect, incomplete or misleading information to authorities up to €7.5 million or 1%. For SMEs and start-ups, each cap applies at the lower of the fixed amount or the percentage.",
+      "key_requirements": [
+        "Non-compliance with prohibited AI practices (Article 5): fines up to €35,000,000 or 7% of total worldwide annual turnover, whichever is higher",
+        "Non-compliance with most other operator and notified-body obligations: up to €15,000,000 or 3% of worldwide annual turnover",
+        "Supplying incorrect, incomplete or misleading information to notified bodies or authorities: up to €7,500,000 or 1% of worldwide annual turnover",
+        "For SMEs and start-ups, each fine is capped at the lower of the stated amount and percentage",
+        "Fines must be effective, proportionate and dissuasive, weighing the nature and duration of the infringement, intent, and remedial actions"
+      ],
+      "paragraphs": [
+        {
+          "ref": "99(1)-(3)",
+          "text": "Member States lay down penalties and other enforcement measures, which must be effective, proportionate and dissuasive; non-compliance with the prohibition of the AI practices in Article 5 is subject to administrative fines of up to €35,000,000 or, for undertakings, up to 7% of total worldwide annual turnover for the preceding financial year, whichever is higher."
+        },
+        {
+          "ref": "99(4)",
+          "text": "Non-compliance with a range of operator obligations — those of providers (Article 16), authorised representatives (22), importers (23), distributors (24), deployers (26), notified bodies, and the Article 50 transparency obligations — is subject to fines of up to €15,000,000 or up to 3% of total worldwide annual turnover, whichever is higher."
+        },
+        {
+          "ref": "99(5)",
+          "text": "The supply of incorrect, incomplete or misleading information to notified bodies or national competent authorities in reply to a request is subject to administrative fines of up to €7,500,000 or up to 1% of total worldwide annual turnover, whichever is higher."
+        },
+        {
+          "ref": "99(6)-(7)",
+          "text": "For SMEs, including start-ups, each fine is capped at the lower of the percentages or amounts; in deciding the amount, authorities take account of the nature, gravity and duration of the infringement, intent or negligence, actions taken to mitigate harm, previous fines, and the size and market share of the operator."
+        }
+      ]
+    },
+    {
+      "number": "100",
+      "title": "Administrative fines on Union institutions, bodies, offices and agencies",
+      "chapter": "Chapter XII — Penalties"
+    },
+    {
+      "number": "101",
+      "title": "Fines for providers of general-purpose AI models",
+      "chapter": "Chapter XII — Penalties"
+    },
+    {
+      "number": "102",
+      "title": "Amendment to Regulation (EC) No 300/2008",
+      "chapter": "Chapter XIII — Final Provisions"
+    },
+    {
+      "number": "103",
+      "title": "Amendment to Regulation (EU) No 167/2013",
+      "chapter": "Chapter XIII — Final Provisions"
+    },
+    {
+      "number": "104",
+      "title": "Amendment to Regulation (EU) No 168/2013",
+      "chapter": "Chapter XIII — Final Provisions"
+    },
+    {
+      "number": "105",
+      "title": "Amendment to Directive 2014/90/EU",
+      "chapter": "Chapter XIII — Final Provisions"
+    },
+    {
+      "number": "106",
+      "title": "Amendment to Directive (EU) 2016/797",
+      "chapter": "Chapter XIII — Final Provisions"
+    },
+    {
+      "number": "107",
+      "title": "Amendment to Regulation (EU) 2018/858",
+      "chapter": "Chapter XIII — Final Provisions"
+    },
+    {
+      "number": "108",
+      "title": "Amendments to Regulation (EU) 2018/1139",
+      "chapter": "Chapter XIII — Final Provisions"
+    },
+    {
+      "number": "109",
+      "title": "Amendment to Regulation (EU) 2019/2144",
+      "chapter": "Chapter XIII — Final Provisions"
+    },
+    {
+      "number": "110",
+      "title": "Amendment to Directive (EU) 2020/1828",
+      "chapter": "Chapter XIII — Final Provisions"
+    },
+    {
+      "number": "111",
+      "title": "AI systems already placed on the market or put into service and general-purpose AI models already placed on the market",
+      "chapter": "Chapter XIII — Final Provisions"
+    },
+    {
+      "number": "112",
+      "title": "Evaluation and review",
+      "chapter": "Chapter XIII — Final Provisions"
+    },
+    {
+      "number": "113",
+      "title": "Entry into force and application",
+      "chapter": "Chapter XIII — Final Provisions"
+    }
+  ],
+  "related_practice_slugs": [
+    "data-classification",
+    "data-anonymization",
+    "audit-logging"
+  ],
+  "related_technology_slugs": [
+    "gretel",
+    "arx",
+    "bigid"
+  ],
+  "position": 100
+}

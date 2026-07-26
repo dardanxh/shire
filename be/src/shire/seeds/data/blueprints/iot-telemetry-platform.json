@@ -1,0 +1,154 @@
+{
+  "slug": "iot-telemetry-platform",
+  "name": "IoT telemetry platform",
+  "use_case": "Device fleets → analytics",
+  "description": "Device fleets speak MQTT to an edge broker, a managed ingestion service absorbs the firehose into the cloud, a time-series database stores and serves recent telemetry with retention policies, and a stream processor downsamples raw readings into the rollups that long-term analytics actually query. The pattern's defining constraints come from the edge: flaky connectivity (devices buffer and burst), clock skew (event time is unreliable), fleet-wide schema drift across firmware versions, and cardinality explosions when per-device series multiply by sensor count. Downsampling is not an optimization but the survival mechanism — raw millisecond readings are unaffordable to keep hot forever.",
+  "when_to_use": [
+    "Choose this when you operate a real device fleet — sensors, vehicles, machines, meters — producing continuous telemetry that must drive monitoring, alerting, and historical analysis.",
+    "It fits when per-device series counts and ingest rates rule out a general-purpose database, and when retention economics demand tiered raw-to-rollup storage.",
+    "Fleet scale makes per-device polling impossible; telemetry must stream in."
+  ],
+  "when_not_to_use": [
+    "Skip the MQTT edge if your 'devices' are actually servers or apps — that is log/clickstream collection (10) over HTTP.",
+    "A few hundred devices at low frequency fit happily in Postgres/Timescale without Kinesis or Flink in between.",
+    "And if telemetry only feeds daily reports, batch-land it in the lake and skip the time-series serving layer entirely."
+  ],
+  "use_cases": [
+    "realtime",
+    "operational",
+    "ml"
+  ],
+  "hot_spots": [
+    {
+      "title": "Edge connectivity",
+      "detail": "Flaky device links create late, duplicated, or out-of-order readings."
+    },
+    {
+      "title": "Series cardinality",
+      "detail": "Millions of unique series explode index memory in the time-series store."
+    },
+    {
+      "title": "Downsampling policy",
+      "detail": "Aggressive rollups quietly destroy the raw detail investigations need."
+    },
+    {
+      "title": "Clock skew",
+      "detail": "Drifting device clocks corrupt time-window aggregations."
+    }
+  ],
+  "complexity": "high",
+  "evolution": [],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Device Fleet Sources]:::source -->|telemetry readings| EDGE[Edge Gateway]:::process\n  EDGE -->|filtered signals| ING[Stream Ingestion]:::process\n  ING -->|time-stamped points| TS[Time-series Store]:::store\n  ING -->|raw copy for replay| ARC[Raw Telemetry Archive]:::store\n  TS -->|rollup aggregates| DS[Downsampling]:::process\n  DS -->|compact history| TS\n  TS -->|dashboards and alerts| CONS[Operations Consumers]:::serve\n  MON[Fleet Monitoring]:::govern -. device health .-> EDGE"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  DEV[Devices + Sensors]:::source -->|MQTT and batches| GW[Edge Gateway]:::process\n  GW -->|qualified signals| SB[Streaming Ingest]:::process\n  SB -->|append points| TSDB[Time-series Database]:::store\n  SB -->|raw archive copy| ARCL[Object Storage Archive]:::store\n  TSDB -->|continuous aggregation| AGG[Rollup Jobs]:::process\n  AGG -->|downsampled series| TSDB\n  TSDB -->|queries| DASH[Dashboards + Alerting]:::serve"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([raw sensor readings]):::source -->|filter at edge| B([qualified signals]):::process\n  B -->|ingest| C([time-series points]):::store\n  B -->|archive raw| AR2([raw telemetry archive]):::store\n  C -->|downsample hourly| E([rollup aggregates]):::store\n  C -->|threshold checks| F([alerts]):::serve\n  E -->|visualize| G([fleet dashboards]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant D as Device\n  participant E as Edge Gateway\n  participant I as Ingest\n  participant T as Time-series Store\n  participant A as Raw Archive\n  participant R as Rollup Job\n  participant O as Dashboard\n  D->>E: emit reading\n  E->>I: forward filtered batch\n  I->>T: append points\n  I->>A: archive raw copy\n  loop every hour\n    R->>T: write rollups, expire raw\n  end\n  O->>T: query recent + rollups"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Device Fleet Sources]:::source -->|telemetry readings| EDGE[\"AWS IoT Greengrass<br/><i>Edge Gateway</i>\"]:::process\n  EDGE -->|filtered signals| ING[\"AWS IoT Core + Kinesis<br/><i>Stream Ingestion</i>\"]:::process\n  ING -->|time-stamped points| TS[\"Amazon Timestream<br/><i>Time-series Store</i>\"]:::store\n  ING -->|raw copy for replay| ARC[\"Amazon S3 archive<br/><i>Raw Telemetry Archive</i>\"]:::store\n  TS -->|rollup aggregates| DS[\"Timestream scheduled queries<br/><i>Downsampling</i>\"]:::process\n  DS -->|compact history| TS\n  TS -->|dashboards and alerts| CONS[Operations Consumers]:::serve\n  MON[\"Amazon CloudWatch<br/><i>Fleet Monitoring</i>\"]:::govern -. device health .-> EDGE"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Device Fleet Sources]:::source -->|telemetry readings| EDGE[\"Azure IoT Edge<br/><i>Edge Gateway</i>\"]:::process\n  EDGE -->|filtered signals| ING[\"Azure IoT Hub + Event Hubs<br/><i>Stream Ingestion</i>\"]:::process\n  ING -->|time-stamped points| TS[\"Azure Data Explorer<br/><i>Time-series Store</i>\"]:::store\n  ING -->|raw copy for replay| ARC[\"ADLS archive<br/><i>Raw Telemetry Archive</i>\"]:::store\n  TS -->|rollup aggregates| DS[\"ADX materialized views<br/><i>Downsampling</i>\"]:::process\n  DS -->|compact history| TS\n  TS -->|dashboards and alerts| CONS[Operations Consumers]:::serve\n  MON[\"Azure Monitor<br/><i>Fleet Monitoring</i>\"]:::govern -. device health .-> EDGE"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Device Fleet Sources]:::source -->|telemetry readings| EDGE[\"Google IoT edge gateway<br/><i>Edge Gateway</i>\"]:::process\n  EDGE -->|filtered signals| ING[\"Pub/Sub ingestion<br/><i>Stream Ingestion</i>\"]:::process\n  ING -->|time-stamped points| TS[\"Cloud Bigtable + BigQuery<br/><i>Time-series Store</i>\"]:::store\n  ING -->|raw copy for replay| ARC[\"GCS archive<br/><i>Raw Telemetry Archive</i>\"]:::store\n  TS -->|rollup aggregates| DS[\"BigQuery scheduled queries<br/><i>Downsampling</i>\"]:::process\n  DS -->|compact history| TS\n  TS -->|dashboards and alerts| CONS[Operations Consumers]:::serve\n  MON[\"Google Cloud Monitoring<br/><i>Fleet Monitoring</i>\"]:::govern -. device health .-> EDGE"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Device Fleet Sources]:::source -->|telemetry readings| EDGE[\"EMQX · Eclipse Mosquitto<br/><i>Edge Gateway</i>\"]:::process\n  EDGE -->|filtered signals| ING[\"Apache Kafka + MQTT bridge<br/><i>Stream Ingestion</i>\"]:::process\n  ING -->|time-stamped points| TS[\"TimescaleDB · InfluxDB<br/><i>Time-series Store</i>\"]:::store\n  ING -->|raw copy for replay| ARC[\"MinIO archive<br/><i>Raw Telemetry Archive</i>\"]:::store\n  TS -->|rollup aggregates| DS[\"TimescaleDB continuous aggregates<br/><i>Downsampling</i>\"]:::process\n  DS -->|compact history| TS\n  TS -->|dashboards and alerts| CONS[Operations Consumers]:::serve\n  MON[\"Prometheus · Grafana<br/><i>Fleet Monitoring</i>\"]:::govern -. device health .-> EDGE"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Device Fleet Sources]:::source -->|telemetry readings| EDGE[\"Edge MQTT gateway<br/><i>Edge Gateway</i>\"]:::process\n  EDGE -->|filtered signals| ING[\"Snowpipe Streaming<br/><i>Stream Ingestion</i>\"]:::process\n  ING -->|time-stamped points| TS[\"Snowflake (time-series tables)<br/><i>Time-series Store</i>\"]:::store\n  ING -->|raw copy for replay| ARC[\"Snowflake stage archive<br/><i>Raw Telemetry Archive</i>\"]:::store\n  TS -->|rollup aggregates| DS[\"Snowflake Dynamic Tables<br/><i>Downsampling</i>\"]:::process\n  DS -->|compact history| TS\n  TS -->|dashboards and alerts| CONS[Operations Consumers]:::serve\n  MON[\"Grafana · Monte Carlo<br/><i>Fleet Monitoring</i>\"]:::govern -. device health .-> EDGE"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Device Fleet Sources]:::source -->|telemetry readings| EDGE[\"Edge MQTT gateway<br/><i>Edge Gateway</i>\"]:::process\n  EDGE -->|filtered signals| ING[\"Auto Loader streaming<br/><i>Stream Ingestion</i>\"]:::process\n  ING -->|time-stamped points| TS[\"Delta Lake time-series tables<br/><i>Time-series Store</i>\"]:::store\n  ING -->|raw copy for replay| ARC[\"Delta Lake archive<br/><i>Raw Telemetry Archive</i>\"]:::store\n  TS -->|rollup aggregates| DS[\"DLT aggregation pipelines<br/><i>Downsampling</i>\"]:::process\n  DS -->|compact history| TS\n  TS -->|dashboards and alerts| CONS[Operations Consumers]:::serve\n  MON[\"Lakehouse Monitoring<br/><i>Fleet Monitoring</i>\"]:::govern -. device health .-> EDGE"
+    }
+  ],
+  "family_tags": [
+    "acquisition-ingestion",
+    "streaming-realtime"
+  ],
+  "archetype_slugs": [
+    "iot-sensor-telemetry-ingestion",
+    "streaming-ingestion",
+    "real-time-analytics-serving"
+  ],
+  "position": 9,
+  "stages": [
+    {
+      "position": 0,
+      "name": "Edge",
+      "role": "MQTT broker terminating device connections — the corpus has no dedicated MQTT broker (Mosquitto/EMQX/HiveMQ), so the closest picks are general brokers with MQTT support",
+      "recommended_technology_slug": "rabbitmq",
+      "alternative_technology_slugs": [
+        "nats-jetstream",
+        "azure-event-hubs"
+      ],
+      "rationale": "The honest recommendation is a dedicated MQTT broker (EMQX, HiveMQ, or cloud IoT Core services) — none are in the corpus, so RabbitMQ stands in as the nearest real entry: its MQTT plugin handles moderate fleets and many teams already run it. NATS is lightweight with an MQTT interface and shines in constrained environments; Azure Event Hubs and its IoT sibling provide the managed MQTT front door on Azure. Whatever terminates MQTT, keep it thin: authenticate devices, absorb QoS/reconnect semantics, and hand off to the cloud stream immediately."
+    },
+    {
+      "position": 1,
+      "name": "Ingest",
+      "role": "Managed cloud stream absorbing the aggregated device firehose for fan-out",
+      "recommended_technology_slug": "amazon-kinesis",
+      "alternative_technology_slugs": [
+        "apache-kafka",
+        "azure-event-hubs",
+        "google-pubsub"
+      ],
+      "rationale": "Kinesis is the doc's pick for good reason in AWS-centric IoT: fully managed, IoT Core integrates natively, and shard-based scaling matches bursty fleet traffic without broker operations. Kafka (or Redpanda) wins when you need longer retention for replay, richer ecosystem fan-out, or are avoiding cloud lock-in — at the cost of running it. Event Hubs is the Azure equivalent with MQTT-adjacent integration; Pub/Sub on GCP. The choice mostly follows the cloud your fleet management already lives in."
+    },
+    {
+      "name": "Raw archive",
+      "role": "Cheap immutable archive of raw telemetry for replay and ML training",
+      "recommended_technology_slug": "amazon-s3",
+      "alternative_technology_slugs": [
+        "azure-blob-storage",
+        "google-cloud-storage",
+        "minio"
+      ],
+      "rationale": "Cheap immutable object storage as the landing layer decouples ingestion from processing: replays, backfills, and audits read the raw dump instead of re-extracting from sources."
+    },
+    {
+      "position": 2,
+      "name": "Time-series store",
+      "role": "Store telemetry with time-partitioning, compression, and retention policies; serve device and fleet queries",
+      "recommended_technology_slug": "timescaledb",
+      "alternative_technology_slugs": [
+        "influxdb",
+        "questdb",
+        "clickhouse",
+        "victoriametrics"
+      ],
+      "rationale": "TimescaleDB is Postgres underneath — hypertables, columnar compression, continuous aggregates, and retention policies, plus full SQL and joins against device metadata tables, which pure time-series stores make painful. That relational interoperability is usually decisive for IoT, where telemetry means nothing without the device registry. InfluxDB fits metrics-native workflows and edge deployments; QuestDB wins on raw ingest speed per node; ClickHouse when telemetry analytics grows into general OLAP; VictoriaMetrics for Prometheus-shaped infrastructure-style monitoring of the fleet."
+    },
+    {
+      "position": 3,
+      "name": "Downsample",
+      "role": "Continuously aggregate raw readings into 1m/1h rollups; enforce tiered retention",
+      "recommended_technology_slug": "apache-flink",
+      "alternative_technology_slugs": [
+        "spark-structured-streaming",
+        "kafka-streams",
+        "bytewax"
+      ],
+      "rationale": "Flink's event-time windows with watermarks handle exactly what device data throws at you — late, out-of-order readings from buffering devices — producing correct rollups where wall-clock aggregation quietly lies. That said, check the store first: Timescale's continuous aggregates cover simple rollups without any streaming engine, and only reach for Flink when downsampling needs cross-stream enrichment or complex logic. Spark Structured Streaming fits Spark shops; Kafka Streams for JVM-embedded simplicity; Bytewax when the team is Python-first."
+    }
+  ]
+}

@@ -1,0 +1,680 @@
+{
+  "slug": "lgpd",
+  "name": "LGPD",
+  "full_name": "Lei Geral de Proteção de Dados Pessoais (Law No. 13.709/2018)",
+  "category": "privacy",
+  "region": "brazil",
+  "jurisdiction": "Brazil",
+  "status": "in_force",
+  "effective_year": 2020,
+  "effective_date": "18 September 2020",
+  "description": "The LGPD is Brazil's general data protection law, closely modelled on the EU GDPR. It regulates any processing of personal data carried out in Brazil or aimed at individuals located in Brazil, regardless of where the processing organization is based. It establishes ten legal bases for processing, a catalogue of data subject rights, security and breach-notification duties, and a national supervisory authority (ANPD) with the power to impose administrative sanctions.",
+  "who_is_impacted": [
+    "Any private company, of any size or sector, that processes personal data in Brazil or offers goods and services to individuals located in Brazil, even if the company has no physical presence in the country.",
+    "Foreign organizations whose processing concerns data collected in Brazil or data of individuals located in Brazil, which must also appoint a point of contact reachable by the ANPD.",
+    "Brazilian public authorities and government-controlled entities, which process personal data for public policy purposes under a dedicated chapter with additional transparency duties.",
+    "Processors (operadores) acting on behalf of controllers, who must follow the controller's instructions and share liability for damage caused by non-compliant processing.",
+    "Health, financial, and credit-sector organizations that handle sensitive personal data, which face stricter legal bases and restrictions on sharing for economic advantage.",
+    "Processing carried out by a natural person for exclusively private purposes, or exclusively for journalistic, artistic, or academic purposes, is outside the law's scope, as is processing solely for public safety, national defense, or criminal investigation (which awaits a specific law)."
+  ],
+  "penalties": "Up to 2% of revenue in Brazil (capped at R$50M per violation); warnings, blocking, or deletion of data",
+  "official_url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm",
+  "unit_label": "article",
+  "triggering_data_classes": ["personal_data", "health_data", "biometric_data"],
+  "articles": [
+    {
+      "number": "1",
+      "title": "Scope and purpose: protection of privacy and free development of the natural person",
+      "chapter": "Chapter I — Preliminary Provisions"
+    },
+    {
+      "number": "2",
+      "title": "Foundations of personal data protection",
+      "chapter": "Chapter I — Preliminary Provisions"
+    },
+    {
+      "number": "3",
+      "title": "Territorial scope of application",
+      "chapter": "Chapter I — Preliminary Provisions"
+    },
+    {
+      "number": "4",
+      "title": "Exclusions from scope (private, journalistic, academic, public safety and defense purposes)",
+      "chapter": "Chapter I — Preliminary Provisions"
+    },
+    {
+      "number": "5",
+      "title": "Definitions",
+      "chapter": "Chapter I — Preliminary Provisions",
+      "is_key": true,
+      "summary": "Article 5 defines the core vocabulary of the LGPD. It distinguishes personal data from sensitive personal data and anonymized data, defines the roles of controller and processor, and establishes what counts as processing, anonymization, and valid consent. These definitions determine whether the law applies to a given dataset and who bears each obligation.",
+      "key_requirements": [
+        "Treat as personal data any information related to an identified or identifiable natural person.",
+        "Apply the stricter sensitive-data regime to data on racial or ethnic origin, religious belief, political opinion, union or religious/political membership, health, sex life, and genetic or biometric data.",
+        "Classify data as anonymized only when the data subject cannot be identified using reasonable technical means available at the time of processing.",
+        "Assign controller and processor roles explicitly, since obligations and liability differ between them.",
+        "Rely on consent only when it is a free, informed, and unambiguous manifestation for a determined purpose."
+      ],
+      "paragraphs": [
+        {
+          "ref": "5(I)",
+          "text": "Personal data is information related to an identified or identifiable natural person."
+        },
+        {
+          "ref": "5(II)",
+          "text": "Sensitive personal data is data on racial or ethnic origin, religious conviction, political opinion, membership of a trade union or of a religious, philosophical or political organization, or data concerning health, sex life, genetics or biometrics, when linked to a natural person."
+        },
+        {
+          "ref": "5(III)",
+          "text": "Anonymized data is data relating to a subject who cannot be identified, considering the use of reasonable technical means available at the time of processing."
+        },
+        {
+          "ref": "5(VI)-(VII)",
+          "text": "The controller is the natural or legal person who makes the decisions about the processing of personal data; the processor (operador) is the one who processes personal data on the controller's behalf."
+        },
+        {
+          "ref": "5(XII)",
+          "text": "Consent is a free, informed and unambiguous manifestation by which the data subject agrees to the processing of their personal data for a determined purpose."
+        }
+      ]
+    },
+    {
+      "number": "6",
+      "title": "Principles of personal data processing",
+      "chapter": "Chapter I — Preliminary Provisions",
+      "is_key": true,
+      "summary": "Article 6 sets out the ten principles that govern all processing under the LGPD, anchored in good faith. They require a specific and legitimate purpose, limit collection to what is necessary, and demand transparency, security, and demonstrable accountability. Every processing activity must satisfy these principles regardless of which legal basis it relies on.",
+      "key_requirements": [
+        "Process data only for legitimate, specific, explicit purposes communicated to the data subject, without later incompatible processing (purpose and adequacy).",
+        "Limit processing to the minimum data necessary to achieve the stated purpose (necessity / data minimization).",
+        "Guarantee data subjects free and easy access to information about the processing, and keep data accurate, clear, and up to date (free access, data quality, transparency).",
+        "Adopt technical and administrative security measures and preventive controls against unauthorized access and accidental or unlawful destruction, loss, alteration, or disclosure (security and prevention).",
+        "Never process data for unlawful or abusive discriminatory purposes (non-discrimination).",
+        "Be able to demonstrate the adoption of effective compliance measures (accountability)."
+      ],
+      "paragraphs": [
+        {
+          "ref": "6(I)-(III)",
+          "text": "Processing must pursue legitimate, specific, explicit and informed purposes, be compatible with those purposes, and be limited to the minimum necessary for achieving them."
+        },
+        {
+          "ref": "6(IV)-(VI)",
+          "text": "Data subjects must be guaranteed free and easy consultation of how and for how long their data is processed, data must be accurate and up to date, and processing information must be clear, precise and easily accessible."
+        },
+        {
+          "ref": "6(VII)-(VIII)",
+          "text": "Technical and administrative measures must protect data from unauthorized access and from accidental or unlawful destruction, loss, alteration, communication or diffusion, and preventive measures must be adopted to avoid damage."
+        },
+        {
+          "ref": "6(IX)-(X)",
+          "text": "Processing may not be carried out for unlawful or abusive discriminatory purposes, and agents must be able to demonstrate effective measures capable of proving compliance (accountability)."
+        }
+      ]
+    },
+    {
+      "number": "7",
+      "title": "Legal bases for the processing of personal data",
+      "chapter": "Chapter II — Processing of Personal Data",
+      "is_key": true,
+      "summary": "Article 7 lists the ten legal bases under which personal data may be processed. Consent is only one of them; alternatives include compliance with a legal obligation, contract performance, legitimate interest, and credit protection. Every processing operation must map to at least one of these bases, and publicly accessible data still requires a legal basis and purpose limitation.",
+      "key_requirements": [
+        "Identify and document one of the ten legal bases before processing: consent, legal or regulatory obligation, public administration, research, contract, judicial/arbitral proceedings, protection of life, health protection, legitimate interest, or credit protection.",
+        "When relying on consent, obtain it in advance from the data subject under the conditions of Article 8.",
+        "When relying on legitimate interest, satisfy the balancing conditions of Article 10.",
+        "Apply purpose, good faith, and public interest limits even to personal data that was made manifestly public by the data subject."
+      ],
+      "paragraphs": [
+        {
+          "ref": "7(I)-(II)",
+          "text": "Processing is permitted with the data subject's consent, or where necessary for the controller to comply with a legal or regulatory obligation."
+        },
+        {
+          "ref": "7(V)-(VI)",
+          "text": "Processing is permitted when necessary for the performance of a contract or preliminary procedures at the data subject's request, or for the regular exercise of rights in judicial, administrative or arbitral proceedings."
+        },
+        {
+          "ref": "7(IX)-(X)",
+          "text": "Processing is permitted when necessary for the legitimate interests of the controller or a third party — except where the data subject's fundamental rights prevail — or for the protection of credit."
+        },
+        {
+          "ref": "7 §3-§4",
+          "text": "Personal data that is publicly accessible or was made manifestly public by the data subject must still be processed considering the purpose, good faith and the public interest that justified its availability; a new consent is waived for such manifestly public data, without prejudice to the data subject's rights."
+        }
+      ]
+    },
+    {
+      "number": "8",
+      "title": "Requirements for valid consent",
+      "chapter": "Chapter II — Processing of Personal Data"
+    },
+    {
+      "number": "9",
+      "title": "Data subject's right to facilitated access to information about the processing",
+      "chapter": "Chapter II — Processing of Personal Data"
+    },
+    {
+      "number": "10",
+      "title": "Legitimate interest of the controller",
+      "chapter": "Chapter II — Processing of Personal Data"
+    },
+    {
+      "number": "11",
+      "title": "Processing of sensitive personal data",
+      "chapter": "Chapter II — Processing of Personal Data",
+      "is_key": true,
+      "summary": "Article 11 restricts the processing of sensitive personal data to a narrower set of legal bases than Article 7. Consent must be specific and highlighted for the stated purposes; without consent, processing is only allowed in listed situations such as legal obligation, health protection, or fraud prevention. Notably, legitimate interest is not an available basis for sensitive data.",
+      "key_requirements": [
+        "Obtain specific and highlighted (destacado) consent from the data subject for defined purposes before processing sensitive data.",
+        "Without consent, process sensitive data only where indispensable for a legal obligation, shared public-policy processing, research (anonymized where possible), exercise of rights, protection of life, health protection by health professionals and entities, or fraud prevention and data subject security.",
+        "Do not rely on legitimate interest as a basis for sensitive personal data.",
+        "Do not share health data for the purpose of obtaining an economic advantage, except in the narrow cases the law permits (e.g., portability requested by the subject, financial/administrative health-service transactions)."
+      ],
+      "paragraphs": [
+        {
+          "ref": "11(I)",
+          "text": "Sensitive personal data may be processed when the data subject or their legal guardian consents specifically and distinctly, for specified purposes."
+        },
+        {
+          "ref": "11(II)",
+          "text": "Without consent, processing is permitted only where indispensable for: compliance with a legal or regulatory obligation; shared processing under public policies; research bodies (anonymizing where possible); regular exercise of rights; protection of the life or physical safety of the subject or a third party; health protection in procedures by health professionals, health services or health authorities; or fraud prevention and the subject's security in identification and authentication systems."
+        },
+        {
+          "ref": "11 §4",
+          "text": "The communication or shared use of sensitive health data with the aim of obtaining an economic advantage is prohibited, except in the specific cases the law allows, such as data portability requested by the subject."
+        }
+      ]
+    },
+    {
+      "number": "12",
+      "title": "Anonymized data and the limits of anonymization",
+      "chapter": "Chapter II — Processing of Personal Data",
+      "is_key": true,
+      "summary": "Article 12 provides that properly anonymized data is not considered personal data, taking it outside the LGPD's scope. The exemption is conditional: if the anonymization can be reversed with reasonable efforts, or if the data is used to build behavioral profiles of an identifiable person, the data is treated as personal again. The ANPD may set standards for what counts as adequate anonymization.",
+      "key_requirements": [
+        "Treat anonymized data as out of scope only when the anonymization process cannot be reversed using reasonable efforts.",
+        "Assess reversibility objectively, considering the cost and time required, the technology available, and the exclusive use of the organization's own means.",
+        "Treat data used to create behavioral profiles of an identified or identifiable natural person as personal data, even if built from otherwise anonymized sources.",
+        "Track ANPD guidance, since the authority may define standards and techniques for anonymization and verify its effectiveness."
+      ],
+      "paragraphs": [
+        {
+          "ref": "12 caput",
+          "text": "Anonymized data is not considered personal data for the purposes of the law, except when the anonymization process to which it was submitted is reversed using exclusively the entity's own means, or when it can be reversed with reasonable efforts."
+        },
+        {
+          "ref": "12 §1",
+          "text": "Whether efforts are 'reasonable' is determined by objective factors, such as the cost and time needed to reverse the anonymization, the available technologies, and the exclusive use of the organization's own means."
+        },
+        {
+          "ref": "12 §2",
+          "text": "Data used to form the behavioral profile of a particular natural person, if that person is identified, is also considered personal data."
+        },
+        {
+          "ref": "12 §3",
+          "text": "The national authority may provide for standards and techniques used in anonymization processes and carry out security checks on them."
+        }
+      ]
+    },
+    {
+      "number": "13",
+      "title": "Public health research and pseudonymization",
+      "chapter": "Chapter II — Processing of Personal Data",
+      "is_key": true,
+      "summary": "Article 13 governs the use of personal data by public-health research bodies. Such studies may only access personal data inside the research body, strictly for the study's purpose, and must anonymize or pseudonymize the data whenever possible while following ethical standards. It also contains the LGPD's legal definition of pseudonymization: processing that removes direct identification except through additional information kept separately in a controlled environment.",
+      "key_requirements": [
+        "Restrict personal data used in public health studies to access within the research body (órgão de pesquisa) and strictly to the purpose of the study.",
+        "Anonymize or pseudonymize the data whenever possible, and observe applicable ethical standards for research.",
+        "Never disclose personal data used in such studies externally; disclosure of results must not reveal personal data.",
+        "Keep the additional information that allows re-identification of pseudonymized data separately, in a controlled and secure environment maintained by the controller.",
+        "Do not process the data to the detriment of the persons concerned or for other purposes."
+      ],
+      "paragraphs": [
+        {
+          "ref": "13 caput",
+          "text": "In public health studies, research bodies may have access to personal databases, which must be processed exclusively inside the body and strictly for carrying out studies and research, kept in a controlled and secure environment, and anonymized or pseudonymized whenever possible, following ethical standards."
+        },
+        {
+          "ref": "13 §1",
+          "text": "Disclosure of the study's results or of any excerpt must under no circumstances reveal personal data."
+        },
+        {
+          "ref": "13 §2",
+          "text": "The research body is responsible for the security of the information and may not, in any circumstance, transfer the data to third parties."
+        },
+        {
+          "ref": "13 §4",
+          "text": "Pseudonymization is the processing by which data loses the possibility of direct or indirect association with an individual, except through the use of additional information kept separately by the controller in a controlled and secure environment."
+        }
+      ]
+    },
+    {
+      "number": "14",
+      "title": "Processing of children's and adolescents' personal data",
+      "chapter": "Chapter II — Processing of Personal Data"
+    },
+    {
+      "number": "15",
+      "title": "Termination of the processing of personal data",
+      "chapter": "Chapter II — Processing of Personal Data",
+      "is_key": true,
+      "summary": "Article 15 defines when the processing of personal data must end. Processing terminates when the purpose has been achieved or the data is no longer necessary, when the agreed processing period expires, when the data subject withdraws consent or requests deletion, or when the ANPD orders it after a violation. This article anchors data-retention and deletion policies: keeping data beyond these points requires one of the retention exceptions in Article 16.",
+      "key_requirements": [
+        "End processing when the purpose has been achieved or the data is no longer necessary or pertinent to that purpose.",
+        "End processing at the end of the processing period agreed or established for the activity.",
+        "Honor the data subject's communication, including the revocation of consent, respecting the public interest.",
+        "Comply with any ANPD determination to cease processing after a violation of the law.",
+        "Design retention schedules so that deletion follows termination, subject only to the Article 16 exceptions (legal obligation, research, transfer to another controller, or anonymized exclusive use)."
+      ],
+      "paragraphs": [
+        {
+          "ref": "15(I)-(II)",
+          "text": "Processing terminates when it is verified that the purpose has been achieved or that the data is no longer necessary or pertinent to achieving the specific purpose, or at the end of the processing period."
+        },
+        {
+          "ref": "15(III)",
+          "text": "Processing terminates upon communication by the data subject, including the exercise of the right to revoke consent, safeguarding the public interest."
+        },
+        {
+          "ref": "15(IV)",
+          "text": "Processing terminates upon determination by the national authority when there has been a violation of the provisions of the law."
+        }
+      ]
+    },
+    {
+      "number": "16",
+      "title": "Retention of personal data after termination of processing",
+      "chapter": "Chapter II — Processing of Personal Data"
+    },
+    {
+      "number": "17",
+      "title": "Ownership of personal data and guarantee of fundamental rights",
+      "chapter": "Chapter III — Data Subject Rights"
+    },
+    {
+      "number": "18",
+      "title": "Rights of the data subject",
+      "chapter": "Chapter III — Data Subject Rights",
+      "is_key": true,
+      "summary": "Article 18 is the LGPD's catalogue of data subject rights, exercisable at any time by express request to the controller. It covers confirmation of processing, access, correction, anonymization or deletion of unnecessary data, portability, deletion of consented data, information about sharing and about the option to refuse consent, and revocation of consent. Controllers must respond immediately or justify why they cannot, free of charge, and propagate corrections and deletions to any agents the data was shared with.",
+      "key_requirements": [
+        "Provide confirmation of the existence of processing and access to the data on request.",
+        "Correct incomplete, inaccurate, or outdated data, and anonymize, block, or delete data that is unnecessary, excessive, or processed in violation of the law.",
+        "Provide data portability to another service or product provider, per ANPD regulation and respecting trade secrets.",
+        "Delete personal data processed on the basis of consent when requested, except in the retention cases of Article 16.",
+        "Inform data subjects about the public and private entities the controller shared their data with, and about the possibility and consequences of denying consent.",
+        "Enable revocation of consent, and immediately communicate corrections, deletions, anonymizations, and blockings to agents with whom the data was shared so they repeat the operation."
+      ],
+      "paragraphs": [
+        {
+          "ref": "18(I)-(IV)",
+          "text": "The data subject may obtain confirmation of the existence of processing, access to the data, correction of incomplete, inaccurate or outdated data, and the anonymization, blocking or deletion of unnecessary or excessive data or of data processed in non-compliance with the law."
+        },
+        {
+          "ref": "18(V)-(VI)",
+          "text": "The data subject may obtain portability of the data to another service or product provider, upon express request and per ANPD regulation, and deletion of personal data processed with consent, except in the cases of Article 16."
+        },
+        {
+          "ref": "18(VII)-(IX)",
+          "text": "The data subject may obtain information about the public and private entities with which the controller shared data, information about the possibility of not providing consent and its consequences, and revocation of consent."
+        },
+        {
+          "ref": "18 §3-§4",
+          "text": "Rights are exercised by express request of the subject or a legal representative to the processing agent; if the controller cannot immediately adopt the requested measure, it must respond stating that it is not the processing agent or indicating the factual or legal reasons that prevent the measure."
+        },
+        {
+          "ref": "18 §6",
+          "text": "The controller must immediately inform the processing agents with whom it shared data of any correction, deletion, anonymization or blocking, so that they repeat the same procedure, except where that communication is demonstrably impossible or involves disproportionate effort."
+        }
+      ]
+    },
+    {
+      "number": "19",
+      "title": "Procedures and formats for confirmation of processing and access to data",
+      "chapter": "Chapter III — Data Subject Rights"
+    },
+    {
+      "number": "20",
+      "title": "Right to review of decisions made solely by automated processing",
+      "chapter": "Chapter III — Data Subject Rights"
+    },
+    {
+      "number": "21",
+      "title": "Prohibition on using data about the regular exercise of rights to the subject's detriment",
+      "chapter": "Chapter III — Data Subject Rights"
+    },
+    {
+      "number": "22",
+      "title": "Collective defense of data subjects' interests and rights",
+      "chapter": "Chapter III — Data Subject Rights"
+    },
+    {
+      "number": "23",
+      "title": "Processing by public legal entities for public purposes",
+      "chapter": "Chapter IV — Processing by Public Authorities"
+    },
+    {
+      "number": "24",
+      "title": "Public companies and mixed-capital companies operating in competitive markets treated as private controllers",
+      "chapter": "Chapter IV — Processing by Public Authorities"
+    },
+    {
+      "number": "25",
+      "title": "Interoperable and structured formats for data held by public authorities",
+      "chapter": "Chapter IV — Processing by Public Authorities"
+    },
+    {
+      "number": "26",
+      "title": "Shared use of personal data by public authorities",
+      "chapter": "Chapter IV — Processing by Public Authorities"
+    },
+    {
+      "number": "27",
+      "title": "Communication or shared use of personal data from public to private entities",
+      "chapter": "Chapter IV — Processing by Public Authorities"
+    },
+    {
+      "number": "28",
+      "title": "(Vetoed in the enacted text)",
+      "chapter": "Chapter IV — Processing by Public Authorities"
+    },
+    {
+      "number": "29",
+      "title": "ANPD requests for information from public bodies about processing activities",
+      "chapter": "Chapter IV — Processing by Public Authorities"
+    },
+    {
+      "number": "30",
+      "title": "ANPD complementary rules on communication and shared use of data",
+      "chapter": "Chapter IV — Processing by Public Authorities"
+    },
+    {
+      "number": "31",
+      "title": "Measures against public authorities for violations of the law",
+      "chapter": "Chapter IV — Processing by Public Authorities"
+    },
+    {
+      "number": "32",
+      "title": "ANPD may request publication of data protection impact assessments by public bodies",
+      "chapter": "Chapter IV — Processing by Public Authorities"
+    },
+    {
+      "number": "33",
+      "title": "Conditions for the international transfer of personal data",
+      "chapter": "Chapter V — International Data Transfer",
+      "is_key": true,
+      "summary": "Article 33 permits international transfers of personal data only in enumerated situations. The main routes are transfers to countries or bodies offering an adequate level of protection, and transfers backed by guarantees such as standard contractual clauses, global corporate norms, or approved seals and certificates. Other routes include international legal cooperation, protection of life, specific ANPD authorization, treaty commitments, important public policies, specific highlighted consent, or the necessity grounds of Article 7.",
+      "key_requirements": [
+        "Transfer data abroad only to countries or international organizations that provide a level of protection deemed adequate by the ANPD, or under one of the other listed conditions.",
+        "Where no adequacy applies, ensure the controller offers and proves guarantees of compliance — specific contractual clauses, standard contractual clauses, global corporate norms, or regularly issued seals, certificates and codes of conduct.",
+        "Obtain specific, highlighted consent for the transfer, with prior information about its international character, when relying on consent.",
+        "Document the applicable route for each transfer (legal cooperation, protection of life, ANPD authorization, treaty commitments, public policy execution, or Article 7 necessity grounds)."
+      ],
+      "paragraphs": [
+        {
+          "ref": "33(I)",
+          "text": "Transfer is permitted to countries or international organizations that provide a degree of personal data protection adequate to that of the LGPD."
+        },
+        {
+          "ref": "33(II)",
+          "text": "Transfer is permitted when the controller offers and proves guarantees of compliance with the principles and data subject rights of the law, in the form of specific contractual clauses, standard contractual clauses, global corporate norms, or regularly issued seals, certificates and codes of conduct."
+        },
+        {
+          "ref": "33(III)-(VII)",
+          "text": "Transfer is also permitted when necessary for international legal cooperation between public intelligence, investigation and prosecution bodies; for the protection of the life or physical safety of the subject or a third party; when authorized by the national authority; when it results from commitments in international cooperation agreements; or when necessary for the execution of public policy or legal attribution of public service."
+        },
+        {
+          "ref": "33(VIII)-(IX)",
+          "text": "Transfer is permitted when the subject has given specific and highlighted consent for the transfer, with prior information on its international character, or when necessary to comply with a legal obligation, to perform a contract, or for the regular exercise of rights (Article 7(II), (V) and (VI))."
+        }
+      ]
+    },
+    {
+      "number": "34",
+      "title": "Assessment of the level of data protection of foreign countries and international organizations",
+      "chapter": "Chapter V — International Data Transfer"
+    },
+    {
+      "number": "35",
+      "title": "Definition of standard contractual clauses, global corporate norms, seals, certificates and codes of conduct by the ANPD",
+      "chapter": "Chapter V — International Data Transfer"
+    },
+    {
+      "number": "36",
+      "title": "Communication of changes in the guarantees presented for international transfers",
+      "chapter": "Chapter V — International Data Transfer"
+    },
+    {
+      "number": "37",
+      "title": "Records of personal data processing operations",
+      "chapter": "Chapter VI — Processing Agents"
+    },
+    {
+      "number": "38",
+      "title": "Data protection impact assessment",
+      "chapter": "Chapter VI — Processing Agents"
+    },
+    {
+      "number": "39",
+      "title": "Processing by the processor according to the controller's instructions",
+      "chapter": "Chapter VI — Processing Agents"
+    },
+    {
+      "number": "40",
+      "title": "Interoperability standards for portability, free access and security",
+      "chapter": "Chapter VI — Processing Agents"
+    },
+    {
+      "number": "41",
+      "title": "Appointment of the data protection officer (encarregado)",
+      "chapter": "Chapter VI — Processing Agents"
+    },
+    {
+      "number": "42",
+      "title": "Liability of processing agents for damage caused by processing",
+      "chapter": "Chapter VI — Processing Agents"
+    },
+    {
+      "number": "43",
+      "title": "Exclusions of liability of processing agents",
+      "chapter": "Chapter VI — Processing Agents"
+    },
+    {
+      "number": "44",
+      "title": "Irregular processing and liability for security defects",
+      "chapter": "Chapter VI — Processing Agents"
+    },
+    {
+      "number": "45",
+      "title": "Liability rules for violations in consumer relations",
+      "chapter": "Chapter VI — Processing Agents"
+    },
+    {
+      "number": "46",
+      "title": "Security, technical and administrative measures for the protection of personal data",
+      "chapter": "Chapter VII — Security and Good Practices",
+      "is_key": true,
+      "summary": "Article 46 obliges processing agents to adopt security, technical and administrative measures able to protect personal data from unauthorized access and from accidental or unlawful destruction, loss, alteration, communication, or diffusion. The ANPD may set minimum technical standards, taking into account the nature of the data and the risks involved. Crucially, these measures must be observed from the design phase of the product or service through to its execution — the LGPD's privacy-by-design mandate.",
+      "key_requirements": [
+        "Adopt security, technical and administrative measures proportionate to protect personal data against unauthorized access and accidental or unlawful destruction, loss, alteration, communication, or any form of improper or unlawful processing.",
+        "Follow the minimum technical standards the ANPD may establish, considering the nature of the information, the specific characteristics of the processing, and the current state of technology, especially for sensitive data.",
+        "Build the required security measures in from the design phase of products and services (privacy/security by design) and maintain them throughout execution.",
+        "Combine technical controls (such as encryption at rest and in transit, and access control) with administrative controls (policies, training, contractual duties) to satisfy the standard."
+      ],
+      "paragraphs": [
+        {
+          "ref": "46 caput",
+          "text": "Processing agents must adopt security, technical and administrative measures able to protect personal data from unauthorized access and from accidental or unlawful situations of destruction, loss, alteration, communication or any form of improper or unlawful processing."
+        },
+        {
+          "ref": "46 §1",
+          "text": "The national authority may establish minimum technical standards for these measures, considering the nature of the information processed, the specific characteristics of the processing and the current state of technology, especially in the case of sensitive personal data."
+        },
+        {
+          "ref": "46 §2",
+          "text": "The security measures must be observed from the design phase of the product or service until its execution."
+        }
+      ]
+    },
+    {
+      "number": "47",
+      "title": "Duty of all persons involved in processing to guarantee data security",
+      "chapter": "Chapter VII — Security and Good Practices"
+    },
+    {
+      "number": "48",
+      "title": "Notification of security incidents to the ANPD and to data subjects",
+      "chapter": "Chapter VII — Security and Good Practices",
+      "is_key": true,
+      "summary": "Article 48 is the LGPD's breach-notification rule. Controllers must notify both the ANPD and the affected data subjects of any security incident that may cause relevant risk or damage. The notification must be made within a reasonable time (regulated by the ANPD, which has set a 3-working-day expectation) and must describe the data affected, the subjects involved, the safeguards used, the risks, and the mitigation measures. The ANPD assesses the incident's severity and may order wide disclosure and remedial measures.",
+      "key_requirements": [
+        "Notify the ANPD and the data subjects of any security incident that may entail relevant risk or damage to data subjects.",
+        "Send the notification within a reasonable time, per ANPD regulation (the ANPD's incident-reporting rules work on a 3-working-day baseline).",
+        "Include at minimum: a description of the nature of the affected data, the data subjects involved, the technical and security measures used (respecting trade secrets), the risks related to the incident, the reasons for any delay, and the measures adopted to reverse or mitigate the effects.",
+        "Be prepared for the ANPD to verify the severity of the incident and order wide publicity in the media or measures to reverse or mitigate its effects.",
+        "Maintain an incident-response process that can determine severity, including whether adequate technical measures such as encryption rendered the data unintelligible."
+      ],
+      "paragraphs": [
+        {
+          "ref": "48 caput",
+          "text": "The controller must communicate to the national authority and to the data subject the occurrence of a security incident that may create relevant risk or damage to data subjects."
+        },
+        {
+          "ref": "48 §1",
+          "text": "The communication must be made within a reasonable time, as defined by the national authority, and must mention at least: the description of the nature of the affected personal data; information on the data subjects involved; the technical and security measures used, observing trade secrets; the risks related to the incident; the reasons for delay, where the communication was not immediate; and the measures that were or will be adopted to reverse or mitigate the effects."
+        },
+        {
+          "ref": "48 §2",
+          "text": "The national authority verifies the severity of the incident and may, where necessary to safeguard the data subjects' rights, order the controller to adopt measures such as wide disclosure of the event in the media and measures to reverse or mitigate the incident's effects."
+        },
+        {
+          "ref": "48 §3",
+          "text": "In judging the incident's severity, the eventual proof that adequate technical measures were adopted — rendering the affected personal data unintelligible to unauthorized third parties — is taken into account."
+        }
+      ]
+    },
+    {
+      "number": "49",
+      "title": "Systems used for processing must be structured to meet security requirements and good practices",
+      "chapter": "Chapter VII — Security and Good Practices"
+    },
+    {
+      "number": "50",
+      "title": "Good practice and governance rules; privacy governance programs",
+      "chapter": "Chapter VII — Security and Good Practices"
+    },
+    {
+      "number": "51",
+      "title": "ANPD encouragement of technical standards facilitating data control by subjects",
+      "chapter": "Chapter VII — Security and Good Practices"
+    },
+    {
+      "number": "52",
+      "title": "Administrative sanctions applicable by the ANPD",
+      "chapter": "Chapter VIII — Supervision",
+      "is_key": true,
+      "summary": "Article 52 lists the administrative sanctions the ANPD can impose for violations, ranging from warnings to fines and processing bans. The headline fine is up to 2% of the revenue in Brazil of the private legal entity's group in the preceding year, capped at R$50 million per violation, with daily fines also available. Sanctions are applied after administrative procedure and graduated by factors such as good faith, the offender's cooperation, recidivism, and the adoption of good-practice and governance policies.",
+      "key_requirements": [
+        "Expect graduated sanctions: warning with corrective deadline; simple fine up to 2% of Brazil revenue capped at R$50M per violation; daily fine subject to the same cap; publicization of the violation; blocking or deletion of the personal data concerned; and, for repeat cases, suspension of the database or of the processing activity, or partial/total prohibition of activities related to data processing.",
+        "Note that sanctions follow an administrative procedure with full defense rights and are applied according to the peculiarities of the case.",
+        "Reduce exposure through the graduation criteria: good faith, cooperation, prompt corrective measures, proportionality, and demonstrated adoption of internal mechanisms, good-practice policies and governance programs.",
+        "Public entities are subject to specific measures (Articles 31-32) rather than fines."
+      ],
+      "paragraphs": [
+        {
+          "ref": "52(I)-(II)",
+          "text": "Sanctions include a warning, with an indicated deadline for corrective measures, and a simple fine of up to 2% of the revenue in Brazil of the private legal entity, group or conglomerate in its last fiscal year, excluding taxes, limited in total to R$50,000,000 per violation."
+        },
+        {
+          "ref": "52(III)-(VI)",
+          "text": "Sanctions also include a daily fine (subject to the same total cap), publicization of the violation once duly investigated and confirmed, and the blocking or deletion of the personal data to which the violation refers."
+        },
+        {
+          "ref": "52(X)-(XII)",
+          "text": "For repeated violations, the ANPD may order partial suspension of the database's operation for up to 6 months (extendable), suspension of the processing activity for up to 6 months (extendable), or partial or total prohibition of the exercise of activities related to data processing."
+        },
+        {
+          "ref": "52 §1",
+          "text": "Sanctions are applied after an administrative procedure enabling full defense, gradually and proportionally, considering factors including the severity and nature of the violation, the offender's good faith, the advantage obtained, recidivism, cooperation, the prompt adoption of corrective measures, and the adoption of good-practice and governance policies."
+        }
+      ]
+    },
+    {
+      "number": "53",
+      "title": "ANPD regulation of methodologies for calculating fines",
+      "chapter": "Chapter VIII — Supervision"
+    },
+    {
+      "number": "54",
+      "title": "Daily fine amounts and their justification",
+      "chapter": "Chapter VIII — Supervision"
+    },
+    {
+      "number": "55",
+      "title": "(Vetoed in the original enactment; ANPD provisions were enacted as Articles 55-A to 55-L by Law No. 13.853/2019)",
+      "chapter": "Chapter VIII — Supervision"
+    },
+    {
+      "number": "56",
+      "title": "(Vetoed in the original enactment)",
+      "chapter": "Chapter VIII — Supervision"
+    },
+    {
+      "number": "57",
+      "title": "(Vetoed in the original enactment)",
+      "chapter": "Chapter VIII — Supervision"
+    },
+    {
+      "number": "58",
+      "title": "(Vetoed in the original enactment; National Council provisions were enacted as Articles 58-A and 58-B)",
+      "chapter": "Chapter VIII — Supervision"
+    },
+    {
+      "number": "59",
+      "title": "(Vetoed in the original enactment)",
+      "chapter": "Chapter VIII — Supervision"
+    },
+    {
+      "number": "60",
+      "title": "Amendments to the Internet Civil Framework (Law No. 12.965/2014)",
+      "chapter": "Chapter IX — Final and Transitional Provisions"
+    },
+    {
+      "number": "61",
+      "title": "Notification of foreign companies through their representative in Brazil",
+      "chapter": "Chapter IX — Final and Transitional Provisions"
+    },
+    {
+      "number": "62",
+      "title": "Specific regulations for access to education-related databases (ANPD and Inep)",
+      "chapter": "Chapter IX — Final and Transitional Provisions"
+    },
+    {
+      "number": "63",
+      "title": "Rules for the progressive adaptation of databases created before the law's entry into force",
+      "chapter": "Chapter IX — Final and Transitional Provisions"
+    },
+    {
+      "number": "64",
+      "title": "Rights and principles of the law do not exclude others provided in treaties or Brazilian legislation",
+      "chapter": "Chapter IX — Final and Transitional Provisions"
+    },
+    {
+      "number": "65",
+      "title": "Entry into force (staggered dates, including sanctions from 1 August 2021)",
+      "chapter": "Chapter IX — Final and Transitional Provisions"
+    }
+  ],
+  "related_practice_slugs": [
+    "encryption-at-rest",
+    "data-anonymization",
+    "pseudonymization",
+    "data-retention-deletion",
+    "access-control-rbac-abac"
+  ],
+  "related_technology_slugs": [
+    "arx",
+    "microsoft-presidio",
+    "bigid"
+  ],
+  "position": 70
+}

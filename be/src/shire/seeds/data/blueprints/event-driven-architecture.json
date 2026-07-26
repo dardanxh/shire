@@ -1,0 +1,154 @@
+{
+  "slug": "event-driven-architecture",
+  "name": "Event-driven architecture",
+  "use_case": "Contract-first inter-service events",
+  "description": "Services communicate by publishing versioned, schema-governed events to a durable broker rather than calling each other synchronously. The contract — not the transport — is the architecture: a schema registry enforces compatibility at produce time, serialization formats carry the contract in every message, consumers own their offsets and processing guarantees, and dead-letter queues make failure handling explicit instead of silent. Done well, teams ship independently against stable event contracts and the event log doubles as the integration point for the data platform (the same topics feed analytics). Done casually — topics without owners, JSON blobs without schemas — it becomes a distributed monolith with extra steps. There is no landing lake by design: the broker's retained log is the system of record for events; add an archive sink only when analytics replay is needed.",
+  "when_to_use": [
+    "Choose this when multiple teams' services need to react to each other's state changes without tight coupling — order flows, notifications, inventory, audit trails — and when the org is ready to treat event schemas as public APIs with owners, versioning, and review.",
+    "It pays off most in organizations of several teams where synchronous call graphs have become the bottleneck.",
+    "Teams need to ship independently without coordinating database schemas."
+  ],
+  "when_not_to_use": [
+    "Skip it for a small monolith or a two-service system — direct calls and an outbox table are simpler and debuggable.",
+    "Avoid it where workflows genuinely need synchronous request/response semantics or distributed-transaction-like consistency; retrofitting sagas onto everything is worse than the coupling you fled.",
+    "Without organizational appetite for contract governance, the registry becomes decoration and the pattern fails."
+  ],
+  "use_cases": [
+    "integration",
+    "operational",
+    "realtime"
+  ],
+  "hot_spots": [
+    {
+      "title": "Contract discipline",
+      "detail": "One producer skipping registry checks breaks every downstream consumer."
+    },
+    {
+      "title": "DLQ hygiene",
+      "detail": "An unmonitored dead letter queue is silent data loss."
+    },
+    {
+      "title": "Ordering and retries",
+      "detail": "At-least-once delivery without idempotent consumers duplicates side effects."
+    }
+  ],
+  "complexity": "medium",
+  "evolution": [
+    {
+      "to_slug": "kappa-streaming-pipeline",
+      "reason": "Add stream analytics and materialized views on top of the event backbone."
+    }
+  ],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Producer Services]:::source -->|domain events| BR[Event Broker]:::process\n  BR -->|validated events| CONS[Consumer Services]:::serve\n  BR -->|failed deliveries| DLQ[Dead Letter Queue]:::store\n  DLQ -->|repaired events| BR\n  REG[Contract Registry]:::govern -. schema compatibility .-> SRC\n  REG -. consumer contracts .-> CONS"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  P[Producer Services]:::source -->|publish| MB[Message Broker Topics]:::process\n  MB -->|subscriptions| CG[Consumer Groups]:::serve\n  MB -->|poison messages| DLQ[Dead Letter Topics]:::store\n  DLQ -->|replay tooling| MB\n  SR[Schema Registry]:::govern -. validate on publish .-> P\n  CT[Contract Tests]:::govern -. CI checks .-> CG"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([domain events]):::source -->|schema validation| B([accepted events]):::process\n  B -->|routed by topic| C([topic partitions]):::store\n  C -->|consume| E([processed outcomes]):::serve\n  C -->|failures| F([dead letters]):::store\n  F -->|fix and replay| C"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant P as Producer\n  participant R as Registry\n  participant B as Broker\n  participant C as Consumer\n  participant D as DLQ\n  P->>R: validate event schema\n  R-->>P: compatible\n  P->>B: publish event\n  B->>C: deliver\n  alt processing fails\n    C->>D: park event\n    Note over D: operator fixes and replays\n    D->>B: replay\n  end"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Producer Services]:::source -->|domain events| BR[\"Amazon EventBridge · MSK<br/><i>Event Broker</i>\"]:::process\n  BR -->|validated events| CONS[Consumer Services]:::serve\n  BR -->|failed deliveries| DLQ[\"Amazon SQS DLQ<br/><i>Dead Letter Queue</i>\"]:::store\n  DLQ -->|repaired events| BR\n  REG[\"AWS Glue Schema Registry<br/><i>Contract Registry</i>\"]:::govern -. schema compatibility .-> SRC\n  REG -. consumer contracts .-> CONS"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Producer Services]:::source -->|domain events| BR[\"Azure Service Bus · Event Hubs<br/><i>Event Broker</i>\"]:::process\n  BR -->|validated events| CONS[Consumer Services]:::serve\n  BR -->|failed deliveries| DLQ[\"Service Bus DLQ<br/><i>Dead Letter Queue</i>\"]:::store\n  DLQ -->|repaired events| BR\n  REG[\"Event Hubs Schema Registry<br/><i>Contract Registry</i>\"]:::govern -. schema compatibility .-> SRC\n  REG -. consumer contracts .-> CONS"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Producer Services]:::source -->|domain events| BR[\"Google Pub/Sub<br/><i>Event Broker</i>\"]:::process\n  BR -->|validated events| CONS[Consumer Services]:::serve\n  BR -->|failed deliveries| DLQ[\"Pub/Sub dead-letter topics<br/><i>Dead Letter Queue</i>\"]:::store\n  DLQ -->|repaired events| BR\n  REG[\"Pub/Sub schemas<br/><i>Contract Registry</i>\"]:::govern -. schema compatibility .-> SRC\n  REG -. consumer contracts .-> CONS"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Producer Services]:::source -->|domain events| BR[\"Apache Kafka · RabbitMQ<br/><i>Event Broker</i>\"]:::process\n  BR -->|validated events| CONS[Consumer Services]:::serve\n  BR -->|failed deliveries| DLQ[\"Kafka DLQ topics<br/><i>Dead Letter Queue</i>\"]:::store\n  DLQ -->|repaired events| BR\n  REG[\"Apicurio Registry<br/><i>Contract Registry</i>\"]:::govern -. schema compatibility .-> SRC\n  REG -. consumer contracts .-> CONS"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Producer Services]:::source -->|domain events| BR[\"Confluent Cloud<br/><i>Event Broker</i>\"]:::process\n  BR -->|validated events| CONS[\"Services + Snowpipe Streaming to Snowflake<br/><i>Consumer Services</i>\"]:::serve\n  BR -->|failed deliveries| DLQ[\"Confluent DLQ topics<br/><i>Dead Letter Queue</i>\"]:::store\n  DLQ -->|repaired events| BR\n  REG[\"Confluent Schema Registry<br/><i>Contract Registry</i>\"]:::govern -. schema compatibility .-> SRC\n  REG -. consumer contracts .-> CONS"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Producer Services]:::source -->|domain events| BR[\"Apache Kafka · Confluent<br/><i>Event Broker</i>\"]:::process\n  BR -->|validated events| CONS[\"Services + Auto Loader to Delta<br/><i>Consumer Services</i>\"]:::serve\n  BR -->|failed deliveries| DLQ[\"Kafka DLQ topics<br/><i>Dead Letter Queue</i>\"]:::store\n  DLQ -->|repaired events| BR\n  REG[\"Unity Catalog schemas<br/><i>Contract Registry</i>\"]:::govern -. schema compatibility .-> SRC\n  REG -. consumer contracts .-> CONS"
+    }
+  ],
+  "family_tags": [
+    "streaming-realtime",
+    "orchestration-dataops"
+  ],
+  "archetype_slugs": [
+    "event-driven-architecture",
+    "data-contracts-rollout",
+    "streaming-ingestion"
+  ],
+  "position": 7,
+  "stages": [
+    {
+      "position": 0,
+      "name": "Broker",
+      "role": "Durable pub/sub transport with per-key ordering and consumer groups",
+      "recommended_technology_slug": "apache-kafka",
+      "alternative_technology_slugs": [
+        "redpanda",
+        "apache-pulsar",
+        "nats-jetstream",
+        "rabbitmq"
+      ],
+      "rationale": "Kafka's retained log, per-key ordering, and consumer-group model are the natural substrate for event-driven systems, and its ubiquity means every framework, language, and hire already speaks it. Redpanda delivers the same API with much lighter operations for teams without a platform group. Pulsar wins for large multi-tenant estates; NATS JetStream is compelling for lightweight, low-latency service messaging where Kafka feels heavy; RabbitMQ remains right for task-queue and routing semantics — but its queue model lacks the replayable log that makes events valuable to the data platform."
+    },
+    {
+      "position": 1,
+      "name": "Registry",
+      "role": "Enforce schema compatibility at produce time; the contract gatekeeper",
+      "recommended_technology_slug": "confluent-schema-registry",
+      "alternative_technology_slugs": [
+        "apicurio-registry",
+        "aws-glue-schema-registry"
+      ],
+      "rationale": "Confluent Schema Registry is the standard integration point — every serializer, connector, and stream processor supports it, and its compatibility modes (enforce BACKWARD, minimum) turn breaking changes into build failures instead of 3am consumer crashes. Apicurio speaks the same API under a genuinely open license, the safer pick for teams wary of Confluent licensing; Glue Schema Registry for MSK-based AWS estates. The tool matters less than the process: schema changes should go through the same review as API changes."
+    },
+    {
+      "position": 2,
+      "name": "Contracts",
+      "role": "Serialization format carrying the schema contract in every event",
+      "recommended_technology_slug": "avro",
+      "alternative_technology_slugs": [
+        "protobuf",
+        "json-ndjson"
+      ],
+      "rationale": "Avro is the Kafka-ecosystem default: compact binary encoding, first-class schema evolution rules, and the deepest registry/connector integration — the boring, correct choice for data-platform-adjacent events. Protobuf wins when the org already uses it for gRPC service APIs and wants one IDL everywhere, at the cost of slightly clunkier evolution semantics for data use. Plain JSON with JSON Schema is acceptable for low-volume topics where human debuggability trumps efficiency — but resist schema-less JSON; it is how event platforms rot."
+    },
+    {
+      "position": 3,
+      "name": "Consumers",
+      "role": "Services consuming events with explicit delivery semantics — these are your own applications, so no single corpus tool is 'recommended'; frameworks below help with the plumbing",
+      "recommended_technology_slug": null,
+      "alternative_technology_slugs": [
+        "kafka-streams",
+        "apache-flink",
+        "temporal"
+      ],
+      "rationale": "Consumers are ordinary services in your application stack — the architecture decisions are idempotency (at-least-once delivery is the practical default, so handlers must tolerate redelivery), offset-commit discipline, and consumer-group topology. Kafka Streams helps when consumption involves stateful processing inside JVM services; Flink when it grows into real stream processing; Temporal when an event kicks off a long-running workflow with retries and human steps. Whatever the framework, make the outbox pattern standard on the produce side so database writes and event publishes cannot diverge."
+    },
+    {
+      "position": 4,
+      "name": "DLQ",
+      "role": "Dead-letter handling: park poison messages, alert, repair, and replay — a pattern built on broker topics, not a product, so no corpus recommendation exists",
+      "recommended_technology_slug": null,
+      "alternative_technology_slugs": [
+        "amazon-sqs",
+        "rabbitmq"
+      ],
+      "rationale": "DLQs are convention, not software: a per-consumer (or per-topic) dead-letter topic on the same broker, an alert when depth exceeds zero, and a documented repair-and-replay path — Kafka Connect and most frameworks emit to DLQ topics natively. The decisions that matter are retry policy before dead-lettering (with backoff, preserving per-key ordering where required) and who owns triage. SQS and RabbitMQ have DLQs as managed first-class features, relevant if those brokers appear elsewhere in your estate. A DLQ nobody monitors is just a place messages go to die — wire the alert before the first producer ships."
+    }
+  ]
+}

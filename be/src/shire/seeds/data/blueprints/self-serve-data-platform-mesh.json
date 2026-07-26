@@ -1,0 +1,142 @@
+{
+  "slug": "self-serve-data-platform-mesh",
+  "name": "Self-serve data platform (mesh)",
+  "use_case": "Domain teams shipping data products",
+  "description": "Data mesh made concrete: instead of a central team bottlenecking every pipeline, domain teams own their data as products, and a platform team's job shifts to making that ownership cheap. The platform layer is infrastructure-as-code — templated provisioning of warehouses/schemas, orchestration, storage, and access so a domain gets a working environment from a pull request, not a ticket queue. On top sits the data-product template: a scaffold that stamps out a new product with its contract (schema, SLOs, ownership), pipeline skeleton, tests, docs, and CI already wired, encoding the platform team's opinions as the paved road. A federated catalog makes every product discoverable with lineage and ownership attached, and central policies (security, PII, quality gates) are enforced computationally by the platform — federated governance means domains decide within guardrails, not that guardrails are optional.\n\nThe honest framing: this is an organizational architecture with a technology shadow, not the reverse. It works when domains genuinely have (or will hire) engineers who can own products, when the platform team accepts that its customer is the domain developer, and when leadership funds the platform as a product with a roadmap rather than a cost center. The commonest failure is mesh-washing — renaming the central team's folders 'domains' while every change still flows through the same five people — followed closely by platform teams building golden paths nobody asked for; the template must be extracted from what successful domains already do, not imagined in isolation.\n\nSequencing is the practical craft. Start with two or three willing domains and one end-to-end slice — template, provisioning, catalog registration, one real product shipped — then generalize. The catalog belongs early (discoverability is the first federation payoff and the cheapest), computational policy enforcement grows incrementally, and the platform earns adoption product by product: every domain that onboards because the paved road was genuinely faster than going around it is the metric that matters. Landing zones live inside each data product rather than as a central layer — the mesh deliberately avoids a shared raw lake.",
+  "when_to_use": [
+    "Choose this when a central data team has become the bottleneck for an organization of many domain teams — backlogs measured in quarters, domain knowledge lost in translation, pipelines the central team operates but does not understand.",
+    "It requires scale to pay off (rule of thumb: several domains each able to staff data-capable engineers) and leadership willing to fund platform engineering as a product.",
+    "The central data team has become the bottleneck for every domain request."
+  ],
+  "when_not_to_use": [
+    "Do not attempt this under roughly fifty engineers or with domains that cannot own code — a well-run central platform (2 or 3) with good intake beats a mesh nobody can staff, and 'mesh' is not a fix for an under-resourced data team.",
+    "Avoid it when the org rewards heroics over paved roads; self-serve platforms die where bypassing them is celebrated.",
+    "If the pain is discoverability alone, a catalog rollout is a far smaller project than a mesh."
+  ],
+  "use_cases": [
+    "self_serve",
+    "integration",
+    "reporting"
+  ],
+  "hot_spots": [
+    {
+      "title": "Product quality variance",
+      "detail": "Autonomy without enforced standards yields wildly uneven data products."
+    },
+    {
+      "title": "Platform gaps",
+      "detail": "If the platform is not truly self-serve, domains bypass it and fragment."
+    },
+    {
+      "title": "Ownership churn",
+      "detail": "Reorgs orphan data products that consumers still depend on."
+    }
+  ],
+  "complexity": "high",
+  "evolution": [],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Domain Data Sources]:::source -->|domain-owned data| PIPE[Product Pipelines]:::process\n  PIPE -->|published datasets| DP[Domain Data Products]:::store\n  DP -->|contracts + metadata| CAT[Federated Catalog]:::govern\n  CAT -->|discovery| CONS[Cross-domain Consumers]:::serve\n  PLAT[Shared Platform]:::process -. self-serve infrastructure .-> PIPE\n  POL[Central Policies]:::govern -. global guardrails .-> DP"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  DS[Domain Sources]:::source -->|templated pipelines| TPL[Product Template]:::process\n  TPL -->|storage + contract + docs| DP[Data Product Ports]:::store\n  DP -->|register| FC[Federated Catalog]:::govern\n  FC -->|search + lineage| CONS[Consumers in Other Domains]:::serve\n  SP[Shared Platform Services]:::process -. compute, storage, orchestration .-> TPL\n  CP[Central Policy Engine]:::govern -. quality + access standards .-> DP"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([domain source data]):::source -->|build product| B([data product datasets]):::store\n  B -->|publish contract| C([discoverable products]):::store\n  C -->|subscribe| E([cross-domain consumption]):::serve\n  E -->|feedback + demand| A"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant T as Domain Team\n  participant P as Platform\n  participant D as Data Product\n  participant C as Catalog\n  participant U as Consumer\n  participant G as Policy Engine\n  T->>P: scaffold product from template\n  P-->>T: pipeline + storage + contract\n  T->>D: publish dataset\n  D->>C: register with contract\n  U->>C: discover product\n  U->>D: subscribe to port\n  G->>D: continuous compliance checks"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Domain Data Sources]:::source -->|domain-owned data| PIPE[\"AWS Glue blueprints<br/><i>Product Pipelines</i>\"]:::process\n  PIPE -->|published datasets| DP[\"S3 + Redshift data products<br/><i>Domain Data Products</i>\"]:::store\n  DP -->|contracts + metadata| CAT[\"AWS Glue Data Catalog + Lake Formation<br/><i>Federated Catalog</i>\"]:::govern\n  CAT -->|discovery| CONS[Cross-domain Consumers]:::serve\n  PLAT[\"AWS Lake Formation platform<br/><i>Shared Platform</i>\"]:::process -. self-serve infrastructure .-> PIPE\n  POL[\"Lake Formation guardrails<br/><i>Central Policies</i>\"]:::govern -. global guardrails .-> DP"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Domain Data Sources]:::source -->|domain-owned data| PIPE[\"ADF template pipelines<br/><i>Product Pipelines</i>\"]:::process\n  PIPE -->|published datasets| DP[\"ADLS + Synapse data products<br/><i>Domain Data Products</i>\"]:::store\n  DP -->|contracts + metadata| CAT[\"Microsoft Purview<br/><i>Federated Catalog</i>\"]:::govern\n  CAT -->|discovery| CONS[Cross-domain Consumers]:::serve\n  PLAT[\"Microsoft Fabric workspaces<br/><i>Shared Platform</i>\"]:::process -. self-serve infrastructure .-> PIPE\n  POL[\"Purview policies<br/><i>Central Policies</i>\"]:::govern -. global guardrails .-> DP"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Domain Data Sources]:::source -->|domain-owned data| PIPE[\"Dataform templated pipelines<br/><i>Product Pipelines</i>\"]:::process\n  PIPE -->|published datasets| DP[\"BigQuery data products<br/><i>Domain Data Products</i>\"]:::store\n  DP -->|contracts + metadata| CAT[\"Google Dataplex<br/><i>Federated Catalog</i>\"]:::govern\n  CAT -->|discovery| CONS[Cross-domain Consumers]:::serve\n  PLAT[\"Google Dataplex platform<br/><i>Shared Platform</i>\"]:::process -. self-serve infrastructure .-> PIPE\n  POL[\"Dataplex policies<br/><i>Central Policies</i>\"]:::govern -. global guardrails .-> DP"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Domain Data Sources]:::source -->|domain-owned data| PIPE[\"dbt Core + Airflow templates<br/><i>Product Pipelines</i>\"]:::process\n  PIPE -->|published datasets| DP[\"Iceberg + Trino data products<br/><i>Domain Data Products</i>\"]:::store\n  DP -->|contracts + metadata| CAT[\"OpenMetadata · DataHub<br/><i>Federated Catalog</i>\"]:::govern\n  CAT -->|discovery| CONS[Cross-domain Consumers]:::serve\n  PLAT[\"Trino + Iceberg + Airflow platform<br/><i>Shared Platform</i>\"]:::process -. self-serve infrastructure .-> PIPE\n  POL[\"Open Policy Agent<br/><i>Central Policies</i>\"]:::govern -. global guardrails .-> DP"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Domain Data Sources]:::source -->|domain-owned data| PIPE[\"dbt Cloud + Snowflake tasks<br/><i>Product Pipelines</i>\"]:::process\n  PIPE -->|published datasets| DP[\"Snowflake data products (shares)<br/><i>Domain Data Products</i>\"]:::store\n  DP -->|contracts + metadata| CAT[\"Snowflake Horizon<br/><i>Federated Catalog</i>\"]:::govern\n  CAT -->|discovery| CONS[Cross-domain Consumers]:::serve\n  PLAT[\"Snowflake Horizon platform<br/><i>Shared Platform</i>\"]:::process -. self-serve infrastructure .-> PIPE\n  POL[\"Snowflake governance policies<br/><i>Central Policies</i>\"]:::govern -. global guardrails .-> DP"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Domain Data Sources]:::source -->|domain-owned data| PIPE[\"Databricks Asset Bundles<br/><i>Product Pipelines</i>\"]:::process\n  PIPE -->|published datasets| DP[\"Delta Lake data products<br/><i>Domain Data Products</i>\"]:::store\n  DP -->|contracts + metadata| CAT[\"Unity Catalog<br/><i>Federated Catalog</i>\"]:::govern\n  CAT -->|discovery| CONS[Cross-domain Consumers]:::serve\n  PLAT[\"Databricks workspaces + Unity Catalog<br/><i>Shared Platform</i>\"]:::process -. self-serve infrastructure .-> PIPE\n  POL[\"Unity Catalog policies<br/><i>Central Policies</i>\"]:::govern -. global guardrails .-> DP"
+    }
+  ],
+  "family_tags": [
+    "discovery-strategy",
+    "orchestration-dataops",
+    "governance-security-compliance"
+  ],
+  "archetype_slugs": [
+    "data-mesh-adoption",
+    "data-product-definition",
+    "data-catalog-rollout",
+    "data-platform-infrastructure-iac"
+  ],
+  "position": 20,
+  "stages": [
+    {
+      "position": 0,
+      "name": "Platform",
+      "role": "Infrastructure-as-code provisioning: domains get environments, warehouses, orchestration, and access from templates via pull request",
+      "recommended_technology_slug": "terraform",
+      "alternative_technology_slugs": [
+        "pulumi",
+        "kubernetes",
+        "github-actions"
+      ],
+      "rationale": "Terraform is the lingua franca of the provisioning layer — providers exist for every warehouse, orchestrator, catalog, and cloud primitive a domain environment needs, and modules are the natural unit for 'a domain' as a stamped, reviewable artifact; its ecosystem maturity is why it beats newer entrants for a platform whose whole promise is boring reliability. Pulumi wins when the platform team prefers real programming languages and richer abstraction for complex templates; Kubernetes appears when domains run their own compute workloads, with the platform providing namespaces and operators; GitHub Actions (or GitLab CI) is the delivery half — provisioning must run from CI on merge, because a platform that requires a human to apply changes has rebuilt the ticket queue it exists to kill. The design bar: a new domain from zero to first-pipeline-running in under a day, self-served."
+    },
+    {
+      "position": 1,
+      "name": "Product template",
+      "role": "Scaffold stamping out a new data product: contract, pipeline skeleton, tests, docs, CI pre-wired — a paved-road pattern the platform team builds from existing tools, not a corpus product",
+      "recommended_technology_slug": null,
+      "alternative_technology_slugs": [
+        "dbt",
+        "dagster",
+        "github-actions",
+        "great-expectations"
+      ],
+      "rationale": "No corpus entry owns this seat because the template is your platform team's core product: a repository scaffold (cookiecutter-style, or a Backstage software template — Backstage itself lacks a corpus entry) that generates a working data product with the contract file (schema, owner, SLOs, classification), a dbt project or Dagster asset skeleton, quality checks (Great Expectations/dbt tests), docs stubs, and CI that deploys through the platform's IaC — opinionated defaults everywhere, escape hatches documented. The contract file deserves the most design care: it is what the catalog ingests, what policy enforcement reads, and what turns 'data product' from slideware into a checkable artifact. Extract the template from the first two or three real products rather than designing it a priori — paved roads are discovered, then paved."
+    },
+    {
+      "position": 2,
+      "name": "Federated catalog",
+      "role": "Make every domain's products discoverable with ownership, lineage, contracts, and quality signals attached",
+      "recommended_technology_slug": "datahub",
+      "alternative_technology_slugs": [
+        "openmetadata",
+        "atlan",
+        "collibra"
+      ],
+      "rationale": "DataHub fits the mesh shape specifically: push-based metadata ingestion means each domain's CI emits its own product metadata (contracts, ownership, lineage) rather than a central crawler discovering it — federation in the mechanism, not just the org chart — plus strong lineage via OpenLineage integration and a domains/data-products model in the product itself. OpenMetadata is the leaner open-source alternative with faster setup and an increasingly comparable feature set; Atlan leads the commercial field on collaboration UX for less engineering-heavy orgs; Collibra when enterprise governance workflow (approvals, policies, stewardship processes) dominates the requirement. Whichever you run, wire registration into the product template so the catalog is populated as a side effect of shipping — catalogs that depend on voluntary contribution decay to stale inventory within a year."
+    },
+    {
+      "position": 3,
+      "name": "Central policies",
+      "role": "Federated computational governance: global rules — access, PII, quality gates — enforced by the platform automatically, domains decide within them",
+      "recommended_technology_slug": "open-policy-agent",
+      "alternative_technology_slugs": [
+        "immuta",
+        "apache-ranger",
+        "great-expectations"
+      ],
+      "rationale": "OPA is the policy-as-code substrate that matches how a platform team ships everything else: global rules (every product must declare an owner; columns tagged PII must have masking; no public buckets) expressed in Rego, evaluated in CI against contract files and IaC plans, blocking merge on violation — governance as automated checks in the paved road, which is the only form that scales federally. Immuta (or Ranger in open-source estates) handles the data-access half at runtime, compiling tag-driven policy into each warehouse's native controls — most meshes need both the CI layer and the runtime layer. Great Expectations (or dbt tests) enforce the quality gates contracts promise. The federated-governance test worth automating first: can the platform prove, for every product, who owns it and that its PII columns are masked? If yes computationally, the mesh has governance; if the answer lives in a wiki, it does not."
+    }
+  ]
+}

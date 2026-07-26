@@ -1,0 +1,178 @@
+{
+  "slug": "medallion-lakehouse",
+  "name": "Medallion lakehouse",
+  "use_case": "Bronze/silver/gold on open table formats",
+  "description": "A lakehouse organizes data on cheap object storage in an open table format, layered as bronze (raw, append-only, as-ingested), silver (cleaned, conformed, deduplicated), and gold (business-level aggregates and marts). The table format — Iceberg, Delta, or Hudi — is what turns a pile of Parquet files into real tables: ACID transactions, schema evolution, time travel, and hidden partitioning, all readable by any engine that speaks the format.\n\nThe strategic bet is engine-independence. Because storage is open, you can run Spark for heavy transformation, Trino for interactive SQL, DuckDB for local work, and a warehouse's external tables — all against the same single copy of the data, with no vendor holding the bytes hostage. A catalog (the control plane for table metadata and, increasingly, access control) is the piece teams underestimate: pick it deliberately, because migrating catalogs later is far more painful than swapping query engines.\n\nThis is the architecture of choice when data is large, multi-modal (files, events, tables), or serves multiple compute paradigms — BI, ML training, and streaming from one platform. The trade-off is operational surface: compaction, snapshot expiry, small-file management, and catalog governance are your problem in a way they simply are not on Snowflake. Choose it for the flexibility, staff it accordingly.",
+  "when_to_use": [
+    "Choose this when data volumes are large enough that warehouse storage pricing hurts, when ML and BI must share one platform, or when open formats are a strategic requirement (avoiding lock-in, multi-engine access, M&A-driven heterogeneity).",
+    "It is also the natural landing zone for semi-structured and file-based data that a warehouse handles awkwardly.",
+    "You want warehouse-grade reliability on open formats without vendor lock-in."
+  ],
+  "when_not_to_use": [
+    "Skip it if your workload is pure SQL analytics at small-to-medium scale — the ELT stack (2) delivers the same outcome with a fraction of the operational burden.",
+    "A lakehouse without a platform engineer becomes a swamp with a table format.",
+    "Sub-second serving latencies also live elsewhere (8, 22)."
+  ],
+  "use_cases": [
+    "reporting",
+    "ml",
+    "self_serve"
+  ],
+  "hot_spots": [
+    {
+      "title": "Small files",
+      "detail": "Streaming ingest without compaction litters the lake and slows every reader."
+    },
+    {
+      "title": "Silver contracts",
+      "detail": "Loose cleansing rules turn silver into a second bronze nobody trusts."
+    },
+    {
+      "title": "Table maintenance",
+      "detail": "Skipped compaction and vacuum jobs degrade queries and bloat storage."
+    },
+    {
+      "title": "Catalog gaps",
+      "detail": "Unregistered tables become invisible datasets with no lineage or access control."
+    }
+  ],
+  "complexity": "medium",
+  "evolution": [
+    {
+      "to_slug": "self-serve-data-platform-mesh",
+      "reason": "Scale the lakehouse across domains with product ownership and contracts."
+    },
+    {
+      "to_slug": "streaming-lakehouse",
+      "reason": "Replace scheduled refinement with continuous commits when consumers need minutes-fresh tables."
+    }
+  ],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and streams| ING[Ingestion]:::process\n  ING -->|raw as-is data| BR[Bronze Layer]:::store\n  BR -->|cleaned and deduped| SV[Silver Layer]:::store\n  SV -->|business aggregates| GD[Gold Layer]:::store\n  GD -->|curated datasets| CONS[Analytics and ML Consumers]:::serve\n  CAT[Catalog + Governance]:::govern -. table metadata .-> BR\n  CAT -. lineage and access .-> GD"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  SRC[Batch + Stream Sources]:::source -->|ingest jobs| ING[Ingestion Jobs]:::process\n  ING -->|open table format writes| LAKE[Object Storage Lakehouse]:::store\n  LAKE -->|bronze to silver jobs| REF[Refinement Engine]:::process\n  REF -->|silver to gold jobs| LAKE\n  LAKE -->|table scans| QE[Query Engines]:::serve\n  QE -->|SQL + notebooks| BI[BI and ML Tools]:::serve\n  CAT[Table Catalog]:::govern -. schema versions .-> LAKE"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([raw files + events]):::source -->|land unchanged| B([bronze tables]):::store\n  B -->|cleanse and dedupe| C([silver tables]):::store\n  C -->|aggregate and join| E([gold tables]):::store\n  E -->|query| F([analytics + ML features]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant S as Scheduler\n  participant I as Ingest Job\n  participant L as Lakehouse\n  participant R as Refiner\n  participant C as Catalog\n  participant Q as Query Engine\n  S->>I: micro-batch trigger\n  I->>L: append bronze\n  S->>R: refine on arrival\n  R->>L: write silver then gold\n  R->>C: register table versions\n  Q->>L: query gold tables"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and streams| ING[\"AWS Glue + Amazon Kinesis<br/><i>Ingestion</i>\"]:::process\n  ING -->|raw as-is data| BR[\"S3 + Iceberg bronze<br/><i>Bronze Layer</i>\"]:::store\n  BR -->|cleaned and deduped| SV[\"S3 + Iceberg silver<br/><i>Silver Layer</i>\"]:::store\n  SV -->|business aggregates| GD[\"S3 + Iceberg gold<br/><i>Gold Layer</i>\"]:::store\n  GD -->|curated datasets| CONS[Analytics and ML Consumers]:::serve\n  CAT[\"AWS Glue Data Catalog + Lake Formation<br/><i>Catalog + Governance</i>\"]:::govern -. table metadata .-> BR\n  CAT -. lineage and access .-> GD"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and streams| ING[\"ADF + Event Hubs<br/><i>Ingestion</i>\"]:::process\n  ING -->|raw as-is data| BR[\"ADLS + Delta bronze<br/><i>Bronze Layer</i>\"]:::store\n  BR -->|cleaned and deduped| SV[\"ADLS + Delta silver<br/><i>Silver Layer</i>\"]:::store\n  SV -->|business aggregates| GD[\"ADLS + Delta gold<br/><i>Gold Layer</i>\"]:::store\n  GD -->|curated datasets| CONS[Analytics and ML Consumers]:::serve\n  CAT[\"Microsoft Purview<br/><i>Catalog + Governance</i>\"]:::govern -. table metadata .-> BR\n  CAT -. lineage and access .-> GD"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and streams| ING[\"Dataflow + Pub/Sub<br/><i>Ingestion</i>\"]:::process\n  ING -->|raw as-is data| BR[\"GCS + Iceberg bronze<br/><i>Bronze Layer</i>\"]:::store\n  BR -->|cleaned and deduped| SV[\"GCS + Iceberg silver<br/><i>Silver Layer</i>\"]:::store\n  SV -->|business aggregates| GD[\"GCS + Iceberg gold<br/><i>Gold Layer</i>\"]:::store\n  GD -->|curated datasets| CONS[Analytics and ML Consumers]:::serve\n  CAT[\"Google Dataplex<br/><i>Catalog + Governance</i>\"]:::govern -. table metadata .-> BR\n  CAT -. lineage and access .-> GD"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and streams| ING[\"Kafka Connect · Apache NiFi<br/><i>Ingestion</i>\"]:::process\n  ING -->|raw as-is data| BR[\"MinIO + Iceberg bronze<br/><i>Bronze Layer</i>\"]:::store\n  BR -->|cleaned and deduped| SV[\"MinIO + Iceberg silver<br/><i>Silver Layer</i>\"]:::store\n  SV -->|business aggregates| GD[\"MinIO + Iceberg gold<br/><i>Gold Layer</i>\"]:::store\n  GD -->|curated datasets| CONS[Analytics and ML Consumers]:::serve\n  CAT[\"OpenMetadata · DataHub<br/><i>Catalog + Governance</i>\"]:::govern -. table metadata .-> BR\n  CAT -. lineage and access .-> GD"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and streams| ING[\"Snowpipe + Fivetran<br/><i>Ingestion</i>\"]:::process\n  ING -->|raw as-is data| BR[\"Snowflake Iceberg tables bronze<br/><i>Bronze Layer</i>\"]:::store\n  BR -->|cleaned and deduped| SV[\"Snowflake Iceberg tables silver<br/><i>Silver Layer</i>\"]:::store\n  SV -->|business aggregates| GD[\"Snowflake Iceberg tables gold<br/><i>Gold Layer</i>\"]:::store\n  GD -->|curated datasets| CONS[Analytics and ML Consumers]:::serve\n  CAT[\"Snowflake Horizon<br/><i>Catalog + Governance</i>\"]:::govern -. table metadata .-> BR\n  CAT -. lineage and access .-> GD"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and streams| ING[\"Auto Loader + LakeFlow<br/><i>Ingestion</i>\"]:::process\n  ING -->|raw as-is data| BR[\"Delta Lake bronze<br/><i>Bronze Layer</i>\"]:::store\n  BR -->|cleaned and deduped| SV[\"Delta Lake silver<br/><i>Silver Layer</i>\"]:::store\n  SV -->|business aggregates| GD[\"Delta Lake gold<br/><i>Gold Layer</i>\"]:::store\n  GD -->|curated datasets| CONS[Analytics and ML Consumers]:::serve\n  CAT[\"Unity Catalog<br/><i>Catalog + Governance</i>\"]:::govern -. table metadata .-> BR\n  CAT -. lineage and access .-> GD"
+    }
+  ],
+  "family_tags": [
+    "storage-platform",
+    "transformation-modelling"
+  ],
+  "archetype_slugs": [
+    "lakehouse-implementation",
+    "lake-to-lakehouse-migration",
+    "data-lake-build"
+  ],
+  "position": 3,
+  "stages": [
+    {
+      "position": 0,
+      "name": "Lake storage",
+      "role": "Durable, cheap object storage holding all table data and metadata files",
+      "recommended_technology_slug": "amazon-s3",
+      "alternative_technology_slugs": [
+        "azure-data-lake-storage",
+        "google-cloud-storage",
+        "minio"
+      ],
+      "rationale": "S3 is the reference implementation every lakehouse tool targets first — eleven-nines durability, mature lifecycle policies, and S3 Express One Zone when metadata latency matters. ADLS and GCS are the equivalent picks on their clouds (ADLS's hierarchical namespace helps some workloads); MinIO when data must stay on-prem or you need S3 semantics in a sovereign environment. The pick follows your cloud; the discipline that matters is bucket layout, lifecycle rules, and keeping one region as the source of truth."
+    },
+    {
+      "position": 1,
+      "name": "Table format",
+      "role": "Turn object storage into ACID tables: transactions, schema evolution, time travel",
+      "recommended_technology_slug": "apache-iceberg",
+      "alternative_technology_slugs": [
+        "delta-lake",
+        "apache-hudi",
+        "apache-paimon"
+      ],
+      "rationale": "Iceberg has won the neutrality war: Snowflake, Databricks, Trino, Spark, DuckDB, and every catalog vendor treat it as the interchange format, so it maximizes the engine-independence that justifies a lakehouse in the first place. Delta Lake is the right call inside a Databricks-centric shop — deepest integration, best tooling there, and UniForm narrows the interop gap. Hudi still leads for heavy upsert/CDC-write workloads at extreme scale; Paimon if your world is Flink-first streaming into the lake. Whatever you pick, budget for table maintenance: compaction and snapshot expiry are not optional."
+    },
+    {
+      "position": 2,
+      "name": "Catalog",
+      "role": "Control plane for table metadata, namespaces, and increasingly access policy",
+      "recommended_technology_slug": "apache-polaris",
+      "alternative_technology_slugs": [
+        "unity-catalog",
+        "aws-glue-catalog",
+        "lakekeeper",
+        "nessie"
+      ],
+      "rationale": "Polaris implements the Iceberg REST catalog spec as an open, vendor-neutral project (with Snowflake offering a managed flavor), which keeps the catalog — the hardest layer to migrate later — unowned by any single engine. Unity Catalog is the automatic choice on Databricks and brings the most mature governance (lineage, row/column policies) if you accept the platform gravity. Glue is pragmatic for AWS-native, Athena/EMR-heavy shops; Lakekeeper is a strong lightweight Rust implementation of the same REST spec; Nessie adds git-like branching of the whole catalog, powerful for write-audit-publish workflows."
+    },
+    {
+      "position": 3,
+      "name": "Ingest",
+      "role": "Land source data into bronze: batch loads and streaming appends",
+      "recommended_technology_slug": "apache-spark",
+      "alternative_technology_slugs": [
+        "apache-kafka",
+        "dlt",
+        "estuary-flow"
+      ],
+      "rationale": "Spark remains the workhorse writer for lakehouse bronze — every table format's write path is best-tested under Spark, and it covers both bulk backfills and Structured Streaming appends from Kafka in one engine. Kafka (with Iceberg-aware connectors) is the transport when sources are event streams; dlt is the lighter pick for API/database batch sources writing Parquet or Iceberg directly without cluster overhead; Estuary Flow when you want managed CDC straight into the lake. Keep bronze append-only and as-raw-as-possible — reprocessing ability is the layer's entire value."
+    },
+    {
+      "position": 4,
+      "name": "Transform",
+      "role": "Refine bronze to silver to gold: cleansing, conformance, business aggregates",
+      "recommended_technology_slug": "apache-spark",
+      "alternative_technology_slugs": [
+        "dbt",
+        "sqlmesh",
+        "trino"
+      ],
+      "rationale": "Spark handles the bronze-to-silver work that is genuinely procedural — deduplication, complex parsing, MERGE-heavy CDC application, ML feature prep — at any scale. But run silver-to-gold as SQL under dbt (against Spark, Trino, or Databricks SQL) so analysts own the business layer with tests and lineage; the healthiest lakehouses split exactly along that line. SQLMesh is the alternative modelling layer with stronger incremental semantics; pure-Trino transformation works when everything is expressible in SQL and you want one less engine."
+    },
+    {
+      "position": 5,
+      "name": "Query",
+      "role": "Interactive SQL over silver and gold for BI and ad-hoc analysis",
+      "recommended_technology_slug": "trino",
+      "alternative_technology_slugs": [
+        "databricks-sql",
+        "duckdb",
+        "snowflake",
+        "dremio"
+      ],
+      "rationale": "Trino is the open, engine-independent query layer the architecture promises — fast federated SQL over Iceberg with a huge connector ecosystem, self-hosted or via managed offerings. Databricks SQL wins when you are already on Databricks: Photon performance plus Unity governance with zero extra moving parts. DuckDB is a genuinely great Iceberg/Parquet reader for local and small-scale analysis; Snowflake's Iceberg external tables let warehouse users query the lake without another engine; Dremio bundles query plus semantic layer if you want a product rather than a component."
+    }
+  ]
+}

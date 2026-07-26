@@ -1,0 +1,183 @@
+{
+  "slug": "fault-tolerance",
+  "name": "Fault Tolerance",
+  "category": "reliability",
+  "summary": "The system keeps operating correctly when individual components fail — a broken broker, worker, or node degrades throughput but not correctness.",
+  "description": "Fault tolerance is a data architecture's ability to absorb the failure of a component — a broker, a worker, a partition, a disk — without corrupting results or halting the pipeline. It is achieved by building in redundancy (replicas, redundant workers), by making processing recoverable (checkpoints, offsets, transactional writes), and by handling bad records without stalling (retries with backoff, dead-letter queues). A fault-tolerant design assumes failures are normal and routine, not exceptional.",
+  "mechanisms": [
+    {
+      "name": "Replication",
+      "note": "Keeping N synchronized copies of each partition or block so the loss of a node or broker never loses in-flight data.",
+      "related_technology_slugs": [
+        "apache-kafka",
+        "apache-pulsar",
+        "redpanda",
+        "hdfs"
+      ]
+    },
+    {
+      "name": "Checkpointing",
+      "note": "Periodically snapshotting operator state so a crashed streaming job resumes from the last consistent point instead of the beginning.",
+      "related_technology_slugs": [
+        "apache-flink",
+        "spark-structured-streaming",
+        "risingwave"
+      ]
+    },
+    {
+      "name": "Dead-letter queues",
+      "note": "Routing records that repeatedly fail processing to a side channel so one poison message never blocks the whole stream.",
+      "related_technology_slugs": [
+        "apache-kafka",
+        "amazon-kinesis",
+        "google-pubsub"
+      ]
+    },
+    {
+      "name": "Retries with backoff",
+      "note": "Re-attempting transient failures on an exponential schedule instead of failing the task on the first hiccup.",
+      "related_technology_slugs": [
+        "apache-airflow",
+        "dagster",
+        "temporal",
+        "prefect"
+      ]
+    },
+    {
+      "name": "Exactly-once / at-least-once delivery",
+      "note": "Transactional offset commits and idempotent producers guarantee each record is processed despite retries and restarts.",
+      "related_technology_slugs": [
+        "apache-kafka",
+        "apache-flink",
+        "kafka-streams"
+      ]
+    },
+    {
+      "name": "Redundant workers",
+      "note": "Running multiple interchangeable executors behind a scheduler so a lost worker is simply rescheduled onto a healthy one.",
+      "related_technology_slugs": [
+        "kubernetes",
+        "apache-spark",
+        "ray"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "event-driven-architecture",
+      "rating": "strong",
+      "statement": "Contract-first events sit on a replicated log; brokers survive node loss, consumers commit offsets, and poison messages divert to dead-letter topics — the mesh degrades gracefully rather than losing events."
+    },
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "strong",
+      "statement": "Replicated log plus operator checkpoints means a crashed processor restarts from its last savepoint and re-reads offsets with exactly-once semantics, so component failures don't corrupt state or drop records."
+    },
+    {
+      "blueprint_slug": "streaming-lakehouse",
+      "rating": "strong",
+      "statement": "Continuous commits are transactional against the table format, and the streaming engine checkpoints its progress, so a failed writer resumes without producing duplicate or partial snapshots."
+    },
+    {
+      "blueprint_slug": "iot-telemetry-platform",
+      "rating": "strong",
+      "statement": "Device fleets buffer to a replicated ingest log; brokers and stream processors tolerate node loss, and retries with backoff absorb flaky connectivity so telemetry survives partial outages."
+    },
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "strong",
+      "statement": "Bronze/silver/gold layers land on 11-nines object storage with transactional table commits; a failed job leaves the last good snapshot intact and reruns cleanly against durable inputs."
+    },
+    {
+      "blueprint_slug": "open-iceberg-lakehouse",
+      "rating": "strong",
+      "statement": "Atomic catalog commits mean an aborted write never exposes partial files, and any engine can retry the operation against the immutable snapshot history — no half-written tables survive a crash."
+    },
+    {
+      "blueprint_slug": "real-time-analytics-serving",
+      "rating": "moderate",
+      "statement": "Replicated OLAP engines tolerate node loss, but tight freshness budgets mean a failover or rebalance can briefly serve slightly stale or degraded results before the replica catches up."
+    },
+    {
+      "blueprint_slug": "lambda-batch-speed",
+      "rating": "moderate",
+      "statement": "The batch layer is inherently recoverable by rerun and the speed layer replays from the log, but maintaining two tolerant code paths doubles the surface where a failure must be handled correctly."
+    },
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "moderate",
+      "statement": "The warehouse itself is a resilient managed service and failed dbt models simply rerun, but a botched extract-load can leave partially loaded tables that need manual reconciliation before the next run."
+    },
+    {
+      "blueprint_slug": "classic-batch-etl",
+      "rating": "moderate",
+      "statement": "Orchestrated retries and idempotent target loads recover most transient failures, but a mid-transform crash on a monolithic job often forces a full restart of the batch window."
+    },
+    {
+      "blueprint_slug": "ml-feature-pipeline",
+      "rating": "moderate",
+      "statement": "Offline feature jobs recover by rerun and the online store is replicated, but a failure between computing and materializing features can leave the online and offline stores temporarily inconsistent."
+    },
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "moderate",
+      "statement": "CDC tools checkpoint the source log position so replication resumes after a crash, but a lengthy source outage or log truncation can force a full re-snapshot to recover."
+    },
+    {
+      "blueprint_slug": "reverse-etl-activation-loop",
+      "rating": "limited",
+      "statement": "Fault tolerance is bounded by the downstream SaaS APIs: rate limits, partial-batch failures, and non-idempotent endpoints mean a mid-sync failure can leave target tools in a half-updated state."
+    },
+    {
+      "blueprint_slug": "query-federation",
+      "rating": "limited",
+      "statement": "The federation engine has no copy of the data, so if any underlying source is down or slow the whole query fails — tolerance is entirely inherited from sources it does not control."
+    },
+    {
+      "blueprint_slug": "hybrid-onprem-cloud-sync",
+      "rating": "limited",
+      "statement": "The sync depends on the on-prem link and gateway; a network partition or gateway crash stalls replication, and there is often no redundant path, so failures halt the flow rather than routing around it."
+    },
+    {
+      "blueprint_slug": "small-data-duckdb-stack",
+      "rating": "limited",
+      "statement": "Everything runs in a single process on one node by design — there is no replication or failover, so a crash of that process stops all analytics until it is restarted."
+    },
+    {
+      "blueprint_slug": "rag-pipeline",
+      "rating": "limited",
+      "statement": "The retrieval-and-generation path chains an embedder, a vector store, and an LLM endpoint; a failure or timeout in any hop typically fails the request, and few deployments add redundancy across all three."
+    }
+  ],
+  "related_technology_slugs": [
+    "apache-kafka",
+    "apache-flink",
+    "apache-spark",
+    "kubernetes",
+    "amazon-s3",
+    "temporal"
+  ],
+  "related_quality_slugs": [
+    "resilience",
+    "durability",
+    "availability"
+  ],
+  "position": 10,
+  "tradeoffs": [
+    {
+      "title": "Cost efficiency",
+      "note": "Tolerating failures requires a higher replication factor, redundant workers, and standby capacity, all of which multiply storage and compute spend for resources that mostly sit idle.",
+      "quality_slug": "cost-efficiency"
+    },
+    {
+      "title": "Latency",
+      "note": "Waiting on write quorums, synchronous acknowledgements, and failover detection adds delay to each operation, so durable-against-failure writes are slower than fire-and-forget ones.",
+      "quality_slug": "latency"
+    },
+    {
+      "title": "Operational complexity",
+      "note": "Retry logic, dead-letter queues, checkpointing, and recovery paths add substantial code and configuration that must be built, tested against failures, and maintained over time.",
+      "quality_slug": "maintainability"
+    }
+  ]
+}

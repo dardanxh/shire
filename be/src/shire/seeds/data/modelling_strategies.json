@@ -1,0 +1,4305 @@
+[
+  {
+    "slug": "first-normal-form",
+    "name": "First normal form (1NF)",
+    "topic": "modelling",
+    "family": "normalization",
+    "description": "The entry ticket to relational modelling: every column holds a single atomic value, every row is unique, and repeating groups are split into rows. 1NF turns nested or comma-packed data into a shape SQL can actually query.",
+    "best_for": "Any relational schema — the non-negotiable baseline for OLTP tables",
+    "pros": [
+      "Makes data queryable with plain SQL predicates",
+      "Eliminates repeating groups and positional columns",
+      "Foundation every further normal form builds on",
+      "Trivial to verify and enforce with constraints"
+    ],
+    "cons": [
+      "Says nothing about redundancy between columns",
+      "Naive 1NF splits can explode row counts",
+      "Atomicity is judgement-driven (is an address one value or five?)"
+    ],
+    "complexity": "low",
+    "origin_year": 1970,
+    "originator": "Edgar F. Codd",
+    "example": {
+      "narrative": "An order-tracking table packs several items into a single cell, so SQL cannot filter, join or count individual items.",
+      "tables": [
+        {
+          "name": "orders (violates 1NF)",
+          "columns": [
+            "order_id",
+            "customer",
+            "items"
+          ],
+          "rows": [
+            [
+              "1001",
+              "Alice",
+              "pen, paper"
+            ],
+            [
+              "1002",
+              "Bob",
+              "stapler"
+            ]
+          ]
+        },
+        {
+          "name": "order_items (1NF)",
+          "columns": [
+            "order_id",
+            "item"
+          ],
+          "rows": [
+            [
+              "1001",
+              "pen"
+            ],
+            [
+              "1001",
+              "paper"
+            ],
+            [
+              "1002",
+              "stapler"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "Row 1001 packs two values into items — a repeating group, which is exactly what 1NF forbids",
+        "Each item moves to its own row so every cell holds one atomic value",
+        "WHERE item = 'pen' and per-item counts now work with plain SQL"
+      ],
+      "snippets": []
+    },
+    "diagram": "erDiagram\n    ORDER ||--o{ ORDER_ITEM : contains\n    ORDER {\n        int order_id PK\n        string customer\n    }\n    ORDER_ITEM {\n        int order_id FK\n        string item\n    }",
+    "related_technology_slugs": [
+      "postgresql",
+      "mysql",
+      "sql-server",
+      "oracle-database"
+    ],
+    "position": 10
+  },
+  {
+    "slug": "second-normal-form",
+    "name": "Second normal form (2NF)",
+    "topic": "modelling",
+    "family": "normalization",
+    "description": "Builds on 1NF by removing partial dependencies: every non-key column must depend on the whole composite key, not just part of it. Attributes that describe only half the key move to their own table.",
+    "best_for": "Tables with composite keys where attributes describe only one key part",
+    "pros": [
+      "Removes update anomalies tied to partial keys",
+      "Shrinks redundant storage of key-fragment attributes",
+      "Clarifies which entity an attribute really belongs to"
+    ],
+    "cons": [
+      "Only meaningful for composite-key tables",
+      "More joins than the denormalized original",
+      "Still allows transitive dependencies (3NF's job)"
+    ],
+    "complexity": "low",
+    "origin_year": 1971,
+    "originator": "Edgar F. Codd",
+    "example": {
+      "narrative": "With the composite key (order_id, product_id), product_name depends only on product_id — half the key — so it repeats on every order line.",
+      "tables": [
+        {
+          "name": "order_lines (violates 2NF)",
+          "columns": [
+            "order_id",
+            "product_id",
+            "qty",
+            "product_name"
+          ],
+          "rows": [
+            [
+              "1001",
+              "P1",
+              "2",
+              "Pen"
+            ],
+            [
+              "1002",
+              "P1",
+              "5",
+              "Pen"
+            ]
+          ]
+        },
+        {
+          "name": "order_lines (2NF)",
+          "columns": [
+            "order_id",
+            "product_id",
+            "qty"
+          ],
+          "rows": [
+            [
+              "1001",
+              "P1",
+              "2"
+            ],
+            [
+              "1002",
+              "P1",
+              "5"
+            ]
+          ]
+        },
+        {
+          "name": "products",
+          "columns": [
+            "product_id",
+            "product_name"
+          ],
+          "rows": [
+            [
+              "P1",
+              "Pen"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "product_name is stored twice because it depends on product_id alone, not the whole (order_id, product_id) key",
+        "Renaming the product would require touching every order line — a classic update anomaly",
+        "Extracting products removes the partial dependency; the name now lives in exactly one row"
+      ],
+      "snippets": []
+    },
+    "diagram": "erDiagram\n    ORDER_LINE }o--|| PRODUCT : references\n    ORDER_LINE {\n        int order_id PK\n        string product_id PK\n        int qty\n    }\n    PRODUCT {\n        string product_id PK\n        string product_name\n    }",
+    "related_technology_slugs": [
+      "postgresql",
+      "mysql",
+      "sql-server"
+    ],
+    "position": 20
+  },
+  {
+    "slug": "third-normal-form",
+    "name": "Third normal form (3NF)",
+    "topic": "modelling",
+    "family": "normalization",
+    "description": "The workhorse of OLTP design: no non-key column may depend on another non-key column. \"Every attribute depends on the key, the whole key, and nothing but the key.\" Most production transactional schemas stop here.",
+    "best_for": "Write-heavy OLTP systems where update anomalies are expensive",
+    "pros": [
+      "Eliminates most insert/update/delete anomalies",
+      "One fact lives in one place — easy consistent updates",
+      "Compact storage with minimal redundancy",
+      "The industry-default target for transactional schemas"
+    ],
+    "cons": [
+      "Analytical queries need many joins",
+      "Join-heavy reads can be slow at reporting scale",
+      "Schema can feel fragmented for app developers"
+    ],
+    "complexity": "low",
+    "origin_year": 1971,
+    "originator": "Edgar F. Codd",
+    "example": {
+      "narrative": "dept_name does not depend on the employee key — it depends on dept_id, which depends on the key. That transitive chain duplicates the department name per employee.",
+      "tables": [
+        {
+          "name": "employees (violates 3NF)",
+          "columns": [
+            "emp_id",
+            "name",
+            "dept_id",
+            "dept_name"
+          ],
+          "rows": [
+            [
+              "E1",
+              "Alice",
+              "D1",
+              "Data Platform"
+            ],
+            [
+              "E2",
+              "Bob",
+              "D1",
+              "Data Platform"
+            ]
+          ]
+        },
+        {
+          "name": "employees (3NF)",
+          "columns": [
+            "emp_id",
+            "name",
+            "dept_id"
+          ],
+          "rows": [
+            [
+              "E1",
+              "Alice",
+              "D1"
+            ],
+            [
+              "E2",
+              "Bob",
+              "D1"
+            ]
+          ]
+        },
+        {
+          "name": "departments",
+          "columns": [
+            "dept_id",
+            "dept_name"
+          ],
+          "rows": [
+            [
+              "D1",
+              "Data Platform"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "dept_name depends on dept_id (a non-key column), not on emp_id — a transitive dependency",
+        "Renaming the department means updating every employee row; miss one and the data disagrees with itself",
+        "After the split every attribute depends on the key, the whole key, and nothing but the key"
+      ],
+      "snippets": []
+    },
+    "diagram": "erDiagram\n    EMPLOYEE }o--|| DEPARTMENT : belongs_to\n    EMPLOYEE {\n        string emp_id PK\n        string name\n        string dept_id FK\n    }\n    DEPARTMENT {\n        string dept_id PK\n        string dept_name\n    }",
+    "related_technology_slugs": [
+      "postgresql",
+      "mysql",
+      "oracle-database",
+      "sql-server",
+      "cockroachdb"
+    ],
+    "position": 30
+  },
+  {
+    "slug": "boyce-codd-normal-form",
+    "name": "Boyce–Codd normal form (BCNF)",
+    "topic": "modelling",
+    "family": "normalization",
+    "description": "A stricter 3NF: every determinant must be a candidate key. BCNF closes the edge cases 3NF misses when a table has multiple overlapping candidate keys.",
+    "best_for": "Schemas with overlapping composite candidate keys hiding subtle anomalies",
+    "pros": [
+      "Removes anomalies 3NF tolerates in overlapping-key tables",
+      "Cleaner dependency structure for constraint enforcement",
+      "Forces explicit thinking about all candidate keys"
+    ],
+    "cons": [
+      "Decomposition can lose the ability to enforce some functional dependencies",
+      "Rarely matters outside overlapping-key edge cases",
+      "Even more joins than 3NF"
+    ],
+    "complexity": "medium",
+    "origin_year": 1974,
+    "originator": "Raymond Boyce & Edgar F. Codd",
+    "example": {
+      "narrative": "Each instructor teaches exactly one course, but the table is keyed by (student, course). instructor determines course, yet instructor is not a candidate key — 3NF allows this, BCNF does not.",
+      "tables": [
+        {
+          "name": "enrolments (3NF but not BCNF)",
+          "columns": [
+            "student",
+            "course",
+            "instructor"
+          ],
+          "rows": [
+            [
+              "Sam",
+              "SQL",
+              "Codd"
+            ],
+            [
+              "Ana",
+              "SQL",
+              "Codd"
+            ],
+            [
+              "Sam",
+              "Sheets",
+              "Boyce"
+            ]
+          ]
+        },
+        {
+          "name": "instructor_courses (BCNF)",
+          "columns": [
+            "instructor",
+            "course"
+          ],
+          "rows": [
+            [
+              "Codd",
+              "SQL"
+            ],
+            [
+              "Boyce",
+              "Sheets"
+            ]
+          ]
+        },
+        {
+          "name": "student_instructors (BCNF)",
+          "columns": [
+            "student",
+            "instructor"
+          ],
+          "rows": [
+            [
+              "Sam",
+              "Codd"
+            ],
+            [
+              "Ana",
+              "Codd"
+            ],
+            [
+              "Sam",
+              "Boyce"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "instructor → course is a functional dependency whose determinant (instructor) is not a candidate key — the BCNF violation",
+        "The Codd–SQL pairing repeats per student; reassigning Codd to a new course touches many rows",
+        "Decomposing on the offending dependency stores each instructor-course fact once"
+      ],
+      "snippets": []
+    },
+    "diagram": "erDiagram\n    STUDENT_INSTRUCTOR }o--|| INSTRUCTOR_COURSE : taught_by\n    INSTRUCTOR_COURSE {\n        string instructor PK\n        string course\n    }\n    STUDENT_INSTRUCTOR {\n        string student PK\n        string instructor PK\n    }",
+    "related_technology_slugs": [
+      "postgresql",
+      "oracle-database"
+    ],
+    "position": 40
+  },
+  {
+    "slug": "fourth-normal-form",
+    "name": "Fourth normal form (4NF)",
+    "topic": "modelling",
+    "family": "normalization",
+    "description": "Targets multivalued dependencies: when one key maps to two independent sets of values (an employee's skills and languages), 4NF splits them so unrelated facts stop multiplying against each other.",
+    "best_for": "Tables mixing independent one-to-many facts about the same key",
+    "pros": [
+      "Stops row-count explosion from independent value sets",
+      "Each many-to-many relationship gets its own table",
+      "Prevents subtle combinatorial insert anomalies"
+    ],
+    "cons": [
+      "Multivalued dependencies are hard to spot",
+      "Yet more tables and joins",
+      "Most schemas that reached BCNF are already in 4NF"
+    ],
+    "complexity": "medium",
+    "origin_year": 1977,
+    "originator": "Ronald Fagin",
+    "example": {
+      "narrative": "Skills and languages are independent facts about an employee, but storing them together forces every combination to exist as a row.",
+      "tables": [
+        {
+          "name": "employee_profile (violates 4NF)",
+          "columns": [
+            "emp_id",
+            "skill",
+            "language"
+          ],
+          "rows": [
+            [
+              "E1",
+              "SQL",
+              "English"
+            ],
+            [
+              "E1",
+              "SQL",
+              "German"
+            ],
+            [
+              "E1",
+              "Python",
+              "English"
+            ],
+            [
+              "E1",
+              "Python",
+              "German"
+            ]
+          ]
+        },
+        {
+          "name": "employee_skills (4NF)",
+          "columns": [
+            "emp_id",
+            "skill"
+          ],
+          "rows": [
+            [
+              "E1",
+              "SQL"
+            ],
+            [
+              "E1",
+              "Python"
+            ]
+          ]
+        },
+        {
+          "name": "employee_languages (4NF)",
+          "columns": [
+            "emp_id",
+            "language"
+          ],
+          "rows": [
+            [
+              "E1",
+              "English"
+            ],
+            [
+              "E1",
+              "German"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "Two skills and two languages explode into four rows — the multivalued dependencies multiply against each other",
+        "Adding a third language would require inserting one row per existing skill or the data becomes inconsistent",
+        "Each independent one-to-many fact gets its own table: 2 + 2 rows instead of 2 x 2"
+      ],
+      "snippets": []
+    },
+    "diagram": "erDiagram\n    EMPLOYEE ||--o{ EMPLOYEE_SKILL : has\n    EMPLOYEE ||--o{ EMPLOYEE_LANGUAGE : speaks\n    EMPLOYEE_SKILL {\n        string emp_id FK\n        string skill\n    }\n    EMPLOYEE_LANGUAGE {\n        string emp_id FK\n        string language\n    }",
+    "related_technology_slugs": [
+      "postgresql"
+    ],
+    "position": 50
+  },
+  {
+    "slug": "fifth-normal-form",
+    "name": "Fifth normal form (5NF)",
+    "topic": "modelling",
+    "family": "normalization",
+    "description": "Also called project-join normal form: a table is split until it cannot be decomposed further without losing information, eliminating join dependencies among three or more entities.",
+    "best_for": "Complex ternary relationships (supplier–part–project style) with independent pairings",
+    "pros": [
+      "Removes the last class of redundancy from join dependencies",
+      "Theoretically minimal, anomaly-free structure",
+      "Makes three-way relationship rules explicit"
+    ],
+    "cons": [
+      "Genuinely rare in practice — easy to over-apply",
+      "Reconstruction requires multi-way joins",
+      "Difficult to explain and maintain in a team"
+    ],
+    "complexity": "high",
+    "origin_year": 1979,
+    "originator": "Ronald Fagin",
+    "example": {
+      "narrative": "A supplier supplies a part for a project only when three independent pairwise rules all hold. Storing the triple directly hides that the three-way fact is reconstructible from its pairs.",
+      "tables": [
+        {
+          "name": "supplies (pre-5NF)",
+          "columns": [
+            "supplier",
+            "part",
+            "project"
+          ],
+          "rows": [
+            [
+              "Acme",
+              "bolt",
+              "Bridge"
+            ],
+            [
+              "Acme",
+              "nut",
+              "Bridge"
+            ]
+          ]
+        },
+        {
+          "name": "supplier_parts",
+          "columns": [
+            "supplier",
+            "part"
+          ],
+          "rows": [
+            [
+              "Acme",
+              "bolt"
+            ],
+            [
+              "Acme",
+              "nut"
+            ]
+          ]
+        },
+        {
+          "name": "part_projects",
+          "columns": [
+            "part",
+            "project"
+          ],
+          "rows": [
+            [
+              "bolt",
+              "Bridge"
+            ],
+            [
+              "nut",
+              "Bridge"
+            ]
+          ]
+        },
+        {
+          "name": "supplier_projects",
+          "columns": [
+            "supplier",
+            "project"
+          ],
+          "rows": [
+            [
+              "Acme",
+              "Bridge"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The join dependency lets the triple be losslessly rebuilt by joining the three pair tables",
+        "Keeping the triple table would silently re-derive rows the pairs already imply — redundancy 4NF cannot see",
+        "Only decompose when the business rule really is pairwise; otherwise the triple is the fact and 5NF is satisfied as-is"
+      ],
+      "snippets": []
+    },
+    "diagram": "erDiagram\n    SUPPLIER_PART }o--|| SUPPLIER_PROJECT : joins\n    PART_PROJECT }o--|| SUPPLIER_PROJECT : joins\n    SUPPLIER_PART {\n        string supplier PK\n        string part PK\n    }\n    PART_PROJECT {\n        string part PK\n        string project PK\n    }\n    SUPPLIER_PROJECT {\n        string supplier PK\n        string project PK\n    }",
+    "related_technology_slugs": [
+      "postgresql"
+    ],
+    "position": 60
+  },
+  {
+    "slug": "sixth-normal-form",
+    "name": "Sixth normal form (6NF)",
+    "topic": "modelling",
+    "family": "normalization",
+    "description": "Decomposes tables into irreducible key-plus-one-attribute relations, usually with time intervals attached. 6NF underpins temporal databases and Anchor modelling, where every attribute's history is tracked independently.",
+    "best_for": "Temporal / bitemporal history tracking at attribute-level granularity",
+    "pros": [
+      "Attribute-level change tracking without row duplication",
+      "Schema evolves by adding tables, never altering them",
+      "Natural fit for bitemporal and audit requirements",
+      "Sparse data stores compactly (absent attribute = absent row)"
+    ],
+    "cons": [
+      "Enormous table counts — queries are join marathons",
+      "Impractical without generated views or tooling",
+      "Very few engines and teams handle it well"
+    ],
+    "complexity": "high",
+    "origin_year": 2002,
+    "originator": "Chris Date, Hugh Darwen & Nikos Lorentzos",
+    "example": {
+      "narrative": "Customer name and address change at different times. 6NF gives each attribute its own timestamped relation so histories evolve independently.",
+      "tables": [
+        {
+          "name": "customer_name (6NF)",
+          "columns": [
+            "customer_id",
+            "name",
+            "valid_from",
+            "valid_to"
+          ],
+          "rows": [
+            [
+              "C1",
+              "Alice",
+              "2020-01-01",
+              "9999-12-31"
+            ]
+          ]
+        },
+        {
+          "name": "customer_address (6NF)",
+          "columns": [
+            "customer_id",
+            "address",
+            "valid_from",
+            "valid_to"
+          ],
+          "rows": [
+            [
+              "C1",
+              "12 Oak St",
+              "2020-01-01",
+              "2024-05-31"
+            ],
+            [
+              "C1",
+              "9 Elm Ave",
+              "2024-06-01",
+              "9999-12-31"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The address changed but the name did not — only the address relation gains a row, nothing is duplicated",
+        "A row-level history table would have copied the unchanged name into a new version row",
+        "Point-in-time state is reassembled by joining the attribute relations on overlapping validity windows"
+      ],
+      "snippets": []
+    },
+    "diagram": "erDiagram\n    CUSTOMER ||--o{ CUSTOMER_NAME : has\n    CUSTOMER ||--o{ CUSTOMER_ADDRESS : has\n    CUSTOMER_NAME {\n        string customer_id FK\n        string name\n        date valid_from\n        date valid_to\n    }\n    CUSTOMER_ADDRESS {\n        string customer_id FK\n        string address\n        date valid_from\n        date valid_to\n    }",
+    "related_technology_slugs": [
+      "teradata",
+      "postgresql"
+    ],
+    "position": 70
+  },
+  {
+    "slug": "inmon-cif",
+    "name": "Inmon (Corporate Information Factory)",
+    "topic": "modelling",
+    "family": "warehouse-methodologies",
+    "description": "Top-down enterprise warehousing: a single, normalized (3NF) enterprise data warehouse is the integrated source of truth, feeding downstream dimensional data marts per department. \"Build the warehouse first, the marts second.\"",
+    "best_for": "Large enterprises needing one integrated, auditable source of truth across many subject areas",
+    "pros": [
+      "Single integrated version of the truth",
+      "Normalized core resists update anomalies and duplication",
+      "Subject-area orientation scales across the whole enterprise",
+      "Marts can be rebuilt from the core at any time"
+    ],
+    "cons": [
+      "Long time-to-value — big upfront design investment",
+      "Requires strong central data governance",
+      "End users still need marts; the EDW itself is analyst-hostile",
+      "Heavyweight for small teams or single-domain scopes"
+    ],
+    "complexity": "high",
+    "origin_year": 1992,
+    "originator": "Bill Inmon",
+    "example": {
+      "narrative": "Two source systems disagree about the same customer. The EDW integrates them into one normalized subject-area record; marts are projected from it.",
+      "tables": [
+        {
+          "name": "crm.customers (source)",
+          "columns": [
+            "crm_id",
+            "name",
+            "segment"
+          ],
+          "rows": [
+            [
+              "77",
+              "Alice Jones",
+              "SMB"
+            ]
+          ]
+        },
+        {
+          "name": "billing.accounts (source)",
+          "columns": [
+            "acct_no",
+            "holder"
+          ],
+          "rows": [
+            [
+              "A-901",
+              "A. Jones"
+            ]
+          ]
+        },
+        {
+          "name": "edw.customer (integrated 3NF)",
+          "columns": [
+            "customer_key",
+            "name",
+            "crm_id",
+            "billing_acct"
+          ],
+          "rows": [
+            [
+              "C1",
+              "Alice Jones",
+              "77",
+              "A-901"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "Matching crm 77 to account A-901 happens once, centrally — every downstream mart inherits the same identity decision",
+        "The EDW stays 3NF so integration facts are stored exactly once",
+        "Departmental marts denormalize from the EDW; they can always be rebuilt from the core"
+      ],
+      "snippets": []
+    },
+    "diagram": "flowchart LR\n    CRM[CRM] --> STG[Staging]\n    BILL[Billing] --> STG\n    STG --> EDW[(3NF EDW)]\n    EDW --> M1[Finance mart]\n    EDW --> M2[Marketing mart]",
+    "related_technology_slugs": [
+      "teradata",
+      "oracle-database",
+      "ibm-db2",
+      "informatica"
+    ],
+    "position": 10
+  },
+  {
+    "slug": "kimball-dimensional",
+    "name": "Kimball dimensional modelling",
+    "topic": "modelling",
+    "family": "warehouse-methodologies",
+    "description": "Bottom-up warehousing: deliver business-process-aligned star schemas mart by mart, tied together through conformed dimensions on the \"bus architecture\". Facts hold measurements; dimensions hold context.",
+    "best_for": "BI-driven teams that need queryable, business-friendly marts delivered incrementally",
+    "pros": [
+      "Fast incremental delivery, one business process at a time",
+      "Star schemas are intuitive for analysts and BI tools",
+      "Conformed dimensions stitch marts into an enterprise view",
+      "Rich, battle-tested technique library (SCDs, bridges, factless facts)"
+    ],
+    "cons": [
+      "Conformed-dimension discipline erodes without governance",
+      "Denormalization trades storage and update cost for read speed",
+      "Late-arriving integration needs can force mart rework",
+      "Less suited as a system-of-record archive"
+    ],
+    "complexity": "medium",
+    "origin_year": 1996,
+    "originator": "Ralph Kimball",
+    "example": {
+      "narrative": "Delivery starts from one business process — sales — modelled at line-item grain, with dimensions conformed so later marts join the bus.",
+      "tables": [
+        {
+          "name": "fact_sales (grain: order line)",
+          "columns": [
+            "date_key",
+            "product_key",
+            "store_key",
+            "qty",
+            "amount"
+          ],
+          "rows": [
+            [
+              "20240601",
+              "P1",
+              "S1",
+              "2",
+              "9.98"
+            ]
+          ]
+        },
+        {
+          "name": "dim_product (conformed)",
+          "columns": [
+            "product_key",
+            "name",
+            "category"
+          ],
+          "rows": [
+            [
+              "P1",
+              "Pen",
+              "Stationery"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "Grain declared first: one row per order line — every measure must be true at that grain",
+        "dim_product is conformed: the returns mart shipped next quarter reuses it, enabling drill-across",
+        "Facts are numeric and additive; descriptive context lives in the dimensions"
+      ],
+      "snippets": []
+    },
+    "diagram": "erDiagram\n    DIM_DATE ||--o{ FACT_SALES : dates\n    DIM_PRODUCT ||--o{ FACT_SALES : describes\n    DIM_STORE ||--o{ FACT_SALES : locates\n    FACT_SALES {\n        int date_key FK\n        string product_key FK\n        string store_key FK\n        int qty\n        decimal amount\n    }",
+    "related_technology_slugs": [
+      "dbt",
+      "snowflake",
+      "bigquery",
+      "redshift",
+      "power-bi"
+    ],
+    "position": 20
+  },
+  {
+    "slug": "data-vault",
+    "name": "Data Vault 2.0",
+    "topic": "modelling",
+    "family": "warehouse-methodologies",
+    "description": "An agility-first raw warehouse layer built from hubs (business keys), links (relationships) and satellites (descriptive history). Loads are insert-only, auditable and massively parallel; dimensional marts are projected on top.",
+    "best_for": "Volatile multi-source integration with strict audit and re-statement requirements",
+    "pros": [
+      "Insert-only loads parallelize and never lose history",
+      "New sources bolt on without refactoring existing structures",
+      "Full auditability — every record traces to source and load time",
+      "Separates raw integration from business rules"
+    ],
+    "cons": [
+      "Table count explodes (3+ tables per business concept)",
+      "Not directly queryable — a mart layer is mandatory",
+      "Steep methodology learning curve and naming discipline",
+      "Overkill for stable, single-source warehouses"
+    ],
+    "complexity": "high",
+    "origin_year": 2000,
+    "originator": "Dan Linstedt",
+    "example": {
+      "narrative": "The customer business key lives in a hub, its describing attributes in a satellite, and its relationship to orders in a link — all insert-only.",
+      "tables": [
+        {
+          "name": "hub_customer",
+          "columns": [
+            "hub_customer_hk",
+            "customer_bk",
+            "load_dt",
+            "source"
+          ],
+          "rows": [
+            [
+              "h1",
+              "C-1001",
+              "2024-06-01",
+              "crm"
+            ]
+          ]
+        },
+        {
+          "name": "sat_customer_details",
+          "columns": [
+            "hub_customer_hk",
+            "load_dt",
+            "name",
+            "city"
+          ],
+          "rows": [
+            [
+              "h1",
+              "2024-06-01",
+              "Alice",
+              "Oslo"
+            ],
+            [
+              "h1",
+              "2024-07-01",
+              "Alice",
+              "Bergen"
+            ]
+          ]
+        },
+        {
+          "name": "link_customer_order",
+          "columns": [
+            "link_hk",
+            "hub_customer_hk",
+            "hub_order_hk",
+            "load_dt"
+          ],
+          "rows": [
+            [
+              "l1",
+              "h1",
+              "o1",
+              "2024-06-02"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The hub stores only the business key — it never changes, so parallel loads cannot conflict",
+        "Alice's move to Bergen is a new satellite row, not an update: full history by construction",
+        "A new source system just adds its own satellite; existing structures are untouched"
+      ],
+      "snippets": []
+    },
+    "diagram": "erDiagram\n    HUB_CUSTOMER ||--o{ SAT_CUSTOMER_DETAILS : describes\n    HUB_CUSTOMER ||--o{ LINK_CUSTOMER_ORDER : participates\n    HUB_ORDER ||--o{ LINK_CUSTOMER_ORDER : participates\n    HUB_ORDER ||--o{ SAT_ORDER_STATUS : describes",
+    "related_technology_slugs": [
+      "dbt",
+      "snowflake",
+      "azure-synapse",
+      "sqlmesh"
+    ],
+    "position": 30
+  },
+  {
+    "slug": "anchor-modelling",
+    "name": "Anchor modelling",
+    "topic": "modelling",
+    "family": "warehouse-methodologies",
+    "description": "A 6NF-based agile modelling technique from the Swedish school: anchors (entities), attributes, ties and knots, all append-only and temporal. Schema changes are strictly additive, so the model evolves without migrations.",
+    "best_for": "Warehouses with constant schema evolution and attribute-level history needs",
+    "pros": [
+      "Non-destructive schema evolution — only additions, never ALTERs",
+      "Built-in bitemporal history per attribute",
+      "Generated views hide the 6NF complexity from consumers",
+      "Sparse and late-arriving data handled naturally"
+    ],
+    "cons": [
+      "Very high table counts, view-generation tooling required",
+      "Small practitioner community outside northern Europe",
+      "Query optimizers struggle without table-elimination support",
+      "Hard sell to teams used to star schemas"
+    ],
+    "complexity": "high",
+    "origin_year": 2004,
+    "originator": "Lars Rönnbäck & Olle Regardt",
+    "example": {
+      "narrative": "Each attribute is its own timestamped table hanging off an anchor; schema change means adding a table, never altering one.",
+      "tables": [
+        {
+          "name": "an_customer (anchor)",
+          "columns": [
+            "customer_id",
+            "created_at"
+          ],
+          "rows": [
+            [
+              "C1",
+              "2020-01-01"
+            ]
+          ]
+        },
+        {
+          "name": "at_customer_name",
+          "columns": [
+            "customer_id",
+            "name",
+            "changed_at"
+          ],
+          "rows": [
+            [
+              "C1",
+              "Alice",
+              "2020-01-01"
+            ]
+          ]
+        },
+        {
+          "name": "at_customer_tier (added later)",
+          "columns": [
+            "customer_id",
+            "tier",
+            "changed_at"
+          ],
+          "rows": [
+            [
+              "C1",
+              "gold",
+              "2024-06-01"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The tier attribute arrived years later as a brand-new table — zero ALTER statements, zero migration risk",
+        "Every attribute row is timestamped, giving bitemporal history per attribute",
+        "Consumers query generated views that reassemble the 6NF pieces into a flat shape"
+      ],
+      "snippets": []
+    },
+    "diagram": "erDiagram\n    AN_CUSTOMER ||--o{ AT_CUSTOMER_NAME : has\n    AN_CUSTOMER ||--o{ AT_CUSTOMER_TIER : has\n    AN_CUSTOMER ||--o{ TIE_CUSTOMER_ORDER : linked",
+    "related_technology_slugs": [
+      "postgresql",
+      "sql-server"
+    ],
+    "position": 40
+  },
+  {
+    "slug": "star-schema",
+    "name": "Star schema",
+    "topic": "modelling",
+    "family": "dimensional-schemas",
+    "description": "The canonical dimensional shape: a central fact table of measurements surrounded by flat, denormalized dimension tables. One join per dimension, predictable query plans, and a layout every BI tool understands natively.",
+    "best_for": "BI-facing marts with predictable slice-and-dice query patterns",
+    "pros": [
+      "Simple single-hop joins — fast, predictable aggregations",
+      "Intuitive for analysts; BI tools model it automatically",
+      "Columnar warehouses optimize heavily for this shape",
+      "Well-documented technique catalog (SCDs, role-playing dims)"
+    ],
+    "cons": [
+      "Dimension denormalization duplicates attribute data",
+      "Grain changes force fact-table rebuilds",
+      "Weak fit for highly volatile or many-to-many relationships"
+    ],
+    "complexity": "low",
+    "origin_year": 1996,
+    "originator": "Ralph Kimball",
+    "example": {
+      "narrative": "One fact table of sales measurements joined to flat, denormalized dimensions — every analytical question is one hop away.",
+      "tables": [
+        {
+          "name": "fact_sales",
+          "columns": [
+            "date_key",
+            "product_key",
+            "store_key",
+            "qty",
+            "amount"
+          ],
+          "rows": [
+            [
+              "20240601",
+              "P1",
+              "S1",
+              "2",
+              "9.98"
+            ],
+            [
+              "20240601",
+              "P2",
+              "S1",
+              "1",
+              "24.50"
+            ]
+          ]
+        },
+        {
+          "name": "dim_product (flat)",
+          "columns": [
+            "product_key",
+            "name",
+            "subcategory",
+            "category"
+          ],
+          "rows": [
+            [
+              "P1",
+              "Pen",
+              "Writing",
+              "Stationery"
+            ],
+            [
+              "P2",
+              "Notebook",
+              "Paper",
+              "Stationery"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "dim_product deliberately repeats Stationery per product — denormalization traded for single-join queries",
+        "Sales by category is one join and one GROUP BY; no hierarchy tables to traverse",
+        "Surrogate keys insulate the star from source-system key changes"
+      ],
+      "snippets": []
+    },
+    "diagram": "erDiagram\n    DIM_DATE ||--o{ FACT_SALES : dates\n    DIM_PRODUCT ||--o{ FACT_SALES : describes\n    DIM_STORE ||--o{ FACT_SALES : locates\n    DIM_CUSTOMER ||--o{ FACT_SALES : buys\n    FACT_SALES {\n        int date_key FK\n        string product_key FK\n        string store_key FK\n        string customer_key FK\n        int qty\n        decimal amount\n    }",
+    "related_technology_slugs": [
+      "dbt",
+      "power-bi",
+      "tableau",
+      "snowflake",
+      "bigquery"
+    ],
+    "position": 10
+  },
+  {
+    "slug": "snowflake-schema",
+    "name": "Snowflake schema",
+    "topic": "modelling",
+    "family": "dimensional-schemas",
+    "description": "A star schema whose dimensions are re-normalized into hierarchies (product → subcategory → category). Trades the star's simplicity for less redundancy and cleaner hierarchy maintenance.",
+    "best_for": "Deep, frequently-updated dimension hierarchies shared across many facts",
+    "pros": [
+      "Less storage redundancy in large dimensions",
+      "Hierarchy levels update in exactly one place",
+      "Enforces referential integrity within hierarchies"
+    ],
+    "cons": [
+      "More joins — slower and harder for ad-hoc analysts",
+      "BI tools need extra modelling to hide the sprawl",
+      "Modern columnar storage makes the space savings marginal"
+    ],
+    "complexity": "medium",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "The product dimension is re-normalized into a hierarchy so each level is stored once and updated in one place.",
+      "tables": [
+        {
+          "name": "dim_product",
+          "columns": [
+            "product_key",
+            "name",
+            "subcategory_key"
+          ],
+          "rows": [
+            [
+              "P1",
+              "Pen",
+              "SC1"
+            ]
+          ]
+        },
+        {
+          "name": "dim_subcategory",
+          "columns": [
+            "subcategory_key",
+            "name",
+            "category_key"
+          ],
+          "rows": [
+            [
+              "SC1",
+              "Writing",
+              "C1"
+            ]
+          ]
+        },
+        {
+          "name": "dim_category",
+          "columns": [
+            "category_key",
+            "name"
+          ],
+          "rows": [
+            [
+              "C1",
+              "Stationery"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "Renaming the Stationery category touches one row instead of every product",
+        "The price: category-level analysis now needs two extra joins compared to a flat star dimension",
+        "Worth it only when hierarchies are deep, large and frequently maintained"
+      ],
+      "snippets": []
+    },
+    "diagram": "erDiagram\n    DIM_CATEGORY ||--o{ DIM_SUBCATEGORY : groups\n    DIM_SUBCATEGORY ||--o{ DIM_PRODUCT : groups\n    DIM_PRODUCT ||--o{ FACT_SALES : describes\n    FACT_SALES {\n        string product_key FK\n        int qty\n    }",
+    "related_technology_slugs": [
+      "looker",
+      "power-bi",
+      "oracle-database"
+    ],
+    "position": 20
+  },
+  {
+    "slug": "galaxy-schema",
+    "name": "Galaxy schema (fact constellation)",
+    "topic": "modelling",
+    "family": "dimensional-schemas",
+    "description": "Multiple fact tables sharing conformed dimensions in one integrated model — effectively several stars overlaid. This is what a mature Kimball bus architecture converges to.",
+    "best_for": "Cross-process analysis over multiple business events sharing dimensions",
+    "pros": [
+      "Cross-fact analysis through shared conformed dimensions",
+      "Avoids duplicating dimensions per mart",
+      "Models the real multi-process enterprise honestly"
+    ],
+    "cons": [
+      "Fact-to-fact queries (drill-across) are easy to get wrong",
+      "Conformance discipline required across all teams",
+      "Complexity grows quickly with each added fact table"
+    ],
+    "complexity": "medium",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "Sales and inventory facts share the date and product dimensions, so cross-process questions drill across the constellation.",
+      "tables": [
+        {
+          "name": "fact_sales",
+          "columns": [
+            "date_key",
+            "product_key",
+            "qty_sold"
+          ],
+          "rows": [
+            [
+              "20240601",
+              "P1",
+              "40"
+            ]
+          ]
+        },
+        {
+          "name": "fact_inventory",
+          "columns": [
+            "date_key",
+            "product_key",
+            "qty_on_hand"
+          ],
+          "rows": [
+            [
+              "20240601",
+              "P1",
+              "120"
+            ]
+          ]
+        },
+        {
+          "name": "dim_product (shared)",
+          "columns": [
+            "product_key",
+            "name"
+          ],
+          "rows": [
+            [
+              "P1",
+              "Pen"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "Both facts join the same conformed dim_product, so sell-through rate (sold vs on hand) is a valid drill-across",
+        "Facts are never joined to each other directly — each is aggregated to the shared grain first, then combined",
+        "Conformance is the contract: if either team forks dim_product, cross-process analysis silently breaks"
+      ],
+      "snippets": []
+    },
+    "diagram": "erDiagram\n    DIM_DATE ||--o{ FACT_SALES : dates\n    DIM_DATE ||--o{ FACT_INVENTORY : dates\n    DIM_PRODUCT ||--o{ FACT_SALES : describes\n    DIM_PRODUCT ||--o{ FACT_INVENTORY : describes",
+    "related_technology_slugs": [
+      "dbt",
+      "snowflake",
+      "tableau"
+    ],
+    "position": 30
+  },
+  {
+    "slug": "one-big-table",
+    "name": "One Big Table (OBT)",
+    "topic": "modelling",
+    "family": "dimensional-schemas",
+    "description": "Pre-join everything into a single wide, denormalized table per analytical subject. With cheap columnar storage and engines that only scan referenced columns, the classic join penalty argument inverts.",
+    "best_for": "Fast-moving analytics teams on columnar engines where join elimination beats modelling ceremony",
+    "pros": [
+      "Zero joins — simplest possible querying for analysts",
+      "Columnar engines scan only the columns touched",
+      "Trivial to consume from notebooks and ML pipelines",
+      "Great last-mile serving layer on top of modelled data"
+    ],
+    "cons": [
+      "Massive redundancy; updates rewrite wide rows",
+      "Grain confusion causes silent fan-out errors",
+      "No reuse — every subject needs its own wide table",
+      "History and SCD handling get awkward"
+    ],
+    "complexity": "low",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "The star is pre-joined into one wide table per subject; analysts query it with zero joins and the columnar engine scans only referenced columns.",
+      "tables": [
+        {
+          "name": "sales_obt",
+          "columns": [
+            "order_date",
+            "product_name",
+            "category",
+            "store_city",
+            "customer_segment",
+            "qty",
+            "amount"
+          ],
+          "rows": [
+            [
+              "2024-06-01",
+              "Pen",
+              "Stationery",
+              "Oslo",
+              "SMB",
+              "2",
+              "9.98"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "Every dimension attribute is flattened in — category repeats per row, and that is fine on cheap columnar storage",
+        "The grain is still one order line; documenting it prevents silent fan-out when someone joins this table onward",
+        "Rebuilt from modelled upstream tables on schedule — the OBT is a serving layer, not the source of truth"
+      ],
+      "snippets": []
+    },
+    "diagram": "flowchart LR\n    F[fact_sales] --> OBT[sales_obt wide table]\n    D1[dim_product] --> OBT\n    D2[dim_store] --> OBT\n    D3[dim_customer] --> OBT\n    OBT --> BI[BI and notebooks]",
+    "related_technology_slugs": [
+      "bigquery",
+      "duckdb",
+      "clickhouse",
+      "motherduck"
+    ],
+    "position": 40
+  },
+  {
+    "slug": "activity-schema",
+    "name": "Activity schema",
+    "topic": "modelling",
+    "family": "dimensional-schemas",
+    "description": "Models everything as a single time-ordered stream of customer activities (entity, activity, timestamp, features). Questions are answered by temporal joins over the stream instead of bespoke fact tables.",
+    "best_for": "Customer-journey analytics where time-relative questions dominate",
+    "pros": [
+      "One table shape serves nearly all behavioural questions",
+      "New activities require no schema change",
+      "Temporal relationships (first-ever, last-before) are first-class",
+      "Drastically fewer models to maintain than a mart forest"
+    ],
+    "cons": [
+      "Unfamiliar query style with a real learning curve",
+      "Weak fit for non-event, stateful reporting (balances, inventory)",
+      "Young ecosystem with limited tooling support"
+    ],
+    "complexity": "medium",
+    "origin_year": 2021,
+    "originator": "Ahmed Elsamadisi (Narrator)",
+    "example": {
+      "narrative": "Every customer interaction is one row in a single time-ordered stream; questions are temporal joins over that stream.",
+      "tables": [
+        {
+          "name": "customer_stream",
+          "columns": [
+            "activity_id",
+            "entity_id",
+            "activity",
+            "ts",
+            "feature_1"
+          ],
+          "rows": [
+            [
+              "a1",
+              "C1",
+              "signed_up",
+              "2024-05-01 10:00",
+              "organic"
+            ],
+            [
+              "a2",
+              "C1",
+              "placed_order",
+              "2024-05-03 09:30",
+              "39.90"
+            ],
+            [
+              "a3",
+              "C1",
+              "placed_order",
+              "2024-06-10 14:00",
+              "12.50"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "One shape fits all activities — adding a cancelled_subscription activity needs no schema change",
+        "First order within 7 days of signup is a temporal join (first placed_order after each signed_up), not a new fact table",
+        "Stateful questions like current balance fit poorly — this models behaviour, not ledgers"
+      ],
+      "snippets": []
+    },
+    "diagram": "flowchart LR\n    S[signed_up] --> P1[placed_order]\n    P1 --> P2[placed_order]\n    subgraph stream[single customer_stream table]\n    S\n    P1\n    P2\n    end",
+    "related_technology_slugs": [
+      "dbt",
+      "snowflake",
+      "bigquery"
+    ],
+    "position": 50
+  },
+  {
+    "slug": "single-table-design",
+    "name": "Single-table design (DynamoDB)",
+    "topic": "modelling",
+    "family": "nosql",
+    "description": "Fold all entities of an application into one NoSQL table, overloading partition and sort keys so every access pattern resolves in a single request. Design starts from the queries, not the entities.",
+    "best_for": "High-scale key-value workloads with fully known access patterns",
+    "pros": [
+      "Single-digit-millisecond reads at any scale",
+      "One request fetches heterogeneous related items",
+      "No joins, no cross-table transactions to coordinate",
+      "Predictable cost and capacity planning"
+    ],
+    "cons": [
+      "Access patterns must be known upfront — pivots are painful",
+      "Data model is nearly unreadable without documentation",
+      "Ad-hoc queries and analytics require exporting elsewhere",
+      "Steep learning curve that inverts relational instincts"
+    ],
+    "complexity": "high",
+    "origin_year": 2018,
+    "originator": "Rick Houlihan (AWS)",
+    "example": {
+      "narrative": "Customer profile and their orders live in one DynamoDB table as an item collection, so the app's main screen loads with a single query.",
+      "tables": [
+        {
+          "name": "app_table",
+          "columns": [
+            "PK",
+            "SK",
+            "attributes"
+          ],
+          "rows": [
+            [
+              "CUSTOMER#C1",
+              "PROFILE",
+              "name=Alice, city=Oslo"
+            ],
+            [
+              "CUSTOMER#C1",
+              "ORDER#2024-06-01#1001",
+              "total=9.98"
+            ],
+            [
+              "CUSTOMER#C1",
+              "ORDER#2024-06-10#1002",
+              "total=24.50"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "PK groups the customer and their orders into one item collection — Query(PK = CUSTOMER#C1) fetches the whole screen",
+        "The SK embeds the order date so begins_with and range conditions cover order-history access patterns",
+        "This layout was chosen from the access patterns first; entity thinking came second"
+      ],
+      "snippets": []
+    },
+    "diagram": "flowchart TB\n    subgraph P[partition CUSTOMER#C1]\n    A[PROFILE]\n    B[ORDER#2024-06-01#1001]\n    C[ORDER#2024-06-10#1002]\n    end\n    Q[Query one partition] --> P",
+    "related_technology_slugs": [
+      "dynamodb",
+      "azure-cosmos-db"
+    ],
+    "position": 10
+  },
+  {
+    "slug": "document-modelling",
+    "name": "Document modelling",
+    "topic": "modelling",
+    "family": "nosql",
+    "description": "Model aggregates as self-contained JSON documents, choosing per relationship whether to embed (data read together lives together) or reference (shared or unbounded data stays separate).",
+    "best_for": "Application aggregates read and written as a unit, with evolving fields",
+    "pros": [
+      "Document shape mirrors application objects — low impedance",
+      "Flexible schema absorbs field-level evolution",
+      "Embedded reads need no joins",
+      "Horizontal sharding is natural at the document boundary"
+    ],
+    "cons": [
+      "Embed-vs-reference mistakes are expensive to reverse",
+      "Cross-document consistency is the application's problem",
+      "Unbounded embedded arrays degrade into document bloat",
+      "Duplicated embedded data drifts without discipline"
+    ],
+    "complexity": "medium",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "An order document embeds its line items (always read together) but references the customer (shared and unbounded).",
+      "tables": [
+        {
+          "name": "orders document",
+          "columns": [
+            "field",
+            "value"
+          ],
+          "rows": [
+            [
+              "_id",
+              "1001"
+            ],
+            [
+              "customer_id",
+              "C1 (reference)"
+            ],
+            [
+              "items[0]",
+              "pen x2 @ 4.99 (embedded)"
+            ],
+            [
+              "items[1]",
+              "paper x1 @ 3.50 (embedded)"
+            ],
+            [
+              "total",
+              "13.48"
+            ]
+          ]
+        },
+        {
+          "name": "customers document",
+          "columns": [
+            "field",
+            "value"
+          ],
+          "rows": [
+            [
+              "_id",
+              "C1"
+            ],
+            [
+              "name",
+              "Alice"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "Line items are embedded: they belong to exactly one order and are always read with it — one round trip",
+        "The customer is referenced: many orders share it, and embedding would duplicate data that drifts",
+        "The unbounded case (customer's full order list) points from order to customer, never the reverse"
+      ],
+      "snippets": []
+    },
+    "diagram": "flowchart LR\n    O[Order document] -->|embeds| I[line items array]\n    O -->|references customer_id| C[Customer document]",
+    "related_technology_slugs": [
+      "mongodb",
+      "couchbase",
+      "firestore",
+      "amazon-documentdb"
+    ],
+    "position": 20
+  },
+  {
+    "slug": "wide-column-modelling",
+    "name": "Wide-column modelling",
+    "topic": "modelling",
+    "family": "nosql",
+    "description": "Query-first design for log-structured stores: each table materializes exactly one query, with partition keys bounding data distribution and clustering keys pre-sorting rows within partitions. Denormalize freely; write the same fact to many tables.",
+    "best_for": "Write-heavy, time-ordered workloads needing linear horizontal scale",
+    "pros": [
+      "Massive linear write throughput across nodes",
+      "Reads hit one partition — latency stays flat at scale",
+      "Clustering keys give free in-partition ordering",
+      "Tunable consistency per query"
+    ],
+    "cons": [
+      "One table per query pattern — storage multiplies",
+      "Unbounded or hot partitions wreck performance",
+      "No joins, minimal aggregations, no ad-hoc queries",
+      "Application owns multi-table write consistency"
+    ],
+    "complexity": "high",
+    "origin_year": 2006,
+    "originator": "Google (Bigtable paper)",
+    "example": {
+      "narrative": "Sensor readings are partitioned by sensor and day, clustered by time descending — the dashboard query reads one partition in sorted order.",
+      "tables": [
+        {
+          "name": "readings_by_sensor",
+          "columns": [
+            "sensor_id (partition)",
+            "day (partition)",
+            "ts (clustering desc)",
+            "temperature"
+          ],
+          "rows": [
+            [
+              "S1",
+              "2024-06-01",
+              "23:59:07",
+              "21.4"
+            ],
+            [
+              "S1",
+              "2024-06-01",
+              "23:58:07",
+              "21.3"
+            ]
+          ]
+        },
+        {
+          "name": "readings_by_region (same data, second table)",
+          "columns": [
+            "region (partition)",
+            "ts",
+            "sensor_id",
+            "temperature"
+          ],
+          "rows": [
+            [
+              "north",
+              "23:59:07",
+              "S1",
+              "21.4"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "Bucketing the partition key by day bounds partition size — an unbounded sensor partition would eventually hotspot",
+        "Clustering by ts desc pre-sorts the latest-readings query; no ORDER BY cost at read time",
+        "The region query gets its own table with the same data — write amplification is the accepted price"
+      ],
+      "snippets": []
+    },
+    "diagram": "flowchart TB\n    subgraph P1[partition S1 2024-06-01]\n    R1[23:59 reading]\n    R2[23:58 reading]\n    end\n    subgraph P2[partition S2 2024-06-01]\n    R3[23:59 reading]\n    end\n    Q[query one partition] --> P1",
+    "related_technology_slugs": [
+      "cassandra",
+      "scylladb",
+      "hbase",
+      "bigtable"
+    ],
+    "position": 30
+  },
+  {
+    "slug": "property-graph-modelling",
+    "name": "Property graph modelling",
+    "topic": "modelling",
+    "family": "nosql",
+    "description": "Entities become nodes, relationships become first-class edges, and both carry properties. Traversals replace joins, so query cost follows the neighbourhood you touch rather than total data size.",
+    "best_for": "Relationship-centric questions: recommendations, fraud rings, lineage, knowledge graphs",
+    "pros": [
+      "Multi-hop traversals stay fast regardless of table size",
+      "Relationships are explicit, typed and property-bearing",
+      "Schema-flexible — new node and edge types bolt on",
+      "Path queries read almost like the business question"
+    ],
+    "cons": [
+      "Bulk analytical scans underperform columnar engines",
+      "Modelling instincts differ sharply from relational",
+      "Smaller talent pool and tooling ecosystem",
+      "Sharding a highly connected graph is genuinely hard"
+    ],
+    "complexity": "medium",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "People and products are nodes; purchases and friendships are typed, property-bearing edges — recommendations are short traversals.",
+      "tables": [
+        {
+          "name": "nodes",
+          "columns": [
+            "id",
+            "label",
+            "properties"
+          ],
+          "rows": [
+            [
+              "n1",
+              "Person",
+              "name=Alice"
+            ],
+            [
+              "n2",
+              "Person",
+              "name=Bob"
+            ],
+            [
+              "n3",
+              "Product",
+              "name=Pen"
+            ]
+          ]
+        },
+        {
+          "name": "edges",
+          "columns": [
+            "from",
+            "type",
+            "to",
+            "properties"
+          ],
+          "rows": [
+            [
+              "n1",
+              "FRIENDS_WITH",
+              "n2",
+              "since=2020"
+            ],
+            [
+              "n2",
+              "BOUGHT",
+              "n3",
+              "qty=2"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "What did Alice's friends buy is a two-hop traversal from n1 — cost scales with her neighbourhood, not table size",
+        "The purchase is an edge with properties, not a join table — relationships are first-class",
+        "In SQL the same question is a self-join pile-up that degrades as the tables grow"
+      ],
+      "snippets": []
+    },
+    "diagram": "graph LR\n    A[Alice] -->|FRIENDS_WITH| B[Bob]\n    B -->|BOUGHT qty 2| P[Pen]\n    A -.->|recommended| P",
+    "related_technology_slugs": [
+      "neo4j",
+      "memgraph",
+      "janusgraph",
+      "tigergraph",
+      "amazon-neptune"
+    ],
+    "position": 40
+  },
+  {
+    "slug": "entity-attribute-value",
+    "name": "Entity–attribute–value (EAV)",
+    "topic": "modelling",
+    "family": "specialized",
+    "description": "Store data as (entity, attribute, value) triples instead of fixed columns — the schema moves into rows. Standard in clinical systems and product catalogs where attributes vary wildly per record and appear at runtime.",
+    "best_for": "Thousands of sparse, runtime-defined attributes (catalogs, clinical data, custom fields)",
+    "pros": [
+      "Attributes added at runtime without DDL",
+      "Sparse data stores compactly",
+      "One physical shape serves unbounded logical schemas"
+    ],
+    "cons": [
+      "Reconstructing a row means one self-join per attribute",
+      "Database-level typing and constraints are lost",
+      "Query optimizers handle EAV poorly at scale",
+      "Modern JSONB columns cover most of its use cases better"
+    ],
+    "complexity": "medium",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "A clinic stores wildly different measurements per patient visit as attribute-value rows instead of a thousand mostly-null columns.",
+      "tables": [
+        {
+          "name": "observations (EAV)",
+          "columns": [
+            "visit_id",
+            "attribute",
+            "value"
+          ],
+          "rows": [
+            [
+              "V1",
+              "blood_pressure",
+              "120/80"
+            ],
+            [
+              "V1",
+              "heart_rate",
+              "72"
+            ],
+            [
+              "V2",
+              "temperature",
+              "37.1"
+            ]
+          ]
+        },
+        {
+          "name": "reconstructed row for V1",
+          "columns": [
+            "visit_id",
+            "blood_pressure",
+            "heart_rate"
+          ],
+          "rows": [
+            [
+              "V1",
+              "120/80",
+              "72"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "New measurement types appear at runtime as new attribute values — no DDL, no deploy",
+        "Reconstructing a flat row costs one self-join (or pivot) per attribute — the read-side price of the flexibility",
+        "Values are stored as strings; typing and range checks moved from the database into application code"
+      ],
+      "snippets": []
+    },
+    "diagram": "erDiagram\n    VISIT ||--o{ OBSERVATION : records\n    OBSERVATION {\n        string visit_id FK\n        string attribute\n        string value\n    }",
+    "related_technology_slugs": [
+      "postgresql",
+      "mysql"
+    ],
+    "position": 10
+  },
+  {
+    "slug": "event-sourcing",
+    "name": "Event sourcing",
+    "topic": "modelling",
+    "family": "specialized",
+    "description": "Persist every state change as an immutable, append-only event; current state is a fold over the log. Read models are projections rebuilt from events, usually paired with CQRS.",
+    "best_for": "Domains where the audit trail is the business: ledgers, orders, compliance-heavy systems",
+    "pros": [
+      "Complete, replayable audit history by construction",
+      "New read models projected retroactively from day-one data",
+      "Append-only writes are fast and conflict-free",
+      "Temporal debugging — reconstruct state at any moment"
+    ],
+    "cons": [
+      "Event schema evolution (versioning, upcasting) is hard",
+      "Eventually-consistent projections complicate UX",
+      "Querying current state needs materialized projections",
+      "Significant architectural buy-in — hard to retrofit or exit"
+    ],
+    "complexity": "high",
+    "origin_year": 2005,
+    "originator": "Greg Young & Martin Fowler",
+    "example": {
+      "narrative": "An account's balance is never stored as state — it is the fold of an immutable event log, and read models are projections.",
+      "tables": [
+        {
+          "name": "account_events (append-only)",
+          "columns": [
+            "seq",
+            "event_type",
+            "payload",
+            "at"
+          ],
+          "rows": [
+            [
+              "1",
+              "AccountOpened",
+              "owner=Alice",
+              "2024-05-01"
+            ],
+            [
+              "2",
+              "Deposited",
+              "amount=100",
+              "2024-05-02"
+            ],
+            [
+              "3",
+              "Withdrew",
+              "amount=30",
+              "2024-05-05"
+            ]
+          ]
+        },
+        {
+          "name": "balance_projection (derived)",
+          "columns": [
+            "account_id",
+            "balance"
+          ],
+          "rows": [
+            [
+              "A1",
+              "70"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The balance 70 is computed by folding events 1-3; the log is the source of truth, the projection is disposable",
+        "A new monthly-spend report is a fresh projection replayed over events from day one — retroactive by design",
+        "Correcting a mistake appends a compensating event; history is never rewritten"
+      ],
+      "snippets": []
+    },
+    "diagram": "flowchart LR\n    E1[AccountOpened] --> E2[Deposited 100]\n    E2 --> E3[Withdrew 30]\n    E3 --> F[fold]\n    F --> S[balance 70]\n    F --> R[monthly report projection]",
+    "related_technology_slugs": [
+      "apache-kafka",
+      "apache-pulsar",
+      "nats-jetstream",
+      "materialize"
+    ],
+    "position": 20
+  },
+  {
+    "slug": "time-series-modelling",
+    "name": "Time-series modelling",
+    "topic": "modelling",
+    "family": "specialized",
+    "description": "Timestamp-first design: measurements keyed by time and tags, stored in time-partitioned chunks with retention, downsampling and continuous aggregation as schema-level concerns.",
+    "best_for": "Metrics, IoT and telemetry with time-windowed queries and retention policies",
+    "pros": [
+      "Extreme ingest rates via time-ordered appends",
+      "Time-bucketed compression shrinks storage dramatically",
+      "Window aggregations and gap-filling are first-class",
+      "Retention and downsampling automate lifecycle management"
+    ],
+    "cons": [
+      "High tag cardinality degrades most engines",
+      "Poor fit for entity-centric relational questions",
+      "Late or out-of-order data needs careful handling",
+      "Schema (tags vs fields) is hard to change after ingest"
+    ],
+    "complexity": "medium",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "Readings are keyed by time plus low-cardinality tags, stored in time-partitioned chunks with retention and downsampling as policies.",
+      "tables": [
+        {
+          "name": "readings",
+          "columns": [
+            "time",
+            "sensor_id (tag)",
+            "region (tag)",
+            "temperature (field)"
+          ],
+          "rows": [
+            [
+              "2024-06-01 23:58",
+              "S1",
+              "north",
+              "21.3"
+            ],
+            [
+              "2024-06-01 23:59",
+              "S1",
+              "north",
+              "21.4"
+            ]
+          ]
+        },
+        {
+          "name": "readings_1h (downsampled)",
+          "columns": [
+            "bucket",
+            "sensor_id",
+            "avg_temperature"
+          ],
+          "rows": [
+            [
+              "2024-06-01 23:00",
+              "S1",
+              "21.2"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "sensor_id and region are tags (indexed, low cardinality); temperature is a field — swapping these ruins performance",
+        "Data lands in time chunks, so retention is dropping whole chunks, not deleting rows",
+        "The 1h continuous aggregate serves dashboards; raw rows expire after 30 days"
+      ],
+      "snippets": []
+    },
+    "diagram": "flowchart LR\n    W[writes] --> C1[chunk June 1]\n    W --> C2[chunk June 2]\n    C1 --> AGG[1h continuous aggregate]\n    C2 --> AGG\n    C1 -.retention drop.-> X[expired]",
+    "related_technology_slugs": [
+      "influxdb",
+      "timescaledb",
+      "questdb",
+      "amazon-timestream",
+      "victoriametrics"
+    ],
+    "position": 30
+  },
+  {
+    "slug": "medallion-architecture",
+    "name": "Medallion architecture (bronze/silver/gold)",
+    "topic": "modelling",
+    "family": "specialized",
+    "description": "Layered lakehouse refinement: bronze lands raw immutable source data, silver cleans, deduplicates and conforms it, gold serves business-level aggregates. Each layer is rebuildable from the one below.",
+    "best_for": "Lakehouse pipelines needing clear quality tiers and replayable refinement",
+    "pros": [
+      "Clear quality contract per layer",
+      "Raw bronze preserves full replay and audit ability",
+      "Incremental refinement isolates failures layer by layer",
+      "Maps cleanly onto lakehouse table formats and orchestration"
+    ],
+    "cons": [
+      "Data is stored (and paid for) three times",
+      "Layer boundaries blur without governance ('dirty silver')",
+      "It's a macro-architecture — you still need a modelling strategy inside gold",
+      "Latency accumulates across layer hops"
+    ],
+    "complexity": "low",
+    "origin_year": 2019,
+    "originator": "Databricks",
+    "example": {
+      "narrative": "Orders land raw in bronze (duplicates and all), get cleaned and conformed in silver, and are served as business aggregates in gold.",
+      "tables": [
+        {
+          "name": "bronze_orders (raw)",
+          "columns": [
+            "raw_id",
+            "payload",
+            "ingested_at"
+          ],
+          "rows": [
+            [
+              "1",
+              "id=1001 total=9.98",
+              "2024-06-01"
+            ],
+            [
+              "2",
+              "id=1001 total=9.98",
+              "2024-06-01"
+            ]
+          ]
+        },
+        {
+          "name": "silver_orders (clean)",
+          "columns": [
+            "order_id",
+            "total",
+            "order_date"
+          ],
+          "rows": [
+            [
+              "1001",
+              "9.98",
+              "2024-06-01"
+            ]
+          ]
+        },
+        {
+          "name": "gold_daily_sales",
+          "columns": [
+            "date",
+            "orders",
+            "revenue"
+          ],
+          "rows": [
+            [
+              "2024-06-01",
+              "1",
+              "9.98"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The duplicate ingestion of order 1001 is kept in bronze (replayable audit) and deduplicated into silver",
+        "Silver enforces types and contracts; gold holds the business definition of revenue",
+        "Any layer can be rebuilt from the one below — bugs in silver logic are fixed by reprocessing bronze"
+      ],
+      "snippets": []
+    },
+    "diagram": "flowchart LR\n    SRC[sources] --> B[(bronze raw)]\n    B --> S[(silver clean)]\n    S --> G[(gold aggregates)]\n    G --> BI[BI and ML]",
+    "related_technology_slugs": [
+      "delta-lake",
+      "apache-iceberg",
+      "databricks-sql",
+      "dbt",
+      "microsoft-fabric"
+    ],
+    "position": 40
+  },
+  {
+    "slug": "scd-type-0",
+    "name": "SCD Type 0 — retain original",
+    "topic": "evolution",
+    "family": "slowly-changing-dimensions",
+    "description": "The dimension attribute never changes after first load: the original value is the fact worth keeping (birth date, original credit score, acquisition channel). Updates from the source are deliberately ignored.",
+    "best_for": "Durable attributes whose original value is the analytical point",
+    "pros": [
+      "Zero maintenance — loads can skip the attribute entirely",
+      "Historical analyses are perfectly stable",
+      "Makes 'as at first contact' semantics explicit"
+    ],
+    "cons": [
+      "Silently diverges from the operational source",
+      "Wrong choice if the business ever asks for current values",
+      "Mixing Type 0 and Type 1 attributes in one table needs documentation"
+    ],
+    "complexity": "low",
+    "origin_year": 1996,
+    "originator": "Ralph Kimball",
+    "example": {
+      "narrative": "Alice's acquisition channel is captured at signup and kept forever, even though the CRM later rewrites it.",
+      "tables": [
+        {
+          "name": "dim_customer",
+          "columns": [
+            "customer_key",
+            "name",
+            "acquisition_channel (Type 0)"
+          ],
+          "rows": [
+            [
+              "C1",
+              "Alice",
+              "organic"
+            ]
+          ]
+        },
+        {
+          "name": "crm update (ignored)",
+          "columns": [
+            "customer_id",
+            "acquisition_channel"
+          ],
+          "rows": [
+            [
+              "C1",
+              "paid-search"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The CRM retagged Alice as paid-search, but attribution reporting needs the original channel — the load ignores the change",
+        "Choosing Type 0 is an explicit business decision, not a missing feature"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "dbt"
+    ],
+    "position": 10
+  },
+  {
+    "slug": "scd-type-1",
+    "name": "SCD Type 1 — overwrite",
+    "topic": "evolution",
+    "family": "slowly-changing-dimensions",
+    "description": "The new value simply replaces the old one in place. The dimension always shows current state and history is discarded — past facts silently re-associate with the new value.",
+    "best_for": "Corrections and attributes where history has no analytical value",
+    "pros": [
+      "Simplest possible maintenance",
+      "No table growth",
+      "Ideal for fixing data-entry errors"
+    ],
+    "cons": [
+      "History is destroyed",
+      "Historical reports change retroactively after each update",
+      "Aggregates cached before the change disagree with recomputations"
+    ],
+    "complexity": "low",
+    "origin_year": 1996,
+    "originator": "Ralph Kimball",
+    "example": {
+      "narrative": "Alice moves; her address is overwritten and the old one is gone.",
+      "tables": [
+        {
+          "name": "dim_customer (before)",
+          "columns": [
+            "customer_key",
+            "name",
+            "address"
+          ],
+          "rows": [
+            [
+              "C1",
+              "Alice",
+              "12 Oak St"
+            ]
+          ]
+        },
+        {
+          "name": "dim_customer (after)",
+          "columns": [
+            "customer_key",
+            "name",
+            "address"
+          ],
+          "rows": [
+            [
+              "C1",
+              "Alice",
+              "9 Elm Ave"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The UPDATE replaced the value in place — sales Alice made while at 12 Oak St now report under 9 Elm Ave",
+        "Acceptable here because the business treats address as current-state only"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "dbt"
+    ],
+    "position": 20
+  },
+  {
+    "slug": "scd-type-2",
+    "name": "SCD Type 2 — add row",
+    "topic": "evolution",
+    "family": "slowly-changing-dimensions",
+    "description": "Every change inserts a new dimension row with validity dates and a current flag; facts join the surrogate key that was current at transaction time. The workhorse of dimensional history.",
+    "best_for": "Full change history where facts must associate with the value in effect at the time",
+    "pros": [
+      "Complete, queryable history",
+      "Facts stay tied to the version that was true when they occurred",
+      "Standard tooling support (dbt snapshots, warehouse merge)"
+    ],
+    "cons": [
+      "Dimension grows with every change",
+      "Queries must filter is_current or a date window",
+      "Rapidly changing attributes bloat the table (see mini-dimensions)"
+    ],
+    "complexity": "medium",
+    "origin_year": 1996,
+    "originator": "Ralph Kimball",
+    "example": {
+      "narrative": "Alice's move closes the old row and opens a new one; June sales keep pointing at the Oak St version.",
+      "tables": [
+        {
+          "name": "dim_customer",
+          "columns": [
+            "customer_key",
+            "customer_id",
+            "address",
+            "valid_from",
+            "valid_to",
+            "is_current"
+          ],
+          "rows": [
+            [
+              "K1",
+              "C1",
+              "12 Oak St",
+              "2020-01-01",
+              "2024-05-31",
+              "false"
+            ],
+            [
+              "K2",
+              "C1",
+              "9 Elm Ave",
+              "2024-06-01",
+              "9999-12-31",
+              "true"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The change is an INSERT plus closing the old row's valid_to — never an overwrite",
+        "A fact dated 2024-05-15 joins K1, so regional reports for May still group under 12 Oak St",
+        "is_current = true serves the common current-state query without date logic"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "dbt",
+      "sqlmesh",
+      "snowflake"
+    ],
+    "position": 30
+  },
+  {
+    "slug": "scd-type-3",
+    "name": "SCD Type 3 — previous value column",
+    "topic": "evolution",
+    "family": "slowly-changing-dimensions",
+    "description": "The row keeps the current value plus one extra column holding the prior value. History depth is fixed at one step, but both versions are available on every row for easy side-by-side analysis.",
+    "best_for": "One-off reorganizations where 'before vs after' is the only history needed",
+    "pros": [
+      "Both old and new value on the same row — trivial comparisons",
+      "No row growth",
+      "Great for sales-territory realignments"
+    ],
+    "cons": [
+      "Exactly one change deep — the second change destroys real history",
+      "Extra column per tracked attribute",
+      "Awkward for attributes that change often"
+    ],
+    "complexity": "low",
+    "origin_year": 1996,
+    "originator": "Ralph Kimball",
+    "example": {
+      "narrative": "A territory realignment keeps the prior region next to the new one so both hierarchies can be reported this year.",
+      "tables": [
+        {
+          "name": "dim_customer",
+          "columns": [
+            "customer_key",
+            "name",
+            "region",
+            "previous_region"
+          ],
+          "rows": [
+            [
+              "C1",
+              "Alice",
+              "North-East",
+              "North"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "Reports can group by region or previous_region to compare performance across the realignment",
+        "When the next realignment happens, North is gone — Type 3 holds one step of history by design"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "dbt"
+    ],
+    "position": 40
+  },
+  {
+    "slug": "scd-type-4",
+    "name": "SCD Type 4 — history table",
+    "topic": "evolution",
+    "family": "slowly-changing-dimensions",
+    "description": "The dimension keeps only current values while every change is appended to a separate history table. Current-state queries stay small and fast; historical analysis joins the history table when needed.",
+    "best_for": "Big dimensions where current-state queries dominate but audit history must exist",
+    "pros": [
+      "Main dimension stays compact and fast",
+      "Full history preserved separately",
+      "History table can live on cheaper storage"
+    ],
+    "cons": [
+      "Point-in-time fact joins are harder than Type 2",
+      "Two tables to keep consistent",
+      "Consumers must know which table answers which question"
+    ],
+    "complexity": "medium",
+    "origin_year": 1996,
+    "originator": "Ralph Kimball",
+    "example": {
+      "narrative": "The slim current table serves the app; the move lands as a closed-out row in the history table.",
+      "tables": [
+        {
+          "name": "dim_customer (current only)",
+          "columns": [
+            "customer_key",
+            "name",
+            "address"
+          ],
+          "rows": [
+            [
+              "C1",
+              "Alice",
+              "9 Elm Ave"
+            ]
+          ]
+        },
+        {
+          "name": "dim_customer_history",
+          "columns": [
+            "customer_key",
+            "address",
+            "valid_from",
+            "valid_to"
+          ],
+          "rows": [
+            [
+              "C1",
+              "12 Oak St",
+              "2020-01-01",
+              "2024-05-31"
+            ],
+            [
+              "C1",
+              "9 Elm Ave",
+              "2024-06-01",
+              "9999-12-31"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "Dashboards join the two-column current table; only the audit report touches history",
+        "The split optimizes for the common query at the cost of a second table to maintain"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "dbt"
+    ],
+    "position": 50
+  },
+  {
+    "slug": "scd-type-5",
+    "name": "SCD Type 5 — mini-dimension + outrigger",
+    "topic": "evolution",
+    "family": "slowly-changing-dimensions",
+    "description": "Rapidly changing attributes are split into a small Type 1 'mini-dimension' of value combinations; the main dimension carries a current pointer to it as an outrigger, while facts capture the historically correct mini-dimension key.",
+    "best_for": "High-churn attribute bands (demographics, scores) on very large dimensions",
+    "pros": [
+      "Stops Type 2 row explosion from volatile attributes",
+      "Facts keep point-in-time accuracy via the mini-dimension key",
+      "Current view available through the outrigger without joining facts"
+    ],
+    "cons": [
+      "The most moving parts of any SCD technique",
+      "Attributes must be banded into finite combinations",
+      "ETL must maintain both the pointer and the fact key"
+    ],
+    "complexity": "high",
+    "origin_year": 2013,
+    "originator": "Kimball Group",
+    "example": {
+      "narrative": "Alice's spend band changes monthly; bands live in a 4-row mini-dimension instead of new customer rows.",
+      "tables": [
+        {
+          "name": "mini_dim_profile",
+          "columns": [
+            "profile_key",
+            "spend_band",
+            "visit_band"
+          ],
+          "rows": [
+            [
+              "M1",
+              "low",
+              "rare"
+            ],
+            [
+              "M2",
+              "high",
+              "frequent"
+            ]
+          ]
+        },
+        {
+          "name": "dim_customer (outrigger pointer)",
+          "columns": [
+            "customer_key",
+            "name",
+            "current_profile_key (Type 1)"
+          ],
+          "rows": [
+            [
+              "C1",
+              "Alice",
+              "M2"
+            ]
+          ]
+        },
+        {
+          "name": "fact_sales",
+          "columns": [
+            "date_key",
+            "customer_key",
+            "profile_key (at sale time)",
+            "amount"
+          ],
+          "rows": [
+            [
+              "20240115",
+              "C1",
+              "M1",
+              "12.50"
+            ],
+            [
+              "20240610",
+              "C1",
+              "M2",
+              "99.00"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "Monthly band flips update one pointer instead of inserting customer rows",
+        "The January fact carries M1, preserving that Alice was low-spend when it happened"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "dbt"
+    ],
+    "position": 60
+  },
+  {
+    "slug": "scd-type-6",
+    "name": "SCD Type 6 — hybrid (1+2+3)",
+    "topic": "evolution",
+    "family": "slowly-changing-dimensions",
+    "description": "Type 2 rows for history, plus a Type 1 'current value' column overwritten on every version, plus Type 3 comparison ability — 1+2+3=6. Each historical row knows both its own value and the current one.",
+    "best_for": "Analyses that constantly switch between historical and current attribute views",
+    "pros": [
+      "Report any fact by either the historical or the current value without extra joins",
+      "Full Type 2 history retained",
+      "Avoids re-joining the dimension to itself for current-view queries"
+    ],
+    "cons": [
+      "Every change rewrites the current column on all of that entity's rows",
+      "Easy to misquery if analysts pick the wrong column",
+      "More ETL logic than any single technique"
+    ],
+    "complexity": "high",
+    "origin_year": 2013,
+    "originator": "Kimball Group",
+    "example": {
+      "narrative": "Both rows carry current_address = 9 Elm Ave, while historical_address stays what it was.",
+      "tables": [
+        {
+          "name": "dim_customer",
+          "columns": [
+            "customer_key",
+            "customer_id",
+            "historical_address",
+            "current_address (Type 1)",
+            "valid_from",
+            "is_current"
+          ],
+          "rows": [
+            [
+              "K1",
+              "C1",
+              "12 Oak St",
+              "9 Elm Ave",
+              "2020-01-01",
+              "false"
+            ],
+            [
+              "K2",
+              "C1",
+              "9 Elm Ave",
+              "9 Elm Ave",
+              "2024-06-01",
+              "true"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "A May fact joined to K1 can report under 12 Oak St (as it happened) or 9 Elm Ave (as of today) — same join, different column",
+        "The move updated current_address on both rows: the Type 1 write inside the Type 2 structure"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "dbt"
+    ],
+    "position": 70
+  },
+  {
+    "slug": "scd-type-7",
+    "name": "SCD Type 7 — dual keys",
+    "topic": "evolution",
+    "family": "slowly-changing-dimensions",
+    "description": "Facts carry two keys: the version surrogate key (point-in-time view) and a durable natural key joined to a current-only view of the dimension. Both perspectives come from clean joins with no column tricks.",
+    "best_for": "Warehouses that must serve both as-was and as-is reporting at scale",
+    "pros": [
+      "Clean separation: one join per perspective",
+      "Current view is a simple filtered view over the Type 2 table",
+      "No mass current-column rewrites like Type 6"
+    ],
+    "cons": [
+      "Two dimension keys on every fact row",
+      "Consumers must understand which key serves which question",
+      "Slightly larger facts and more join paths to govern"
+    ],
+    "complexity": "high",
+    "origin_year": 2013,
+    "originator": "Kimball Group",
+    "example": {
+      "narrative": "The fact stores both K1 (version at sale time) and C1 (durable key to the current view).",
+      "tables": [
+        {
+          "name": "fact_sales",
+          "columns": [
+            "date_key",
+            "customer_version_key",
+            "customer_durable_key",
+            "amount"
+          ],
+          "rows": [
+            [
+              "20240515",
+              "K1",
+              "C1",
+              "12.50"
+            ]
+          ]
+        },
+        {
+          "name": "dim_customer_current (view)",
+          "columns": [
+            "customer_durable_key",
+            "address"
+          ],
+          "rows": [
+            [
+              "C1",
+              "9 Elm Ave"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "Join customer_version_key for as-was reports; join customer_durable_key to the current view for as-is",
+        "The current view is just SELECT ... WHERE is_current from the Type 2 table — no extra maintenance"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "dbt"
+    ],
+    "position": 80
+  },
+  {
+    "slug": "backward-compatibility",
+    "name": "Backward compatibility",
+    "topic": "evolution",
+    "family": "compatibility",
+    "description": "A new schema version can still read data written with the old one, so consumers upgrade first and old data (or lagging producers) keeps working. Achieved by only adding optional fields with defaults and never removing what readers require.",
+    "best_for": "Consumer-first rollouts and reprocessing historical data with current code",
+    "pros": [
+      "Consumers deploy without coordinating producers",
+      "Historical data stays readable forever",
+      "Registry-enforceable as an automatic gate"
+    ],
+    "cons": [
+      "Old fields accrete — cleanup requires a coordinated break",
+      "Defaults can mask genuinely missing data",
+      "Says nothing about old readers meeting new data"
+    ],
+    "complexity": "medium",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "v2 adds an optional currency field with a default, so v2 readers still parse v1 records.",
+      "tables": [
+        {
+          "name": "orders written with v1",
+          "columns": [
+            "order_id",
+            "total"
+          ],
+          "rows": [
+            [
+              "1001",
+              "9.98"
+            ]
+          ]
+        },
+        {
+          "name": "schema v2 (adds field)",
+          "columns": [
+            "field",
+            "type",
+            "rule"
+          ],
+          "rows": [
+            [
+              "order_id",
+              "string",
+              "required"
+            ],
+            [
+              "total",
+              "decimal",
+              "required"
+            ],
+            [
+              "currency",
+              "string",
+              "optional, default USD"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The v2 reader fills currency = USD when reading the v1 record — nothing breaks",
+        "Removing total in v2 would have broken every stored v1 record: not backward compatible",
+        "The registry checks this automatically on schema registration"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "confluent-schema-registry",
+      "avro",
+      "protobuf"
+    ],
+    "position": 10
+  },
+  {
+    "slug": "forward-compatibility",
+    "name": "Forward compatibility",
+    "topic": "evolution",
+    "family": "compatibility",
+    "description": "Old readers can process data written with a newer schema, so producers upgrade first. Requires readers that ignore unknown fields and schemas that only remove optional fields.",
+    "best_for": "Producer-first rollouts where many consumers upgrade on their own schedule",
+    "pros": [
+      "Producers ship without waiting for every consumer",
+      "Natural fit for protobuf-style unknown-field tolerance",
+      "Enables gradual fleet upgrades"
+    ],
+    "cons": [
+      "New fields are invisible to old readers until they upgrade",
+      "Requires discipline: readers must never reject unknown fields",
+      "Harder to reason about than backward compatibility"
+    ],
+    "complexity": "medium",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "The producer starts writing a discount field; v1 consumers skip it and keep working.",
+      "tables": [
+        {
+          "name": "event written with v2",
+          "columns": [
+            "order_id",
+            "total",
+            "discount (new)"
+          ],
+          "rows": [
+            [
+              "1001",
+              "9.98",
+              "1.00"
+            ]
+          ]
+        },
+        {
+          "name": "v1 consumer behaviour",
+          "columns": [
+            "field",
+            "action"
+          ],
+          "rows": [
+            [
+              "order_id",
+              "read"
+            ],
+            [
+              "total",
+              "read"
+            ],
+            [
+              "discount",
+              "ignored (unknown field)"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The v1 consumer was built to skip unknown fields — the new discount flows past it harmlessly",
+        "Renaming total instead would have forward-broken every old consumer at once"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "confluent-schema-registry",
+      "protobuf",
+      "avro"
+    ],
+    "position": 20
+  },
+  {
+    "slug": "full-compatibility",
+    "name": "Full compatibility",
+    "topic": "evolution",
+    "family": "compatibility",
+    "description": "Backward and forward at once: any reader version handles any data version, in both directions. The change vocabulary shrinks to adding or removing optional fields with defaults — the safest and most restrictive contract.",
+    "best_for": "Long-retention event streams with many independent producer and consumer teams",
+    "pros": [
+      "Deploy order stops mattering entirely",
+      "Years-old data and next year's readers stay interoperable",
+      "The strongest automatic guardrail a registry can enforce"
+    ],
+    "cons": [
+      "Most restrictive change set — some refactors become impossible without a new stream",
+      "Optional-with-default everywhere can hide data-quality issues",
+      "Requires the discipline of never introducing required fields"
+    ],
+    "complexity": "medium",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "Every field after v1 is optional with a default, so v1 and v3 producers and readers interoperate freely.",
+      "tables": [
+        {
+          "name": "schema timeline",
+          "columns": [
+            "version",
+            "change",
+            "class"
+          ],
+          "rows": [
+            [
+              "v2",
+              "add optional currency default USD",
+              "fully compatible"
+            ],
+            [
+              "v3",
+              "remove optional coupon (had default)",
+              "fully compatible"
+            ],
+            [
+              "rejected",
+              "add required tax_id",
+              "breaks forward"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The registry set to FULL rejects the required tax_id change at registration time, before anything ships",
+        "The cost is expressiveness: required-ness must be enforced downstream, not in the schema"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "confluent-schema-registry",
+      "avro"
+    ],
+    "position": 30
+  },
+  {
+    "slug": "breaking-changes",
+    "name": "Breaking changes — taxonomy",
+    "topic": "evolution",
+    "family": "compatibility",
+    "description": "The changes that cannot be made in place: renames, type changes, dropping or requiring fields, and semantic shifts that keep the shape but change the meaning. Knowing the taxonomy is how teams route each change to the right migration pattern.",
+    "best_for": "Classifying proposed schema changes before choosing a rollout strategy",
+    "pros": [
+      "Names the risk so it can be reviewed, not discovered in production",
+      "Maps each breaking class to a known remedy (expand-contract, versioning)",
+      "Semantic breaks get surfaced — the class type systems cannot catch"
+    ],
+    "cons": [
+      "Classification is judgement — semantic changes are easy to miss",
+      "A taxonomy alone fixes nothing without process behind it",
+      "Overcaution can label safe changes as breaking and stall delivery"
+    ],
+    "complexity": "low",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "Four proposed changes to an orders schema, classified before rollout.",
+      "tables": [
+        {
+          "name": "change review",
+          "columns": [
+            "proposed change",
+            "class",
+            "remedy"
+          ],
+          "rows": [
+            [
+              "rename total to amount",
+              "breaking (readers lose field)",
+              "expand-contract"
+            ],
+            [
+              "change total from decimal to string",
+              "breaking (type)",
+              "new field + deprecate"
+            ],
+            [
+              "make optional email required",
+              "breaking (old data lacks it)",
+              "backfill first, then require"
+            ],
+            [
+              "total now excludes tax (same type)",
+              "semantic break",
+              "new field amount_net + comms"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The semantic change is the most dangerous: every validator passes while every report goes quietly wrong",
+        "Each class routes to a remedy — the taxonomy is the dispatch table for migration patterns"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "confluent-schema-registry"
+    ],
+    "position": 40
+  },
+  {
+    "slug": "expand-contract",
+    "name": "Expand–contract (parallel change)",
+    "topic": "evolution",
+    "family": "migration-patterns",
+    "description": "Breaking changes made safely in three phases: expand (add the new structure alongside the old), migrate (dual-write, backfill, move readers), contract (remove the old once nothing references it). No step breaks a running consumer.",
+    "best_for": "Renames and restructures on live schemas with independent consumers",
+    "pros": [
+      "Zero-downtime path for otherwise breaking changes",
+      "Each phase is separately deployable and reversible",
+      "Works identically for databases, APIs and event schemas"
+    ],
+    "cons": [
+      "Three deploys where a naive rename is one",
+      "Dual-write logic is temporary code that must actually get removed",
+      "The contract phase is easily forgotten, leaving zombie columns"
+    ],
+    "complexity": "medium",
+    "origin_year": 2014,
+    "originator": "Martin Fowler (ParallelChange)",
+    "example": {
+      "narrative": "Renaming full_name to display_name without breaking readers.",
+      "tables": [
+        {
+          "name": "phase 1 expand",
+          "columns": [
+            "column",
+            "state"
+          ],
+          "rows": [
+            [
+              "full_name",
+              "live"
+            ],
+            [
+              "display_name",
+              "added, backfilled"
+            ]
+          ]
+        },
+        {
+          "name": "phase 2 migrate",
+          "columns": [
+            "writer",
+            "reader"
+          ],
+          "rows": [
+            [
+              "writes both columns",
+              "moved to display_name"
+            ]
+          ]
+        },
+        {
+          "name": "phase 3 contract",
+          "columns": [
+            "column",
+            "state"
+          ],
+          "rows": [
+            [
+              "full_name",
+              "dropped"
+            ],
+            [
+              "display_name",
+              "live"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "At no point does a reader query a column that does not exist — the break is dissolved into three safe steps",
+        "The backfill runs during expand while old readers still use full_name",
+        "Contract only ships after query logs show zero full_name references"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "dbt",
+      "postgresql"
+    ],
+    "position": 10
+  },
+  {
+    "slug": "additive-only-evolution",
+    "name": "Additive-only evolution",
+    "topic": "evolution",
+    "family": "migration-patterns",
+    "description": "The schema only ever gains optional fields; nothing is renamed, retyped or removed. Old fields are deprecated in docs and eventually ignored, never dropped. Boring, and therefore extremely reliable.",
+    "best_for": "Widely consumed schemas where any break is unacceptable and cleanup can wait",
+    "pros": [
+      "Compatibility holds in every direction by construction",
+      "No migration ceremonies — just deploys",
+      "Trivial to enforce in CI (reject any non-additive diff)"
+    ],
+    "cons": [
+      "Schemas accrete deprecated fields indefinitely",
+      "Naming mistakes are permanent (see: address_2_final_v3)",
+      "Deprecation without removal still confuses newcomers"
+    ],
+    "complexity": "low",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "A currency field is added with a default; the old iso_currency stays as a deprecated alias forever.",
+      "tables": [
+        {
+          "name": "orders schema",
+          "columns": [
+            "field",
+            "status"
+          ],
+          "rows": [
+            [
+              "order_id",
+              "active"
+            ],
+            [
+              "total",
+              "active"
+            ],
+            [
+              "iso_currency",
+              "deprecated 2024-06 — use currency"
+            ],
+            [
+              "currency (new, default USD)",
+              "active"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "Every consumer keeps working through the change because nothing they read was touched",
+        "The deprecated field costs storage and attention — the accepted price for never breaking anyone"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "avro",
+      "protobuf"
+    ],
+    "position": 20
+  },
+  {
+    "slug": "schema-versioning",
+    "name": "Schema versioning",
+    "topic": "evolution",
+    "family": "migration-patterns",
+    "description": "Incompatible generations live side by side as explicit versions — v1 and v2 topics, endpoints or table sets — with consumers migrating on their own schedule and the old version retired on a published sunset date.",
+    "best_for": "Deliberate breaking redesigns that additive evolution cannot express",
+    "pros": [
+      "Full redesign freedom inside the new version",
+      "Consumers migrate when ready, not when forced",
+      "Clear deprecation and sunset communication points"
+    ],
+    "cons": [
+      "Producers run and pay for both versions during the overlap",
+      "Version sprawl if sunsets are not enforced",
+      "Cross-version analytics needs mapping logic"
+    ],
+    "complexity": "medium",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "The redesigned order event ships as orders.v2 while v1 keeps flowing until sunset.",
+      "tables": [
+        {
+          "name": "streams",
+          "columns": [
+            "topic",
+            "schema",
+            "status"
+          ],
+          "rows": [
+            [
+              "orders.v1",
+              "flat totals",
+              "deprecated, sunset 2024-12-31"
+            ],
+            [
+              "orders.v2",
+              "line-item detail",
+              "active"
+            ]
+          ]
+        },
+        {
+          "name": "consumers",
+          "columns": [
+            "team",
+            "reads"
+          ],
+          "rows": [
+            [
+              "billing",
+              "v2 (migrated)"
+            ],
+            [
+              "legacy-reports",
+              "v1 (until Q4)"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The producer dual-publishes during the overlap window — the cost that buys consumer independence",
+        "The sunset date is published with the v2 launch, so v1 cannot linger unowned"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "apache-kafka",
+      "confluent-schema-registry"
+    ],
+    "position": 30
+  },
+  {
+    "slug": "data-contracts",
+    "name": "Data contracts",
+    "topic": "evolution",
+    "family": "migration-patterns",
+    "description": "Producer-owned, versioned agreements covering schema, semantics, quality expectations and SLAs — enforced in CI and at runtime so upstream app changes stop silently breaking downstream data. Evolution happens by negotiated contract change, not surprise.",
+    "best_for": "Organizations where producer app teams keep breaking downstream analytics",
+    "pros": [
+      "Breakage surfaces at the producer's build, not in the consumer's dashboard",
+      "Ownership and expectations are explicit and versioned",
+      "Contract diffs make schema review a normal code review"
+    ],
+    "cons": [
+      "Cultural change first, tooling second — producers must accept ownership",
+      "Contract maintenance is real ongoing work",
+      "Overly strict contracts slow legitimate iteration"
+    ],
+    "complexity": "medium",
+    "origin_year": 2022,
+    "originator": "Popularized by Chad Sanderson",
+    "example": {
+      "narrative": "The orders contract pins schema and freshness; a proposed field drop fails the producer's CI, not the consumer's dashboard.",
+      "tables": [
+        {
+          "name": "orders contract v1.3",
+          "columns": [
+            "clause",
+            "value"
+          ],
+          "rows": [
+            [
+              "owner",
+              "checkout-team"
+            ],
+            [
+              "field: order_id",
+              "string, required"
+            ],
+            [
+              "field: total",
+              "decimal, required, >= 0"
+            ],
+            [
+              "freshness",
+              "landed within 15 min"
+            ],
+            [
+              "change policy",
+              "additive only; breaks need 30-day notice"
+            ]
+          ]
+        },
+        {
+          "name": "CI check on producer PR",
+          "columns": [
+            "proposed change",
+            "result"
+          ],
+          "rows": [
+            [
+              "drop total",
+              "FAIL — violates contract"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The break is caught in the producer's pipeline while it is still cheap to fix",
+        "Semantics and SLAs live next to the schema — the contract covers what a type system cannot"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "confluent-schema-registry",
+      "avro",
+      "protobuf",
+      "great-expectations"
+    ],
+    "position": 40
+  },
+  {
+    "slug": "online-schema-change",
+    "name": "Online schema change",
+    "topic": "evolution",
+    "family": "migration-patterns",
+    "description": "Alter huge, hot tables without locking: build a shadow copy with the new schema, backfill in throttled batches while capturing ongoing writes, then atomically swap. The gh-ost / pt-online-schema-change playbook.",
+    "best_for": "Large OLTP tables where a blocking ALTER would mean an outage",
+    "pros": [
+      "No long table locks — the app keeps serving",
+      "Throttles and pauses under load",
+      "Cutover is atomic and revertible until the final swap"
+    ],
+    "cons": [
+      "Temporarily doubles the table's storage",
+      "Long backfills on very hot tables",
+      "Foreign keys and triggers complicate most tools"
+    ],
+    "complexity": "high",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "Adding a NOT NULL column to a 500M-row orders table via a shadow table and cutover.",
+      "tables": [
+        {
+          "name": "migration timeline",
+          "columns": [
+            "step",
+            "action",
+            "app impact"
+          ],
+          "rows": [
+            [
+              "1",
+              "create orders_shadow with new column",
+              "none"
+            ],
+            [
+              "2",
+              "backfill in 10k-row batches + capture live writes",
+              "throttled background load"
+            ],
+            [
+              "3",
+              "atomic rename: orders_shadow -> orders",
+              "sub-second"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "A plain ALTER would have locked the table for minutes; the shadow-copy path never blocks writes",
+        "Live writes during the hours-long backfill are captured and replayed so the shadow never falls behind"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "mysql",
+      "postgresql"
+    ],
+    "position": 50
+  },
+  {
+    "slug": "lakehouse-schema-evolution",
+    "name": "Lakehouse schema evolution",
+    "topic": "evolution",
+    "family": "migration-patterns",
+    "description": "Table formats like Delta, Iceberg and Hudi evolve schemas as metadata operations: add columns on merge, widen types, rename via column IDs — without rewriting data files. Guardrails matter: unchecked auto-merge turns typos into permanent columns.",
+    "best_for": "Continuously ingested lakehouse tables receiving drifting upstream schemas",
+    "pros": [
+      "Adding or renaming columns is a metadata-only operation",
+      "Old data files remain valid — no rewrite storms",
+      "Type widening and column-ID renames avoid classic Hive breakage"
+    ],
+    "cons": [
+      "Auto-merge happily absorbs upstream typos as new columns",
+      "Type support differs per format — widening rules need checking",
+      "Downstream marts still need their own evolution handling"
+    ],
+    "complexity": "medium",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "A new batch arrives with a channel column; mergeSchema admits it and old files simply read it as null.",
+      "tables": [
+        {
+          "name": "incoming batch (new column)",
+          "columns": [
+            "order_id",
+            "total",
+            "channel (new)"
+          ],
+          "rows": [
+            [
+              "1002",
+              "24.50",
+              "web"
+            ]
+          ]
+        },
+        {
+          "name": "table after merge",
+          "columns": [
+            "order_id",
+            "total",
+            "channel"
+          ],
+          "rows": [
+            [
+              "1001",
+              "9.98",
+              "null (old file, not rewritten)"
+            ],
+            [
+              "1002",
+              "24.50",
+              "web"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The evolution touched table metadata only — the 1001 data file on object storage was never rewritten",
+        "Auto-merge is enabled per pipeline, not globally, so a misspelled upstream column cannot silently join the schema"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "delta-lake",
+      "apache-iceberg",
+      "apache-hudi",
+      "databricks-sql"
+    ],
+    "position": 60
+  },
+  {
+    "slug": "event-upcasting",
+    "name": "Event upcasting",
+    "topic": "evolution",
+    "family": "migration-patterns",
+    "description": "In event-sourced systems the log is immutable, so old events are never rewritten — instead versioned upcasters transform each stored event to the current shape as it is read. The chain v1→v2→v3 lets decade-old events replay through today's code.",
+    "best_for": "Event-sourced systems whose event shapes must evolve over an immutable log",
+    "pros": [
+      "The immutable log stays untouched — audit guarantees hold",
+      "Replays work across every historical event version",
+      "Each upcaster is a small, testable pure function"
+    ],
+    "cons": [
+      "Upcaster chains grow with every schema generation",
+      "Read-path cost on every replay",
+      "Semantic drift is hard to express as a mechanical transform"
+    ],
+    "complexity": "high",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "A v1 event with a single name field is upcast to the v2 first/last shape during replay.",
+      "tables": [
+        {
+          "name": "stored event (v1, immutable)",
+          "columns": [
+            "seq",
+            "type",
+            "payload"
+          ],
+          "rows": [
+            [
+              "42",
+              "CustomerRegistered.v1",
+              "name=Alice Jones"
+            ]
+          ]
+        },
+        {
+          "name": "after upcaster v1->v2 (in memory)",
+          "columns": [
+            "type",
+            "payload"
+          ],
+          "rows": [
+            [
+              "CustomerRegistered.v2",
+              "first=Alice, last=Jones"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The stored bytes never change — the upcaster rewrites the event in memory on every read",
+        "Today's handlers only know v2; the upcaster chain shields them from every historical shape"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "apache-kafka"
+    ],
+    "position": 70
+  },
+  {
+    "slug": "csv",
+    "name": "CSV",
+    "topic": "serialization",
+    "family": "text-formats",
+    "description": "Comma-separated rows of text: the lowest common denominator of data exchange. No types, no schema, no nesting — and readable by absolutely everything, from spreadsheets to warehouses.",
+    "best_for": "Interoperable flat-table exchange with humans and legacy tools in the loop",
+    "pros": [
+      "Universally supported by every tool ever made",
+      "Human-readable and hand-editable",
+      "Streams and splits line by line",
+      "Trivial to produce from anything"
+    ],
+    "cons": [
+      "No types — everything is a string until parsed",
+      "No standard for quoting, encoding or embedded delimiters in practice",
+      "No nesting or schema",
+      "Verbose and slow for analytical scale"
+    ],
+    "complexity": "low",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "The order record as a header line plus one text row.",
+      "tables": [],
+      "decisions": [
+        "total arrives as the text 9.98 — whether it becomes a float, a decimal or a string is the reader's guess",
+        "A customer named 'Alice, Inc' would need quoting rules that differ per producer — the classic CSV failure mode",
+        "Chosen when the consumer is a human, a spreadsheet, or an unknown tool"
+      ],
+      "snippets": [
+        {
+          "name": "orders.csv",
+          "code": "order_id,customer,total\n1001,Alice,9.98"
+        }
+      ]
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "csv",
+      "duckdb",
+      "pandas"
+    ],
+    "position": 10
+  },
+  {
+    "slug": "json",
+    "name": "JSON",
+    "topic": "serialization",
+    "family": "text-formats",
+    "description": "The web's native object notation: nested, self-describing, human-readable text. The default for APIs and configuration — and a frequent, if inefficient, data-interchange workhorse.",
+    "best_for": "APIs and payloads where nesting, ubiquity and debuggability beat efficiency",
+    "pros": [
+      "Native to browsers and every language",
+      "Self-describing with real nesting",
+      "Human-readable for debugging",
+      "Schema optional (JSON Schema when needed)"
+    ],
+    "cons": [
+      "Field names repeated in every record — verbose",
+      "No date, decimal or binary types",
+      "Parsing cost at analytical volume",
+      "Number precision pitfalls (64-bit ints)"
+    ],
+    "complexity": "low",
+    "origin_year": 2001,
+    "originator": "Douglas Crockford",
+    "example": {
+      "narrative": "The order record as a self-describing object.",
+      "tables": [],
+      "decisions": [
+        "Every record carries its own field names — self-describing, but the names cost more bytes than the values",
+        "9.98 is an IEEE double in most parsers; money needs a string convention or a decimal-aware parser",
+        "Chosen when humans and heterogeneous clients read the payload directly"
+      ],
+      "snippets": [
+        {
+          "name": "order.json",
+          "code": "{\n  \"order_id\": 1001,\n  \"customer\": \"Alice\",\n  \"total\": 9.98,\n  \"items\": [\n    { \"sku\": \"PEN-01\", \"qty\": 2 }\n  ]\n}"
+        }
+      ]
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "json-ndjson",
+      "mongodb",
+      "rest"
+    ],
+    "position": 20
+  },
+  {
+    "slug": "ndjson",
+    "name": "NDJSON / JSON Lines",
+    "topic": "serialization",
+    "family": "text-formats",
+    "description": "One JSON object per line: keeps JSON's flexibility while restoring streamability and line-based splitting. The de facto format for logs, event exports and data-pipeline handoffs.",
+    "best_for": "Streaming and appending JSON records: logs, exports, pipeline handoffs",
+    "pros": [
+      "Appendable and streamable line by line",
+      "Splits cleanly for parallel processing",
+      "Each line fails or parses independently",
+      "Tooling-friendly (grep, head, warehouses load it natively)"
+    ],
+    "cons": [
+      "Inherits all of JSON's verbosity and typing gaps",
+      "No cross-record schema enforcement",
+      "A single record cannot span lines (no pretty-printing)"
+    ],
+    "complexity": "low",
+    "origin_year": null,
+    "originator": null,
+    "example": {
+      "narrative": "Two orders as two independent lines — appendable forever.",
+      "tables": [],
+      "decisions": [
+        "A plain JSON array would need the whole file parsed at once; one-object-per-line streams and tails",
+        "A corrupt line 2 loses one record, not the file",
+        "Chosen for event exports and log shipping where producers append continuously"
+      ],
+      "snippets": [
+        {
+          "name": "orders.ndjson",
+          "code": "{\"order_id\": 1001, \"customer\": \"Alice\", \"total\": 9.98}\n{\"order_id\": 1002, \"customer\": \"Bob\", \"total\": 24.50}"
+        }
+      ]
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "json-ndjson",
+      "bigquery",
+      "duckdb"
+    ],
+    "position": 30
+  },
+  {
+    "slug": "xml",
+    "name": "XML",
+    "topic": "serialization",
+    "family": "text-formats",
+    "description": "The enterprise markup veteran: verbose, deeply structured text with mature schema (XSD), namespaces, and transformation tooling (XPath/XSLT). Still the contract language of B2B, finance and government integrations.",
+    "best_for": "Enterprise/B2B contracts where XSD validation and namespaces are required",
+    "pros": [
+      "Industrial-strength schema validation (XSD)",
+      "Namespaces for mixing vocabularies",
+      "Mature query/transform stack (XPath, XSLT)",
+      "Entrenched standards (SOAP, HL7, ISO 20022)"
+    ],
+    "cons": [
+      "Extremely verbose — tags often outweigh data",
+      "Attribute-vs-element ambiguity complicates mapping",
+      "Slow to parse at data-pipeline scale",
+      "Developer ergonomics long since lost to JSON"
+    ],
+    "complexity": "medium",
+    "origin_year": 1998,
+    "originator": "W3C",
+    "example": {
+      "narrative": "The order record wrapped in named tags.",
+      "tables": [],
+      "decisions": [
+        "The currency lives as an attribute — richer than JSON, at the cost of two ways to model every fact",
+        "An XSD can enforce that total is a decimal with two fraction digits — validation JSON only gets via extra tooling",
+        "Chosen when the counterparty's integration contract says XSD, which in B2B it often still does"
+      ],
+      "snippets": [
+        {
+          "name": "order.xml",
+          "code": "<order id=\"1001\">\n  <customer>Alice</customer>\n  <total currency=\"USD\">9.98</total>\n</order>"
+        }
+      ]
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "xml",
+      "soap",
+      "hl7-fhir"
+    ],
+    "position": 40
+  },
+  {
+    "slug": "yaml",
+    "name": "YAML",
+    "topic": "serialization",
+    "family": "text-formats",
+    "description": "Whitespace-structured superset of JSON optimized for human authoring: comments, anchors, multi-line strings. The configuration lingua franca (Kubernetes, CI) — almost never a data-interchange format.",
+    "best_for": "Human-authored configuration; not a data-exchange format",
+    "pros": [
+      "Most human-writable of the text formats",
+      "Comments — the killer feature over JSON",
+      "Anchors and references reduce repetition",
+      "Superset of JSON (valid JSON is valid YAML)"
+    ],
+    "cons": [
+      "Whitespace sensitivity breeds subtle bugs",
+      "Implicit typing surprises (the Norway problem: no becomes false)",
+      "Slow parsing, multiple spec versions",
+      "Wrong tool for machine-to-machine data volumes"
+    ],
+    "complexity": "low",
+    "origin_year": 2001,
+    "originator": "Clark Evans, Ingy döt Net & Oren Ben-Kiki",
+    "example": {
+      "narrative": "The order as YAML — fine for a fixture file, wrong for a pipeline.",
+      "tables": [],
+      "decisions": [
+        "The inline comment is why config lives in YAML and not JSON",
+        "If the customer were named NO, YAML 1.1 parsers would read a boolean — implicit typing bites real data",
+        "Chosen for files humans edit; data pipelines should hand off NDJSON/Parquet instead"
+      ],
+      "snippets": [
+        {
+          "name": "order.yaml",
+          "code": "order_id: 1001\ncustomer: Alice  # VIP\ntotal: 9.98"
+        }
+      ]
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "kubernetes",
+      "helm",
+      "github-actions"
+    ],
+    "position": 50
+  },
+  {
+    "slug": "avro",
+    "name": "Avro",
+    "topic": "serialization",
+    "family": "binary-row-formats",
+    "description": "Row-oriented binary format built around schema evolution: data is written compactly without field tags, and readers resolve writer schema against reader schema at read time. The default of the Kafka/schema-registry ecosystem.",
+    "best_for": "Kafka event streams and data lakes needing first-class schema evolution",
+    "pros": [
+      "Best-in-class schema evolution (writer/reader resolution)",
+      "Compact: no per-field tags or names in the data",
+      "Schema travels with the file or lives in a registry",
+      "Dynamic — no code generation required"
+    ],
+    "cons": [
+      "Needs the writer schema to read anything",
+      "Row layout — poor for analytical column scans",
+      "JSON schema definitions get unwieldy",
+      "Slower than tag-based formats for sparse reads"
+    ],
+    "complexity": "medium",
+    "origin_year": 2009,
+    "originator": "Doug Cutting (Apache)",
+    "example": {
+      "narrative": "The schema is declared once; the record on the wire is just values.",
+      "tables": [
+        {
+          "name": "encoded record (concept)",
+          "columns": [
+            "bytes",
+            "meaning"
+          ],
+          "rows": [
+            [
+              "0xD2 0x0F",
+              "order_id 1001 (zigzag varint)"
+            ],
+            [
+              "0x0A Alice",
+              "length-prefixed string"
+            ],
+            [
+              "8 bytes",
+              "total 9.98"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "No field names or tags in the payload — the schema supplies them, so a million records pay the naming cost once",
+        "A v2 reader with an added default field resolves v1 data automatically — evolution is the design center",
+        "Chosen when events outlive code versions: Kafka topics, lake landing zones"
+      ],
+      "snippets": [
+        {
+          "name": "order.avsc (writer schema v1)",
+          "code": "{\n  \"type\": \"record\",\n  \"name\": \"Order\",\n  \"fields\": [\n    { \"name\": \"order_id\", \"type\": \"long\" },\n    { \"name\": \"customer\", \"type\": \"string\" },\n    { \"name\": \"total\", \"type\": \"double\" }\n  ]\n}"
+        }
+      ]
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "avro",
+      "apache-kafka",
+      "confluent-schema-registry"
+    ],
+    "position": 10
+  },
+  {
+    "slug": "protobuf",
+    "name": "Protocol Buffers",
+    "topic": "serialization",
+    "family": "binary-row-formats",
+    "description": "Google's tag-based binary format: fields are numbered in a .proto contract, compiled to native code, and encoded as tag-value pairs. The backbone of gRPC and the strictest widely-used wire contract.",
+    "best_for": "Service-to-service RPC contracts (gRPC) with strong typing and codegen",
+    "pros": [
+      "Very fast, very compact tag-based encoding",
+      "Generated code gives compile-time type safety",
+      "Unknown fields skip cleanly — forward-friendly",
+      "Massive multi-language ecosystem via gRPC"
+    ],
+    "cons": [
+      "Codegen build step in every consumer",
+      "Field numbers are forever — renumbering breaks the wire",
+      "Not self-describing; useless without the .proto",
+      "Poor fit for ad-hoc analytics"
+    ],
+    "complexity": "medium",
+    "origin_year": 2008,
+    "originator": "Google",
+    "example": {
+      "narrative": "Fields carry numbers, not names — the wire is tag-value pairs.",
+      "tables": [
+        {
+          "name": "wire (concept)",
+          "columns": [
+            "bytes",
+            "meaning"
+          ],
+          "rows": [
+            [
+              "tag 1 + varint",
+              "order_id 1001"
+            ],
+            [
+              "tag 2 + len + Alice",
+              "customer"
+            ],
+            [
+              "tag 3 + 8 bytes",
+              "total"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The tag numbers are the contract: renaming customer is free, renumbering it corrupts every stored message",
+        "An old reader hitting a new field skips it by tag — forward compatibility built into the encoding",
+        "Chosen when both ends are services you compile — the codegen tax buys type safety"
+      ],
+      "snippets": [
+        {
+          "name": "order.proto",
+          "code": "syntax = \"proto3\";\n\nmessage Order {\n  int64 order_id = 1;\n  string customer = 2;\n  double total = 3;\n}"
+        }
+      ]
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "protobuf",
+      "grpc",
+      "confluent-schema-registry"
+    ],
+    "position": 20
+  },
+  {
+    "slug": "thrift",
+    "name": "Apache Thrift",
+    "topic": "serialization",
+    "family": "binary-row-formats",
+    "description": "Facebook's RPC-plus-serialization framework: an IDL, pluggable binary protocols and transport layers, and generated clients/servers. Protobuf's older sibling — still embedded in big-data infrastructure (Hive, HBase).",
+    "best_for": "Legacy RPC estates and big-data infra that already speaks Thrift",
+    "pros": [
+      "IDL + codegen across many languages",
+      "Pluggable protocols (binary, compact) and transports",
+      "Full RPC framework included, not just encoding",
+      "Entrenched in Hadoop-era infrastructure"
+    ],
+    "cons": [
+      "Ecosystem momentum lost to gRPC/Protobuf",
+      "Fragmented protocol variants complicate interop",
+      "Weaker tooling and docs than Protobuf",
+      "Same not-self-describing constraints"
+    ],
+    "complexity": "medium",
+    "origin_year": 2007,
+    "originator": "Facebook",
+    "example": {
+      "narrative": "Same numbered-field idea as Protobuf, with the RPC service in the same IDL.",
+      "tables": [],
+      "decisions": [
+        "The same file can declare service OrderService — Thrift bundles what gRPC splits into proto + service definition",
+        "Chosen today mostly by systems that already depend on it (the Hive metastore protocol is Thrift)"
+      ],
+      "snippets": [
+        {
+          "name": "order.thrift",
+          "code": "struct Order {\n  1: i64 orderId,\n  2: string customer,\n  3: double total\n}"
+        }
+      ]
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "thrift",
+      "hive-metastore",
+      "hbase"
+    ],
+    "position": 30
+  },
+  {
+    "slug": "messagepack",
+    "name": "MessagePack",
+    "topic": "serialization",
+    "family": "binary-row-formats",
+    "description": "\"Binary JSON\": the same data model as JSON, encoded compactly with type markers instead of text. Schemaless, self-describing, and a drop-in efficiency upgrade wherever JSON is the bottleneck.",
+    "best_for": "Drop-in JSON replacement for caches, queues and internal APIs",
+    "pros": [
+      "Same data model as JSON — trivial migration",
+      "Self-describing, no schema or codegen",
+      "Much smaller and faster than JSON text",
+      "Wide language support"
+    ],
+    "cons": [
+      "Field names still repeated per record (unlike Avro/Protobuf)",
+      "No schema means no contract enforcement",
+      "Not human-readable",
+      "No columnar or analytical story"
+    ],
+    "complexity": "low",
+    "origin_year": 2008,
+    "originator": "Sadayuki Furuhashi",
+    "example": {
+      "narrative": "The order as typed binary markers instead of text.",
+      "tables": [
+        {
+          "name": "encoding (concept)",
+          "columns": [
+            "element",
+            "encoding"
+          ],
+          "rows": [
+            [
+              "map header",
+              "3 fields"
+            ],
+            [
+              "order_id",
+              "uint16 marker + 1001"
+            ],
+            [
+              "customer",
+              "fixstr marker + Alice"
+            ],
+            [
+              "total",
+              "float64 marker + 9.98"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "9.98 carries a float64 type marker — the type ambiguity of JSON text is gone, without adopting a schema",
+        "Field names still travel with every record: compact JSON, not a contract format",
+        "Chosen for hot paths (cache values, queue payloads) where JSON parsing shows up in profiles"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "redis",
+      "rabbitmq"
+    ],
+    "position": 40
+  },
+  {
+    "slug": "bson",
+    "name": "BSON",
+    "topic": "serialization",
+    "family": "binary-row-formats",
+    "description": "MongoDB's storage and wire format: JSON's model plus extra types (dates, ObjectId, binary, decimal128) with length prefixes for fast traversal. Designed for in-place scanning and updating, not minimal size.",
+    "best_for": "MongoDB's native ecosystem; rich types over raw compactness",
+    "pros": [
+      "Real types JSON lacks: dates, decimal128, binary",
+      "Length prefixes allow fast field skipping",
+      "Traversable and updatable in place",
+      "Native to the entire MongoDB toolchain"
+    ],
+    "cons": [
+      "Often larger than JSON (length prefixes cost bytes)",
+      "Little adoption outside MongoDB",
+      "Field names still stored per document",
+      "Not an analytical format"
+    ],
+    "complexity": "low",
+    "origin_year": 2009,
+    "originator": "MongoDB",
+    "example": {
+      "narrative": "The order with genuinely typed fields.",
+      "tables": [
+        {
+          "name": "order document",
+          "columns": [
+            "field",
+            "BSON type"
+          ],
+          "rows": [
+            [
+              "_id",
+              "ObjectId"
+            ],
+            [
+              "order_id",
+              "int64"
+            ],
+            [
+              "customer",
+              "string"
+            ],
+            [
+              "total",
+              "decimal128"
+            ],
+            [
+              "placed_at",
+              "UTC datetime"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "total can be decimal128 — exact money, a type JSON text simply does not have",
+        "Length-prefixed fields let the engine jump to placed_at without parsing everything before it",
+        "Chosen implicitly by choosing MongoDB; rarely picked as a standalone format"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "mongodb",
+      "amazon-documentdb"
+    ],
+    "position": 50
+  },
+  {
+    "slug": "capnproto",
+    "name": "Cap'n Proto",
+    "topic": "serialization",
+    "family": "binary-row-formats",
+    "description": "\"Infinitely faster\" serialization: the wire format is the in-memory format, so there is no encode/decode step at all — plus a capability-based RPC system with promise pipelining. From Protobuf's original author.",
+    "best_for": "Latency-critical paths where deserialization itself is the bottleneck",
+    "pros": [
+      "Zero-copy: read fields directly from the buffer",
+      "mmap-friendly — random access into huge files",
+      "RPC with promise pipelining",
+      "Schema evolution via slot layout"
+    ],
+    "cons": [
+      "Smaller community and tooling than Protobuf",
+      "Fixed layout can waste space (padding) without packing",
+      "Zero-copy benefits vanish once you transform the data",
+      "Fewer language implementations"
+    ],
+    "complexity": "high",
+    "origin_year": 2013,
+    "originator": "Kenton Varda",
+    "example": {
+      "narrative": "The buffer on the wire is the struct in memory.",
+      "tables": [
+        {
+          "name": "access pattern",
+          "columns": [
+            "step",
+            "cost"
+          ],
+          "rows": [
+            [
+              "receive buffer",
+              "one read"
+            ],
+            [
+              "read total",
+              "pointer arithmetic, no parse"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "Reading total is a memory offset lookup — there is no deserialization step to profile",
+        "The @N slot numbers play the role of Protobuf tags for evolution",
+        "Chosen when profiling shows decode time itself is the cost worth engineering away"
+      ],
+      "snippets": [
+        {
+          "name": "order.capnp",
+          "code": "struct Order {\n  orderId @0 :Int64;\n  customer @1 :Text;\n  total @2 :Float64;\n}"
+        }
+      ]
+    },
+    "diagram": "",
+    "related_technology_slugs": [],
+    "position": 60
+  },
+  {
+    "slug": "flatbuffers",
+    "name": "FlatBuffers",
+    "topic": "serialization",
+    "family": "binary-row-formats",
+    "description": "Google's zero-copy answer for games and mobile: access serialized data without unpacking, with optional fields via vtables. Trades ergonomics for absolute read-path efficiency on constrained devices.",
+    "best_for": "Games, mobile and embedded reads of static data without parse cost",
+    "pros": [
+      "Zero-copy reads with tiny memory footprint",
+      "vtables make optional fields cheap",
+      "Random access into nested data",
+      "Strong C++/game-engine ecosystem"
+    ],
+    "cons": [
+      "Builder API is awkward — construction is inside-out",
+      "Mutation effectively means rebuilding",
+      "Less compact than Protobuf for sparse data",
+      "Niche outside games/embedded"
+    ],
+    "complexity": "high",
+    "origin_year": 2014,
+    "originator": "Google",
+    "example": {
+      "narrative": "Read fields from the buffer through vtable offsets — no unpack step.",
+      "tables": [
+        {
+          "name": "read path",
+          "columns": [
+            "step",
+            "work"
+          ],
+          "rows": [
+            [
+              "load buffer",
+              "one allocation or mmap"
+            ],
+            [
+              "order.total()",
+              "vtable offset lookup"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The vtable indirection is what makes missing optional fields cost nothing",
+        "Construction happens bottom-up through a builder — the price paid at write time for free reads",
+        "Chosen for asset/config data shipped to millions of devices that only ever read it"
+      ],
+      "snippets": [
+        {
+          "name": "order.fbs",
+          "code": "table Order {\n  order_id: int64;\n  customer: string;\n  total: double;\n}\nroot_type Order;"
+        }
+      ]
+    },
+    "diagram": "",
+    "related_technology_slugs": [],
+    "position": 70
+  },
+  {
+    "slug": "parquet",
+    "name": "Parquet",
+    "topic": "serialization",
+    "family": "columnar-formats",
+    "description": "The analytical storage standard: columnar layout in row groups with per-column compression, encodings and min/max statistics. Every warehouse, lakehouse and query engine reads it; table formats (Iceberg, Delta) build on it.",
+    "best_for": "Analytical scans over object storage reading few columns of many rows",
+    "pros": [
+      "Columnar: scan only the columns a query touches",
+      "Excellent compression per column (dictionary, RLE)",
+      "Predicate pushdown via row-group min/max stats",
+      "Universal engine support; foundation of lakehouse formats"
+    ],
+    "cons": [
+      "Immutable — updates mean rewriting files",
+      "Poor fit for single-record lookups and streaming appends",
+      "Small-file proliferation hurts performance",
+      "Write path costs more than row formats"
+    ],
+    "complexity": "medium",
+    "origin_year": 2013,
+    "originator": "Twitter & Cloudera",
+    "example": {
+      "narrative": "A million orders stored column-by-column instead of row-by-row.",
+      "tables": [
+        {
+          "name": "row group layout",
+          "columns": [
+            "column chunk",
+            "content",
+            "stats"
+          ],
+          "rows": [
+            [
+              "order_id",
+              "1001, 1002, ...",
+              "min 1001 / max 999999"
+            ],
+            [
+              "customer",
+              "Alice, Bob, ... (dictionary)",
+              "-"
+            ],
+            [
+              "total",
+              "9.98, 24.50, ...",
+              "min 0.99 / max 480.00"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "SELECT sum(total) reads exactly one column chunk of the file — the other columns are never fetched",
+        "WHERE total > 500 skips this whole row group via the max stat before reading any data",
+        "Chosen for anything analytical at rest; the answer to 'how should I store data in S3' is usually Parquet"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "parquet",
+      "duckdb",
+      "apache-spark",
+      "apache-iceberg",
+      "delta-lake"
+    ],
+    "position": 10
+  },
+  {
+    "slug": "orc",
+    "name": "ORC",
+    "topic": "serialization",
+    "family": "columnar-formats",
+    "description": "Parquet's Hive-native sibling: columnar stripes with indexes, aggressive compression, and ACID support inside the Hive ecosystem. Technically excellent, ecosystem-bound.",
+    "best_for": "Hive/Trino-centric platforms already standardized on ORC",
+    "pros": [
+      "Often better compression than Parquet",
+      "Stripe-level indexes and bloom filters",
+      "ACID transaction support within Hive",
+      "First-class in Hive/Trino"
+    ],
+    "cons": [
+      "Ecosystem far narrower than Parquet's",
+      "Second-class in Spark/cloud-native tooling",
+      "Same immutability constraints as any columnar file",
+      "Choosing it outside Hive estates adds friction"
+    ],
+    "complexity": "medium",
+    "origin_year": 2013,
+    "originator": "Hortonworks",
+    "example": {
+      "narrative": "Same columnar idea as Parquet, organized into indexed stripes.",
+      "tables": [
+        {
+          "name": "stripe layout",
+          "columns": [
+            "section",
+            "content"
+          ],
+          "rows": [
+            [
+              "index data",
+              "min/max per 10k rows + bloom filters"
+            ],
+            [
+              "column data",
+              "order_id, customer, total streams"
+            ],
+            [
+              "stripe footer",
+              "encoding info"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "The row-index granularity (every 10k rows) lets ORC skip inside a stripe, finer than Parquet's row-group stats",
+        "Chosen mostly by inheritance: platforms built on Hive standardized on ORC and it remains excellent there"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "orc",
+      "hive-metastore",
+      "trino"
+    ],
+    "position": 20
+  },
+  {
+    "slug": "arrow",
+    "name": "Apache Arrow",
+    "topic": "serialization",
+    "family": "columnar-formats",
+    "description": "The in-memory columnar standard: a language-independent memory layout that engines share without conversion, plus IPC/Flight for shipping it. Not a storage format — the zero-copy interchange layer between systems.",
+    "best_for": "Zero-copy data interchange between engines, languages and processes",
+    "pros": [
+      "Zero-copy sharing across languages and engines",
+      "Vectorized, SIMD-friendly layout",
+      "Flight SQL moves data orders faster than ODBC rows",
+      "Backbone of pandas 2, DuckDB, Polars interop"
+    ],
+    "cons": [
+      "Memory-oriented — not a compression-first storage format",
+      "Uncompressed footprint larger than Parquet",
+      "Ecosystem still consolidating on higher-level APIs"
+    ],
+    "complexity": "medium",
+    "origin_year": 2016,
+    "originator": "Apache (Wes McKinney & Jacques Nadeau)",
+    "example": {
+      "narrative": "The order batch as shared memory buffers no engine re-parses.",
+      "tables": [
+        {
+          "name": "record batch (1M orders)",
+          "columns": [
+            "buffer",
+            "content"
+          ],
+          "rows": [
+            [
+              "order_id",
+              "contiguous int64 vector"
+            ],
+            [
+              "customer",
+              "offsets + UTF-8 data"
+            ],
+            [
+              "total",
+              "contiguous float64 vector"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "DuckDB queries the same buffers pandas holds — no serialize/deserialize hop between them",
+        "The columnar vectors are what SIMD kernels want; the layout is the optimization",
+        "Chosen at the boundaries: engine-to-engine, process-to-process, client-to-server (Flight)"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "arrow",
+      "pyarrow",
+      "arrow-flight-sql",
+      "duckdb",
+      "polars"
+    ],
+    "position": 30
+  },
+  {
+    "slug": "lance",
+    "name": "Lance",
+    "topic": "serialization",
+    "family": "columnar-formats",
+    "description": "A modern columnar format built for ML data: fast random access (unlike Parquet), native vector-embedding columns and indexes, and built-in versioning. The storage layer under LanceDB.",
+    "best_for": "ML datasets mixing embeddings, blobs and metadata with random access",
+    "pros": [
+      "100x faster random row access than Parquet",
+      "Native vector columns with ANN indexing",
+      "Zero-copy versioning for dataset evolution",
+      "Arrow-compatible in memory"
+    ],
+    "cons": [
+      "Young format, small ecosystem",
+      "Not a warehouse-interchange standard",
+      "Engine support largely limited to the Lance stack"
+    ],
+    "complexity": "medium",
+    "origin_year": 2022,
+    "originator": "LanceDB",
+    "example": {
+      "narrative": "Orders enriched with an embedding column for similarity search.",
+      "tables": [
+        {
+          "name": "orders.lance",
+          "columns": [
+            "column",
+            "type"
+          ],
+          "rows": [
+            [
+              "order_id",
+              "int64"
+            ],
+            [
+              "customer",
+              "string"
+            ],
+            [
+              "total",
+              "float64"
+            ],
+            [
+              "review_embedding",
+              "vector(768) + ANN index"
+            ]
+          ]
+        }
+      ],
+      "decisions": [
+        "Fetching row 421 337 is fast — Parquet would decode a whole row group for that single row",
+        "The embedding column is a first-class type with its own index, not a float array convention",
+        "Chosen for training/eval datasets where you sample rows and search vectors, not scan aggregates"
+      ],
+      "snippets": []
+    },
+    "diagram": "",
+    "related_technology_slugs": [
+      "lancedb",
+      "pyarrow"
+    ],
+    "position": 40
+  }
+]

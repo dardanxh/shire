@@ -1,0 +1,164 @@
+{
+  "slug": "classic-batch-etl",
+  "name": "Classic batch ETL",
+  "use_case": "Transform-before-load into a governed target",
+  "description": "The traditional pattern: extract from sources on a schedule, transform in a dedicated compute layer, and load only conformed, validated data into the target. Transformation happens before load, so the target never sees raw data — which is exactly what regulated or contract-bound targets often require. An orchestrator sequences the extract-transform-load DAG and a data-testing framework gates each hop, giving a well-understood, auditable pipeline shape that decades of tooling and hiring markets are built around.",
+  "when_to_use": [
+    "Choose this when the target must only ever contain clean, conformed data — regulatory constraints, a shared enterprise warehouse with strict contracts, or a downstream system that cannot tolerate raw-schema churn.",
+    "It also fits when transformations are compute-heavy or procedural in ways SQL handles poorly, so a Spark layer earns its keep.",
+    "Teams with existing Spark or JVM expertise get productive fastest here."
+  ],
+  "when_not_to_use": [
+    "Avoid it for greenfield analytics on a modern cloud warehouse — ELT (blueprint 2) is simpler, cheaper to operate, and keeps raw data replayable.",
+    "The transform-before-load shape means any logic change forces re-extraction from sources, which becomes painful as models multiply.",
+    "Small teams without Spark skills will spend more time on cluster plumbing than on the data."
+  ],
+  "use_cases": [
+    "reporting",
+    "compliance",
+    "integration"
+  ],
+  "hot_spots": [
+    {
+      "title": "Transformation step",
+      "detail": "Business logic buried in opaque ETL jobs is hard to test and becomes tribal knowledge."
+    },
+    {
+      "title": "Batch window",
+      "detail": "Growing volumes silently overrun the nightly window and reports arrive late."
+    },
+    {
+      "title": "Quality gates",
+      "detail": "Weak boundary tests let one bad batch poison the governed warehouse."
+    },
+    {
+      "title": "Orchestration",
+      "detail": "Missing retry and backfill design turns every failure into a manual firefight."
+    }
+  ],
+  "complexity": "medium",
+  "evolution": [
+    {
+      "to_slug": "elt-modern-data-stack",
+      "reason": "Move transforms into the warehouse and retire bespoke ETL tooling."
+    },
+    {
+      "to_slug": "medallion-lakehouse",
+      "reason": "Replace staging + ETL with open-format layered refinement."
+    }
+  ],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw batches| EX[Extraction]:::process\n  EX -->|landed files| STG[Staging Area]:::store\n  STG -->|validated input| TR[Transformation]:::process\n  TR -->|conformed data| LD[Bulk Load]:::process\n  LD -->|governed tables| WH[Enterprise Warehouse]:::store\n  WH -->|reports and marts| CONS[Business Consumers]:::serve\n  ORCH[Orchestration]:::govern -. schedules and retries .-> EX\n  ORCH -. run order .-> TR\n  QA[Quality Gates]:::govern -. pass or fail checks .-> LD"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  SRC[Source Systems]:::source -->|scheduled extracts| EXT[Extraction Jobs]:::process\n  EXT -->|raw batch files| STG[Staging Storage]:::store\n  STG -->|clean records| ENG[Transformation Engine]:::process\n  ENG -->|conformed datasets| LDR[Warehouse Bulk Loader]:::process\n  LDR -->|fact and dim tables| WH[Enterprise Warehouse]:::store\n  WH -->|queries| BI[BI Layer]:::serve\n  WF[Workflow Orchestrator]:::govern -. DAG triggers .-> EXT\n  DQ[Data Quality Suite]:::govern -. boundary tests .-> ENG"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([source records]):::source -->|extract nightly| B([raw batch files]):::store\n  B -->|validate and cleanse| C([clean records]):::process\n  C -->|apply business rules| E([conformed datasets]):::store\n  E -->|bulk load| F([governed tables]):::store\n  F -->|aggregate| G([reports and marts]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant S as Scheduler\n  participant E as Extractor\n  participant T as Transformer\n  participant Q as Quality Gate\n  participant L as Loader\n  participant W as Warehouse\n  S->>E: nightly trigger 02:00\n  E->>E: pull from sources\n  E-->>S: raw batch landed\n  S->>T: run transformations\n  T->>Q: validate outputs\n  Q-->>S: checks passed\n  S->>L: bulk load window\n  L->>W: publish governed tables"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw batches| EX[\"AWS Glue<br/><i>Extraction</i>\"]:::process\n  EX -->|landed files| STG[\"Amazon S3<br/><i>Staging Area</i>\"]:::store\n  STG -->|validated input| TR[\"AWS Glue Studio<br/><i>Transformation</i>\"]:::process\n  TR -->|conformed data| LD[\"Redshift COPY<br/><i>Bulk Load</i>\"]:::process\n  LD -->|governed tables| WH[\"Amazon Redshift<br/><i>Enterprise Warehouse</i>\"]:::store\n  WH -->|reports and marts| CONS[Business Consumers]:::serve\n  ORCH[\"AWS Step Functions<br/><i>Orchestration</i>\"]:::govern -. schedules and retries .-> EX\n  ORCH -. run order .-> TR\n  QA[\"AWS Glue Data Quality<br/><i>Quality Gates</i>\"]:::govern -. pass or fail checks .-> LD"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw batches| EX[\"Azure Data Factory<br/><i>Extraction</i>\"]:::process\n  EX -->|landed files| STG[\"Azure Data Lake Storage<br/><i>Staging Area</i>\"]:::store\n  STG -->|validated input| TR[\"ADF Mapping Data Flows<br/><i>Transformation</i>\"]:::process\n  TR -->|conformed data| LD[\"Synapse COPY INTO<br/><i>Bulk Load</i>\"]:::process\n  LD -->|governed tables| WH[\"Azure Synapse Analytics<br/><i>Enterprise Warehouse</i>\"]:::store\n  WH -->|reports and marts| CONS[Business Consumers]:::serve\n  ORCH[\"Azure Data Factory<br/><i>Orchestration</i>\"]:::govern -. schedules and retries .-> EX\n  ORCH -. run order .-> TR\n  QA[\"Microsoft Purview Data Quality<br/><i>Quality Gates</i>\"]:::govern -. pass or fail checks .-> LD"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw batches| EX[\"Google Cloud Data Fusion<br/><i>Extraction</i>\"]:::process\n  EX -->|landed files| STG[\"Google Cloud Storage<br/><i>Staging Area</i>\"]:::store\n  STG -->|validated input| TR[\"Google Cloud Dataflow<br/><i>Transformation</i>\"]:::process\n  TR -->|conformed data| LD[\"BigQuery load jobs<br/><i>Bulk Load</i>\"]:::process\n  LD -->|governed tables| WH[\"BigQuery<br/><i>Enterprise Warehouse</i>\"]:::store\n  WH -->|reports and marts| CONS[Business Consumers]:::serve\n  ORCH[\"Cloud Composer<br/><i>Orchestration</i>\"]:::govern -. schedules and retries .-> EX\n  ORCH -. run order .-> TR\n  QA[\"Dataplex Data Quality<br/><i>Quality Gates</i>\"]:::govern -. pass or fail checks .-> LD"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw batches| EX[\"Apache NiFi · Airbyte<br/><i>Extraction</i>\"]:::process\n  EX -->|landed files| STG[\"MinIO<br/><i>Staging Area</i>\"]:::store\n  STG -->|validated input| TR[\"Apache Spark<br/><i>Transformation</i>\"]:::process\n  TR -->|conformed data| LD[\"ClickHouse bulk insert<br/><i>Bulk Load</i>\"]:::process\n  LD -->|governed tables| WH[\"ClickHouse<br/><i>Enterprise Warehouse</i>\"]:::store\n  WH -->|reports and marts| CONS[Business Consumers]:::serve\n  ORCH[\"Apache Airflow · Dagster<br/><i>Orchestration</i>\"]:::govern -. schedules and retries .-> EX\n  ORCH -. run order .-> TR\n  QA[\"Great Expectations · Soda<br/><i>Quality Gates</i>\"]:::govern -. pass or fail checks .-> LD"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw batches| EX[\"Talend · Matillion<br/><i>Extraction</i>\"]:::process\n  EX -->|landed files| STG[\"Snowflake stage<br/><i>Staging Area</i>\"]:::store\n  STG -->|validated input| TR[\"Talend · Matillion<br/><i>Transformation</i>\"]:::process\n  TR -->|conformed data| LD[\"Snowflake COPY INTO<br/><i>Bulk Load</i>\"]:::process\n  LD -->|governed tables| WH[\"Snowflake<br/><i>Enterprise Warehouse</i>\"]:::store\n  WH -->|reports and marts| CONS[Business Consumers]:::serve\n  ORCH[\"Apache Airflow<br/><i>Orchestration</i>\"]:::govern -. schedules and retries .-> EX\n  ORCH -. run order .-> TR\n  QA[\"Soda · Monte Carlo<br/><i>Quality Gates</i>\"]:::govern -. pass or fail checks .-> LD"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw batches| EX[\"LakeFlow Connect<br/><i>Extraction</i>\"]:::process\n  EX -->|landed files| STG[\"Delta Lake on object storage<br/><i>Staging Area</i>\"]:::store\n  STG -->|validated input| TR[\"Databricks Notebooks<br/><i>Transformation</i>\"]:::process\n  TR -->|conformed data| LD[\"Delta MERGE<br/><i>Bulk Load</i>\"]:::process\n  LD -->|governed tables| WH[\"Databricks SQL<br/><i>Enterprise Warehouse</i>\"]:::store\n  WH -->|reports and marts| CONS[Business Consumers]:::serve\n  ORCH[\"Databricks Workflows<br/><i>Orchestration</i>\"]:::govern -. schedules and retries .-> EX\n  ORCH -. run order .-> TR\n  QA[\"Delta Live Tables expectations<br/><i>Quality Gates</i>\"]:::govern -. pass or fail checks .-> LD"
+    }
+  ],
+  "family_tags": [
+    "transformation-modelling",
+    "orchestration-dataops"
+  ],
+  "archetype_slugs": [
+    "etl-pipeline-build",
+    "batch-data-extraction",
+    "data-testing-framework-adoption"
+  ],
+  "position": 1,
+  "stages": [
+    {
+      "position": 0,
+      "name": "Extract",
+      "role": "Pull data from operational sources into a staging area on a schedule",
+      "recommended_technology_slug": "airbyte",
+      "alternative_technology_slugs": [
+        "meltano",
+        "dlt",
+        "singer"
+      ],
+      "rationale": "Airbyte's connector catalog covers most databases and SaaS sources, and self-hosting keeps extraction inside your network boundary — often a requirement in the environments that choose ETL over ELT. Meltano wins when you want extraction fully in-repo and CI-managed; dlt wins when your sources are odd enough that writing Python beats fighting a connector UI."
+    },
+    {
+      "position": 1,
+      "name": "Transform",
+      "role": "Apply cleansing, conformance, and business rules before any data reaches the target",
+      "recommended_technology_slug": "apache-spark",
+      "alternative_technology_slugs": [
+        "polars",
+        "pandas",
+        "talend"
+      ],
+      "rationale": "Spark handles arbitrary data volumes, complex procedural logic, and non-tabular inputs that pre-load transformation tends to involve, and its ecosystem (EMR, Dataproc, Databricks) means you rarely operate it bare. Polars or pandas win decisively when data fits on one machine — most 'big data' does — with far less operational weight. Talend fits shops that want a supported, GUI-driven ETL suite over code."
+    },
+    {
+      "position": 2,
+      "name": "Load",
+      "role": "Bulk-load conformed output into the governed target using the warehouse's native bulk path — the doc's 'warehouse bulk' has no single corpus tool, so the recommendation is the target warehouse itself",
+      "recommended_technology_slug": "snowflake",
+      "alternative_technology_slugs": [
+        "bigquery",
+        "redshift",
+        "postgresql"
+      ],
+      "rationale": "Every serious target exposes a bulk path (COPY INTO, LOAD DATA, bq load) that is orders of magnitude faster than row inserts — always stage files and bulk-load. Snowflake is the default governed target here; BigQuery and Redshift are equivalent picks if you are on GCP or AWS, and Postgres remains a fine target for modest-scale reporting marts."
+    },
+    {
+      "position": 3,
+      "name": "Orchestrate",
+      "role": "Schedule and sequence the extract-transform-load DAG with retries, backfills, and alerting",
+      "recommended_technology_slug": "apache-airflow",
+      "alternative_technology_slugs": [
+        "dagster",
+        "prefect",
+        "kestra"
+      ],
+      "rationale": "Airflow is the lingua franca of batch orchestration — the operator ecosystem, hiring pool, and managed offerings (MWAA, Cloud Composer) make it the low-risk pick for classic ETL. Dagster wins on asset-aware lineage and a far better local dev loop if you are starting fresh; Prefect when your DAGs are really dynamic Python workflows."
+    },
+    {
+      "position": 4,
+      "name": "Test",
+      "role": "Validate data quality at stage boundaries so bad batches never reach the governed target",
+      "recommended_technology_slug": "great-expectations",
+      "alternative_technology_slugs": [
+        "soda",
+        "pandera",
+        "deequ"
+      ],
+      "rationale": "Great Expectations integrates with both Spark and warehouse targets, so one framework can gate the transform output and the loaded result. Soda is lighter and quicker to adopt if you find GX's abstraction heavy; Pandera fits pandas/Polars-centric transforms; Deequ if you want checks running natively inside Spark."
+    }
+  ]
+}

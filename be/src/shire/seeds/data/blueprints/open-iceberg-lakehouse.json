@@ -1,0 +1,179 @@
+{
+  "slug": "open-iceberg-lakehouse",
+  "name": "Open Iceberg lakehouse",
+  "use_case": "One copy of data, many engines",
+  "description": "An open lakehouse stores every table once — as Apache Iceberg on cheap object storage — and lets any number of engines read and write the same tables through a shared catalog. Spark runs batch and ML jobs, Trino serves interactive SQL, Flink streams appends, and DuckDB pulls extracts, all against identical data with ACID guarantees. The catalog (REST-based: Polaris, Nessie, Glue, Unity) is the contract that makes this safe: every commit goes through it, so engines never trample each other. The payoff is engine independence — you pick the best tool per workload and swap vendors without moving a byte.",
+  "when_to_use": [
+    "Choose this when more than one engine genuinely needs the same tables — Spark for ML, Trino or a warehouse for BI, Flink for streaming — and copying data between them is the pain you want to kill.",
+    "Open formats are a strategic requirement: avoiding vendor lock-in, surviving M&A heterogeneity, or negotiating leverage over warehouse pricing.",
+    "Data volumes make warehouse-native storage pricing hurt, and object storage plus open compute is meaningfully cheaper.",
+    "You want to adopt new engines (DuckDB, a faster query engine, an AI runtime) later without a migration project."
+  ],
+  "when_not_to_use": [
+    "A single warehouse already serves every workload well — the catalog, maintenance, and multi-engine operations are pure overhead until a second engine actually arrives.",
+    "The team is small and wants managed simplicity; running compaction, snapshot expiry, and catalog infrastructure is real engineering work.",
+    "Workloads are sub-second operational serving — Iceberg scan latency is analytical, not transactional (8).",
+    "Data is small enough that a single-node stack (11) answers every question."
+  ],
+  "use_cases": [
+    "reporting",
+    "ml",
+    "self_serve",
+    "integration"
+  ],
+  "hot_spots": [
+    {
+      "title": "Catalog fragmentation",
+      "detail": "Two engines writing through different catalogs to the same table corrupts state — one catalog must own every commit."
+    },
+    {
+      "title": "Table maintenance",
+      "detail": "Nobody owns compaction, snapshot expiry, and orphan-file cleanup, and six months later every query is slow and storage triples."
+    },
+    {
+      "title": "Engine feature gaps",
+      "detail": "Not every engine supports the same Iceberg spec level — an engine that can't read position deletes silently returns wrong rows."
+    },
+    {
+      "title": "Access control split",
+      "detail": "Catalog-level grants and object-storage ACLs drift apart, leaving a path that bypasses table permissions."
+    }
+  ],
+  "complexity": "medium",
+  "evolution": [
+    {
+      "to_slug": "streaming-lakehouse",
+      "reason": "Feed the same Iceberg tables continuously with Flink when freshness requirements drop to minutes."
+    },
+    {
+      "to_slug": "self-serve-data-platform-mesh",
+      "reason": "Scale the multi-engine lakehouse across domains with product ownership and contracts."
+    }
+  ],
+  "family_tags": [
+    "storage-platform",
+    "transformation-modelling"
+  ],
+  "archetype_slugs": [
+    "lakehouse-implementation",
+    "data-lake-build",
+    "storage-layout-partitioning-optimization"
+  ],
+  "position": 23,
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and streams| ING[Ingestion]:::process\n  ING -->|append + merge writes| TBL[Open Table Format Tables]:::store\n  CAT[Shared Catalog]:::govern -. commits + schema .-> TBL\n  TBL -->|same tables, engine A| BATCH[Batch + ML Engine]:::process\n  TBL -->|same tables, engine B| SQL[Interactive SQL Engine]:::serve\n  BATCH -->|transformed tables| TBL\n  SQL -->|dashboards + ad-hoc| CONS[Analytics and ML Consumers]:::serve"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  SRC[Batch + Stream Sources]:::source -->|ingest jobs| ING[Ingestion Jobs]:::process\n  ING -->|Iceberg commits| LAKE[Object Storage + Iceberg Metadata]:::store\n  CAT[REST Catalog Service]:::govern -. atomic commit protocol .-> LAKE\n  LAKE -->|snapshot reads| ENG1[Spark Jobs]:::process\n  LAKE -->|snapshot reads| ENG2[SQL Query Engine]:::serve\n  LAKE -->|snapshot reads| ENG3[Local Engines + Notebooks]:::serve\n  MAINT[Maintenance Jobs]:::process -. compaction + snapshot expiry .-> LAKE"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([raw files + events]):::source -->|land as Iceberg| B([shared tables]):::store\n  B -->|batch transform| C([curated tables]):::store\n  C -->|engine-agnostic reads| D([BI, ML, ad-hoc extracts]):::serve\n  B -->|every engine, one copy| D"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant W as Writer Engine\n  participant C as REST Catalog\n  participant L as Object Storage\n  participant R as Reader Engine\n  W->>L: write data + metadata files\n  W->>C: commit new snapshot\n  C-->>W: snapshot accepted\n  R->>C: resolve table -> latest snapshot\n  R->>L: read only committed files\n  Note over C: catalog serializes commits<br/>so engines never conflict"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and streams| ING[\"AWS Glue · Amazon Kinesis<br/><i>Ingestion</i>\"]:::process\n  ING -->|append + merge writes| TBL[\"Amazon S3 + Iceberg<br/><i>Iceberg Tables</i>\"]:::store\n  CAT[\"AWS Glue Catalog<br/><i>REST Catalog</i>\"]:::govern -. commits + schema .-> TBL\n  TBL -->|same tables, engine A| BATCH[\"Amazon EMR Spark<br/><i>Batch + ML Engine</i>\"]:::process\n  TBL -->|same tables, engine B| SQL[\"Amazon Athena<br/><i>Interactive SQL Engine</i>\"]:::serve\n  BATCH -->|transformed tables| TBL\n  SQL -->|dashboards + ad-hoc| CONS[Analytics and ML Consumers]:::serve"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and streams| ING[\"Azure Data Factory · Event Hubs<br/><i>Ingestion</i>\"]:::process\n  ING -->|append + merge writes| TBL[\"ADLS Gen2 + Iceberg<br/><i>Iceberg Tables</i>\"]:::store\n  CAT[\"Microsoft Fabric OneLake catalog<br/><i>REST Catalog</i>\"]:::govern -. commits + schema .-> TBL\n  TBL -->|same tables, engine A| BATCH[\"Fabric Spark<br/><i>Batch + ML Engine</i>\"]:::process\n  TBL -->|same tables, engine B| SQL[\"Trino on AKS · Fabric SQL<br/><i>Interactive SQL Engine</i>\"]:::serve\n  BATCH -->|transformed tables| TBL\n  SQL -->|dashboards + ad-hoc| CONS[Analytics and ML Consumers]:::serve"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and streams| ING[\"Cloud Data Fusion · Pub/Sub<br/><i>Ingestion</i>\"]:::process\n  ING -->|append + merge writes| TBL[\"GCS + Iceberg (BigLake)<br/><i>Iceberg Tables</i>\"]:::store\n  CAT[\"BigLake Metastore<br/><i>REST Catalog</i>\"]:::govern -. commits + schema .-> TBL\n  TBL -->|same tables, engine A| BATCH[\"Dataproc Spark<br/><i>Batch + ML Engine</i>\"]:::process\n  TBL -->|same tables, engine B| SQL[\"BigQuery external tables<br/><i>Interactive SQL Engine</i>\"]:::serve\n  BATCH -->|transformed tables| TBL\n  SQL -->|dashboards + ad-hoc| CONS[Analytics and ML Consumers]:::serve"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and streams| ING[\"Airbyte · Kafka Connect<br/><i>Ingestion</i>\"]:::process\n  ING -->|append + merge writes| TBL[\"MinIO + Iceberg<br/><i>Iceberg Tables</i>\"]:::store\n  CAT[\"Apache Polaris · Nessie<br/><i>REST Catalog</i>\"]:::govern -. commits + schema .-> TBL\n  TBL -->|same tables, engine A| BATCH[\"Apache Spark<br/><i>Batch + ML Engine</i>\"]:::process\n  TBL -->|same tables, engine B| SQL[\"Trino · DuckDB<br/><i>Interactive SQL Engine</i>\"]:::serve\n  BATCH -->|transformed tables| TBL\n  SQL -->|dashboards + ad-hoc| CONS[Analytics and ML Consumers]:::serve"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and streams| ING[\"Snowpipe · Fivetran<br/><i>Ingestion</i>\"]:::process\n  ING -->|append + merge writes| TBL[\"S3 + Snowflake-managed Iceberg<br/><i>Iceberg Tables</i>\"]:::store\n  CAT[\"Snowflake Open Catalog (Polaris)<br/><i>REST Catalog</i>\"]:::govern -. commits + schema .-> TBL\n  TBL -->|same tables, engine A| BATCH[\"External Spark on same tables<br/><i>Batch + ML Engine</i>\"]:::process\n  TBL -->|same tables, engine B| SQL[\"Snowflake SQL<br/><i>Interactive SQL Engine</i>\"]:::serve\n  BATCH -->|transformed tables| TBL\n  SQL -->|dashboards + ad-hoc| CONS[Analytics and ML Consumers]:::serve"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and streams| ING[\"Lakeflow Connect · Auto Loader<br/><i>Ingestion</i>\"]:::process\n  ING -->|append + merge writes| TBL[\"Delta + Iceberg UniForm<br/><i>Iceberg Tables</i>\"]:::store\n  CAT[\"Unity Catalog<br/><i>REST Catalog</i>\"]:::govern -. commits + schema .-> TBL\n  TBL -->|same tables, engine A| BATCH[\"Databricks Spark + ML<br/><i>Batch + ML Engine</i>\"]:::process\n  TBL -->|same tables, engine B| SQL[\"Databricks SQL · external Trino<br/><i>Interactive SQL Engine</i>\"]:::serve\n  BATCH -->|transformed tables| TBL\n  SQL -->|dashboards + ad-hoc| CONS[Analytics and ML Consumers]:::serve"
+    }
+  ],
+  "stages": [
+    {
+      "position": 0,
+      "name": "Lake storage",
+      "role": "Durable object storage holding all table data and metadata files",
+      "recommended_technology_slug": "amazon-s3",
+      "alternative_technology_slugs": [
+        "azure-data-lake-storage",
+        "google-cloud-storage",
+        "minio"
+      ],
+      "rationale": "S3 is the reference target every Iceberg engine supports first; ADLS and GCS are the equivalents on their clouds, and MinIO gives the same API self-hosted."
+    },
+    {
+      "position": 1,
+      "name": "Table format",
+      "role": "Open table format providing ACID commits, schema evolution, and time travel over files",
+      "recommended_technology_slug": "apache-iceberg",
+      "alternative_technology_slugs": [
+        "delta-lake",
+        "apache-hudi"
+      ],
+      "rationale": "Iceberg has the broadest multi-engine and multi-vendor support — the whole point of this architecture. Delta fits Databricks-first shops; Hudi fits upsert-heavy CDC lakes."
+    },
+    {
+      "position": 2,
+      "name": "Catalog",
+      "role": "The single commit authority every engine reads and writes through",
+      "recommended_technology_slug": "apache-polaris",
+      "alternative_technology_slugs": [
+        "nessie",
+        "aws-glue-catalog",
+        "unity-catalog",
+        "hive-metastore"
+      ],
+      "rationale": "Polaris implements the Iceberg REST spec with vendor-neutral credential vending. Nessie adds git-like branching; Glue and Unity are the managed picks when you're anchored to one vendor."
+    },
+    {
+      "position": 3,
+      "name": "Batch + ML engine",
+      "role": "Heavy transforms, backfills, and ML feature computation over shared tables",
+      "recommended_technology_slug": "apache-spark",
+      "alternative_technology_slugs": [
+        "amazon-emr",
+        "dataproc",
+        "databricks-sql"
+      ],
+      "rationale": "Spark has the deepest Iceberg integration for writes, MERGE, and maintenance procedures; EMR and Dataproc are its managed forms."
+    },
+    {
+      "position": 4,
+      "name": "Interactive SQL",
+      "role": "Low-latency SQL for BI and ad-hoc exploration over the same tables",
+      "recommended_technology_slug": "trino",
+      "alternative_technology_slugs": [
+        "amazon-athena",
+        "duckdb",
+        "dremio",
+        "snowflake"
+      ],
+      "rationale": "Trino reads Iceberg natively at interactive speed and federates when needed; Athena is its serverless AWS form, DuckDB covers laptop-scale pulls, and Snowflake can mount the same tables."
+    },
+    {
+      "position": 5,
+      "name": "Table maintenance",
+      "role": "Compaction, snapshot expiry, and orphan-file cleanup that keep tables fast",
+      "recommended_technology_slug": "apache-spark",
+      "alternative_technology_slugs": [
+        "apache-airflow",
+        "dagster"
+      ],
+      "rationale": "Iceberg maintenance procedures run as Spark jobs; an orchestrator schedules them per table so performance never silently decays."
+    }
+  ]
+}

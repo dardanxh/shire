@@ -1,0 +1,167 @@
+{
+  "slug": "layered-warehouse-dbt",
+  "name": "Layered warehouse (staging → marts)",
+  "use_case": "Logical raw/staging/marts split inside one warehouse",
+  "description": "This is the bronze/silver/gold idea applied logically inside a single warehouse: EL tools land source data as-is into raw schemas, then a SQL transformation framework (dbt being the standard) builds the refinement as versioned, tested models — staging models that rename, cast, and dedupe one-to-one per source; intermediate models that join and encode business logic; and marts that expose facts, dimensions, and aggregates per domain. Every layer is plain SQL in git with tests, docs, and lineage generated from the DAG. No lake, no new infrastructure — just discipline about which layer is allowed to read which.",
+  "when_to_use": [
+    "You have a cloud warehouse and want trustworthy, layered modeling without adopting lake infrastructure.",
+    "Analytics logic keeps getting rebuilt inconsistently in BI tools, and you want it centralized, versioned, and tested in git.",
+    "Multiple analysts or teams contribute transformations and need conventions, code review, and CI rather than a shared pile of views.",
+    "The natural first formalization step after an ad-hoc ELT setup starts creaking."
+  ],
+  "when_not_to_use": [
+    "Workloads are ML-heavy or file-based — a warehouse-only layering leaves training data and unstructured sources out; consider a lakehouse (3, 23).",
+    "Sub-second or streaming freshness is required — scheduled SQL runs are batch by nature (5, 24).",
+    "The team is one person with three tables — full layer conventions are ceremony before they pay off.",
+    "Warehouse compute costs already hurt — every layer materialization multiplies spend without a pruning strategy."
+  ],
+  "use_cases": [
+    "reporting",
+    "self_serve"
+  ],
+  "hot_spots": [
+    {
+      "title": "Layer bypass",
+      "detail": "One mart built straight on raw tables silently breaks the contract and reintroduces the drift the layers were meant to kill."
+    },
+    {
+      "title": "DAG sprawl",
+      "detail": "A thousand-model DAG with no ownership boundaries becomes unnavigable and turns every change into a risk."
+    },
+    {
+      "title": "Incremental drift",
+      "detail": "Incremental models quietly diverge from their full-refresh definition until a rebuild produces different numbers."
+    },
+    {
+      "title": "Metric duplication",
+      "detail": "Each mart re-computes revenue slightly differently; without a semantic layer the marts become the new inconsistency."
+    }
+  ],
+  "complexity": "low",
+  "evolution": [
+    {
+      "to_slug": "kimball-data-warehouse",
+      "reason": "Formalize the marts layer into rigorous dimensional models when BI scale demands it."
+    },
+    {
+      "to_slug": "semantic-metrics-layer",
+      "reason": "Add a metrics layer on top of marts so every tool shares one definition of each KPI."
+    }
+  ],
+  "family_tags": [
+    "transformation-modelling",
+    "analytics-serving"
+  ],
+  "archetype_slugs": [
+    "elt-transformation-layer",
+    "aggregation-reporting-marts",
+    "data-warehouse-design-build"
+  ],
+  "position": 26,
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|extract + load| EL[EL Ingestion]:::process\n  EL -->|as-is tables| RAW[Raw / Landing Schemas]:::store\n  RAW -->|rename, cast, dedupe| STG[Staging Layer]:::process\n  STG -->|joins + business logic| INT[Intermediate Layer]:::process\n  INT -->|facts, dims, aggregates| MART[Marts Layer]:::store\n  MART -->|governed queries| BI[BI + Analytics]:::serve\n  TEST[Tests + Docs + Lineage]:::govern -. every layer .-> STG"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  SRC[Databases + SaaS]:::source -->|managed connectors| EL[EL Pipelines]:::process\n  EL -->|load| RAW[(raw schemas)]:::store\n  RAW -->|1:1 source models| STG[(staging schemas)]:::store\n  STG -->|business logic models| INT[(intermediate schemas)]:::store\n  INT -->|domain marts| MART[(mart schemas)]:::store\n  ORCH[Scheduler + CI]:::process -. run + test DAG .-> STG\n  DOC[Generated Docs + Lineage]:::govern -. from the DAG .-> MART\n  MART --> BI[Dashboards + Ad-hoc SQL]:::serve"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([source tables]):::source -->|load as-is| B([raw]):::store\n  B -->|clean + conform| C([staging]):::store\n  C -->|join + derive| D([intermediate]):::store\n  D -->|facts + dims| E([marts]):::store\n  E -->|one governed path| F([dashboards + analyses]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant E as EL Tool\n  participant W as Warehouse\n  participant O as Orchestrator\n  participant T as Transform Framework\n  participant B as BI Tool\n  E->>W: load raw tables\n  O->>T: trigger DAG run\n  T->>W: build staging models\n  T->>W: build intermediate + marts\n  T->>W: run data tests\n  T-->>O: run + test results\n  B->>W: query marts only"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|extract + load| EL[\"Fivetran · Airbyte<br/><i>EL Ingestion</i>\"]:::process\n  EL -->|as-is tables| RAW[\"Amazon Redshift raw schemas<br/><i>Raw / Landing</i>\"]:::store\n  RAW -->|rename, cast, dedupe| STG[\"dbt staging models<br/><i>Staging Layer</i>\"]:::process\n  STG -->|joins + business logic| INT[\"intermediate models\"]:::process\n  INT -->|facts, dims, aggregates| MART[\"Amazon Redshift marts<br/><i>Marts Layer</i>\"]:::store\n  MART -->|governed queries| BI[\"QuickSight · Tableau<br/><i>BI + Analytics</i>\"]:::serve\n  TEST[Tests + Docs + Lineage]:::govern -. every layer .-> STG"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|extract + load| EL[\"Azure Data Factory · Fivetran<br/><i>EL Ingestion</i>\"]:::process\n  EL -->|as-is tables| RAW[\"Microsoft Fabric warehouse raw schemas<br/><i>Raw / Landing</i>\"]:::store\n  RAW -->|rename, cast, dedupe| STG[\"dbt staging models<br/><i>Staging Layer</i>\"]:::process\n  STG -->|joins + business logic| INT[\"intermediate models\"]:::process\n  INT -->|facts, dims, aggregates| MART[\"Microsoft Fabric warehouse marts<br/><i>Marts Layer</i>\"]:::store\n  MART -->|governed queries| BI[\"Power BI<br/><i>BI + Analytics</i>\"]:::serve\n  TEST[Tests + Docs + Lineage]:::govern -. every layer .-> STG"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|extract + load| EL[\"Fivetran · Datastream<br/><i>EL Ingestion</i>\"]:::process\n  EL -->|as-is tables| RAW[\"BigQuery raw schemas<br/><i>Raw / Landing</i>\"]:::store\n  RAW -->|rename, cast, dedupe| STG[\"dbt · Dataform staging models<br/><i>Staging Layer</i>\"]:::process\n  STG -->|joins + business logic| INT[\"intermediate models\"]:::process\n  INT -->|facts, dims, aggregates| MART[\"BigQuery marts<br/><i>Marts Layer</i>\"]:::store\n  MART -->|governed queries| BI[\"Looker · Looker Studio<br/><i>BI + Analytics</i>\"]:::serve\n  TEST[Tests + Docs + Lineage]:::govern -. every layer .-> STG"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|extract + load| EL[\"Airbyte · dlt<br/><i>EL Ingestion</i>\"]:::process\n  EL -->|as-is tables| RAW[\"PostgreSQL · DuckDB raw schemas<br/><i>Raw / Landing</i>\"]:::store\n  RAW -->|rename, cast, dedupe| STG[\"dbt Core · SQLMesh staging models<br/><i>Staging Layer</i>\"]:::process\n  STG -->|joins + business logic| INT[\"intermediate models\"]:::process\n  INT -->|facts, dims, aggregates| MART[\"PostgreSQL · DuckDB marts<br/><i>Marts Layer</i>\"]:::store\n  MART -->|governed queries| BI[\"Metabase · Superset<br/><i>BI + Analytics</i>\"]:::serve\n  TEST[Tests + Docs + Lineage]:::govern -. every layer .-> STG"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|extract + load| EL[\"Fivetran · Snowpipe<br/><i>EL Ingestion</i>\"]:::process\n  EL -->|as-is tables| RAW[\"Snowflake raw schemas<br/><i>Raw / Landing</i>\"]:::store\n  RAW -->|rename, cast, dedupe| STG[\"dbt Cloud staging models<br/><i>Staging Layer</i>\"]:::process\n  STG -->|joins + business logic| INT[\"intermediate models\"]:::process\n  INT -->|facts, dims, aggregates| MART[\"Snowflake marts<br/><i>Marts Layer</i>\"]:::store\n  MART -->|governed queries| BI[\"Sigma · Tableau<br/><i>BI + Analytics</i>\"]:::serve\n  TEST[Tests + Docs + Lineage]:::govern -. every layer .-> STG"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|extract + load| EL[\"Lakeflow Connect<br/><i>EL Ingestion</i>\"]:::process\n  EL -->|as-is tables| RAW[\"Databricks SQL raw schemas<br/><i>Raw / Landing</i>\"]:::store\n  RAW -->|rename, cast, dedupe| STG[\"dbt staging models<br/><i>Staging Layer</i>\"]:::process\n  STG -->|joins + business logic| INT[\"intermediate models\"]:::process\n  INT -->|facts, dims, aggregates| MART[\"Databricks SQL marts<br/><i>Marts Layer</i>\"]:::store\n  MART -->|governed queries| BI[\"AI/BI dashboards<br/><i>BI + Analytics</i>\"]:::serve\n  TEST[Tests + Docs + Lineage]:::govern -. every layer .-> STG"
+    }
+  ],
+  "stages": [
+    {
+      "position": 0,
+      "name": "Warehouse",
+      "role": "Single store hosting raw, staging, intermediate, and mart schemas",
+      "recommended_technology_slug": "snowflake",
+      "alternative_technology_slugs": [
+        "bigquery",
+        "redshift",
+        "databricks-sql",
+        "duckdb",
+        "postgresql"
+      ],
+      "rationale": "Any SQL warehouse works — the architecture is the layering discipline, not the engine. Snowflake/BigQuery dominate; DuckDB and Postgres serve the small end."
+    },
+    {
+      "position": 1,
+      "name": "EL ingestion",
+      "role": "Managed connectors landing sources as-is into raw schemas",
+      "recommended_technology_slug": "fivetran",
+      "alternative_technology_slugs": [
+        "airbyte",
+        "dlt",
+        "stitch"
+      ],
+      "rationale": "Fivetran is the low-maintenance default for SaaS and database sources; Airbyte and dlt trade some polish for cost control and extensibility."
+    },
+    {
+      "position": 2,
+      "name": "Transformation framework",
+      "role": "Versioned SQL models with tests, docs, and lineage across the layers",
+      "recommended_technology_slug": "dbt",
+      "alternative_technology_slugs": [
+        "sqlmesh",
+        "dataform",
+        "coalesce"
+      ],
+      "rationale": "dbt defined this pattern and has the ecosystem; SQLMesh adds virtual environments and column-level lineage, Dataform is the GCP-native take."
+    },
+    {
+      "position": 3,
+      "name": "Orchestration + CI",
+      "role": "Scheduled DAG runs, test gating, and PR-based deployment",
+      "recommended_technology_slug": "dagster",
+      "alternative_technology_slugs": [
+        "apache-airflow",
+        "prefect"
+      ],
+      "rationale": "Dagster's asset model maps one-to-one onto dbt models; Airflow is the incumbent where it already runs everything else."
+    },
+    {
+      "position": 4,
+      "name": "BI + analytics",
+      "role": "Dashboards and ad-hoc SQL reading marts only",
+      "recommended_technology_slug": "power-bi",
+      "alternative_technology_slugs": [
+        "tableau",
+        "looker",
+        "metabase",
+        "hex"
+      ],
+      "rationale": "Any BI tool works when it reads governed marts; the rule that matters is that nothing queries raw or staging directly."
+    }
+  ]
+}

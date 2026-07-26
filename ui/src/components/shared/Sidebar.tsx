@@ -1,16 +1,22 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   BookOpenIcon,
+  CalculatorIcon,
+  CpuIcon,
+  DatabaseIcon,
   FolderGitIcon,
+  GaugeIcon,
   GlobeIcon,
   HomeIcon,
   LandmarkIcon,
+  LayersIcon,
   ListChecksIcon,
   type LucideIcon,
   MapIcon,
   PlugIcon,
   ScaleIcon,
   SettingsIcon,
+  ShieldIcon,
   UsersIcon,
   WrenchIcon,
 } from "lucide-react";
@@ -22,6 +28,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -113,6 +120,92 @@ const ITEMS: NavItem[] = [
   },
 ];
 
+/** Reference catalogs ported from Tuesdayta, grouped under a "Knowledge" label. */
+const KNOWLEDGE_ITEMS: NavItem[] = [
+  {
+    to: "/architectures",
+    labelKey: "common.nav.architectures",
+    icon: LayersIcon,
+    search: { tab: "blueprints" },
+    match: (p) => p === "/architectures" || p.startsWith("/architectures/"),
+  },
+  {
+    to: "/technologies",
+    labelKey: "common.nav.technologies",
+    icon: CpuIcon,
+    search: { tab: "all" },
+    match: (p) => p === "/technologies" || p.startsWith("/technologies/"),
+  },
+  {
+    to: "/data",
+    labelKey: "common.nav.modelling",
+    icon: DatabaseIcon,
+    search: { tab: "modelling" },
+    match: (p) => p === "/data" || p.startsWith("/data/"),
+  },
+  {
+    to: "/security",
+    labelKey: "common.nav.security",
+    icon: ShieldIcon,
+    search: { tab: "regulations" },
+    match: (p) => p === "/security" || p.startsWith("/security/"),
+  },
+  {
+    to: "/qualities",
+    labelKey: "common.nav.qualities",
+    icon: GaugeIcon,
+    search: { tab: "catalog" },
+    match: (p) => p === "/qualities" || p.startsWith("/qualities/"),
+  },
+];
+
+/** Interactive tools, grouped under an "Apps" label. */
+const APPS_ITEMS: NavItem[] = [
+  {
+    to: "/sizing",
+    labelKey: "common.nav.sizing",
+    icon: CalculatorIcon,
+    search: {},
+    match: (p) => p === "/sizing" || p.startsWith("/sizing/"),
+  },
+];
+
+function NavItemsMenu({
+  items,
+  pathname,
+}: {
+  items: NavItem[];
+  pathname: string;
+}) {
+  const { t } = useTranslation();
+  return (
+    <SidebarMenu>
+      {items.map((item) => {
+        const active = item.match(pathname);
+        const Icon = item.icon;
+        return (
+          <SidebarMenuItem key={item.to}>
+            <SidebarMenuButton
+              isActive={active}
+              tooltip={t(item.labelKey)}
+              render={
+                <Link
+                  to={item.to}
+                  search={item.search}
+                  aria-current={active ? "page" : undefined}
+                />
+              }
+            >
+              <Icon />
+              <span>{t(item.labelKey)}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        );
+      })}
+    </SidebarMenu>
+  );
+}
+
 /** App navigation on the shadcn sidebar (icon-collapsible; state persists via cookie). */
 export function AppSidebar() {
   const { t } = useTranslation();
@@ -137,30 +230,21 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {ITEMS.map((item) => {
-                const active = item.match(pathname);
-                const Icon = item.icon;
-                return (
-                  <SidebarMenuItem key={item.to}>
-                    <SidebarMenuButton
-                      isActive={active}
-                      tooltip={t(item.labelKey)}
-                      render={
-                        <Link
-                          to={item.to}
-                          search={item.search}
-                          aria-current={active ? "page" : undefined}
-                        />
-                      }
-                    >
-                      <Icon />
-                      <span>{t(item.labelKey)}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
+            <NavItemsMenu items={ITEMS} pathname={pathname} />
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>
+            {t("common.nav.group_knowledge")}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <NavItemsMenu items={KNOWLEDGE_ITEMS} pathname={pathname} />
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>{t("common.nav.group_apps")}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <NavItemsMenu items={APPS_ITEMS} pathname={pathname} />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

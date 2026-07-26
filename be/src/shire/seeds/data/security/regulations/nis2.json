@@ -1,0 +1,260 @@
+{
+  "slug": "nis2",
+  "name": "NIS2",
+  "full_name": "Directive (EU) 2022/2555 on measures for a high common level of cybersecurity (NIS 2 Directive)",
+  "category": "resilience",
+  "region": "eu",
+  "jurisdiction": "European Union (transposed by member states)",
+  "status": "in_force",
+  "effective_year": 2024,
+  "effective_date": "18 October 2024 (transposition deadline)",
+  "description": "NIS2 is the EU's cybersecurity directive, replacing the original NIS Directive with a much broader scope and stricter obligations. It requires organisations in critical and important sectors — from energy and transport to cloud providers and digital infrastructure — to manage cybersecurity risks with concrete technical and organisational measures and to report significant incidents on tight deadlines. Because it is a directive, each member state transposes it into national law, with the transposition deadline of 17 October 2024 and the rules applying from 18 October 2024. Management bodies are personally accountable for compliance, and supervisors can impose substantial fines.",
+  "who_is_impacted": [
+    "Medium-sized and large entities operating in the 'high criticality' sectors of Annex I, such as energy, transport, banking, financial market infrastructure, health, drinking water, waste water, digital infrastructure, ICT service management, public administration and space.",
+    "Medium-sized and large entities in the 'other critical' sectors of Annex II, including postal services, waste management, chemicals, food, manufacturing of critical products, digital providers (online marketplaces, search engines, social networks) and research organisations.",
+    "Certain entities regardless of size, such as providers of public electronic communications networks, trust service providers, TLD name registries and DNS service providers, or entities that are the sole provider of a service essential to society.",
+    "Entities identified as critical entities under Directive (EU) 2022/2557 (the CER Directive), which are automatically treated as essential entities.",
+    "Non-EU entities offering in-scope services within the Union, which must designate a representative in a member state and fall under that state's jurisdiction.",
+    "Entities carrying out activities in national security, public security, defence or law enforcement are largely exempt, as are the judiciary, parliaments and central banks; small and micro enterprises are generally out of scope unless specifically designated."
+  ],
+  "penalties": "Essential entities: up to €10M or 2% of global annual turnover; important entities: up to €7M or 1.4%",
+  "official_url": "https://eur-lex.europa.eu/eli/dir/2022/2555/oj",
+  "unit_label": "article",
+  "triggering_data_classes": ["critical_infrastructure_ops"],
+  "articles": [
+    { "number": "1", "title": "Subject matter", "chapter": "Chapter I — General Provisions" },
+    {
+      "number": "2",
+      "title": "Scope",
+      "chapter": "Chapter I — General Provisions",
+      "is_key": true,
+      "summary": "Article 2 defines who falls under NIS2. The general rule is a size-cap: public or private entities of the types listed in Annex I or Annex II that are at least medium-sized and provide services or carry out activities in the EU. Several categories are covered regardless of size — for example DNS providers, TLD registries, trust service providers, public electronic communications providers and sole providers of essential services. Activities related to national security, defence and law enforcement are carved out.",
+      "key_requirements": [
+        "Determine whether the organisation's activities match a sector or entity type in Annex I (high criticality) or Annex II (other critical sectors).",
+        "Apply the size threshold: medium-sized or larger entities under the EU SME definition are in scope by default.",
+        "Check the size-independent categories — DNS, TLD registries, trust services, public electronic communications and sole providers of essential services are covered whatever their size.",
+        "Entities designated as critical under the CER Directive are in scope automatically.",
+        "Verify national transpositions, since member states may identify additional entities."
+      ],
+      "paragraphs": [
+        { "ref": "2(1)", "text": "The directive applies to public or private entities of a type referred to in Annex I or II which qualify as medium-sized enterprises or exceed that ceiling, and which provide their services or carry out their activities within the Union." },
+        { "ref": "2(2)", "text": "Regardless of size, the directive applies to entities such as providers of public electronic communications networks or services, trust service providers, TLD name registries and DNS service providers, sole providers of a service essential to society, entities whose disruption could have significant systemic or cross-border impact, and certain public administration entities." },
+        { "ref": "2(3)", "text": "The directive applies to entities identified as critical entities under Directive (EU) 2022/2557 (CER Directive), regardless of their size." },
+        { "ref": "2(7)-(8)", "text": "The directive does not apply to entities carrying out activities in the areas of national security, public security, defence or law enforcement, and member states may exempt specific entities performing those activities; the judiciary, parliaments and central banks are also excluded." }
+      ]
+    },
+    {
+      "number": "3",
+      "title": "Essential and important entities",
+      "chapter": "Chapter I — General Provisions",
+      "is_key": true,
+      "summary": "NIS2 splits in-scope organisations into two tiers with different supervision intensity. Essential entities are, broadly, large entities in the high-criticality sectors of Annex I plus certain always-essential categories such as trust service providers, TLD registries and critical entities under the CER Directive. Important entities are all other in-scope entities. Both tiers face the same security and reporting obligations; the difference lies in supervision (proactive for essential, after-the-fact for important) and maximum fines.",
+      "key_requirements": [
+        "Classify the organisation as essential or important, since this drives the supervisory regime and fine ceiling.",
+        "Large entities in Annex I sectors, qualified trust service providers, TLD registries, DNS providers and CER-designated critical entities are essential.",
+        "Other entities of a type listed in Annex I or II — including medium-sized Annex I entities — are important entities.",
+        "Register with the national authority: member states had to establish their lists of essential and important entities by 17 April 2025.",
+        "Provide and keep up to date the registration information (name, address, contact details, sector, IP ranges) required by the national mechanism."
+      ],
+      "paragraphs": [
+        { "ref": "3(1)", "text": "Essential entities include: large entities of a type in Annex I; qualified trust service providers, TLD name registries and DNS service providers regardless of size; providers of public electronic communications networks or services that are at least medium-sized; public administration entities of central government; entities identified as critical under the CER Directive; and entities that member states individually designate as essential." },
+        { "ref": "3(2)", "text": "Entities of a type referred to in Annex I or II which do not qualify as essential entities are considered important entities." },
+        { "ref": "3(3)-(4)", "text": "By 17 April 2025 member states must establish a list of essential and important entities and entities providing domain name registration services; entities must submit their identifying details (name, address, sector, contact details, IP ranges) and notify changes, with regular review of the list at least every two years." }
+      ]
+    },
+    { "number": "4", "title": "Sector-specific Union legal acts", "chapter": "Chapter I — General Provisions" },
+    { "number": "5", "title": "Minimum harmonisation", "chapter": "Chapter I — General Provisions" },
+    { "number": "6", "title": "Definitions", "chapter": "Chapter I — General Provisions" },
+    { "number": "7", "title": "National cybersecurity strategy", "chapter": "Chapter II — Coordinated Cybersecurity Frameworks" },
+    { "number": "8", "title": "Competent authorities and single points of contact", "chapter": "Chapter II — Coordinated Cybersecurity Frameworks" },
+    { "number": "9", "title": "National cyber crisis management frameworks", "chapter": "Chapter II — Coordinated Cybersecurity Frameworks" },
+    { "number": "10", "title": "Computer security incident response teams (CSIRTs)", "chapter": "Chapter II — Coordinated Cybersecurity Frameworks" },
+    { "number": "11", "title": "Requirements, technical capabilities and tasks of CSIRTs", "chapter": "Chapter II — Coordinated Cybersecurity Frameworks" },
+    { "number": "12", "title": "Coordinated vulnerability disclosure and a European vulnerability database", "chapter": "Chapter II — Coordinated Cybersecurity Frameworks" },
+    { "number": "13", "title": "Cooperation at national level", "chapter": "Chapter II — Coordinated Cybersecurity Frameworks" },
+    { "number": "14", "title": "Cooperation Group", "chapter": "Chapter III — Cooperation at Union and International Level" },
+    { "number": "15", "title": "CSIRTs network", "chapter": "Chapter III — Cooperation at Union and International Level" },
+    { "number": "16", "title": "European cyber crisis liaison organisation network (EU-CyCLONe)", "chapter": "Chapter III — Cooperation at Union and International Level" },
+    { "number": "17", "title": "International cooperation", "chapter": "Chapter III — Cooperation at Union and International Level" },
+    { "number": "18", "title": "Report on the state of cybersecurity in the Union", "chapter": "Chapter III — Cooperation at Union and International Level" },
+    { "number": "19", "title": "Peer reviews", "chapter": "Chapter III — Cooperation at Union and International Level" },
+    {
+      "number": "20",
+      "title": "Governance",
+      "chapter": "Chapter IV — Cybersecurity Risk-Management Measures and Reporting Obligations",
+      "is_key": true,
+      "summary": "Article 20 makes cybersecurity a board-level duty. The management bodies of essential and important entities must approve the cybersecurity risk-management measures taken under Article 21, oversee their implementation, and can be held personally liable for infringements. Board members must undergo cybersecurity training and are encouraged to offer similar training to all employees on a regular basis.",
+      "key_requirements": [
+        "Have the management body formally approve the entity's cybersecurity risk-management measures.",
+        "Establish board-level oversight of how those measures are implemented.",
+        "Accept that management body members can be held liable for infringements of Article 21.",
+        "Require management body members to follow cybersecurity training.",
+        "Offer regular, analogous cybersecurity training to all employees."
+      ],
+      "paragraphs": [
+        { "ref": "20(1)", "text": "Management bodies of essential and important entities must approve the cybersecurity risk-management measures taken to comply with Article 21, oversee their implementation, and can be held liable for infringements by their entities." },
+        { "ref": "20(2)", "text": "Members of management bodies are required to follow training, and entities are encouraged to offer similar training to their employees on a regular basis, so that they can identify risks and assess cybersecurity risk-management practices and their impact on the services provided." }
+      ]
+    },
+    {
+      "number": "21",
+      "title": "Cybersecurity risk-management measures",
+      "chapter": "Chapter IV — Cybersecurity Risk-Management Measures and Reporting Obligations",
+      "is_key": true,
+      "summary": "This is the core security article of NIS2. Essential and important entities must take appropriate and proportionate technical, operational and organisational measures to manage risks to their network and information systems, following an all-hazards approach. Paragraph 2 spells out a minimum baseline of ten measure areas, from risk analysis and incident handling through backup and business continuity, supply chain security, cryptography, access control and multi-factor authentication. Proportionality is judged against the entity's exposure, size, and the likelihood and severity of incidents.",
+      "key_requirements": [
+        "Implement all ten baseline measure areas of Article 21(2)(a)-(j), covering policies, incident handling, continuity, supply chain, secure development, effectiveness assessment, hygiene and training, cryptography, access control and MFA.",
+        "Follow an all-hazards approach that protects systems and their physical environment, proportionate to risk exposure, entity size and likely incident impact.",
+        "Use cryptography and, where appropriate, encryption (encryption at rest and in transit) under documented policies.",
+        "Maintain business continuity capabilities including backup management, disaster recovery and crisis management.",
+        "Address supply chain security, including the security aspects of relationships with direct suppliers and service providers, and take corrective action without undue delay when non-compliance is found."
+      ],
+      "paragraphs": [
+        { "ref": "21(1)", "text": "Essential and important entities must take appropriate and proportionate technical, operational and organisational measures to manage the risks posed to the security of network and information systems used for their operations or services, and to prevent or minimise the impact of incidents on recipients of their services, taking into account the state of the art, relevant standards, cost, the entity's exposure to risks, its size, and the likelihood and severity of incidents." },
+        { "ref": "21(2)(a)-(c)", "text": "The measures must be based on an all-hazards approach and include at least: (a) policies on risk analysis and information system security; (b) incident handling; and (c) business continuity, such as backup management and disaster recovery, and crisis management." },
+        { "ref": "21(2)(d)-(f)", "text": "They must also include: (d) supply chain security, including security-related aspects of the relationships between each entity and its direct suppliers or service providers; (e) security in network and information systems acquisition, development and maintenance, including vulnerability handling and disclosure; and (f) policies and procedures to assess the effectiveness of cybersecurity risk-management measures." },
+        { "ref": "21(2)(g)-(i)", "text": "Further required measures are: (g) basic cyber hygiene practices and cybersecurity training; (h) policies and procedures regarding the use of cryptography and, where appropriate, encryption; and (i) human resources security, access control policies and asset management." },
+        { "ref": "21(2)(j)", "text": "Finally, entities must use multi-factor authentication or continuous authentication solutions, secured voice, video and text communications, and secured emergency communication systems within the entity, where appropriate." }
+      ]
+    },
+    {
+      "number": "22",
+      "title": "Union level coordinated security risk assessments of critical supply chains",
+      "chapter": "Chapter IV — Cybersecurity Risk-Management Measures and Reporting Obligations",
+      "is_key": true,
+      "summary": "Article 22 lets the EU assess the security of critical supply chains centrally. The Cooperation Group, together with the Commission and ENISA, may carry out coordinated risk assessments of specific critical ICT services, systems or product supply chains, taking technical and, where relevant, non-technical risk factors into account. Entities should factor the results of these assessments into their own supply chain security measures under Article 21.",
+      "key_requirements": [
+        "Track EU-level coordinated risk assessments relevant to the ICT services, systems and products the organisation depends on.",
+        "Feed the outcomes of these assessments into supplier due diligence and supply chain security measures under Article 21(2)(d).",
+        "Consider both technical and non-technical risk factors (such as supplier jurisdiction) identified in the assessments."
+      ],
+      "paragraphs": [
+        { "ref": "22(1)", "text": "The Cooperation Group, in cooperation with the Commission and ENISA, may carry out coordinated security risk assessments of specific critical ICT services, ICT systems or ICT product supply chains, taking into account technical and, where relevant, non-technical risk factors." },
+        { "ref": "22(2)", "text": "The Commission, after consulting the Cooperation Group and ENISA and, where necessary, relevant stakeholders, identifies the specific critical ICT services, systems or products that may be subject to such coordinated risk assessment." }
+      ]
+    },
+    {
+      "number": "23",
+      "title": "Reporting obligations",
+      "chapter": "Chapter IV — Cybersecurity Risk-Management Measures and Reporting Obligations",
+      "is_key": true,
+      "summary": "Article 23 sets NIS2's multi-stage incident reporting clock. Entities must notify their CSIRT or competent authority of any significant incident: an early warning within 24 hours of becoming aware of it, a full incident notification within 72 hours, an intermediate report on request, and a final report no later than one month after the notification. Recipients of the entity's services must also be informed of significant incidents — and of significant cyber threats — where they may be affected.",
+      "key_requirements": [
+        "Detect and classify incidents so that 'significant' incidents (severe operational disruption or financial loss, or considerable damage to others) trigger the reporting pipeline.",
+        "Submit an early warning to the CSIRT or competent authority within 24 hours of becoming aware of a significant incident, flagging suspected unlawful/malicious cause or cross-border impact.",
+        "Submit an incident notification within 72 hours with an initial assessment of severity, impact and indicators of compromise (24 hours for trust service providers).",
+        "Deliver a final report within one month of the incident notification, covering severity, impact, root cause, mitigation and any cross-border effects; provide a progress report if the incident is still ongoing.",
+        "Inform recipients of services without undue delay about significant incidents likely to adversely affect them, and about significant cyber threats together with possible countermeasures."
+      ],
+      "paragraphs": [
+        { "ref": "23(1)", "text": "Essential and important entities must notify their CSIRT or, where applicable, competent authority without undue delay of any incident that has a significant impact on the provision of their services, and, where appropriate, inform the recipients of their services of significant incidents likely to adversely affect them; notification alone does not expose the entity to increased liability." },
+        { "ref": "23(3)", "text": "An incident is significant if it has caused or is capable of causing severe operational disruption of the services or financial loss for the entity concerned, or has affected or is capable of affecting other natural or legal persons by causing considerable material or non-material damage." },
+        { "ref": "23(4)(a)-(b)", "text": "Entities must submit an early warning within 24 hours of becoming aware of a significant incident, indicating whether it is suspected of being caused by unlawful or malicious acts or could have cross-border impact, followed by an incident notification within 72 hours with an initial assessment of severity, impact and, where available, indicators of compromise." },
+        { "ref": "23(4)(c)-(e)", "text": "On request of the CSIRT or competent authority, entities provide an intermediate report on status updates; a final report is due not later than one month after the incident notification, describing severity and impact, the likely root cause, mitigation measures applied and any cross-border impact; if the incident is still ongoing, a progress report is submitted instead, with the final report within one month of handling the incident." }
+      ]
+    },
+    { "number": "24", "title": "Use of European cybersecurity certification schemes", "chapter": "Chapter IV — Cybersecurity Risk-Management Measures and Reporting Obligations" },
+    { "number": "25", "title": "Standardisation", "chapter": "Chapter IV — Cybersecurity Risk-Management Measures and Reporting Obligations" },
+    {
+      "number": "26",
+      "title": "Jurisdiction and territoriality",
+      "chapter": "Chapter V — Jurisdiction and Registration",
+      "is_key": true,
+      "summary": "Article 26 decides which member state supervises an entity. The default is the member state where the entity is established. Digital infrastructure and digital providers (DNS, TLD registries, cloud, data centres, CDNs, managed service providers, online marketplaces, search engines, social networks) fall under the member state of their main establishment in the EU. Entities without an EU establishment that offer in-scope services must designate a representative in a member state.",
+      "key_requirements": [
+        "Determine the supervising member state: place of establishment by default, main establishment for digital infrastructure and digital provider categories.",
+        "Identify the main establishment as the place where cybersecurity risk-management decisions are predominantly taken, or failing that where cybersecurity operations are carried out, or the establishment with the highest number of employees in the Union.",
+        "If not established in the EU but offering in-scope services there, designate a representative in one of the member states where the services are offered.",
+        "Understand that without a designated representative, any member state where services are provided can take action against the entity."
+      ],
+      "paragraphs": [
+        { "ref": "26(1)", "text": "Entities fall under the jurisdiction of the member state in which they are established, except that public electronic communications providers fall under the member state where they provide services, and DNS providers, TLD registries, entities providing domain registration services, cloud computing, data centre, CDN, managed service and managed security service providers, and providers of online marketplaces, search engines and social networking platforms fall under the member state of their main establishment." },
+        { "ref": "26(2)", "text": "The main establishment is in the member state where decisions related to cybersecurity risk-management measures are predominantly taken; if that cannot be determined, it is where cybersecurity operations are carried out, and otherwise the member state of the establishment with the highest number of employees in the Union." },
+        { "ref": "26(3)-(4)", "text": "An entity not established in the Union but offering services within it must designate a representative in one of the member states where its services are offered and is deemed under that state's jurisdiction; in the absence of a representative, any member state in which the entity provides services may take legal action against it." }
+      ]
+    },
+    { "number": "27", "title": "Registry of entities", "chapter": "Chapter V — Jurisdiction and Registration" },
+    { "number": "28", "title": "Database of domain name registration data", "chapter": "Chapter V — Jurisdiction and Registration" },
+    { "number": "29", "title": "Cybersecurity information-sharing arrangements", "chapter": "Chapter VI — Information Sharing" },
+    { "number": "30", "title": "Voluntary notification of relevant information", "chapter": "Chapter VI — Information Sharing" },
+    { "number": "31", "title": "General aspects concerning supervision and enforcement", "chapter": "Chapter VII — Supervision and Enforcement" },
+    {
+      "number": "32",
+      "title": "Supervisory and enforcement measures in relation to essential entities",
+      "chapter": "Chapter VII — Supervision and Enforcement",
+      "is_key": true,
+      "summary": "Essential entities face proactive, ex ante supervision. Competent authorities can conduct on-site inspections and off-site supervision, regular and targeted security audits, ad hoc audits after significant incidents, security scans, and demand data, documents and evidence of implementation. Enforcement escalates from warnings and binding instructions up to administrative fines, and — uniquely — temporary suspension of certifications or authorisations and temporary bans on individuals exercising managerial functions at CEO or legal-representative level.",
+      "key_requirements": [
+        "Be prepared for proactive supervision: on-site inspections, regular and targeted security audits, security scans and requests for evidence of implementation.",
+        "Respond to authority requests for information, data, documents and access needed to assess the cybersecurity risk-management measures.",
+        "Comply with binding instructions and orders to remedy deficiencies within a set deadline, including orders to inform affected service recipients.",
+        "Understand escalation: persistent non-compliance can lead to temporary suspension of a certification or authorisation and temporary prohibition of managerial functions for the CEO or legal representative.",
+        "Remedy identified deficiencies and report on implementation within the timeframe the authority sets."
+      ],
+      "paragraphs": [
+        { "ref": "32(2)", "text": "Competent authorities may subject essential entities to on-site inspections and off-site supervision, regular and targeted security audits, ad hoc audits (including after significant incidents), security scans based on objective risk criteria, and requests for information, data, documents and evidence of implementation of cybersecurity policies." },
+        { "ref": "32(4)", "text": "Enforcement powers include issuing warnings, adopting binding instructions, ordering entities to cease infringing conduct, to bring risk-management measures and reporting into compliance within a specified deadline, to inform affected recipients of their services, to make infringements public, and imposing or requesting the imposition of administrative fines under Article 34." },
+        { "ref": "32(5)", "text": "If enforcement measures prove ineffective within the set deadline, authorities may temporarily suspend a certification or authorisation concerning the relevant services, and request that a temporary prohibition be imposed on any natural person discharging managerial responsibilities at chief-executive-officer or legal-representative level from exercising those functions, until compliance is restored." }
+      ]
+    },
+    {
+      "number": "33",
+      "title": "Supervisory and enforcement measures in relation to important entities",
+      "chapter": "Chapter VII — Supervision and Enforcement",
+      "is_key": true,
+      "summary": "Important entities get a lighter, ex post regime: authorities act when they receive evidence, indications or information that the entity allegedly fails to comply. The available tools largely mirror those for essential entities — inspections, targeted audits, security scans, information requests, binding instructions and fines — but there is no routine proactive supervision and no power to suspend certifications or ban managers.",
+      "key_requirements": [
+        "Expect supervision after the fact — triggered by evidence or indications of alleged non-compliance rather than routine oversight.",
+        "Be able to demonstrate compliance on demand: authorities can conduct on-site inspections, targeted security audits and security scans and request data, documents and evidence.",
+        "Comply with warnings, binding instructions and orders to remedy deficiencies and to inform affected service recipients.",
+        "Note the lower fine ceiling for important entities (at least €7,000,000 or 1.4% of worldwide annual turnover) under Article 34."
+      ],
+      "paragraphs": [
+        { "ref": "33(1)", "text": "When provided with evidence, indication or information that an important entity allegedly does not comply with the directive, member states ensure that competent authorities take action, where necessary, through ex post supervisory measures." },
+        { "ref": "33(2)", "text": "Supervisory measures for important entities include on-site inspections and off-site ex post supervision, targeted security audits, security scans, and requests for information, data, documents and evidence of implementation of cybersecurity policies." },
+        { "ref": "33(4)", "text": "Enforcement measures mirror those for essential entities — warnings, binding instructions, orders to cease infringing conduct, orders to bring measures into compliance within a deadline, orders to inform affected recipients, and administrative fines — but exclude the suspension of certifications and temporary management bans available against essential entities." }
+      ]
+    },
+    {
+      "number": "34",
+      "title": "General conditions for imposing administrative fines on essential and important entities",
+      "chapter": "Chapter VII — Supervision and Enforcement",
+      "is_key": true,
+      "summary": "Article 34 sets the fine ceilings that member states must implement. Infringements of the risk-management measures (Article 21) or reporting obligations (Article 23) by essential entities must be punishable by fines of at least up to €10,000,000 or 2% of total worldwide annual turnover, whichever is higher; for important entities the ceiling is at least €7,000,000 or 1.4%. Fines must be effective, proportionate and dissuasive, taking into account the circumstances of each case.",
+      "key_requirements": [
+        "Budget risk on the correct tier: essential entities face fines of up to at least €10,000,000 or 2% of total worldwide annual turnover, whichever is higher.",
+        "Important entities face fines of up to at least €7,000,000 or 1.4% of total worldwide annual turnover, whichever is higher.",
+        "Fines specifically attach to infringements of Article 21 (risk-management measures) and Article 23 (reporting obligations).",
+        "Mitigating and aggravating factors from Article 32(7) — gravity, duration, previous infringements, damage caused, cooperation — shape the actual amount.",
+        "Member states may additionally allow periodic penalty payments to compel cessation of an ongoing infringement."
+      ],
+      "paragraphs": [
+        { "ref": "34(1)-(3)", "text": "Member states must ensure administrative fines for infringements of Articles 21 and 23 are effective, proportionate and dissuasive, taking into account the circumstances of each individual case, and are imposed in addition to any other enforcement measures under Articles 32 and 33." },
+        { "ref": "34(4)", "text": "Essential entities that infringe Article 21 or 23 are subject to administrative fines of a maximum of at least EUR 10 000 000 or of a maximum of at least 2% of the total worldwide annual turnover in the preceding financial year of the undertaking to which the entity belongs, whichever is higher." },
+        { "ref": "34(5)", "text": "Important entities that infringe Article 21 or 23 are subject to administrative fines of a maximum of at least EUR 7 000 000 or of a maximum of at least 1.4% of the total worldwide annual turnover in the preceding financial year of the undertaking to which the entity belongs, whichever is higher." },
+        { "ref": "34(6)", "text": "Member states may provide for the power to impose periodic penalty payments to compel an entity to cease an infringement in accordance with a prior decision of the competent authority." }
+      ]
+    },
+    { "number": "35", "title": "Infringements entailing a personal data breach", "chapter": "Chapter VII — Supervision and Enforcement" },
+    { "number": "36", "title": "Penalties", "chapter": "Chapter VII — Supervision and Enforcement" },
+    { "number": "37", "title": "Mutual assistance", "chapter": "Chapter VII — Supervision and Enforcement" },
+    { "number": "38", "title": "Exercise of the delegation", "chapter": "Chapter VIII — Delegated and Implementing Acts" },
+    { "number": "39", "title": "Committee procedure", "chapter": "Chapter VIII — Delegated and Implementing Acts" },
+    { "number": "40", "title": "Review", "chapter": "Chapter IX — Final Provisions" },
+    { "number": "41", "title": "Transposition", "chapter": "Chapter IX — Final Provisions" },
+    { "number": "42", "title": "Amendment of Regulation (EU) No 910/2014", "chapter": "Chapter IX — Final Provisions" },
+    { "number": "43", "title": "Amendment of Directive (EU) 2018/1972", "chapter": "Chapter IX — Final Provisions" },
+    { "number": "44", "title": "Repeal", "chapter": "Chapter IX — Final Provisions" },
+    { "number": "45", "title": "Entry into force", "chapter": "Chapter IX — Final Provisions" },
+    { "number": "46", "title": "Addressees", "chapter": "Chapter IX — Final Provisions" }
+  ],
+  "related_practice_slugs": [
+    "encryption-at-rest",
+    "encryption-in-transit",
+    "access-control-rbac-abac",
+    "backup-recovery",
+    "audit-logging"
+  ],
+  "related_technology_slugs": ["hashicorp-vault"],
+  "position": 110
+}

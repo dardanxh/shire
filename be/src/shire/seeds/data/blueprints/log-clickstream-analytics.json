@@ -1,0 +1,147 @@
+{
+  "slug": "log-clickstream-analytics",
+  "name": "Log & clickstream analytics",
+  "use_case": "Product/ops event analytics at volume",
+  "description": "Behavioral events — page views, clicks, feature usage — are captured by an instrumentation layer (SDKs plus a collection pipeline with schema validation), landed raw in object storage as the permanent replayable record, modelled in the warehouse into sessions, funnels, and user-level facts, and activated both through warehouse BI and a product-analytics experience for self-serve exploration. The strategic choice is owning the raw event stream: packaged product-analytics tools alone are fast to start but trap your behavioral history in their walled garden; this blueprint keeps the raw grain yours and treats downstream tools as disposable views over it. Schema governance at the tracking-plan level is the discipline that separates usable event data from a swamp of misnamed events.",
+  "when_to_use": [
+    "Choose this when product and growth decisions depend on behavioral data at real volume — funnel analysis, retention cohorts, feature adoption — and you want the raw events joined with business data in the warehouse rather than siloed in a vendor tool.",
+    "It also fits ops/log analytics where event volume makes land-raw-then-model the only affordable shape.",
+    "Product decisions depend on how users actually behave, at event granularity."
+  ],
+  "when_not_to_use": [
+    "Skip the pipeline if you are pre-product-market-fit — a hosted product-analytics tool alone answers the questions a small team actually has, in days not months.",
+    "If events are low-volume and only feed simple dashboards, ordinary ELT (2) with an events table suffices.",
+    "Infrastructure log search (debugging, tracing) is a different problem — that is Elasticsearch/OpenSearch territory, not this warehouse-modelling shape."
+  ],
+  "use_cases": [
+    "reporting",
+    "realtime",
+    "activation"
+  ],
+  "hot_spots": [
+    {
+      "title": "Event schema drift",
+      "detail": "Frontend teams renaming events silently break funnels."
+    },
+    {
+      "title": "Bot traffic",
+      "detail": "Unfiltered bots inflate every metric."
+    },
+    {
+      "title": "Sessionization",
+      "detail": "Wrong session boundaries skew engagement and conversion numbers."
+    },
+    {
+      "title": "Consent gaps",
+      "detail": "Collecting before consent turns analytics into a privacy incident."
+    }
+  ],
+  "complexity": "medium",
+  "evolution": [
+    {
+      "to_slug": "real-time-analytics-serving",
+      "reason": "Funnels and ops views start needing sub-second freshness."
+    }
+  ],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[User Interaction Sources]:::source -->|click and log events| COL[Event Collection]:::process\n  COL -->|validated events| LAKE[Event Lake]:::store\n  LAKE -->|sessionized data| MOD[Behavior Modeling]:::process\n  MOD -->|funnels and metrics| ACT[Activation]:::serve\n  ACT -->|product decisions| TEAM[Product Teams]:::serve"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  SDK[Web + App SDKs]:::source -->|batched events| COL[Collection Service]:::process\n  COL -->|hourly partitions| OBJ[Object Storage Raw Zone]:::store\n  OBJ -->|batch SQL models| MOD[Modeling Jobs]:::process\n  MOD -->|sessions and funnels| WH[Analytics Store]:::store\n  WH -->|exploration| PA[Product Analytics + Audiences]:::serve"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([raw click events]):::source -->|validate and enrich| B([clean events]):::process\n  B -->|partition by hour| C([event lake files]):::store\n  C -->|sessionize| E([sessions]):::store\n  E -->|aggregate| F([behavior metrics]):::store\n  F -->|activate| G([audiences + reports]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant U as User\n  participant K as SDK\n  participant C as Collector\n  participant L as Event Lake\n  participant M as Modeler\n  participant P as Product Team\n  U->>K: click / page view\n  K->>C: batch events\n  C->>L: append hourly partition\n  M->>L: daily modeling run\n  M->>M: sessionize + funnel metrics\n  P->>M: review funnels and retention"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[User Interaction Sources]:::source -->|click and log events| COL[\"Amazon Kinesis + Snowplow<br/><i>Event Collection</i>\"]:::process\n  COL -->|validated events| LAKE[\"Amazon S3 event lake<br/><i>Event Lake</i>\"]:::store\n  LAKE -->|sessionized data| MOD[\"dbt on Redshift<br/><i>Behavior Modeling</i>\"]:::process\n  MOD -->|funnels and metrics| ACT[\"Amazon QuickSight + Athena<br/><i>Activation</i>\"]:::serve\n  ACT -->|product decisions| TEAM[Product Teams]:::serve"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[User Interaction Sources]:::source -->|click and log events| COL[\"Event Hubs + Snowplow<br/><i>Event Collection</i>\"]:::process\n  COL -->|validated events| LAKE[\"ADLS event lake<br/><i>Event Lake</i>\"]:::store\n  LAKE -->|sessionized data| MOD[\"dbt on Synapse<br/><i>Behavior Modeling</i>\"]:::process\n  MOD -->|funnels and metrics| ACT[\"Power BI<br/><i>Activation</i>\"]:::serve\n  ACT -->|product decisions| TEAM[Product Teams]:::serve"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[User Interaction Sources]:::source -->|click and log events| COL[\"Pub/Sub + Snowplow<br/><i>Event Collection</i>\"]:::process\n  COL -->|validated events| LAKE[\"GCS event lake<br/><i>Event Lake</i>\"]:::store\n  LAKE -->|sessionized data| MOD[\"Dataform · dbt<br/><i>Behavior Modeling</i>\"]:::process\n  MOD -->|funnels and metrics| ACT[\"Looker<br/><i>Activation</i>\"]:::serve\n  ACT -->|product decisions| TEAM[Product Teams]:::serve"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[User Interaction Sources]:::source -->|click and log events| COL[\"Snowplow · Jitsu<br/><i>Event Collection</i>\"]:::process\n  COL -->|validated events| LAKE[\"MinIO + Iceberg event lake<br/><i>Event Lake</i>\"]:::store\n  LAKE -->|sessionized data| MOD[\"dbt Core<br/><i>Behavior Modeling</i>\"]:::process\n  MOD -->|funnels and metrics| ACT[\"Metabase · Apache Superset<br/><i>Activation</i>\"]:::serve\n  ACT -->|product decisions| TEAM[Product Teams]:::serve"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[User Interaction Sources]:::source -->|click and log events| COL[\"Snowplow · Segment<br/><i>Event Collection</i>\"]:::process\n  COL -->|validated events| LAKE[\"Snowflake RAW events<br/><i>Event Lake</i>\"]:::store\n  LAKE -->|sessionized data| MOD[\"dbt Cloud<br/><i>Behavior Modeling</i>\"]:::process\n  MOD -->|funnels and metrics| ACT[\"Tableau + Hightouch<br/><i>Activation</i>\"]:::serve\n  ACT -->|product decisions| TEAM[Product Teams]:::serve"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[User Interaction Sources]:::source -->|click and log events| COL[\"Snowplow · Segment<br/><i>Event Collection</i>\"]:::process\n  COL -->|validated events| LAKE[\"Delta Lake bronze events<br/><i>Event Lake</i>\"]:::store\n  LAKE -->|sessionized data| MOD[\"dbt on Databricks<br/><i>Behavior Modeling</i>\"]:::process\n  MOD -->|funnels and metrics| ACT[\"Databricks Dashboards<br/><i>Activation</i>\"]:::serve\n  ACT -->|product decisions| TEAM[Product Teams]:::serve"
+    }
+  ],
+  "family_tags": [
+    "acquisition-ingestion",
+    "analytics-serving"
+  ],
+  "archetype_slugs": [
+    "log-clickstream-collection",
+    "elt-transformation-layer",
+    "bi-dashboard-build"
+  ],
+  "position": 10,
+  "stages": [
+    {
+      "position": 0,
+      "name": "Collect",
+      "role": "SDK instrumentation, event validation against a tracking plan, and delivery",
+      "recommended_technology_slug": "snowplow",
+      "alternative_technology_slugs": [
+        "segment",
+        "rudderstack",
+        "mparticle"
+      ],
+      "rationale": "Snowplow is the own-your-pipeline pick the doc pairs with this blueprint's philosophy: self-hosted or managed collection with rigorous schema validation (failed events are quarantined, not silently dropped) and rich, unopinionated raw data landing in your storage. Segment is the fastest integration path with the broadest destination catalog, but MTU pricing scales brutally and the raw grain lives on their terms; RudderStack splits the difference — Segment-compatible APIs, warehouse-first delivery, open-source core; mParticle fits mobile-heavy enterprise estates. Whichever you choose, invest in the tracking plan and event naming conventions first — no collector fixes ambiguous instrumentation."
+    },
+    {
+      "position": 1,
+      "name": "Land",
+      "role": "Persist the raw event stream as the permanent, replayable source of truth",
+      "recommended_technology_slug": "amazon-s3",
+      "alternative_technology_slugs": [
+        "google-cloud-storage",
+        "azure-data-lake-storage",
+        "snowflake"
+      ],
+      "rationale": "Raw events on S3 (partitioned, Parquet, lifecycle-tiered to cold storage) are cheap enough to keep forever, and 'forever' is the point — every future model, backfill, and migration replays from here. GCS and ADLS are the same move on other clouds. Landing directly into warehouse-native tables (Snowflake) is operationally simpler and fine at moderate volume, but couples your entire behavioral history to warehouse storage pricing and format — at clickstream volumes the object-store layer usually pays for itself."
+    },
+    {
+      "position": 2,
+      "name": "Model",
+      "role": "Sessionize, identity-stitch, and build funnel/retention marts from raw events",
+      "recommended_technology_slug": "dbt",
+      "alternative_technology_slugs": [
+        "sqlmesh",
+        "apache-spark"
+      ],
+      "rationale": "Event modelling is incremental SQL at its core — sessionization windows, identity stitching across anonymous and known users, funnel and cohort marts — and dbt's incremental models plus the ecosystem of open-source event-modelling packages make it the standard here. Watch incremental correctness with late-arriving events: key on event time with a lookback window. SQLMesh handles those incremental semantics more rigorously; Spark earns a place only when identity resolution or sessionization outgrows SQL at extreme volume."
+    },
+    {
+      "position": 3,
+      "name": "Activate",
+      "role": "Serve modelled behavior: warehouse BI plus a self-serve product-analytics experience — 'Amplitude-style' tools (Amplitude, Mixpanel, PostHog) have no corpus entry, so no recommended slug fits",
+      "recommended_technology_slug": null,
+      "alternative_technology_slugs": [
+        "metabase",
+        "lightdash",
+        "hightouch"
+      ],
+      "rationale": "Two audiences, two surfaces. Analysts and the business get warehouse BI (Metabase or Lightdash) over the dbt marts. Product teams want the Amplitude-style experience — instant funnels, paths, cohorts without writing SQL — and the corpus has no entry for that category (Amplitude, Mixpanel, PostHog, or warehouse-native options like Mitzu/NetSpring), hence no recommended slug: pick one and feed it from the modelled warehouse tables rather than parallel instrumentation, so both surfaces agree. Hightouch closes the loop by syncing behavioral cohorts back into marketing and CRM tools."
+    }
+  ]
+}

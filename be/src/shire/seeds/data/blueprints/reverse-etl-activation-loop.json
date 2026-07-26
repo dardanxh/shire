@@ -1,0 +1,147 @@
+{
+  "slug": "reverse-etl-activation-loop",
+  "name": "Reverse ETL activation loop",
+  "use_case": "Warehouse insights pushed into SaaS tools",
+  "description": "The warehouse stops being a read-only reporting destination and starts driving operations: dbt models compute the segments, scores, and enriched attributes (churn risk, LTV tier, product-qualified-lead flags), a reverse-ETL tool diffs those tables and syncs changes into CRM, ads, and support platforms where operators actually work, and outcome data flows back into the warehouse to close the loop and measure whether activation moved anything. The pattern's value hinges on the loop actually closing — one-way pushes without feedback capture are just expensive field syncs. Treat synced models as production APIs: the moment sales workflows depend on a column, its dbt model needs tests, owners, and change control. The warehouse raw schema, populated by your ELT, is the landing layer; this pattern begins after data has landed.",
+  "when_to_use": [
+    "Choose this when insight already exists in the warehouse but dies in dashboards — sales wants product-usage signals in the CRM, marketing wants warehouse-defined audiences in ad platforms, support wants customer health inline.",
+    "It presupposes a working ELT stack (2) with trustworthy models; reverse ETL amplifies model quality in both directions.",
+    "Insights die in dashboards because they never reach operational tools."
+  ],
+  "when_not_to_use": [
+    "Do not build this before the warehouse models are stable and tested — syncing wrong data into operational tools destroys trust faster than any dashboard error, because people act on it.",
+    "Real-time operational triggers (sub-minute) want event streams, not warehouse polling.",
+    "And if only one destination matters, that SaaS tool's native import API may be simpler than a new platform component."
+  ],
+  "use_cases": [
+    "activation",
+    "operational"
+  ],
+  "hot_spots": [
+    {
+      "title": "Sync conflicts",
+      "detail": "Warehouse writes racing manual CRM edits overwrite human work."
+    },
+    {
+      "title": "Destination API limits",
+      "detail": "Rate limits stall syncs and leave tools half-updated."
+    },
+    {
+      "title": "Feedback loops",
+      "detail": "Activated data flowing back in can amplify its own errors."
+    }
+  ],
+  "complexity": "low",
+  "evolution": [
+    {
+      "to_slug": "customer-360-cdp",
+      "reason": "Grow into a full composable CDP with identity resolution and consent-gated audiences."
+    }
+  ],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Business Data Sources]:::source -->|collected data| WH[Warehouse]:::store\n  WH -->|modeled segments| MOD[Audience Modeling]:::process\n  MOD -->|tool-ready attributes| SYNC[Sync Service]:::process\n  SYNC -->|activated records| TOOLS[Business Tools]:::serve\n  TOOLS -->|usage and outcomes| FB[Feedback Capture]:::process\n  FB -->|closed-loop data| WH"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  EL[ELT Sources]:::source -->|load| WH[Cloud Warehouse]:::store\n  WH -->|SQL models| SEG[Segment Models]:::process\n  SEG -->|field mappings| RETL[Reverse ETL Syncer]:::process\n  RETL -->|upserts| SAAS[CRM + Ads + Support Tools]:::serve\n  SAAS -->|events| CAP[Event Capture]:::process\n  CAP -->|outcome tables| WH"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([warehouse tables]):::store -->|model| B([audience segments]):::process\n  B -->|map fields| C([tool-ready records]):::process\n  C -->|sync diffs| E([records inside SaaS tools]):::serve\n  E -->|capture outcomes| F([feedback events]):::source\n  F -->|load back| A"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant S as Scheduler\n  participant M as Segment Models\n  participant R as Reverse ETL\n  participant C as CRM\n  participant T as Tracker\n  participant W as Warehouse\n  S->>M: rebuild segments\n  R->>W: read changed rows\n  R->>C: upsert contacts + traits\n  Note over C: teams act on fresh data\n  T->>W: land outcome events\n  S->>M: next cycle uses outcomes"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Business Data Sources]:::source -->|collected data| WH[\"Amazon Redshift<br/><i>Warehouse</i>\"]:::store\n  WH -->|modeled segments| MOD[\"dbt on Redshift<br/><i>Audience Modeling</i>\"]:::process\n  MOD -->|tool-ready attributes| SYNC[\"AWS AppFlow<br/><i>Sync Service</i>\"]:::process\n  SYNC -->|activated records| TOOLS[\"Salesforce · Marketo<br/><i>Business Tools</i>\"]:::serve\n  TOOLS -->|usage and outcomes| FB[\"Kinesis event capture<br/><i>Feedback Capture</i>\"]:::process\n  FB -->|closed-loop data| WH"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Business Data Sources]:::source -->|collected data| WH[\"Azure Synapse Analytics<br/><i>Warehouse</i>\"]:::store\n  WH -->|modeled segments| MOD[\"dbt on Synapse<br/><i>Audience Modeling</i>\"]:::process\n  MOD -->|tool-ready attributes| SYNC[\"ADF reverse sync<br/><i>Sync Service</i>\"]:::process\n  SYNC -->|activated records| TOOLS[\"Dynamics 365 · Salesforce<br/><i>Business Tools</i>\"]:::serve\n  TOOLS -->|usage and outcomes| FB[\"Event Hubs capture<br/><i>Feedback Capture</i>\"]:::process\n  FB -->|closed-loop data| WH"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Business Data Sources]:::source -->|collected data| WH[\"BigQuery<br/><i>Warehouse</i>\"]:::store\n  WH -->|modeled segments| MOD[\"Dataform · dbt<br/><i>Audience Modeling</i>\"]:::process\n  MOD -->|tool-ready attributes| SYNC[\"Google Cloud Data Fusion reverse sync<br/><i>Sync Service</i>\"]:::process\n  SYNC -->|activated records| TOOLS[\"Salesforce · Google Ads<br/><i>Business Tools</i>\"]:::serve\n  TOOLS -->|usage and outcomes| FB[\"Pub/Sub capture<br/><i>Feedback Capture</i>\"]:::process\n  FB -->|closed-loop data| WH"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Business Data Sources]:::source -->|collected data| WH[\"ClickHouse<br/><i>Warehouse</i>\"]:::store\n  WH -->|modeled segments| MOD[\"dbt Core<br/><i>Audience Modeling</i>\"]:::process\n  MOD -->|tool-ready attributes| SYNC[\"Multiwoven · custom syncs<br/><i>Sync Service</i>\"]:::process\n  SYNC -->|activated records| TOOLS[\"SuiteCRM · Mautic<br/><i>Business Tools</i>\"]:::serve\n  TOOLS -->|usage and outcomes| FB[\"Kafka capture<br/><i>Feedback Capture</i>\"]:::process\n  FB -->|closed-loop data| WH"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Business Data Sources]:::source -->|collected data| WH[\"Snowflake<br/><i>Warehouse</i>\"]:::store\n  WH -->|modeled segments| MOD[\"dbt Cloud<br/><i>Audience Modeling</i>\"]:::process\n  MOD -->|tool-ready attributes| SYNC[\"Hightouch · Census<br/><i>Sync Service</i>\"]:::process\n  SYNC -->|activated records| TOOLS[\"Salesforce · HubSpot<br/><i>Business Tools</i>\"]:::serve\n  TOOLS -->|usage and outcomes| FB[\"Fivetran connectors back<br/><i>Feedback Capture</i>\"]:::process\n  FB -->|closed-loop data| WH"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Business Data Sources]:::source -->|collected data| WH[\"Databricks SQL<br/><i>Warehouse</i>\"]:::store\n  WH -->|modeled segments| MOD[\"dbt on Databricks<br/><i>Audience Modeling</i>\"]:::process\n  MOD -->|tool-ready attributes| SYNC[\"Hightouch · Census<br/><i>Sync Service</i>\"]:::process\n  SYNC -->|activated records| TOOLS[\"Salesforce · HubSpot<br/><i>Business Tools</i>\"]:::serve\n  TOOLS -->|usage and outcomes| FB[\"LakeFlow Connect back<br/><i>Feedback Capture</i>\"]:::process\n  FB -->|closed-loop data| WH"
+    }
+  ],
+  "family_tags": [
+    "analytics-serving"
+  ],
+  "archetype_slugs": [
+    "reverse-etl-data-activation",
+    "elt-transformation-layer"
+  ],
+  "position": 14,
+  "stages": [
+    {
+      "position": 0,
+      "name": "Warehouse",
+      "role": "System of record holding the modelled customer data to be activated",
+      "recommended_technology_slug": "snowflake",
+      "alternative_technology_slugs": [
+        "bigquery",
+        "redshift",
+        "databricks-sql"
+      ],
+      "rationale": "Whatever warehouse the ELT stack (blueprint 2) already runs on — Snowflake as the ecosystem default, BigQuery/Redshift/Databricks equally valid. Reverse ETL adds frequent diff queries against activation tables, so keep those models compact and consider a dedicated small compute pool so sync polling never contends with analytics workloads."
+    },
+    {
+      "position": 1,
+      "name": "Model",
+      "role": "Compute activation-ready segments, scores, and attributes as tested dbt models",
+      "recommended_technology_slug": "dbt",
+      "alternative_technology_slugs": [
+        "sqlmesh"
+      ],
+      "rationale": "Activation models are the contract: one row per entity, stable primary key, explicit columns for each destination field, dbt tests on uniqueness and null-ness — because a broken sync writes garbage into the CRM where humans act on it within the hour. Keep activation models separate from reporting marts so operational change control does not slow analytical iteration. SQLMesh applies identically if it is your modelling layer."
+    },
+    {
+      "position": 2,
+      "name": "Sync",
+      "role": "Diff warehouse tables and push changes into SaaS destinations with field mapping and rate-limit handling",
+      "recommended_technology_slug": "hightouch",
+      "alternative_technology_slugs": [
+        "census",
+        "rudderstack",
+        "grouparoo"
+      ],
+      "rationale": "Hightouch leads the category: broad destination coverage, dbt-model-aware syncs, visual field mapping that lets ops teams self-serve, and diffing that respects destination API rate limits. Census is the near-peer alternative — evaluation usually comes down to specific destination quality and pricing model. RudderStack bundles reverse ETL if it is already your event pipeline (10), one less vendor; Grouparoo is the open-source option, though its momentum has faded since acquisition. Note the majors' pricing has shifted toward platform bundles — model your row/field volumes before committing."
+    },
+    {
+      "position": 3,
+      "name": "Destinations",
+      "role": "The operational tools receiving data — CRM, ad platforms, support desks; these are your SaaS estate, not corpus technologies",
+      "recommended_technology_slug": null,
+      "alternative_technology_slugs": [],
+      "rationale": "Salesforce, HubSpot, Google/Meta ads, Zendesk, Braze — whatever the business runs on; none are corpus entries because they are the destination, not the stack. The architectural work here is destination-side: field ownership (which CRM fields does the warehouse own vs humans edit — never both), match-key strategy for ad audiences, and idempotent upserts so retries cannot duplicate records. Agree field ownership with RevOps in writing before the first sync."
+    },
+    {
+      "position": 4,
+      "name": "Feedback capture",
+      "role": "Pull outcomes — emails sent, deals touched, campaign results — back into the warehouse to measure activation impact",
+      "recommended_technology_slug": "fivetran",
+      "alternative_technology_slugs": [
+        "airbyte",
+        "dlt",
+        "segment"
+      ],
+      "rationale": "Closing the loop is ordinary EL: Fivetran's CRM and ad-platform connectors pull engagement and outcome data back into the warehouse, where models join it against the segments that were synced out — did the churn-risk campaign actually reduce churn? Airbyte/dlt are the build-side equivalents; Segment contributes if in-product behavior is part of the outcome definition. This stage is the one most teams skip, and skipping it reduces the whole blueprint to unmeasured field-copying."
+    }
+  ]
+}

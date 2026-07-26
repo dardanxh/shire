@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.115",
+    "fastapi-pagination>=0.15.12",
     "uvicorn[standard]>=0.32",
     "sqlalchemy>=2.0.36",
     "psycopg[binary]>=3.2",
@@ -25,6 +26,9 @@ dependencies = [
     "packaging>=24.0",
     "prefect>=3.7.7",
 ]
+
+[project.scripts]
+shire-seed = "shire.seeds.cli:main"
 
 [dependency-groups]
 dev = [

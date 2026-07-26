@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { DataTable } from "@/components/shared/DataTable";
 import { DataTablePagination } from "@/components/shared/DataTablePagination";
 import { buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { JobStatusBadge } from "@/features/jobs";
 import type { RoadmapOut } from "@/lib/api";
 import { formatDate } from "@/lib/format";
@@ -108,7 +109,7 @@ export function RoadmapsListPage({
   ];
 
   return (
-    <div className="space-y-4 p-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-end gap-3">
         <Link to="/roadmaps/new" className={cn(buttonVariants())}>
           <PlusIcon className="size-4" />
@@ -116,46 +117,54 @@ export function RoadmapsListPage({
         </Link>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={data?.items ?? []}
-        isPending={isPending}
-        isError={isError}
-        onRowClick={(row) =>
-          navigate({
-            to: "/roadmaps/$id",
-            params: { id: row.id },
-            search: { tab: "board" },
-          })
-        }
-        emptyState={
-          <div className="flex flex-col items-center gap-3 py-10">
-            <MapIcon className="size-8 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
-              {t("roadmaps.list.empty")}
-            </p>
-            <Link
-              to="/roadmaps/new"
-              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
-            >
-              {t("roadmaps.list.empty_cta")}
-            </Link>
+      <Card className="overflow-hidden p-0">
+        <DataTable
+          columns={columns}
+          data={data?.items ?? []}
+          isPending={isPending}
+          isError={isError}
+          onRowClick={(row) =>
+            navigate({
+              to: "/roadmaps/$id",
+              params: { id: row.id },
+              search: { tab: "board" },
+            })
+          }
+          emptyState={
+            <div className="flex flex-col items-center gap-3 py-10">
+              <MapIcon className="size-8 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">
+                {t("roadmaps.list.empty")}
+              </p>
+              <Link
+                to="/roadmaps/new"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                )}
+              >
+                {t("roadmaps.list.empty_cta")}
+              </Link>
+            </div>
+          }
+        />
+        {(data?.total ?? 0) > 0 ? (
+          <div className="border-t border-border">
+            <DataTablePagination
+              page={page}
+              size={size}
+              total={data?.total ?? 0}
+              labels={{
+                rowsPerPage: t("common.pagination.rows_per_page"),
+                pageOf: t("common.pagination.page_of"),
+                previous: t("common.pagination.previous"),
+                next: t("common.pagination.next"),
+              }}
+              onPageChange={onPageChange}
+              onSizeChange={onSizeChange}
+            />
           </div>
-        }
-      />
-      <DataTablePagination
-        page={page}
-        size={size}
-        total={data?.total ?? 0}
-        labels={{
-          rowsPerPage: t("common.pagination.rows_per_page"),
-          pageOf: t("common.pagination.page_of"),
-          previous: t("common.pagination.previous"),
-          next: t("common.pagination.next"),
-        }}
-        onPageChange={onPageChange}
-        onSizeChange={onSizeChange}
-      />
+        ) : null}
+      </Card>
     </div>
   );
 }

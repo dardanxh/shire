@@ -1,0 +1,177 @@
+{
+  "slug": "durability",
+  "name": "Durability",
+  "category": "reliability",
+  "summary": "Once data is acknowledged as written, it survives failures without loss — backed by replicated storage, commit logs, snapshots, and backups.",
+  "description": "Durability is the guarantee that committed data will not be lost when hardware, processes, or whole regions fail. In data architectures it rests on the storage foundation: object stores offering eleven nines of durability, write-ahead and commit logs that make writes recoverable, replication factors that keep multiple copies, and table-format snapshots that let you recover to any prior state. Architectures rooted in durable object storage and audit-preserving models are strongest; ephemeral in-memory or single-node state is durable only insofar as it is backed by a persistent log.",
+  "mechanisms": [
+    {
+      "name": "Object-storage eleven-nines",
+      "note": "Landing data on cloud object storage that replicates every object across devices and facilities for 99.999999999% durability.",
+      "related_technology_slugs": [
+        "amazon-s3",
+        "google-cloud-storage",
+        "azure-data-lake-storage",
+        "cloudflare-r2"
+      ]
+    },
+    {
+      "name": "Write-ahead / commit logs",
+      "note": "Persisting every change to an ordered log before acknowledging it, so committed writes survive a crash and can be replayed.",
+      "related_technology_slugs": [
+        "apache-kafka",
+        "apache-pulsar",
+        "delta-lake"
+      ]
+    },
+    {
+      "name": "Replication factor",
+      "note": "Keeping N copies of each partition or block across nodes so the loss of a disk or machine never loses acknowledged data.",
+      "related_technology_slugs": [
+        "apache-kafka",
+        "hdfs",
+        "clickhouse"
+      ]
+    },
+    {
+      "name": "Snapshots and time-travel",
+      "note": "Table-format snapshots retain prior versions, letting you recover an accidentally deleted or corrupted table to an earlier state.",
+      "related_technology_slugs": [
+        "apache-iceberg",
+        "delta-lake",
+        "apache-hudi"
+      ]
+    },
+    {
+      "name": "Backups and cross-region replication",
+      "note": "Copying data to an independent region or backup so a regional failure or catastrophic error doesn't destroy the only copy.",
+      "related_technology_slugs": [
+        "amazon-s3",
+        "snowflake",
+        "terraform"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "strong",
+      "statement": "Every layer persists to eleven-nines object storage, and table-format snapshots keep prior versions, so acknowledged data survives node and region failures and a bad write can be rolled back to a durable snapshot."
+    },
+    {
+      "blueprint_slug": "open-iceberg-lakehouse",
+      "rating": "strong",
+      "statement": "Data lives once on durable object storage with immutable snapshots and manifest history; deletes and updates create new snapshots, so nothing acknowledged is silently lost and any prior state is recoverable."
+    },
+    {
+      "blueprint_slug": "classic-raw-data-lake",
+      "rating": "strong",
+      "statement": "The lake's whole premise is cheap, durable landing on object storage that replicates every object across facilities — raw data, once written, is about as safe from loss as any storage on offer."
+    },
+    {
+      "blueprint_slug": "data-vault-warehouse",
+      "rating": "strong",
+      "statement": "Insert-only hubs, links, and satellites never overwrite history, so the model preserves a durable, auditable record of every version — durability is reinforced by the modelling discipline, not just the storage."
+    },
+    {
+      "blueprint_slug": "kimball-data-warehouse",
+      "rating": "strong",
+      "statement": "Managed warehouses replicate storage and take automatic snapshots with time-travel, so committed dimensional data survives failures and can be restored to a prior point without a separate backup process."
+    },
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "strong",
+      "statement": "The cloud warehouse durably replicates all committed tables and offers time-travel recovery, so loaded raw data and dbt-built marts survive hardware failures and accidental drops alike."
+    },
+    {
+      "blueprint_slug": "streaming-lakehouse",
+      "rating": "strong",
+      "statement": "Continuous commits land in a durable table format on object storage with retained snapshots, so even minutes-fresh data is persisted safely and recoverable to any recent version."
+    },
+    {
+      "blueprint_slug": "event-driven-architecture",
+      "rating": "strong",
+      "statement": "The replicated, retained commit log durably stores every event until its retention or compaction policy expires, so consumers can always recover acknowledged events from the log."
+    },
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "moderate",
+      "statement": "The warehouse target is durable, but durability of the change stream is bounded by source log retention — if the CDC pipeline lags past the retention window, unshipped changes can be lost before landing."
+    },
+    {
+      "blueprint_slug": "iot-telemetry-platform",
+      "rating": "moderate",
+      "statement": "Once telemetry reaches the replicated ingest log and object storage it is durable, but data buffered on devices or in edge gateways before ingest can be lost if a device fails before flushing."
+    },
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "moderate",
+      "statement": "The source log is durable and replicated, but the streaming operators' working state is ephemeral in memory — durability holds only because that state can be rebuilt by replaying the durable log, not because it is itself persisted."
+    },
+    {
+      "blueprint_slug": "real-time-analytics-serving",
+      "rating": "moderate",
+      "statement": "Serving engines often hold hot data in memory or on local disk for speed, so durability of the serving copy is limited; it is backstopped by the durable upstream log or lake it can reload from."
+    },
+    {
+      "blueprint_slug": "ml-feature-pipeline",
+      "rating": "moderate",
+      "statement": "The offline feature store on the lake is durable, but the online store is frequently an in-memory or cache tier optimized for low-latency reads, so its copy is durable only as a re-materialization of the offline source."
+    },
+    {
+      "blueprint_slug": "query-federation",
+      "rating": "trade-off",
+      "statement": "By design the federation layer holds no copy at all, so it contributes zero durability — the guarantee is entirely delegated to whatever source systems the query touches."
+    },
+    {
+      "blueprint_slug": "small-data-duckdb-stack",
+      "rating": "limited",
+      "statement": "Data sits in local files on a single node with no replication; durability is only as good as that one disk and whatever manual backup the operator arranges, so hardware loss can mean data loss."
+    },
+    {
+      "blueprint_slug": "reverse-etl-activation-loop",
+      "rating": "limited",
+      "statement": "The activation loop is a transient push of warehouse data into SaaS tools; it holds no durable copy of what it sends, and any record of what was pushed depends on logging, not on a persisted store of the payloads."
+    },
+    {
+      "blueprint_slug": "semantic-metrics-layer",
+      "rating": "limited",
+      "statement": "The metrics layer stores definitions, not data, and computes results on demand, so it has little durable state of its own beyond the versioned metric definitions in source control."
+    },
+    {
+      "blueprint_slug": "pii-safe-analytics-zone",
+      "rating": "moderate",
+      "statement": "Sensitive data rests on durable governed storage, but tokenization introduces a vault whose loss or drift can render protected values unrecoverable if not itself backed up."
+    }
+  ],
+  "related_technology_slugs": [
+    "amazon-s3",
+    "apache-iceberg",
+    "delta-lake",
+    "apache-kafka",
+    "snowflake",
+    "hdfs"
+  ],
+  "related_quality_slugs": [
+    "fault-tolerance",
+    "consistency"
+  ],
+  "position": 40,
+  "tradeoffs": [
+    {
+      "title": "Latency",
+      "note": "Guaranteeing data survives means synchronously replicating and fsync-ing writes to stable storage before acknowledging, which adds measurable latency to every durable write.",
+      "quality_slug": "latency"
+    },
+    {
+      "title": "Cost efficiency",
+      "note": "Durability keeps multiple copies, cross-region replication, and layered backups, so protecting every byte against loss multiplies storage and transfer spend.",
+      "quality_slug": "cost-efficiency"
+    },
+    {
+      "title": "Throughput",
+      "note": "Requiring acknowledged, fully persisted writes before proceeding throttles ingest, so the safest durable path accepts fewer records per second than unacknowledged writes.",
+      "quality_slug": "throughput"
+    }
+  ]
+}

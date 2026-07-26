@@ -1,0 +1,683 @@
+[
+  {
+    "slug": "jdbc",
+    "name": "JDBC",
+    "category_slug": "protocols/query-protocols",
+    "secondary_category_slugs": [],
+    "description": "The standard Java API for connecting to relational databases; virtually every JVM-based data tool speaks it. It's the assumed integration path for anything Java-side, though row-oriented result handling makes it inefficient for bulk analytical transfer.",
+    "homepage_url": "https://www.oracle.com/java/technologies/javase/javase-tech-database.html",
+    "aliases": [
+      "Java Database Connectivity"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "protocol",
+      "database-connectivity",
+      "java"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "odbc",
+    "name": "ODBC",
+    "category_slug": "protocols/query-protocols",
+    "secondary_category_slugs": [],
+    "description": "The language-agnostic C-level database connectivity standard that BI tools, Excel, and legacy applications have relied on for three decades. Still the lowest common denominator for connecting anything to any database, especially on Windows.",
+    "homepage_url": "https://learn.microsoft.com/en-us/sql/odbc/microsoft-open-database-connectivity-odbc",
+    "aliases": [
+      "Open Database Connectivity"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "protocol",
+      "database-connectivity",
+      "standard"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "adbc",
+    "name": "ADBC",
+    "category_slug": "protocols/query-protocols",
+    "secondary_category_slugs": [],
+    "description": "Arrow-native database connectivity API from the Apache Arrow project: like ODBC/JDBC but returning columnar Arrow data, eliminating row-to-column conversion overhead. The emerging standard for analytical clients pulling large result sets efficiently.",
+    "homepage_url": "https://arrow.apache.org/adbc/",
+    "aliases": [
+      "Arrow Database Connectivity"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "protocol",
+      "database-connectivity",
+      "arrow",
+      "columnar"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "arrow-flight-sql",
+    "name": "Arrow Flight SQL",
+    "category_slug": "protocols/query-protocols",
+    "secondary_category_slugs": [],
+    "description": "Wire protocol for executing SQL and streaming results as Arrow record batches over gRPC, an order of magnitude faster than ODBC/JDBC for large analytical transfers. Adopted by Dremio, InfluxDB, and a growing set of engines; the server-side complement to ADBC.",
+    "homepage_url": "https://arrow.apache.org/docs/format/FlightSql.html",
+    "aliases": [
+      "Flight SQL"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "Bearer token",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "protocol",
+      "arrow",
+      "grpc",
+      "columnar"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "sftp",
+    "name": "SFTP",
+    "category_slug": "protocols/file-transfer",
+    "secondary_category_slugs": [],
+    "description": "File transfer over SSH: encrypted, firewall-friendly on a single port, and universally supported by servers, clients, and managed offerings. The default answer whenever a partner says 'just drop the files somewhere' — still the workhorse of batch data exchange.",
+    "homepage_url": "https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13",
+    "aliases": [
+      "SSH File Transfer Protocol"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "ssh_key",
+        "name": "SSH key",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "private_key",
+            "label": "Private key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "passphrase",
+            "label": "Key passphrase",
+            "secret": true,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "protocol",
+      "file-transfer",
+      "ssh"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "ftp-ftps",
+    "name": "FTP/FTPS",
+    "category_slug": "protocols/file-transfer",
+    "secondary_category_slugs": [],
+    "description": "The original file transfer protocol and its TLS-wrapped variant, still encountered in older enterprise and B2B integrations. Its multi-port connection model is firewall-hostile and plain FTP is unencrypted — treat any FTP dependency as migration debt toward SFTP.",
+    "homepage_url": "https://datatracker.ietf.org/doc/html/rfc959",
+    "aliases": [
+      "FTP",
+      "FTPS",
+      "File Transfer Protocol"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "protocol",
+      "file-transfer",
+      "legacy"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "rsync",
+    "name": "rsync",
+    "category_slug": "protocols/file-transfer",
+    "secondary_category_slugs": [],
+    "description": "Delta-transfer protocol and tool that syncs directories by sending only changed blocks, typically tunneled over SSH. Unbeatable for efficient recurring mirroring of large file trees between Unix systems; not a fit for partner-facing exchange.",
+    "homepage_url": "https://rsync.samba.org",
+    "aliases": [],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "ssh_key",
+        "name": "SSH key",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "private_key",
+            "label": "Private key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "passphrase",
+            "label": "Key passphrase",
+            "secret": true,
+            "required": false
+          }
+        ]
+      },
+      {
+        "slug": "username_password",
+        "name": "Username & password (rsync daemon)",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "protocol",
+      "file-transfer",
+      "delta-sync",
+      "unix"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "as2",
+    "name": "AS2",
+    "category_slug": "protocols/file-transfer",
+    "secondary_category_slugs": [
+      "protocols/b2b-exchange"
+    ],
+    "description": "B2B transfer standard (RFC 4130) pushing signed, encrypted payloads over HTTPS with MDN delivery receipts for non-repudiation. Mandated across retail and healthcare supply chains as the transport for EDI documents — you use it because your trading partner requires it.",
+    "homepage_url": "https://datatracker.ietf.org/doc/html/rfc4130",
+    "aliases": [
+      "Applicability Statement 2"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "protocol",
+      "file-transfer",
+      "b2b",
+      "edi"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "license",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "rest",
+    "name": "REST",
+    "category_slug": "protocols/api-styles",
+    "secondary_category_slugs": [],
+    "description": "The dominant architectural style for web APIs: resource-oriented HTTP with JSON payloads, universally understood by every client, tool, and developer. The default for any API you expose or consume; its per-request overhead is the price of ubiquity.",
+    "homepage_url": "https://ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm",
+    "aliases": [
+      "RESTful API",
+      "Representational State Transfer"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "api-style",
+      "http",
+      "standard"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "graphql",
+    "name": "GraphQL",
+    "category_slug": "protocols/api-styles",
+    "secondary_category_slugs": [],
+    "description": "Query language for APIs letting clients request exactly the fields they need from a typed schema in a single round trip. Shines for product frontends aggregating many backends; for bulk data extraction it's often slower and fiddlier than plain REST or a database connection.",
+    "homepage_url": "https://graphql.org",
+    "aliases": [],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "api-style",
+      "query-language",
+      "typed-schema"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "grpc",
+    "name": "gRPC",
+    "category_slug": "protocols/api-styles",
+    "secondary_category_slugs": [],
+    "description": "High-performance RPC framework over HTTP/2 with Protobuf contracts, bidirectional streaming, and generated clients in every major language. The choice for internal service-to-service and data-plane APIs where latency and typed contracts matter; browser support requires a proxy.",
+    "homepage_url": "https://grpc.io",
+    "aliases": [],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "api-style",
+      "rpc",
+      "protobuf",
+      "http2"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "odata",
+    "name": "OData",
+    "category_slug": "protocols/api-styles",
+    "secondary_category_slugs": [],
+    "description": "OASIS standard for queryable REST APIs with URL-based filtering, paging, and metadata, heavily used across the Microsoft and SAP ecosystems. You mostly encounter it as the extraction interface of enterprise systems (Dynamics, SharePoint, SAP) rather than choose it yourself.",
+    "homepage_url": "https://www.odata.org",
+    "aliases": [
+      "Open Data Protocol"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "api-style",
+      "standard",
+      "microsoft",
+      "sap"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "soap",
+    "name": "SOAP",
+    "category_slug": "protocols/api-styles",
+    "secondary_category_slugs": [],
+    "description": "XML-based messaging protocol with WSDL contracts and WS-* extensions, the enterprise API standard of the 2000s. Survives in banking, insurance, government, and older ERPs — you integrate with it because the counterparty offers nothing newer.",
+    "homepage_url": "https://www.w3.org/TR/soap/",
+    "aliases": [
+      "Simple Object Access Protocol"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "legacy",
+    "tags": [
+      "api-style",
+      "xml",
+      "enterprise",
+      "legacy"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "webhooks",
+    "name": "Webhooks",
+    "category_slug": "protocols/api-styles",
+    "secondary_category_slugs": [],
+    "description": "Push-style integration pattern where a system POSTs event payloads to your HTTP endpoint as things happen — the simplest way to get near-real-time data out of SaaS products. No single governing spec exists (Standard Webhooks is the main convention effort), so signature verification, retries, and ordering vary per provider.",
+    "homepage_url": "https://www.standardwebhooks.com",
+    "aliases": [
+      "HTTP callbacks"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "api-style",
+      "events",
+      "http",
+      "push"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "edi",
+    "name": "EDI (X12/EDIFACT)",
+    "category_slug": "protocols/b2b-exchange",
+    "secondary_category_slugs": [],
+    "description": "The decades-old standards for structured business documents (orders, invoices, shipment notices) — X12 in North America, EDIFACT internationally. Still the mandatory backbone of retail, logistics, and healthcare B2B exchange; expect cryptic delimited formats and specialized translators, not JSON.",
+    "homepage_url": "https://x12.org",
+    "aliases": [
+      "X12",
+      "EDIFACT",
+      "Electronic Data Interchange"
+    ],
+    "deployment_models": [],
+    "oss": false,
+    "maturity": "established",
+    "tags": [
+      "standard",
+      "b2b",
+      "edi",
+      "enterprise"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "license",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "hl7-fhir",
+    "name": "HL7 FHIR",
+    "category_slug": "protocols/b2b-exchange",
+    "secondary_category_slugs": [
+      "protocols/api-styles"
+    ],
+    "description": "HL7's modern healthcare interoperability standard: clinical data as JSON resources over a REST API, now regulator-mandated for patient data access in the US. The default for any new healthcare data exchange, coexisting with older HL7 v2 pipe-delimited feeds for years to come.",
+    "homepage_url": "https://hl7.org/fhir/",
+    "aliases": [
+      "FHIR",
+      "HL7"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials (SMART on FHIR)",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "FHIR base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token_url",
+            "label": "Token URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "Bearer token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "FHIR base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "standard",
+      "healthcare",
+      "b2b",
+      "rest"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "swift",
+    "name": "SWIFT",
+    "category_slug": "protocols/b2b-exchange",
+    "secondary_category_slugs": [],
+    "description": "The global interbank messaging network and its message standards (legacy MT and ISO 20022 MX) for payments, securities, and trade finance. If you process cross-border financial transactions, SWIFT messages are your input format — membership and formats are controlled by the SWIFT cooperative.",
+    "homepage_url": "https://www.swift.com",
+    "aliases": [
+      "SWIFT MT",
+      "ISO 20022"
+    ],
+    "deployment_models": [],
+    "oss": false,
+    "maturity": "established",
+    "tags": [
+      "standard",
+      "finance",
+      "b2b",
+      "messaging"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  }
+]

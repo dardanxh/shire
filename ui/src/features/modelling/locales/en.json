@@ -1,0 +1,119 @@
+{
+  "modelling": {
+    "list": {
+      "title": "Data modelling",
+      "search_placeholder": "Search strategies...",
+      "family_all": "All families",
+      "complexity_all": "Any complexity",
+      "count": "{{filtered}} of {{total}} strategies",
+      "new_button": "New strategy",
+      "empty_title": "No strategies match",
+      "empty_description": "Adjust the filters or search, or add a strategy.",
+      "clear_filters": "Clear filters",
+      "compare_button": "Compare",
+      "compare_count": "Compare ({{count}})",
+      "select_compare": "Select {{name}} for comparison"
+    },
+    "compare": {
+      "crumb": "Compare",
+      "slot_placeholder": "Strategy {{n}}…",
+      "slot_empty": "— none —",
+      "pick_two": "Pick at least two strategies to compare.",
+      "row_strategy": "Strategy",
+      "row_family": "Family",
+      "row_complexity": "Complexity",
+      "row_best_for": "Best for",
+      "row_pros": "Pros",
+      "row_cons": "Cons",
+      "row_origin": "Origin",
+      "row_related": "Pairs well with"
+    },
+    "topic": {
+      "modelling": "Data modelling",
+      "evolution": "Schema evolution",
+      "serialization": "Serialization"
+    },
+    "family": {
+      "normalization": "Normalization",
+      "warehouse-methodologies": "Warehouse methodologies",
+      "dimensional-schemas": "Dimensional schemas",
+      "nosql": "NoSQL",
+      "specialized": "Specialized",
+      "slowly-changing-dimensions": "Slowly changing dimensions",
+      "compatibility": "Compatibility",
+      "migration-patterns": "Migration patterns",
+      "text-formats": "Text formats",
+      "binary-row-formats": "Binary row formats",
+      "columnar-formats": "Columnar formats"
+    },
+    "complexity": {
+      "low": "Low complexity",
+      "medium": "Medium complexity",
+      "high": "High complexity"
+    },
+    "view": {
+      "crumb": "Details",
+      "description": "Description",
+      "best_for": "Best for",
+      "pros": "Pros",
+      "cons": "Cons",
+      "origin": "Origin",
+      "example": "Worked example",
+      "decisions": "Decisions made here",
+      "diagram": "Diagram",
+      "related": "Pairs well with"
+    },
+    "form": {
+      "name_label": "Name",
+      "name_required": "Name is required.",
+      "slug_label": "Slug",
+      "slug_required": "Slug is required.",
+      "slug_description": "Unique identifier, e.g. \"star-schema\".",
+      "family_label": "Family",
+      "family_placeholder": "Select a family",
+      "family_required": "Family is required.",
+      "description_label": "Description",
+      "best_for_label": "Best for",
+      "best_for_description": "One line on when to reach for this strategy.",
+      "best_for_too_long": "Keep it under 300 characters.",
+      "pros_label": "Pros",
+      "cons_label": "Cons",
+      "per_line_description": "One per line.",
+      "complexity_label": "Complexity",
+      "origin_year_label": "Origin year",
+      "year_invalid": "Use a 4-digit year.",
+      "originator_label": "Originator",
+      "topic_label": "Topic",
+      "example_narrative_label": "Example narrative",
+      "example_tables_label": "Example tables",
+      "example_tables_description": "Blocks separated by a blank line: \"# Table name\", then a \"col | col\" header, then rows. No | inside cells.",
+      "example_snippets_label": "Example snippets",
+      "example_snippets_description": "Verbatim format samples rendered as code blocks. Start each with a \"~~~ name\" line; everything until the next ~~~ is the code.",
+      "example_decisions_label": "Decisions made",
+      "diagram_label": "Diagram (Mermaid)",
+      "diagram_description": "Mermaid source, e.g. erDiagram or flowchart.",
+      "diagram_preview": "Preview",
+      "diagram_preview_empty": "Diagram preview appears here.",
+      "related_label": "Related technologies",
+      "related_placeholder": "Pick technologies...",
+      "related_search_placeholder": "Search the corpus...",
+      "related_empty": "No matching technology."
+    },
+    "new": {
+      "crumb": "New strategy",
+      "title": "New modelling strategy",
+      "toast_success": "Strategy created."
+    },
+    "edit": {
+      "crumb": "Edit",
+      "title": "Edit modelling strategy",
+      "toast_success": "Strategy updated."
+    },
+    "delete": {
+      "title": "Delete strategy?",
+      "description": "This permanently deletes \"{{name}}\" from the catalog.",
+      "confirm": "Delete",
+      "toast_success": "Strategy deleted."
+    }
+  }
+}

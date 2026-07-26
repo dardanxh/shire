@@ -1,0 +1,251 @@
+{
+  "slug": "pipeda",
+  "name": "PIPEDA",
+  "full_name": "Personal Information Protection and Electronic Documents Act (Canada)",
+  "category": "privacy",
+  "region": "canada",
+  "jurisdiction": "Canada (federal; private-sector commercial activity)",
+  "status": "in_force",
+  "effective_year": 2001,
+  "effective_date": "1 January 2001 (fully in force 1 January 2004)",
+  "description": "PIPEDA is Canada's federal privacy law for private-sector organizations that collect, use, or disclose personal information in the course of commercial activity. It is built around ten fair information principles, incorporated from a national standard into Schedule 1 of the Act, that govern the whole lifecycle of personal data from collection to disposal. Since 2018 it also imposes mandatory breach reporting and record-keeping duties. Compliance is overseen by the Office of the Privacy Commissioner of Canada, with recourse to the Federal Court.",
+  "who_is_impacted": [
+    "Private-sector organizations across Canada that collect, use, or disclose personal information in the course of commercial activity, regardless of size or industry.",
+    "Federally regulated businesses such as banks, airlines, telecommunications carriers, and interprovincial transportation companies, including with respect to their employees' personal information.",
+    "Organizations that transfer personal information across provincial or national borders as part of commercial transactions, even when a substantially similar provincial law otherwise applies.",
+    "Organizations in provinces without substantially similar legislation; in Quebec, British Columbia, and Alberta, provincial private-sector laws apply to intra-provincial activities instead.",
+    "Public-sector bodies, political parties, and individuals acting in a purely personal or journalistic capacity are generally outside PIPEDA's scope, as is employee data of provincially regulated employers.",
+    "Non-profit organizations and charities are exempt unless they engage in commercial activities such as selling, bartering, or leasing membership or donor lists."
+  ],
+  "penalties": "Fines up to CAD $100,000 per knowing violation of breach-reporting or whistleblower provisions; Federal Court damages; reputational orders via the Privacy Commissioner",
+  "official_url": "https://laws-lois.justice.gc.ca/eng/acts/P-8.6/",
+  "unit_label": "principle",
+  "triggering_data_classes": ["personal_data"],
+  "articles": [
+    {
+      "number": "4.1",
+      "title": "Accountability",
+      "chapter": "Schedule 1 — Fair Information Principles",
+      "is_key": true,
+      "summary": "An organization is responsible for the personal information under its control and must designate someone accountable for compliance with all ten principles. Accountability follows the data: it persists when information is transferred to third parties for processing. Organizations must implement policies and practices that give effect to the principles and make information about them available.",
+      "key_requirements": [
+        "Designate one or more individuals (typically a privacy officer) accountable for the organization's compliance and make their identity known on request.",
+        "Remain responsible for personal information transferred to third parties for processing, using contractual or other means to ensure a comparable level of protection.",
+        "Implement policies and practices to give effect to the principles, including procedures to protect personal information and to receive and respond to complaints and inquiries.",
+        "Train staff and communicate privacy policies and practices throughout the organization."
+      ],
+      "paragraphs": [
+        {
+          "ref": "4.1.1",
+          "text": "Accountability for compliance rests with designated individuals, even though others in the organization may handle personal information day to day; other individuals may be delegated to act on their behalf."
+        },
+        {
+          "ref": "4.1.3",
+          "text": "An organization is responsible for personal information in its possession or custody, including information transferred to a third party for processing, and must use contractual or other means to provide a comparable level of protection while the information is being processed by the third party."
+        },
+        {
+          "ref": "4.1.4",
+          "text": "Organizations must implement policies and practices to give effect to the principles, including procedures to protect personal information, to receive and respond to complaints, to train staff, and to explain the organization's policies and procedures."
+        }
+      ]
+    },
+    {
+      "number": "4.2",
+      "title": "Identifying Purposes",
+      "chapter": "Schedule 1 — Fair Information Principles"
+    },
+    {
+      "number": "4.3",
+      "title": "Consent",
+      "chapter": "Schedule 1 — Fair Information Principles",
+      "is_key": true,
+      "summary": "Knowledge and consent of the individual are required for the collection, use, or disclosure of personal information, except where inappropriate (for example, legal, medical, or security reasons defined in the Act). Consent must be meaningful: individuals must be able to understand the nature, purpose, and consequences of what they are agreeing to. The form of consent — express or implied — depends on the sensitivity of the information and the reasonable expectations of the individual, and consent may be withdrawn subject to legal or contractual restrictions.",
+      "key_requirements": [
+        "Obtain knowledge and consent before or at the time of collection, or before a new use or disclosure of already-collected information.",
+        "Ensure consent is meaningful by stating purposes in a way the individual can reasonably understand.",
+        "Match the form of consent (express, implied, opt-out) to the sensitivity of the information; sensitive information such as health or financial data generally requires express consent.",
+        "Never require consent beyond what is necessary to fulfil explicitly specified and legitimate purposes as a condition of supplying a product or service.",
+        "Allow individuals to withdraw consent at any time, subject to legal or contractual restrictions and reasonable notice, and inform them of the implications of withdrawal."
+      ],
+      "paragraphs": [
+        {
+          "ref": "4.3.2",
+          "text": "Organizations must make a reasonable effort to ensure the individual is advised of the purposes for which the information will be used, stated in a manner the individual can reasonably understand."
+        },
+        {
+          "ref": "4.3.4",
+          "text": "The form of consent sought may vary depending on the circumstances and the type of information; sensitivity matters, and some information (such as income records or health information) is almost always considered sensitive."
+        },
+        {
+          "ref": "4.3.6",
+          "text": "The way consent is obtained may vary: express consent is generally required for sensitive information, while implied consent may suffice when the information is less sensitive."
+        },
+        {
+          "ref": "4.3.8",
+          "text": "An individual may withdraw consent at any time, subject to legal or contractual restrictions and reasonable notice, and the organization must inform the individual of the implications of such withdrawal."
+        }
+      ]
+    },
+    {
+      "number": "4.4",
+      "title": "Limiting Collection",
+      "chapter": "Schedule 1 — Fair Information Principles"
+    },
+    {
+      "number": "4.5",
+      "title": "Limiting Use, Disclosure, and Retention",
+      "chapter": "Schedule 1 — Fair Information Principles",
+      "is_key": true,
+      "summary": "Personal information may not be used or disclosed for purposes other than those for which it was collected, except with consent or as required by law. Information may be retained only as long as necessary to fulfil those purposes, and organizations should adopt retention schedules with minimum and maximum periods. Information no longer needed must be destroyed, erased, or made anonymous.",
+      "key_requirements": [
+        "Use or disclose personal information only for the purposes for which it was collected, unless the individual consents or the use or disclosure is required by law.",
+        "Develop and apply guidelines and procedures governing retention, including minimum and maximum retention periods.",
+        "Retain information that has been used to make a decision about an individual long enough to allow the individual to access it and exhaust any recourse.",
+        "Destroy, erase, or anonymize personal information that is no longer required to fulfil the identified purposes, with procedures governing secure destruction."
+      ],
+      "paragraphs": [
+        {
+          "ref": "4.5.2",
+          "text": "Organizations should develop guidelines and implement procedures with respect to the retention of personal information, including minimum and maximum retention periods; information used to make a decision about an individual must be kept long enough for the individual to access it."
+        },
+        {
+          "ref": "4.5.3",
+          "text": "Personal information that is no longer required to fulfil the identified purposes should be destroyed, erased, or made anonymous, and organizations must develop guidelines and procedures governing the destruction of personal information."
+        },
+        {
+          "ref": "4.5.4",
+          "text": "This principle is closely linked to Consent (4.3), Identifying Purposes (4.2), and Individual Access (4.9): limits on use, disclosure, and retention flow from the purposes identified to the individual."
+        }
+      ]
+    },
+    {
+      "number": "4.6",
+      "title": "Accuracy",
+      "chapter": "Schedule 1 — Fair Information Principles"
+    },
+    {
+      "number": "4.7",
+      "title": "Safeguards",
+      "chapter": "Schedule 1 — Fair Information Principles",
+      "is_key": true,
+      "summary": "Personal information must be protected by security safeguards appropriate to its sensitivity. Safeguards must protect against loss or theft and against unauthorized access, disclosure, copying, use, or modification, regardless of the format in which the information is held. The Act expects a layered approach combining physical, organizational, and technological measures, with more sensitive information warranting stronger protection, and secure disposal to prevent unauthorized access after destruction.",
+      "key_requirements": [
+        "Protect personal information against loss, theft, and unauthorized access, disclosure, copying, use, or modification, regardless of the format in which it is held.",
+        "Scale safeguards to the sensitivity, amount, distribution, and format of the information and the method of storage — more sensitive information requires a higher level of protection.",
+        "Combine physical measures (locked cabinets, restricted office access), organizational measures (security clearances, need-to-know access), and technological measures (passwords, encryption).",
+        "Make employees aware of the importance of confidentiality and exercise care in the disposal or destruction of personal information to prevent unauthorized parties from gaining access.",
+        "Extend safeguard expectations to third-party processors through contractual or other means (per principle 4.1.3)."
+      ],
+      "paragraphs": [
+        {
+          "ref": "4.7.1",
+          "text": "Security safeguards must protect personal information against loss or theft as well as unauthorized access, disclosure, copying, use, or modification, and must protect the information regardless of the format in which it is held."
+        },
+        {
+          "ref": "4.7.2",
+          "text": "The nature of the safeguards varies with the sensitivity, amount, distribution, and format of the information and the method of storage; more sensitive information should be safeguarded by a higher level of protection."
+        },
+        {
+          "ref": "4.7.3",
+          "text": "Methods of protection should include physical measures such as locked filing cabinets and restricted access to offices; organizational measures such as security clearances and limiting access on a need-to-know basis; and technological measures such as the use of passwords and encryption."
+        },
+        {
+          "ref": "4.7.5",
+          "text": "Care must be used in the disposal or destruction of personal information to prevent unauthorized parties from gaining access to it."
+        }
+      ]
+    },
+    {
+      "number": "4.8",
+      "title": "Openness",
+      "chapter": "Schedule 1 — Fair Information Principles"
+    },
+    {
+      "number": "4.9",
+      "title": "Individual Access",
+      "chapter": "Schedule 1 — Fair Information Principles",
+      "is_key": true,
+      "summary": "Upon request, an individual must be informed of the existence, use, and disclosure of their personal information and be given access to it. The individual can challenge the accuracy and completeness of the information and have it amended as appropriate. Responses must be timely and at minimal or no cost, and any denial of access must fall within the Act's limited exceptions and be explained.",
+      "key_requirements": [
+        "Inform individuals, on request, whether the organization holds personal information about them, how it has been used, and to whom it has been disclosed.",
+        "Provide access to the information in an understandable form, within a reasonable time (the Act sets a 30-day baseline), and at minimal or no cost to the individual.",
+        "Provide an account of third parties to which the information has been disclosed, listing the types of organizations when a precise list is not possible.",
+        "Amend information shown to be inaccurate or incomplete, transmit the amendment to third parties with access where appropriate, and record the substance of unresolved challenges.",
+        "When access is refused under a statutory exception, explain the reasons and available recourse."
+      ],
+      "paragraphs": [
+        {
+          "ref": "4.9.1",
+          "text": "On request, an organization must inform an individual whether it holds personal information about them, allow access to it, and give an account of its use and of the third parties to which it has been disclosed; when a precise list of disclosures is not possible, a list of organizations to which it may have been disclosed suffices."
+        },
+        {
+          "ref": "4.9.4",
+          "text": "Requested information must be provided or made available within a reasonable time and at minimal or no cost, in a form that is generally understandable, with abbreviations and codes explained."
+        },
+        {
+          "ref": "4.9.5",
+          "text": "When an individual successfully demonstrates that personal information is inaccurate or incomplete, the organization must amend it (correcting, deleting, or adding information) and, where appropriate, transmit the amended information to third parties having access to it."
+        },
+        {
+          "ref": "4.9.6",
+          "text": "When a challenge is not resolved to the individual's satisfaction, the organization must record the substance of the unresolved challenge and, where appropriate, transmit its existence to third parties having access to the information."
+        }
+      ]
+    },
+    {
+      "number": "4.10",
+      "title": "Challenging Compliance",
+      "chapter": "Schedule 1 — Fair Information Principles"
+    },
+    {
+      "number": "5",
+      "title": "Compliance with obligations",
+      "chapter": "Part 1 — Protection of Personal Information"
+    },
+    {
+      "number": "7",
+      "title": "Collection without knowledge or consent",
+      "chapter": "Part 1 — Protection of Personal Information"
+    },
+    {
+      "number": "10.1",
+      "title": "Report to Commissioner — breach of security safeguards",
+      "chapter": "Part 1 — Protection of Personal Information",
+      "is_key": true,
+      "summary": "Since November 2018, organizations must report to the Privacy Commissioner any breach of security safeguards involving personal information under their control where it is reasonable to believe the breach creates a real risk of significant harm to an individual. Affected individuals must be notified as soon as feasible, and other organizations or government institutions must be notified if they can reduce or mitigate the risk of harm. Companion provisions require organizations to keep records of every breach and make knowingly failing to report or record a breach an offence.",
+      "key_requirements": [
+        "Report to the Privacy Commissioner, as soon as feasible, any breach of security safeguards that creates a real risk of significant harm to an individual.",
+        "Notify affected individuals as soon as feasible, with enough information for them to understand the significance of the breach and take steps to reduce the risk of harm.",
+        "Assess 'real risk of significant harm' considering the sensitivity of the information and the probability of misuse; significant harm includes bodily harm, humiliation, damage to reputation, financial loss, and identity theft.",
+        "Notify other organizations or government institutions that may be able to reduce or mitigate the risk of harm.",
+        "Maintain records of every breach of security safeguards (whether or not reported) and provide them to the Commissioner on request, per section 10.3."
+      ],
+      "paragraphs": [
+        {
+          "ref": "10.1(1)",
+          "text": "An organization must report to the Commissioner any breach of security safeguards involving personal information under its control if it is reasonable in the circumstances to believe the breach creates a real risk of significant harm to an individual."
+        },
+        {
+          "ref": "10.1(3)",
+          "text": "Unless otherwise prohibited by law, the organization must notify an individual of any breach of security safeguards involving their personal information where the breach creates a real risk of significant harm, and must do so as soon as feasible after determining the breach has occurred."
+        },
+        {
+          "ref": "10.1(7)",
+          "text": "Significant harm includes bodily harm, humiliation, damage to reputation or relationships, loss of employment or business opportunities, financial loss, identity theft, negative effects on a credit record, and damage to or loss of property."
+        },
+        {
+          "ref": "10.1(8)",
+          "text": "Factors relevant to whether a breach creates a real risk of significant harm include the sensitivity of the personal information involved and the probability that it has been, is being, or will be misused."
+        }
+      ]
+    }
+  ],
+  "related_practice_slugs": [
+    "data-retention-deletion",
+    "encryption-at-rest",
+    "access-control-rbac-abac",
+    "audit-logging"
+  ],
+  "related_technology_slugs": ["bigid"],
+  "position": 80
+}

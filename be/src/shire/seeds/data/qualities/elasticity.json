@@ -1,0 +1,174 @@
+{
+  "slug": "elasticity",
+  "name": "Elasticity",
+  "category": "performance",
+  "summary": "The ability to scale capacity up and down automatically as demand changes, so you pay for what you use and idle resources shrink to near zero.",
+  "description": "Elasticity is scalability that runs in both directions and on its own. An elastic architecture grows compute when a workload spikes and releases it when demand falls, ideally to zero when idle. It depends on separating storage from compute, serverless or autoscaled runtimes, and fast provisioning. Fixed on-prem clusters and always-on infrastructure are the opposite: they can be large, but they cannot cheaply shrink, so they trade elasticity for predictability.",
+  "mechanisms": [
+    {
+      "name": "Serverless compute",
+      "note": "Query and job runtimes that provision on demand and bill per query or per second eliminate idle capacity entirely.",
+      "related_technology_slugs": [
+        "bigquery",
+        "amazon-athena",
+        "google-cloud-dataflow",
+        "aws-step-functions"
+      ]
+    },
+    {
+      "name": "Warehouse auto-suspend and auto-resume",
+      "note": "Compute clusters that pause when idle and resume on the next query shrink cost to zero between workloads.",
+      "related_technology_slugs": [
+        "snowflake",
+        "databricks-sql",
+        "firebolt"
+      ]
+    },
+    {
+      "name": "Separation of storage and compute",
+      "note": "Decoupling durable storage from transient compute lets compute scale to zero without losing data.",
+      "related_technology_slugs": [
+        "amazon-s3",
+        "snowflake",
+        "trino",
+        "apache-iceberg"
+      ]
+    },
+    {
+      "name": "Kubernetes autoscaling",
+      "note": "Horizontal pod and cluster autoscalers add and remove workers in response to queue depth or CPU pressure.",
+      "related_technology_slugs": [
+        "kubernetes",
+        "apache-flink",
+        "ray",
+        "dagster"
+      ]
+    },
+    {
+      "name": "Consumer and partition autoscaling",
+      "note": "Elastic stream platforms grow and shrink broker and consumer capacity to track fluctuating event rates.",
+      "related_technology_slugs": [
+        "warpstream",
+        "amazon-kinesis",
+        "google-pubsub"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "strong",
+      "statement": "Cloud warehouses auto-suspend between dbt runs and resume per query, so compute cost tracks actual transformation and query demand closely."
+    },
+    {
+      "blueprint_slug": "small-data-duckdb-stack",
+      "rating": "strong",
+      "statement": "In-process DuckDB spins up only for the duration of a query and consumes nothing when idle, giving near-perfect elasticity at small scale."
+    },
+    {
+      "blueprint_slug": "real-time-analytics-serving",
+      "rating": "moderate",
+      "statement": "Serving clusters can add replicas under load, but low-latency OLAP engines usually keep hot data resident and cannot fully scale to zero."
+    },
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "strong",
+      "statement": "Job clusters spin up per pipeline run and terminate on completion, so batch compute is fully elastic against durable object-storage tables."
+    },
+    {
+      "blueprint_slug": "open-iceberg-lakehouse",
+      "rating": "strong",
+      "statement": "Data lives once in object storage while ephemeral engines start and stop per workload, giving strong elasticity across independent compute."
+    },
+    {
+      "blueprint_slug": "rag-pipeline",
+      "rating": "moderate",
+      "statement": "Embedding and retrieval jobs scale elastically, but always-on vector serving and LLM endpoints keep a baseline of non-elastic capacity."
+    },
+    {
+      "blueprint_slug": "classic-batch-etl",
+      "rating": "moderate",
+      "statement": "Scheduled batch windows let compute spin up and release on a cadence, but fixed nightly clusters often stay provisioned longer than needed."
+    },
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "moderate",
+      "statement": "Streaming operators can autoscale, but stateful jobs must keep workers running continuously, so idle-time savings are limited."
+    },
+    {
+      "blueprint_slug": "log-clickstream-analytics",
+      "rating": "moderate",
+      "statement": "Ingest and query tiers autoscale with traffic, yet continuous event flow means the platform rarely idles down to zero."
+    },
+    {
+      "blueprint_slug": "embedded-analytics",
+      "rating": "moderate",
+      "statement": "Customer-facing query load is spiky and elastic per tenant, but SLA guarantees push teams to keep warm capacity that erodes elasticity."
+    },
+    {
+      "blueprint_slug": "iot-telemetry-platform",
+      "rating": "limited",
+      "statement": "Device fleets emit a steady baseline stream around the clock, so ingest and storage capacity must stay provisioned and cannot shrink much."
+    },
+    {
+      "blueprint_slug": "hybrid-onprem-cloud-sync",
+      "rating": "limited",
+      "statement": "On-prem hardware is a fixed capital cost that cannot scale down, so the on-prem half of the architecture is inherently inelastic."
+    },
+    {
+      "blueprint_slug": "inmon-cif-edw",
+      "rating": "trade-off",
+      "statement": "The normalized enterprise core favors a stable, always-available integrated store, deliberately trading elasticity for consistency and governance."
+    },
+    {
+      "blueprint_slug": "event-driven-architecture",
+      "rating": "moderate",
+      "statement": "Stateless event consumers autoscale well on Kubernetes, but the shared broker backbone stays continuously provisioned as a baseline cost."
+    },
+    {
+      "blueprint_slug": "data-vault-warehouse",
+      "rating": "limited",
+      "statement": "Heavy always-on load pipelines and audit retention keep infrastructure resident, limiting how far the architecture can idle down."
+    },
+    {
+      "blueprint_slug": "multi-tenant-saas-analytics",
+      "rating": "moderate",
+      "statement": "Serving infrastructure can scale out as tenants and concurrency grow, but customer-facing SLAs favor provisioned headroom over aggressive scale-to-zero elasticity."
+    }
+  ],
+  "related_technology_slugs": [
+    "snowflake",
+    "bigquery",
+    "kubernetes",
+    "amazon-athena",
+    "databricks-sql",
+    "amazon-s3"
+  ],
+  "related_quality_slugs": [
+    "scalability",
+    "cost-efficiency"
+  ],
+  "position": 20,
+  "tradeoffs": [
+    {
+      "title": "Cost efficiency",
+      "note": "Autoscaling routinely overshoots demand, keeps idle headroom for safety, and pays cold-start and warm-pool waste, so elastic capacity is rarely as cost-optimal as steady-state provisioning.",
+      "quality_slug": "cost-efficiency"
+    },
+    {
+      "title": "Latency",
+      "note": "Cold starts and scale-up lag mean new capacity is not instantly ready, so requests arriving during a demand spike see elevated latency until the system catches up.",
+      "quality_slug": "latency"
+    },
+    {
+      "title": "Operational complexity",
+      "note": "Getting elasticity right demands carefully tuned autoscaling policies, thresholds, cooldowns, and warm pools that are easy to misconfigure into flapping or under-provisioning.",
+      "quality_slug": "maintainability"
+    },
+    {
+      "title": "Consistency",
+      "note": "Scaling stateful services or stream operators mid-flight requires redistributing state and repartitioning keys, which is hard to do without dropping ordering or exactly-once guarantees.",
+      "quality_slug": "consistency"
+    }
+  ]
+}

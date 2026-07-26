@@ -1,0 +1,295 @@
+{
+  "slug": "ccpa-cpra",
+  "name": "CCPA/CPRA",
+  "full_name": "California Consumer Privacy Act of 2018, as amended by the California Privacy Rights Act of 2020",
+  "category": "privacy",
+  "region": "us",
+  "jurisdiction": "United States (California)",
+  "status": "in_force",
+  "effective_year": 2020,
+  "effective_date": "1 January 2020 (CPRA amendments 1 January 2023)",
+  "description": "The CCPA, as amended by the CPRA, is California's comprehensive consumer privacy law and the closest thing the United States has to a GDPR-style regime. It gives California residents rights to know, delete, correct, and port their personal information, to opt out of its sale or sharing, and to limit the use of sensitive personal information. Businesses must post notices, honor requests within fixed deadlines, pass obligations to service providers by contract, and maintain reasonable security. The CPRA also created the California Privacy Protection Agency, the first dedicated privacy regulator in the US.",
+  "who_is_impacted": [
+    "For-profit businesses that do business in California, collect California residents' personal information, and exceed at least one threshold: over $25 million in annual gross revenue, buying/selling/sharing personal information of 100,000 or more consumers or households, or deriving 50% or more of annual revenue from selling or sharing personal information.",
+    "Service providers and contractors that process personal information on behalf of a covered business are bound through mandatory contract terms and may not use the data outside the contracted business purpose.",
+    "Third parties to whom a business sells or shares personal information inherit obligations and must honor downstream opt-out and deletion signals.",
+    "Data brokers dealing in Californians' personal information face additional registration duties under related California law and are squarely within the sale/sharing provisions.",
+    "Nonprofits and government agencies are generally out of scope, and employee/B2B data was partially exempt only until the exemptions sunset on 1 January 2023.",
+    "Data already governed by sector rules such as HIPAA-covered medical information, GLBA financial data, and FCRA credit data is largely exempt, though the breach liability provision can still apply."
+  ],
+  "penalties": "Civil penalties up to $2,500 per violation ($7,500 if intentional or involving minors); statutory damages of $100-$750 per consumer per incident for breaches",
+  "official_url": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?division=3.&part=4.&lawCode=CIV&title=1.81.5",
+  "unit_label": "section",
+  "triggering_data_classes": ["personal_data", "biometric_data", "children_data"],
+  "articles": [
+    {
+      "number": "1798.100",
+      "title": "General Duties of Businesses That Collect Personal Information",
+      "chapter": "Business Obligations",
+      "is_key": true,
+      "summary": "This is the foundational duties section. Businesses must tell consumers, at or before collection, what categories of personal and sensitive personal information they collect, why, whether it is sold or shared, and how long it is kept. Collection, use, and retention must be reasonably necessary and proportionate to the disclosed purposes, and any disclosure to service providers or third parties must be governed by a contract. Critically, subsection (e) imposes an affirmative duty to implement reasonable security procedures appropriate to the nature of the information.",
+      "key_requirements": [
+        "Provide notice at collection listing categories of personal and sensitive personal information, purposes, and retention periods.",
+        "Do not collect additional categories or use data for materially different purposes without new notice.",
+        "Limit collection, use, retention, and sharing to what is reasonably necessary and proportionate to the disclosed purposes.",
+        "Bind service providers, contractors, and third parties with contracts that flow down the law's obligations.",
+        "Implement reasonable security procedures and practices appropriate to the nature of the personal information (subsection (e))."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)",
+          "text": "A business that controls the collection of a consumer's personal information shall, at or before the point of collection, inform the consumer of the categories of personal information and sensitive personal information collected, the purposes of collection and use, whether the information is sold or shared, and the length of time the business intends to retain each category (or the criteria used to determine that period)."
+        },
+        {
+          "ref": "(c)",
+          "text": "A business's collection, use, retention, and sharing of personal information shall be reasonably necessary and proportionate to achieve the purposes for which it was collected or processed, or another disclosed compatible purpose, and not further processed in a manner incompatible with those purposes."
+        },
+        {
+          "ref": "(d)",
+          "text": "A business that sells or shares personal information, or discloses it to a service provider or contractor for a business purpose, must enter into an agreement that limits use to the specified purposes, requires compliance with the title, and grants the business rights to ensure the recipient uses the information consistently with the business's obligations."
+        },
+        {
+          "ref": "(e)",
+          "text": "A business that collects a consumer's personal information shall implement reasonable security procedures and practices appropriate to the nature of the personal information, to protect it from unauthorized or illegal access, destruction, use, modification, or disclosure."
+        }
+      ]
+    },
+    {
+      "number": "1798.105",
+      "title": "Right to Delete Personal Information",
+      "chapter": "Consumer Rights",
+      "is_key": true,
+      "summary": "Consumers may request deletion of personal information a business has collected from them. On a verified request the business must delete the information from its records, direct its service providers and contractors to do the same, and notify third parties to whom it sold or shared the information unless that proves impossible or disproportionate. A list of exceptions preserves data needed for completing transactions, security, legal compliance, and certain internal uses.",
+      "key_requirements": [
+        "Honor verifiable consumer deletion requests and delete the personal information from records.",
+        "Instruct service providers and contractors to delete the same information from their records.",
+        "Notify third parties to whom the information was sold or shared to delete it, unless impossible or disproportionate effort.",
+        "Apply statutory exceptions narrowly (complete the transaction, detect security incidents, legal obligations, certain internal uses).",
+        "Build deletion workflows that reach backups and downstream systems within the mandated response window."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)",
+          "text": "A consumer shall have the right to request that a business delete any personal information about the consumer which the business has collected from the consumer."
+        },
+        {
+          "ref": "(c)(1)",
+          "text": "A business that receives a verifiable deletion request shall delete the consumer's personal information from its records, notify its service providers and contractors to delete it, and notify third parties to whom the business has sold or shared the information to delete it, unless this proves impossible or involves disproportionate effort."
+        },
+        {
+          "ref": "(d)",
+          "text": "The business, service provider, or contractor is not required to delete personal information when it is reasonably necessary to complete the transaction for which it was collected, detect and protect against security incidents or fraud, debug, exercise free speech, comply with a legal obligation, or enable solely internal uses reasonably aligned with the consumer's expectations."
+        }
+      ]
+    },
+    {
+      "number": "1798.106",
+      "title": "Right to Correct Inaccurate Personal Information",
+      "chapter": "Consumer Rights"
+    },
+    {
+      "number": "1798.110",
+      "title": "Right to Know What Personal Information Is Being Collected; Right to Access",
+      "chapter": "Consumer Rights"
+    },
+    {
+      "number": "1798.115",
+      "title": "Right to Know What Personal Information Is Sold or Shared and to Whom",
+      "chapter": "Consumer Rights"
+    },
+    {
+      "number": "1798.120",
+      "title": "Right to Opt Out of Sale or Sharing of Personal Information",
+      "chapter": "Consumer Rights",
+      "is_key": true,
+      "summary": "Consumers can direct a business at any time not to sell or share their personal information, and the CPRA extended this beyond monetary sales to \"sharing\" for cross-context behavioral advertising. For minors the default flips: a business may not sell or share the data of a consumer it knows is under 16 without affirmative opt-in (from the teen aged 13-16, or from a parent for children under 13). Businesses must respect the opt-out via the mechanisms prescribed in section 1798.135, including opt-out preference signals.",
+      "key_requirements": [
+        "Provide and honor a right to opt out of both sale and sharing (including cross-context behavioral advertising).",
+        "Do not sell or share personal information of consumers known to be under 16 without opt-in consent.",
+        "Obtain parental consent for children under 13 and the minor's own consent for ages 13 to 16.",
+        "Wait at least 12 months before asking an opted-out consumer to reauthorize sale or sharing.",
+        "Honor opt-out preference signals such as Global Privacy Control as valid opt-out requests."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)",
+          "text": "A consumer shall have the right, at any time, to direct a business that sells or shares personal information about the consumer to third parties not to sell or share the consumer's personal information (the right to opt-out)."
+        },
+        {
+          "ref": "(c)",
+          "text": "A business shall not sell or share the personal information of consumers it has actual knowledge are less than 16 years of age unless the consumer aged 13 to 16, or the parent or guardian of a consumer under 13, has affirmatively authorized the sale or sharing. A business that willfully disregards the consumer's age is deemed to have actual knowledge."
+        },
+        {
+          "ref": "(d)",
+          "text": "A business that has received direction from a consumer not to sell or share their personal information is prohibited from doing so unless the consumer subsequently provides consent, and must comply with the notice and opt-out mechanisms of section 1798.135."
+        }
+      ]
+    },
+    {
+      "number": "1798.121",
+      "title": "Right to Limit Use and Disclosure of Sensitive Personal Information",
+      "chapter": "Consumer Rights",
+      "is_key": true,
+      "summary": "A CPRA addition: consumers can restrict a business's use of sensitive personal information (such as SSN, precise geolocation, health data, race or ethnicity, biometric identifiers, and message contents) to what is necessary to perform the requested services or provide the requested goods. A business that uses sensitive data for other purposes must notify consumers and offer a \"Limit the Use of My Sensitive Personal Information\" mechanism. Sensitive data collected without the purpose of inferring characteristics is treated as ordinary personal information.",
+      "key_requirements": [
+        "Classify and inventory sensitive personal information as defined in section 1798.140(ae).",
+        "Limit use of sensitive personal information to what is necessary to perform the services or provide the goods requested, plus permitted regulatory purposes.",
+        "Notify consumers of any additional uses and offer a limitation mechanism per section 1798.135.",
+        "Stop non-exempt secondary uses (e.g., inference-based advertising) once a consumer exercises the limit right."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)",
+          "text": "A consumer has the right to direct a business that collects sensitive personal information to limit its use to that which is necessary to perform the services or provide the goods reasonably expected by an average consumer, and certain permitted business purposes authorized by regulation."
+        },
+        {
+          "ref": "(b)",
+          "text": "A business that uses or discloses sensitive personal information for purposes beyond those in subsection (a) must provide notice that consumers may limit such use or disclosure, and must comply through the mechanisms of section 1798.135."
+        },
+        {
+          "ref": "(d)",
+          "text": "Sensitive personal information that is collected or processed without the purpose of inferring characteristics about a consumer is not subject to this section and is treated as personal information under the rest of the title."
+        }
+      ]
+    },
+    {
+      "number": "1798.125",
+      "title": "No Retaliation; Non-Discrimination for Exercise of Rights",
+      "chapter": "Business Obligations"
+    },
+    {
+      "number": "1798.130",
+      "title": "Notice, Disclosure, Correction, and Deletion Requirements (Handling Consumer Requests)",
+      "chapter": "Business Obligations"
+    },
+    {
+      "number": "1798.135",
+      "title": "Methods of Limiting Sale, Sharing, and Use of Sensitive Personal Information (Opt-Out Links and Preference Signals)",
+      "chapter": "Business Obligations"
+    },
+    {
+      "number": "1798.140",
+      "title": "Definitions",
+      "chapter": "Definitions and Exemptions"
+    },
+    {
+      "number": "1798.145",
+      "title": "Exemptions",
+      "chapter": "Definitions and Exemptions"
+    },
+    {
+      "number": "1798.146",
+      "title": "Exemptions for Medical and Health Information (HIPAA, CMIA, Clinical Trials)",
+      "chapter": "Definitions and Exemptions"
+    },
+    {
+      "number": "1798.150",
+      "title": "Private Right of Action for Data Breaches",
+      "chapter": "Enforcement",
+      "is_key": true,
+      "summary": "The only private right of action in the CCPA, and the reason \"reasonable security\" has teeth. A consumer whose nonencrypted and nonredacted personal information (or email address with password or security answer) is breached because the business failed to maintain reasonable security may sue for statutory damages of $100 to $750 per consumer per incident or actual damages, whichever is greater, plus injunctive relief. Before claiming statutory damages the consumer must give 30 days written notice, and the business can defeat the claim only by actually curing the violation and providing a written statement.",
+      "key_requirements": [
+        "Maintain reasonable security procedures and practices — encryption and redaction of personal information remove it from the statutory-damages exposure.",
+        "Prepare for the 30-day notice-and-cure process, understanding that implementing reasonable security after a breach does not constitute a cure for the breached data.",
+        "Quantify exposure: statutory damages run $100-$750 per consumer per incident and stack quickly in class actions.",
+        "Treat email-plus-password/security-question combinations as in-scope breach data even though the general breach definition points to Civil Code 1798.81.5."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)(1)",
+          "text": "A consumer whose nonencrypted and nonredacted personal information, or whose email address in combination with a password or security question and answer, is subject to unauthorized access and exfiltration, theft, or disclosure as a result of the business's violation of the duty to implement and maintain reasonable security may bring a civil action for statutory damages of not less than $100 and not greater than $750 per consumer per incident or actual damages (whichever is greater), injunctive or declaratory relief, and any other relief the court deems proper."
+        },
+        {
+          "ref": "(b)",
+          "text": "Before initiating an action for statutory damages, the consumer must provide the business 30 days' written notice identifying the specific violated provisions. If the business actually cures the violation and provides an express written statement that it has done so and that no further violations shall occur, no statutory-damages action may proceed; however, implementing and maintaining reasonable security following a breach does not constitute a cure with respect to that breach."
+        },
+        {
+          "ref": "(c)",
+          "text": "The cause of action applies only to violations described in subsection (a) and not to other violations of the title, which are enforced by the Attorney General and the California Privacy Protection Agency; nothing in the title shall be interpreted as a basis for a private right of action under any other law."
+        }
+      ]
+    },
+    {
+      "number": "1798.155",
+      "title": "Administrative Enforcement and Civil Penalties",
+      "chapter": "Enforcement",
+      "is_key": true,
+      "summary": "Sets the public-enforcement penalty framework. The California Privacy Protection Agency may bring administrative actions with fines of up to $2,500 per violation, or up to $7,500 for each intentional violation and each violation involving consumers the business knows are under 16. The CPRA removed the guaranteed 30-day cure period that existed under the original CCPA, so the agency has discretion whether to allow a cure. Penalties are counted per violation, which in practice means per affected consumer, so aggregate exposure can be large.",
+      "key_requirements": [
+        "Budget compliance around per-violation fines: $2,500 standard, $7,500 for intentional violations or those involving minors.",
+        "Do not rely on a cure period — the CPRA removed the automatic 30-day right to cure for agency enforcement.",
+        "Cooperate with California Privacy Protection Agency audits and administrative proceedings.",
+        "Track violations involving consumers under 16, which are penalized at the higher tier regardless of intent."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)",
+          "text": "Any business, service provider, contractor, or other person that violates the title shall be liable for an administrative fine of not more than $2,500 for each violation, or $7,500 for each intentional violation and each violation involving the personal information of consumers the business, service provider, contractor, or other person has actual knowledge are under 16 years of age, in an administrative enforcement action brought by the California Privacy Protection Agency."
+        },
+        {
+          "ref": "(b)",
+          "text": "Aggrieved decisions of the agency are subject to judicial review, and fines collected are deposited in the Consumer Privacy Fund with the aim of fully offsetting costs incurred by the courts and the state in connection with the title."
+        }
+      ]
+    },
+    {
+      "number": "1798.160",
+      "title": "Consumer Privacy Fund",
+      "chapter": "Enforcement"
+    },
+    {
+      "number": "1798.175",
+      "title": "Construction with Other Laws; Conflicts",
+      "chapter": "Miscellaneous"
+    },
+    {
+      "number": "1798.185",
+      "title": "Regulations (Rulemaking Authority, Including Cybersecurity Audits and Risk Assessments)",
+      "chapter": "California Privacy Protection Agency"
+    },
+    {
+      "number": "1798.190",
+      "title": "Anti-Avoidance (Intermediate Steps and Transactions)",
+      "chapter": "Miscellaneous"
+    },
+    {
+      "number": "1798.192",
+      "title": "Void and Unenforceable Waivers of Consumer Rights",
+      "chapter": "Miscellaneous"
+    },
+    {
+      "number": "1798.194",
+      "title": "Liberal Construction to Effectuate Purpose",
+      "chapter": "Miscellaneous"
+    },
+    {
+      "number": "1798.199.10",
+      "title": "Establishment of the California Privacy Protection Agency",
+      "chapter": "California Privacy Protection Agency"
+    },
+    {
+      "number": "1798.199.40",
+      "title": "Functions of the Agency",
+      "chapter": "California Privacy Protection Agency"
+    },
+    {
+      "number": "1798.199.45",
+      "title": "Investigations of Possible Violations",
+      "chapter": "California Privacy Protection Agency"
+    },
+    {
+      "number": "1798.199.90",
+      "title": "Agency and Attorney General Enforcement Actions",
+      "chapter": "California Privacy Protection Agency"
+    }
+  ],
+  "related_practice_slugs": [
+    "data-retention-deletion",
+    "data-classification",
+    "tokenization",
+    "data-masking",
+    "data-loss-prevention"
+  ],
+  "related_technology_slugs": ["bigid", "microsoft-presidio"],
+  "position": 20
+}

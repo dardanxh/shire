@@ -1,0 +1,137 @@
+{
+  "slug": "real-time-analytics-serving",
+  "name": "Real-time analytics serving",
+  "use_case": "Sub-second dashboards/APIs on fresh data",
+  "description": "The lean real-time stack: events flow through a broker straight into a real-time OLAP store that ingests continuously and answers analytical queries in milliseconds, with dashboards or product APIs reading directly on top. Unlike Kappa (5), there is no heavy stream-processing layer — the OLAP engine's ingest-time transforms and materialized views do the light shaping, which keeps the moving-part count low. This is the shape behind ops dashboards that update live, usage meters, and analytics APIs embedded in products, where 'the data is 20 minutes old' is a bug report.",
+  "when_to_use": [
+    "Choose this when queries must be answered in under a second over data that is seconds old — live operational monitoring, usage/billing meters, customer-facing analytics endpoints — and when the transformations needed at ingest are light (parsing, filtering, simple enrichment).",
+    "It is the fastest path to real-time value because it skips the stream-processing engine entirely.",
+    "Users expect dashboards that move as events happen, not on refresh."
+  ],
+  "when_not_to_use": [
+    "Skip it when freshness requirements are minutes-or-more — a warehouse with frequent micro-batches is cheaper and simpler.",
+    "If ingest requires heavy stateful transformation (multi-stream joins, sessionization), you are actually building Kappa (5) and should add Flink deliberately.",
+    "Real-time OLAP stores are also poor system-of-record databases — keep the durable history in the lake or warehouse."
+  ],
+  "use_cases": [
+    "realtime",
+    "embedded"
+  ],
+  "hot_spots": [
+    {
+      "title": "Ingest hiccups",
+      "detail": "A consumer stall shows up as frozen dashboards and erodes trust fast."
+    },
+    {
+      "title": "Query concurrency",
+      "detail": "Sub-second SLAs collapse when dashboard fan-out overwhelms the store."
+    },
+    {
+      "title": "Late events",
+      "detail": "Out-of-order arrivals silently understate the most recent windows."
+    }
+  ],
+  "complexity": "medium",
+  "evolution": [],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Event Sources]:::source -->|fresh events| ING[Stream Ingestion]:::process\n  ING -->|continuously indexed data| RT[Real-time Analytics Store]:::store\n  ING -->|raw copy for backfill| ARC[Raw Event Archive]:::store\n  RT -->|sub-second queries| API[APIs + Dashboards]:::serve\n  API -->|live insights| CONS[Consumers]:::serve"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  P[Event Producers]:::source -->|publish| MB[Message Broker]:::store\n  MB -->|continuous consume| OLAP[Real-time OLAP Database]:::store\n  MB -->|archive sink| ARCL[Object Storage Archive]:::store\n  OLAP -->|indexed segments| Q[Query API]:::serve\n  Q -->|live charts| DASH[Dashboards]:::serve"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([live events]):::source -->|ingest and index| B([indexed segments]):::store\n  A -->|archive raw| AR2([raw event archive]):::store\n  B -->|aggregate on read| C([sub-second aggregates]):::process\n  C -->|refresh| E([live dashboards]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant P as Producer\n  participant B as Broker\n  participant O as Real-time OLAP\n  participant R as Raw Archive\n  participant D as Dashboard\n  P->>B: event\n  O->>B: consume continuously\n  B->>R: sink raw copy\n  O->>O: index within seconds\n  loop every second\n    D->>O: refresh query\n    O-->>D: fresh aggregates\n  end"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Event Sources]:::source -->|fresh events| ING[\"Amazon Kinesis<br/><i>Stream Ingestion</i>\"]:::process\n  ING -->|continuously indexed data| RT[\"Amazon OpenSearch<br/><i>Real-time Analytics Store</i>\"]:::store\n  ING -->|raw copy for backfill| ARC[\"Kinesis Firehose to S3<br/><i>Raw Event Archive</i>\"]:::store\n  RT -->|sub-second queries| API[\"AWS AppSync + QuickSight<br/><i>APIs + Dashboards</i>\"]:::serve\n  API -->|live insights| CONS[Consumers]:::serve"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Event Sources]:::source -->|fresh events| ING[\"Azure Event Hubs<br/><i>Stream Ingestion</i>\"]:::process\n  ING -->|continuously indexed data| RT[\"Azure Data Explorer<br/><i>Real-time Analytics Store</i>\"]:::store\n  ING -->|raw copy for backfill| ARC[\"Event Hubs Capture to ADLS<br/><i>Raw Event Archive</i>\"]:::store\n  RT -->|sub-second queries| API[\"Azure API Management + Power BI<br/><i>APIs + Dashboards</i>\"]:::serve\n  API -->|live insights| CONS[Consumers]:::serve"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Event Sources]:::source -->|fresh events| ING[\"Google Pub/Sub + Dataflow<br/><i>Stream Ingestion</i>\"]:::process\n  ING -->|continuously indexed data| RT[\"BigQuery BI Engine<br/><i>Real-time Analytics Store</i>\"]:::store\n  ING -->|raw copy for backfill| ARC[\"Pub/Sub to GCS<br/><i>Raw Event Archive</i>\"]:::store\n  RT -->|sub-second queries| API[\"Cloud Run API + Looker<br/><i>APIs + Dashboards</i>\"]:::serve\n  API -->|live insights| CONS[Consumers]:::serve"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Event Sources]:::source -->|fresh events| ING[\"Apache Kafka<br/><i>Stream Ingestion</i>\"]:::process\n  ING -->|continuously indexed data| RT[\"Apache Pinot · ClickHouse<br/><i>Real-time Analytics Store</i>\"]:::store\n  ING -->|raw copy for backfill| ARC[\"Kafka sink to MinIO<br/><i>Raw Event Archive</i>\"]:::store\n  RT -->|sub-second queries| API[\"Custom API + Superset<br/><i>APIs + Dashboards</i>\"]:::serve\n  API -->|live insights| CONS[Consumers]:::serve"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Event Sources]:::source -->|fresh events| ING[\"Snowpipe Streaming<br/><i>Stream Ingestion</i>\"]:::process\n  ING -->|continuously indexed data| RT[\"Snowflake Dynamic Tables<br/><i>Real-time Analytics Store</i>\"]:::store\n  ING -->|raw copy for backfill| ARC[\"Snowpipe to raw schema<br/><i>Raw Event Archive</i>\"]:::store\n  RT -->|sub-second queries| API[\"Snowflake SQL API + Tableau<br/><i>APIs + Dashboards</i>\"]:::serve\n  API -->|live insights| CONS[Consumers]:::serve"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Event Sources]:::source -->|fresh events| ING[\"Spark Structured Streaming<br/><i>Stream Ingestion</i>\"]:::process\n  ING -->|continuously indexed data| RT[\"Databricks SQL Serverless<br/><i>Real-time Analytics Store</i>\"]:::store\n  ING -->|raw copy for backfill| ARC[\"Auto Loader to Delta bronze<br/><i>Raw Event Archive</i>\"]:::store\n  RT -->|sub-second queries| API[\"Databricks SQL + AI/BI dashboards<br/><i>APIs + Dashboards</i>\"]:::serve\n  API -->|live insights| CONS[Consumers]:::serve"
+    }
+  ],
+  "family_tags": [
+    "streaming-realtime",
+    "analytics-serving"
+  ],
+  "archetype_slugs": [
+    "real-time-analytics-serving",
+    "streaming-ingestion"
+  ],
+  "position": 8,
+  "stages": [
+    {
+      "position": 0,
+      "name": "Stream",
+      "role": "Buffer events between producers and the OLAP store; absorb ingest spikes",
+      "recommended_technology_slug": "apache-kafka",
+      "alternative_technology_slugs": [
+        "redpanda",
+        "amazon-kinesis",
+        "google-pubsub"
+      ],
+      "rationale": "Kafka decouples producers from the store, absorbs bursts, and lets you re-ingest after schema or table changes — and every real-time OLAP engine's best-supported ingest path is its Kafka consumer. Redpanda is the lower-ops drop-in; Kinesis and Pub/Sub fit cloud-native estates where a managed service outweighs ecosystem breadth. Skipping the broker and writing directly to the store is tempting but costs you replay and burst protection — usually a false economy."
+    },
+    {
+      "name": "Raw archive",
+      "role": "Parallel raw sink for backfills and reprocessing without replaying producers",
+      "recommended_technology_slug": "amazon-s3",
+      "alternative_technology_slugs": [
+        "azure-blob-storage",
+        "google-cloud-storage",
+        "minio"
+      ],
+      "rationale": "Cheap immutable object storage as the landing layer decouples ingestion from processing: replays, backfills, and audits read the raw dump instead of re-extracting from sources."
+    },
+    {
+      "position": 1,
+      "name": "OLAP",
+      "role": "Continuously ingest from the stream and serve sub-second analytical queries",
+      "recommended_technology_slug": "clickhouse",
+      "alternative_technology_slugs": [
+        "apache-pinot",
+        "apache-druid",
+        "starrocks",
+        "questdb"
+      ],
+      "rationale": "ClickHouse is the pragmatic default: exceptional scan speed, materialized views for ingest-time shaping, rich SQL, modest operational footprint for a single-node start, and a managed cloud when you outgrow it. Its watch-outs are high-concurrency point lookups and heavy joins — design tables around the queries. Pinot overtakes it for user-facing workloads at thousands of QPS thanks to purpose-built indexes; Druid is the mature incumbent in the same seat; StarRocks when you cannot denormalize and need real-time joins; QuestDB when the workload is narrowly time-series metrics."
+    },
+    {
+      "position": 2,
+      "name": "API/BI",
+      "role": "Expose the store: live dashboards for humans, HTTP endpoints for products — the doc's 'custom' API half is your own service code",
+      "recommended_technology_slug": "grafana",
+      "alternative_technology_slugs": [
+        "apache-superset",
+        "metabase",
+        "cube"
+      ],
+      "rationale": "Grafana's auto-refreshing, time-series-native dashboards are the natural front end for live operational views, with solid ClickHouse and Pinot plugins. For the product-API half there is no corpus tool to buy — a thin service of parameterized, allow-listed queries in your app stack is the right build, and Cube earns a place as the semantic/caching/row-level-security layer under it when many endpoints share definitions (see blueprint 22). Superset or Metabase fit when consumers want exploratory BI rather than ops dashboards."
+    }
+  ]
+}

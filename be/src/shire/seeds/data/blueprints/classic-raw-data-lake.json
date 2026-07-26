@@ -1,0 +1,166 @@
+{
+  "slug": "classic-raw-data-lake",
+  "name": "Classic raw data lake",
+  "use_case": "Cheap schema-on-read landing for everything",
+  "description": "The classic data lake dumps every source — database extracts, logs, files, exports — into cheap object storage (or HDFS) as-is, and defers structure to read time: whoever needs the data parses it with batch compute when they query it. It is the cheapest possible way to retain everything and the fastest way to start, which is why most enterprises still have one. Its weakness is equally famous: without ownership, metadata, and curation discipline it degrades into a data swamp where nothing is findable or trustworthy. Today its main role is honest: a landing archive, and the starting point that evolves into a governed lakehouse.",
+  "when_to_use": [
+    "You need to start retaining raw data now — cheaply and without upfront modeling — so future use cases have history to work with.",
+    "Sources are heterogeneous files and semi-structured data that a warehouse ingests awkwardly.",
+    "A compliance or reprocessing requirement demands an immutable archive of data exactly as it arrived.",
+    "Exploratory data science needs access to unprocessed source data, not curated aggregates."
+  ],
+  "when_not_to_use": [
+    "Consumers need reliable, queryable tables — without table formats and curation this delivers files, not answers; start at a lakehouse (3, 23) instead.",
+    "Nobody is assigned to own metadata and layout conventions — an unowned lake becomes a swamp within a year.",
+    "BI is the primary workload — schema-on-read query performance and semantics will frustrate every dashboard.",
+    "Data volumes are modest and structured — a warehouse or single-node stack (11) answers faster with less machinery."
+  ],
+  "use_cases": [
+    "integration",
+    "ml",
+    "compliance"
+  ],
+  "hot_spots": [
+    {
+      "title": "Data swamp",
+      "detail": "Without enforced ownership, naming, and cataloging, the lake fills with datasets nobody can find, interpret, or trust."
+    },
+    {
+      "title": "Schema drift",
+      "detail": "Schema-on-read means every upstream format change breaks each consumer differently, at read time, with no warning."
+    },
+    {
+      "title": "Security sprawl",
+      "detail": "File-level ACLs do not map to business access rules, so permissions end up either dangerously broad or unmanageably granular."
+    },
+    {
+      "title": "Partition chaos",
+      "detail": "Inconsistent folder layouts and file sizes make scans slow and force every job to re-discover how the data is organized."
+    }
+  ],
+  "complexity": "low",
+  "evolution": [
+    {
+      "to_slug": "open-iceberg-lakehouse",
+      "reason": "Add a table format and shared catalog to turn raw files into reliable multi-engine tables."
+    },
+    {
+      "to_slug": "medallion-lakehouse",
+      "reason": "Layer bronze/silver/gold refinement on top when consumers need curated, trustworthy data."
+    }
+  ],
+  "family_tags": [
+    "storage-platform",
+    "acquisition-ingestion"
+  ],
+  "archetype_slugs": [
+    "data-lake-build",
+    "file-drop-ingestion",
+    "batch-data-extraction"
+  ],
+  "position": 25,
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|scheduled dumps| ING[File Ingestion]:::process\n  ING -->|files as-is| RAW[Raw Zone]:::store\n  RAW -->|schema-on-read jobs| COMP[Batch Compute]:::process\n  COMP -->|selected outputs| CUR[Curated Zone]:::store\n  CUR -->|ad-hoc SQL| Q[Query Layer]:::serve\n  Q --> CONS[Analysts + Data Science]:::serve\n  META[Metadata Catalog]:::govern -. partial coverage .-> RAW"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  SRC[Databases + Apps + Logs]:::source -->|extract jobs| ING[Ingestion Jobs]:::process\n  ING -->|partitioned files| RAW[Object Storage Raw Zone]:::store\n  RAW -->|parse + transform| ETL[Batch Jobs]:::process\n  ETL -->|columnar outputs| CUR[Curated Datasets]:::store\n  META[Metastore]:::govern -. table definitions .-> CUR\n  CUR -->|external tables| QE[SQL-on-Files Engine]:::serve\n  RAW -->|direct file reads| DS[Notebooks]:::serve"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([source extracts]):::source -->|land unchanged| B([raw files by date]):::store\n  B -->|parse at read time| C([job outputs]):::store\n  C -->|external tables| D([ad-hoc answers]):::serve\n  B -->|full history| E([reprocessing + ML]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant S as Source System\n  participant I as Ingest Job\n  participant L as Raw Zone\n  participant B as Batch Job\n  participant M as Metastore\n  participant Q as Query Engine\n  S->>I: nightly extract\n  I->>L: write files (as-is)\n  B->>L: read + parse raw files\n  B->>L: write curated output\n  B->>M: register external table\n  Q->>L: SQL over registered files"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|scheduled dumps| ING[\"AWS Glue · DataSync<br/><i>File Ingestion</i>\"]:::process\n  ING -->|files as-is| RAW[\"Amazon S3 raw buckets<br/><i>Raw Zone</i>\"]:::store\n  RAW -->|schema-on-read jobs| COMP[\"Amazon EMR Spark<br/><i>Batch Compute</i>\"]:::process\n  COMP -->|selected outputs| CUR[\"S3 curated (Parquet)<br/><i>Curated Zone</i>\"]:::store\n  CUR -->|ad-hoc SQL| SQL[\"Amazon Athena<br/><i>Query Layer</i>\"]:::serve\n  SQL --> CONS[Analysts + Data Science]:::serve\n  META[Metadata Catalog]:::govern -. partial coverage .-> RAW"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|scheduled dumps| ING[\"Azure Data Factory<br/><i>File Ingestion</i>\"]:::process\n  ING -->|files as-is| RAW[\"ADLS Gen2 raw containers<br/><i>Raw Zone</i>\"]:::store\n  RAW -->|schema-on-read jobs| COMP[\"Synapse Spark · HDInsight<br/><i>Batch Compute</i>\"]:::process\n  COMP -->|selected outputs| CUR[\"ADLS curated (Parquet)<br/><i>Curated Zone</i>\"]:::store\n  CUR -->|ad-hoc SQL| SQL[\"Synapse serverless SQL<br/><i>Query Layer</i>\"]:::serve\n  SQL --> CONS[Analysts + Data Science]:::serve\n  META[Metadata Catalog]:::govern -. partial coverage .-> RAW"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|scheduled dumps| ING[\"Cloud Data Fusion · Storage Transfer<br/><i>File Ingestion</i>\"]:::process\n  ING -->|files as-is| RAW[\"GCS raw buckets<br/><i>Raw Zone</i>\"]:::store\n  RAW -->|schema-on-read jobs| COMP[\"Dataproc Spark<br/><i>Batch Compute</i>\"]:::process\n  COMP -->|selected outputs| CUR[\"GCS curated (Parquet)<br/><i>Curated Zone</i>\"]:::store\n  CUR -->|ad-hoc SQL| SQL[\"BigQuery external tables<br/><i>Query Layer</i>\"]:::serve\n  SQL --> CONS[Analysts + Data Science]:::serve\n  META[Metadata Catalog]:::govern -. partial coverage .-> RAW"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|scheduled dumps| ING[\"Apache NiFi · rsync + cron<br/><i>File Ingestion</i>\"]:::process\n  ING -->|files as-is| RAW[\"HDFS · MinIO raw<br/><i>Raw Zone</i>\"]:::store\n  RAW -->|schema-on-read jobs| COMP[\"Apache Spark<br/><i>Batch Compute</i>\"]:::process\n  COMP -->|selected outputs| CUR[\"Parquet curated<br/><i>Curated Zone</i>\"]:::store\n  CUR -->|ad-hoc SQL| SQL[\"Trino + Hive Metastore<br/><i>Query Layer</i>\"]:::serve\n  SQL --> CONS[Analysts + Data Science]:::serve\n  META[Metadata Catalog]:::govern -. partial coverage .-> RAW"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|scheduled dumps| ING[\"Snowpipe auto-ingest<br/><i>File Ingestion</i>\"]:::process\n  ING -->|files as-is| RAW[\"S3 external stage (raw)<br/><i>Raw Zone</i>\"]:::store\n  RAW -->|schema-on-read jobs| COMP[\"Snowflake tasks<br/><i>Batch Compute</i>\"]:::process\n  COMP -->|selected outputs| CUR[\"Snowflake external tables<br/><i>Curated Zone</i>\"]:::store\n  CUR -->|ad-hoc SQL| SQL[\"Snowflake SQL<br/><i>Query Layer</i>\"]:::serve\n  SQL --> CONS[Analysts + Data Science]:::serve\n  META[Metadata Catalog]:::govern -. partial coverage .-> RAW"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|scheduled dumps| ING[\"Auto Loader<br/><i>File Ingestion</i>\"]:::process\n  ING -->|files as-is| RAW[\"ADLS/S3 raw (Unity volumes)<br/><i>Raw Zone</i>\"]:::store\n  RAW -->|schema-on-read jobs| COMP[\"Databricks notebooks<br/><i>Batch Compute</i>\"]:::process\n  COMP -->|selected outputs| CUR[\"Delta curated<br/><i>Curated Zone</i>\"]:::store\n  CUR -->|ad-hoc SQL| SQL[\"Databricks SQL<br/><i>Query Layer</i>\"]:::serve\n  SQL --> CONS[Analysts + Data Science]:::serve\n  META[Metadata Catalog]:::govern -. partial coverage .-> RAW"
+    }
+  ],
+  "stages": [
+    {
+      "position": 0,
+      "name": "Lake storage",
+      "role": "Cheap durable storage for raw files at any scale",
+      "recommended_technology_slug": "amazon-s3",
+      "alternative_technology_slugs": [
+        "azure-data-lake-storage",
+        "google-cloud-storage",
+        "hdfs",
+        "minio"
+      ],
+      "rationale": "Object storage is the modern default — pennies per GB with lifecycle tiering; HDFS remains for on-prem estates that predate the cloud."
+    },
+    {
+      "position": 1,
+      "name": "File ingestion",
+      "role": "Scheduled extracts and file drops landing data unchanged",
+      "recommended_technology_slug": "airbyte",
+      "alternative_technology_slugs": [
+        "azure-data-factory",
+        "aws-glue-studio",
+        "fivetran"
+      ],
+      "rationale": "Airbyte covers database and SaaS extraction to files cheaply; cloud-native movers fit when the estate is single-cloud."
+    },
+    {
+      "position": 2,
+      "name": "Batch compute",
+      "role": "Schema-on-read parsing and transformation over raw files",
+      "recommended_technology_slug": "apache-spark",
+      "alternative_technology_slugs": [
+        "amazon-emr",
+        "dataproc",
+        "hadoop-mapreduce"
+      ],
+      "rationale": "Spark reads any format at lake scale and is where curation jobs live; EMR and Dataproc are its managed forms, MapReduce only survives in legacy estates."
+    },
+    {
+      "position": 3,
+      "name": "Metadata",
+      "role": "Table definitions over files so SQL engines can query them",
+      "recommended_technology_slug": "hive-metastore",
+      "alternative_technology_slugs": [
+        "aws-glue-catalog",
+        "datahub"
+      ],
+      "rationale": "The metastore pattern (Hive or Glue) is what turns folders into queryable tables; a catalog like DataHub adds the discovery layer that keeps the lake from becoming a swamp."
+    },
+    {
+      "position": 4,
+      "name": "Ad-hoc SQL",
+      "role": "SQL-on-files for analysts without moving data",
+      "recommended_technology_slug": "trino",
+      "alternative_technology_slugs": [
+        "amazon-athena",
+        "presto",
+        "duckdb"
+      ],
+      "rationale": "Trino/Athena query Parquet in place — good enough for exploration, and the pressure test that usually motivates the move to a table format."
+    }
+  ]
+}

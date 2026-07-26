@@ -160,3 +160,13 @@ the generic template; follow these when they conflict:
   → repositories, services never returning ORM entities — is followed as written above.
 - **The `ui/` SPA consumes this API** (openapi-generated types). Changing a path or response shape
   means regenerating UI types (`pnpm openapi:gen` in `ui/`) and updating the affected hook.
+- **Two pagination envelopes coexist.** The original Shire domains paginate via
+  `shire/core/pagination.py` (`PaginationParams`, `Page[T]` → `{items, total, page, page_size,
+  total_pages}`). The knowledge-catalog domains ported from Tuesdayta (`archetype`, `blueprint`,
+  `technology`, `modelling`, `security`, `qualities`) use `fastapi-pagination` (`Params`, `Page` →
+  `{items, total, page, size, pages}`; `add_pagination(app)` is called in `main.py`). Match the
+  style of the domain you're editing; don't mix them within a domain.
+- **Knowledge catalogs are seed data.** `src/shire/seeds/` (console script `shire-seed`, run by
+  `docker-entrypoint.sh` after migrations) upserts curated JSON catalogs by slug. Rows with
+  `source='seed'` are refreshed on every run; rows with `source='user'` are never touched. Edit
+  the JSON under `seeds/data/`, not the DB, for catalog content changes.

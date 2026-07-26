@@ -1,0 +1,87 @@
+{
+  "sizing": {
+    "title": "Back-of-the-envelope calculator",
+    "subtitle": "Enter your data's physical properties and get rough system sizing — storage, throughput, compute, and cost.",
+    "disclaimer": "Rough order-of-magnitude estimates, not capacity guarantees.",
+    "crumb": "Back-of-the-envelope",
+    "inputs_title": "Inputs",
+    "results_title": "System details",
+    "section": {
+      "volume": "Data & volume",
+      "workload": "Workload",
+      "storage": "Storage assumptions",
+      "cost": "Cost & capacity assumptions"
+    },
+    "ingest_mode_label": "Ingest mode",
+    "ingest_mode": {
+      "streaming": "Streaming",
+      "batch": "Batch"
+    },
+    "field": {
+      "new_records_per_day": "New records per day",
+      "avg_record_size_bytes": "Avg record size (bytes)",
+      "existing_data_gb": "Existing data (GB)",
+      "peak_to_avg_ratio": "Peak-to-average ratio",
+      "read_qps": "Read queries per second",
+      "avg_scan_gb_per_query": "Avg data scanned per query (GB)",
+      "compression_ratio": "Compression ratio (x)",
+      "replication_factor": "Replication factor",
+      "copies": "Copies / environments",
+      "hot_retention_days": "Hot retention (days)",
+      "monthly_growth_pct": "Monthly growth (%)",
+      "storage_cost_per_gb_month": "Storage cost ($/GB-month)",
+      "compute_cost_per_node_month": "Compute cost ($/node-month)",
+      "per_node_ingest_mbps": "Per-node ingest (MB/s)",
+      "per_partition_mbps": "Per-partition throughput (MB/s)",
+      "per_node_scan_gbps": "Per-node scan rate (GB/s)"
+    },
+    "result": {
+      "storage": "Storage",
+      "throughput": "Throughput & partitions",
+      "compute": "Compute",
+      "cost": "Monthly cost",
+      "raw_per_day": "Raw per day",
+      "raw_hot": "Raw (hot window)",
+      "compressed": "Compressed",
+      "stored": "Stored (replicated)",
+      "stored_12mo": "Stored in 12 months",
+      "avg_throughput": "Avg ingest",
+      "peak_throughput": "Peak ingest",
+      "avg_records": "Avg records/s",
+      "peak_records": "Peak records/s",
+      "partitions": "Partitions",
+      "brokers": "Brokers",
+      "ingest_nodes": "Ingest nodes",
+      "query_nodes": "Query nodes",
+      "total_nodes": "Total nodes",
+      "storage_cost": "Storage",
+      "compute_cost": "Compute",
+      "total_cost": "Total / month"
+    },
+    "storage_bar": {
+      "title": "Storage breakdown",
+      "raw": "Raw",
+      "compressed": "Compressed",
+      "stored": "Stored"
+    },
+    "fit": {
+      "title": "Architecture fit",
+      "regime_label": "Regime",
+      "regime": {
+        "small": "Small data",
+        "medium": "Medium data",
+        "big": "Big data"
+      },
+      "blueprints": "Suggested architectures",
+      "qualities": "Qualities to prioritize"
+    },
+    "assumptions": {
+      "title": "Assumptions used",
+      "show": "Show assumptions",
+      "hide": "Hide assumptions"
+    },
+    "actions": {
+      "reset": "Reset"
+    }
+  }
+}

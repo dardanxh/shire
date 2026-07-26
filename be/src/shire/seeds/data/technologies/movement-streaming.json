@@ -1,0 +1,2652 @@
+[
+  {
+    "slug": "airbyte",
+    "name": "Airbyte",
+    "category_slug": "movement-streaming/el-platforms",
+    "secondary_category_slugs": [],
+    "description": "Open-source EL platform with a huge community connector catalog and a low-code connector builder. Pick it when you want Fivetran-style ingestion but need self-hosting, connector customization, or cost control at volume.",
+    "homepage_url": "https://airbyte.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "elt",
+      "connectors",
+      "open-source"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "amazon-kinesis",
+    "name": "Amazon Kinesis",
+    "category_slug": "movement-streaming/event-streaming",
+    "secondary_category_slugs": [],
+    "description": "AWS's fully managed streaming service family (Data Streams, Firehose) with zero-ops scaling and tight IAM/Lambda integration. The pragmatic choice for AWS-native teams that want event streaming without running Kafka; shard semantics and retention limits are the constraints.",
+    "homepage_url": "https://aws.amazon.com/kinesis/",
+    "aliases": [
+      "Kinesis",
+      "Kinesis Data Streams"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "streaming",
+      "aws",
+      "managed",
+      "serverless"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "amazon-sqs",
+    "name": "Amazon SQS",
+    "category_slug": "movement-streaming/message-queues",
+    "secondary_category_slugs": [],
+    "description": "AWS's fully managed queue: effectively infinite scale, pay-per-request, zero operations, with FIFO queues when ordering matters. The default decoupling primitive on AWS — pick it whenever you need a queue and don't need broker features like routing or fan-out (pair with SNS for that).",
+    "homepage_url": "https://aws.amazon.com/sqs/",
+    "aliases": [
+      "Simple Queue Service"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "messaging",
+      "aws",
+      "managed",
+      "serverless"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "apache-activemq",
+    "name": "Apache ActiveMQ",
+    "category_slug": "movement-streaming/message-queues",
+    "secondary_category_slugs": [],
+    "description": "Long-running JMS-centric open-source broker, common in Java enterprise estates; the modern Artemis engine succeeds the Classic broker. Mostly chosen for JMS compatibility with existing systems rather than for new architectures.",
+    "homepage_url": "https://activemq.apache.org",
+    "aliases": [
+      "ActiveMQ",
+      "ActiveMQ Artemis"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "messaging",
+      "jms",
+      "jvm",
+      "broker"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "apache-beam",
+    "name": "Apache Beam",
+    "category_slug": "movement-streaming/stream-processing",
+    "secondary_category_slugs": [
+      "processing-transformation/compute-engines"
+    ],
+    "description": "Unified batch-and-streaming programming model whose pipelines run portably on Dataflow, Flink, or Spark runners. In practice chosen almost entirely as the SDK for Google Cloud Dataflow; outside GCP most teams write directly against the engine instead.",
+    "homepage_url": "https://beam.apache.org",
+    "aliases": [
+      "Beam"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "streaming",
+      "batch",
+      "portable",
+      "dataflow"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "apache-flink",
+    "name": "Apache Flink",
+    "category_slug": "movement-streaming/stream-processing",
+    "secondary_category_slugs": [],
+    "description": "The reference open-source engine for stateful stream processing: true event-at-a-time execution, exactly-once state, event-time windowing, and SQL. The pick for serious low-latency streaming workloads — with the caveat that operating it well takes real expertise.",
+    "homepage_url": "https://flink.apache.org",
+    "aliases": [
+      "Flink"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "streaming",
+      "stateful",
+      "jvm",
+      "exactly-once"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "apache-kafka",
+    "name": "Apache Kafka",
+    "category_slug": "movement-streaming/event-streaming",
+    "secondary_category_slugs": [],
+    "description": "The industry-standard distributed event log: durable, replayable, massively scalable, with the deepest ecosystem (Connect, Streams, Flink, every SaaS integration). The default backbone for event-driven architectures — you pick something else only when Kafka's operational weight isn't justified.",
+    "homepage_url": "https://kafka.apache.org",
+    "aliases": [
+      "Kafka"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "sasl_scram",
+        "name": "SASL/SCRAM",
+        "fields": [
+          {
+            "key": "bootstrap_servers",
+            "label": "Bootstrap servers",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "mtls",
+        "name": "Mutual TLS (client certificate)",
+        "fields": [
+          {
+            "key": "bootstrap_servers",
+            "label": "Bootstrap servers",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_cert",
+            "label": "Client certificate",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_key",
+            "label": "Client key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "ca_cert",
+            "label": "CA certificate",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "streaming",
+      "event-log",
+      "jvm",
+      "distributed"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "apache-pulsar",
+    "name": "Apache Pulsar",
+    "category_slug": "movement-streaming/event-streaming",
+    "secondary_category_slugs": [
+      "movement-streaming/message-queues"
+    ],
+    "description": "Distributed messaging platform that combines Kafka-style streaming with queue semantics, built-in multi-tenancy, geo-replication, and tiered storage via BookKeeper. Worth picking over Kafka for large multi-tenant estates or mixed queue/stream workloads; the smaller ecosystem is the trade-off.",
+    "homepage_url": "https://pulsar.apache.org",
+    "aliases": [
+      "Pulsar"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "service_url",
+            "label": "Service URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "service_url",
+            "label": "Service URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "issuer_url",
+            "label": "Issuer URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "audience",
+            "label": "Audience",
+            "secret": false,
+            "required": false
+          }
+        ]
+      },
+      {
+        "slug": "mtls",
+        "name": "Mutual TLS (client certificate)",
+        "fields": [
+          {
+            "key": "service_url",
+            "label": "Service URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_cert",
+            "label": "Client certificate",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_key",
+            "label": "Client key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "ca_cert",
+            "label": "CA certificate",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "streaming",
+      "messaging",
+      "jvm",
+      "multi-tenant"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "apicurio-registry",
+    "name": "Apicurio Registry",
+    "category_slug": "movement-streaming/schema-registries",
+    "secondary_category_slugs": [],
+    "description": "Red Hat-backed, Apache-licensed schema and API registry that speaks the Confluent-compatible API while also handling OpenAPI and AsyncAPI artifacts. The genuinely open-source alternative when Confluent's licensing is a blocker.",
+    "homepage_url": "https://www.apicur.io/registry/",
+    "aliases": [
+      "Apicurio"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token_url",
+            "label": "Token URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "schema",
+      "kafka",
+      "open-source",
+      "jvm"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "arroyo",
+    "name": "Arroyo",
+    "category_slug": "movement-streaming/stream-processing",
+    "secondary_category_slugs": [],
+    "description": "Lightweight Rust stream processing engine exposing SQL pipelines with exactly-once semantics, designed to be radically easier to operate than Flink. An emerging option for teams that want serious streaming SQL without a JVM cluster to babysit.",
+    "homepage_url": "https://www.arroyo.dev",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "streaming",
+      "sql",
+      "rust",
+      "exactly-once"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "aws-dms",
+    "name": "AWS DMS",
+    "category_slug": "movement-streaming/cdc",
+    "secondary_category_slugs": [],
+    "description": "AWS's managed service for database migration and ongoing CDC replication between a wide matrix of sources and targets. The path of least resistance for lift-and-shift migrations into AWS; less compelling as a long-lived streaming CDC backbone.",
+    "homepage_url": "https://aws.amazon.com/dms/",
+    "aliases": [
+      "AWS Database Migration Service"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cdc",
+      "aws",
+      "migration",
+      "managed"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "aws-glue-schema-registry",
+    "name": "AWS Glue Schema Registry",
+    "category_slug": "movement-streaming/schema-registries",
+    "secondary_category_slugs": [],
+    "description": "AWS's serverless schema registry integrated with MSK, Kinesis, and Lambda, with IAM-based access control and no infrastructure to run. The obvious choice for schema governance on AWS-native streaming stacks; less useful outside the AWS ecosystem.",
+    "homepage_url": "https://docs.aws.amazon.com/glue/latest/dg/schema-registry.html",
+    "aliases": [
+      "Glue Schema Registry"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "schema",
+      "aws",
+      "serverless",
+      "kafka"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "azure-database-migration-service",
+    "name": "Azure Database Migration Service",
+    "category_slug": "movement-streaming/cdc",
+    "secondary_category_slugs": [],
+    "description": "A managed service for migrating databases to Azure with support for both offline and online (minimal-downtime) migrations that continuously replicate ongoing changes. It's the Azure analog to AWS Database Migration Service (DMS). Choose it for one-time or continuous replication migrations from SQL Server, PostgreSQL, MySQL, and other engines into Azure data platforms.",
+    "homepage_url": "https://azure.microsoft.com/products/dms",
+    "aliases": [
+      "Azure DMS"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "subscription_id",
+            "label": "Subscription ID",
+            "secret": false,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "azure",
+      "migration",
+      "cdc",
+      "replication"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "azure-event-hubs",
+    "name": "Azure Event Hubs",
+    "category_slug": "movement-streaming/event-streaming",
+    "secondary_category_slugs": [],
+    "description": "Azure's managed event ingestion service with a Kafka-compatible endpoint, so existing Kafka clients work against it unchanged. The default streaming entry point on Azure, especially feeding Fabric, Synapse, or Stream Analytics.",
+    "homepage_url": "https://azure.microsoft.com/en-us/products/event-hubs",
+    "aliases": [
+      "Event Hubs"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "namespace",
+            "label": "Fully qualified namespace",
+            "secret": false,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "streaming",
+      "azure",
+      "managed",
+      "kafka-compatible"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "azure-service-bus",
+    "name": "Azure Service Bus",
+    "category_slug": "movement-streaming/message-queues",
+    "secondary_category_slugs": [],
+    "description": "A fully managed enterprise message broker with queues and publish/subscribe topics, supporting transactions, dead-lettering, sessions, and ordered delivery. It's the Azure analog to Amazon SQS/SNS or Google Pub/Sub, geared toward reliable point-to-point and fan-out messaging between decoupled services. Choose it over Event Hubs when you need per-message reliability and workflow semantics rather than high-throughput event streaming.",
+    "homepage_url": "https://azure.microsoft.com/products/service-bus",
+    "aliases": [],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "namespace",
+            "label": "Fully qualified namespace",
+            "secret": false,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "azure",
+      "queue",
+      "messaging",
+      "pubsub"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "azure-stream-analytics",
+    "name": "Azure Stream Analytics",
+    "category_slug": "movement-streaming/stream-processing",
+    "secondary_category_slugs": [],
+    "description": "A fully managed, serverless real-time stream processing engine using a SQL-like language over inputs like Event Hubs and IoT Hub. It's Azure's analog to Amazon Kinesis Data Analytics or Google Dataflow for streaming queries, windowing, and anomaly detection. Choose it for low-ops, SQL-first streaming pipelines rather than a full Flink/Spark deployment.",
+    "homepage_url": "https://azure.microsoft.com/products/stream-analytics",
+    "aliases": [
+      "ASA"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "subscription_id",
+            "label": "Subscription ID",
+            "secret": false,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "azure",
+      "streaming",
+      "stream-processing",
+      "realtime"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "bytewax",
+    "name": "Bytewax",
+    "category_slug": "movement-streaming/stream-processing",
+    "secondary_category_slugs": [],
+    "description": "Python-native stream processing framework (Rust/Timely Dataflow underneath) where pipelines are ordinary Python programs using the whole PyData ecosystem. The pick when your streaming logic is owned by Python-first data or ML teams who won't touch the JVM.",
+    "homepage_url": "https://bytewax.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "streaming",
+      "python",
+      "library",
+      "rust"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "census",
+    "name": "Census",
+    "category_slug": "movement-streaming/reverse-etl",
+    "secondary_category_slugs": [],
+    "description": "Reverse ETL pioneer that syncs modeled warehouse data into CRMs, ad platforms, and support tools, with strong dbt integration and audience-building features. Pick it to operationalize warehouse truth into business tools without engineers writing sync jobs.",
+    "homepage_url": "https://www.getcensus.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "token",
+            "label": "Personal access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "reverse-etl",
+      "activation",
+      "warehouse",
+      "saas"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "cloudflare-queues",
+    "name": "Cloudflare Queues",
+    "category_slug": "movement-streaming/message-queues",
+    "secondary_category_slugs": [],
+    "description": "Managed message queue for reliable, guaranteed-delivery messaging between Cloudflare Workers, comparable to Amazon SQS or Google Cloud Pub/Sub. Its differentiator is native integration with the Workers runtime including batching, delays, dead-letter queues, and zero egress fees, letting producers and consumers stay entirely on the edge platform.",
+    "homepage_url": "https://developers.cloudflare.com/queues/",
+    "aliases": [
+      "Queues"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "account_id",
+            "label": "Account ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cloudflare",
+      "message-queue",
+      "edge",
+      "serverless"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "confluent-schema-registry",
+    "name": "Confluent Schema Registry",
+    "category_slug": "movement-streaming/schema-registries",
+    "secondary_category_slugs": [],
+    "description": "The de facto standard registry for Kafka: centralized Avro/Protobuf/JSON Schema storage with enforced compatibility rules on every produce. The default if you run Confluent or vanilla Kafka; licensed under the Confluent Community License, so not OSI open source.",
+    "homepage_url": "https://docs.confluent.io/platform/current/schema-registry/index.html",
+    "aliases": [
+      "Schema Registry"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_secret",
+            "label": "API secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "schema",
+      "kafka",
+      "avro",
+      "source-available"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "debezium",
+    "name": "Debezium",
+    "category_slug": "movement-streaming/cdc",
+    "secondary_category_slugs": [],
+    "description": "The de facto open-source standard for log-based CDC, streaming row-level changes from Postgres, MySQL, SQL Server, Oracle and more, typically into Kafka. Pick it when you need reliable, low-latency change streams and are willing to operate Kafka Connect (or Debezium Server) yourself.",
+    "homepage_url": "https://debezium.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "cdc",
+      "kafka",
+      "jvm",
+      "log-based"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "dlt",
+    "name": "dlt",
+    "category_slug": "movement-streaming/el-platforms",
+    "secondary_category_slugs": [],
+    "description": "Pure-Python EL library that turns any API or source into a schema-evolving pipeline with a few decorators — no platform, just code. The best fit when engineers want ingestion embedded in their own codebase and orchestrator instead of a separate connector service.",
+    "homepage_url": "https://dlthub.com",
+    "aliases": [
+      "data load tool",
+      "dltHub"
+    ],
+    "deployment_models": [
+      "embedded",
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "elt",
+      "python",
+      "library",
+      "code-first"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "estuary-flow",
+    "name": "Estuary Flow",
+    "category_slug": "movement-streaming/cdc",
+    "secondary_category_slugs": [
+      "movement-streaming/el-platforms"
+    ],
+    "description": "Real-time data movement platform unifying CDC and batch connectors into millisecond-latency pipelines with exactly-once delivery. An emerging pick when you want Fivetran-style ease but with genuinely streaming CDC instead of scheduled syncs.",
+    "homepage_url": "https://estuary.dev",
+    "aliases": [
+      "Flow"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "token",
+            "label": "Access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cdc",
+      "streaming",
+      "real-time",
+      "connectors"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "fivetran",
+    "name": "Fivetran",
+    "category_slug": "movement-streaming/el-platforms",
+    "secondary_category_slugs": [],
+    "description": "Fully managed EL platform with the largest catalog of maintained connectors; you pay to never think about ingestion again. The default pick when connector breadth and reliability matter more than cost or pipeline customization.",
+    "homepage_url": "https://www.fivetran.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_secret",
+            "label": "API secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "elt",
+      "connectors",
+      "managed"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "google-cloud-dataflow",
+    "name": "Google Cloud Dataflow",
+    "category_slug": "movement-streaming/stream-processing",
+    "secondary_category_slugs": [
+      "processing-transformation/compute-engines"
+    ],
+    "description": "Fully managed, autoscaling runner for Apache Beam pipelines that handles both streaming and batch data processing with a single programming model. It is the GCP analog to Amazon Kinesis Data Analytics / Managed Flink and Azure Stream Analytics. Pick it when you want serverless Beam execution for real-time ETL, windowed aggregations, and event processing without managing clusters.",
+    "homepage_url": "https://cloud.google.com/dataflow",
+    "aliases": [
+      "Dataflow"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "service_account_json",
+            "label": "Service account key JSON",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "project_id",
+            "label": "Project ID",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "gcp",
+      "stream-processing",
+      "apache-beam",
+      "batch",
+      "serverless"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "google-pubsub",
+    "name": "Google Cloud Pub/Sub",
+    "category_slug": "movement-streaming/event-streaming",
+    "secondary_category_slugs": [
+      "movement-streaming/message-queues"
+    ],
+    "description": "GCP's global, serverless messaging service with automatic scaling and no capacity planning at all — closer to a giant managed queue-plus-fanout than a replayable log. The obvious pick on GCP, pairing naturally with Dataflow and BigQuery ingestion.",
+    "homepage_url": "https://cloud.google.com/pubsub",
+    "aliases": [
+      "Pub/Sub",
+      "Google Pub/Sub"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "service_account_json",
+            "label": "Service account key JSON",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "streaming",
+      "gcp",
+      "managed",
+      "serverless"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "google-database-migration-service",
+    "name": "Google Database Migration Service",
+    "category_slug": "movement-streaming/cdc",
+    "secondary_category_slugs": [],
+    "description": "Managed service for migrating databases into Cloud SQL, AlloyDB, or Spanner with minimal downtime via continuous, change-data-capture-based replication from source engines like MySQL, PostgreSQL, and Oracle. It is the GCP analog to AWS DMS and Azure Database Migration Service. Pick it for lift-and-shift or homogeneous/heterogeneous migrations that need ongoing CDC until cutover.",
+    "homepage_url": "https://cloud.google.com/database-migration",
+    "aliases": [
+      "Google DMS"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "service_account_json",
+            "label": "Service account key JSON",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "project_id",
+            "label": "Project ID",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "gcp",
+      "cdc",
+      "database-migration",
+      "replication"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "grouparoo",
+    "name": "Grouparoo",
+    "category_slug": "movement-streaming/reverse-etl",
+    "secondary_category_slugs": [],
+    "description": "Open-source reverse ETL framework that was acquired by Airbyte in 2022 and subsequently shut down; the repository is archived. Listed for recognition in existing stacks only — do not adopt for new work.",
+    "homepage_url": "https://github.com/grouparoo/grouparoo",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "legacy",
+    "tags": [
+      "reverse-etl",
+      "archived",
+      "open-source"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "hevo",
+    "name": "Hevo",
+    "category_slug": "movement-streaming/el-platforms",
+    "secondary_category_slugs": [],
+    "description": "Managed no-code pipeline platform covering EL plus light in-flight transformation, positioned as a cheaper, simpler Fivetran alternative. A pragmatic pick for lean teams that want warehouse ingestion running in days without engineering investment.",
+    "homepage_url": "https://hevodata.com",
+    "aliases": [
+      "Hevo Data"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_secret",
+            "label": "Secret key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "elt",
+      "connectors",
+      "no-code",
+      "managed"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "hightouch",
+    "name": "Hightouch",
+    "category_slug": "movement-streaming/reverse-etl",
+    "secondary_category_slugs": [
+      "movement-streaming/cdp"
+    ],
+    "description": "The other leading reverse ETL platform, evolved into a full warehouse-native 'composable CDP' with audience management and identity resolution on top of syncs. Pick it when activation needs go beyond field syncing into marketing-facing segmentation.",
+    "homepage_url": "https://hightouch.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "reverse-etl",
+      "activation",
+      "composable-cdp",
+      "saas"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "kafka-streams",
+    "name": "Kafka Streams",
+    "category_slug": "movement-streaming/stream-processing",
+    "secondary_category_slugs": [],
+    "description": "Kafka's client-side stream processing library: your topology runs inside your own JVM service, no separate cluster, with state backed by Kafka itself. Ideal for embedding per-service stream logic in Kafka-centric microservices; a full engine is better for heavy analytical joins.",
+    "homepage_url": "https://kafka.apache.org/documentation/streams/",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "streaming",
+      "kafka",
+      "library",
+      "jvm"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "ksqldb",
+    "name": "ksqlDB",
+    "category_slug": "movement-streaming/stream-processing",
+    "secondary_category_slugs": [],
+    "description": "Confluent's SQL layer over Kafka Streams for defining streaming transformations and materialized views with plain SQL. Convenient for simple Kafka-native pipelines, but Confluent's center of gravity has shifted to Flink, making it a questionable bet for new work; licensed under the Confluent Community License, not OSI open source.",
+    "homepage_url": "https://ksqldb.io",
+    "aliases": [
+      "KSQL"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_secret",
+            "label": "API secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "streaming",
+      "sql",
+      "kafka",
+      "source-available"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "materialize",
+    "name": "Materialize",
+    "category_slug": "movement-streaming/stream-processing",
+    "secondary_category_slugs": [],
+    "description": "Streaming database built on differential dataflow that keeps SQL views incrementally up to date with millisecond freshness, speaking the Postgres wire protocol. Pick it when you want 'a warehouse that's always current' semantics without writing streaming code; source-available (BSL), primarily consumed as a managed service.",
+    "homepage_url": "https://materialize.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "App password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "streaming",
+      "sql",
+      "incremental-views",
+      "rust"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "meltano",
+    "name": "Meltano",
+    "category_slug": "movement-streaming/el-platforms",
+    "secondary_category_slugs": [],
+    "description": "Open-source, code-first EL framework that turned the Singer taps/targets ecosystem into a maintainable, version-controlled tool with a proper SDK. Pick it when you want ingestion pipelines that live in git and run in your own infra rather than a vendor UI.",
+    "homepage_url": "https://meltano.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "elt",
+      "singer",
+      "python",
+      "code-first"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "mparticle",
+    "name": "mParticle",
+    "category_slug": "movement-streaming/cdp",
+    "secondary_category_slugs": [],
+    "description": "Enterprise CDP with strong mobile SDK heritage, identity resolution, and consent/data-governance controls aimed at large consumer brands. Picked over Segment when mobile-first data collection and enterprise privacy requirements dominate.",
+    "homepage_url": "https://www.mparticle.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_secret",
+            "label": "API secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cdp",
+      "mobile",
+      "identity",
+      "enterprise"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "nats-jetstream",
+    "name": "NATS JetStream",
+    "category_slug": "movement-streaming/event-streaming",
+    "secondary_category_slugs": [
+      "movement-streaming/message-queues"
+    ],
+    "description": "Persistence layer of NATS: a single lightweight Go binary delivering streams, queues, and key-value semantics with minimal operational overhead. Excellent for edge, IoT, and microservice messaging where Kafka is overkill; not built for warehouse-scale event retention.",
+    "homepage_url": "https://nats.io",
+    "aliases": [
+      "NATS",
+      "JetStream"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "credentials_file",
+        "name": "Credentials file (JWT + NKey)",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "credentials",
+            "label": "Credentials file contents",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "streaming",
+      "messaging",
+      "golang",
+      "lightweight"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "oracle-goldengate",
+    "name": "Oracle GoldenGate",
+    "category_slug": "movement-streaming/cdc",
+    "secondary_category_slugs": [],
+    "description": "Oracle's heavyweight enterprise replication and CDC suite, unmatched for Oracle-to-anything change capture at scale. You pick it when Oracle databases are at the center of the estate and the license cost is already a rounding error.",
+    "homepage_url": "https://www.oracle.com/integration/goldengate/",
+    "aliases": [
+      "GoldenGate"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cdc",
+      "replication",
+      "enterprise",
+      "oracle"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "qlik-replicate",
+    "name": "Qlik Replicate",
+    "category_slug": "movement-streaming/cdc",
+    "secondary_category_slugs": [],
+    "description": "Enterprise CDC and replication tool (formerly Attunity) with broad mainframe, SAP, and legacy-source coverage that open-source options don't touch. The pick when you need agentless CDC out of older enterprise systems with a supported vendor behind it.",
+    "homepage_url": "https://www.qlik.com/us/products/qlik-replicate",
+    "aliases": [
+      "Attunity Replicate"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cdc",
+      "replication",
+      "enterprise",
+      "mainframe"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "license",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "quix",
+    "name": "Quix",
+    "category_slug": "movement-streaming/stream-processing",
+    "secondary_category_slugs": [],
+    "description": "Python-first streaming platform built around the open-source Quix Streams library, with a managed environment for deploying Kafka-based pipelines. Aimed at Python teams (notably in IoT and telemetry) who want streaming apps without JVM tooling.",
+    "homepage_url": "https://quix.io",
+    "aliases": [
+      "Quix Streams"
+    ],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "token",
+            "label": "Personal access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "streaming",
+      "python",
+      "kafka",
+      "managed"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "rabbitmq",
+    "name": "RabbitMQ",
+    "category_slug": "movement-streaming/message-queues",
+    "secondary_category_slugs": [],
+    "description": "The most widely deployed open-source message broker: AMQP routing, per-message acknowledgement, and mature client libraries in every language. The default for task queues and service-to-service messaging; use a log-based system instead when you need replay or very high throughput.",
+    "homepage_url": "https://www.rabbitmq.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "messaging",
+      "amqp",
+      "erlang",
+      "broker"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "redpanda",
+    "name": "Redpanda",
+    "category_slug": "movement-streaming/event-streaming",
+    "secondary_category_slugs": [],
+    "description": "Kafka-API-compatible streaming platform rewritten in C++ — single binary, no ZooKeeper/JVM, strong tail latencies. Pick it when you want the Kafka ecosystem with dramatically simpler operations; note the core is source-available (BSL), not OSI open source.",
+    "homepage_url": "https://www.redpanda.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "sasl_scram",
+        "name": "SASL/SCRAM",
+        "fields": [
+          {
+            "key": "bootstrap_servers",
+            "label": "Bootstrap servers",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "mtls",
+        "name": "Mutual TLS (client certificate)",
+        "fields": [
+          {
+            "key": "bootstrap_servers",
+            "label": "Bootstrap servers",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_cert",
+            "label": "Client certificate",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_key",
+            "label": "Client key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "ca_cert",
+            "label": "CA certificate",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "streaming",
+      "kafka-compatible",
+      "cpp",
+      "source-available"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "risingwave",
+    "name": "RisingWave",
+    "category_slug": "movement-streaming/stream-processing",
+    "secondary_category_slugs": [],
+    "description": "Apache-licensed streaming database in Rust: Postgres-compatible SQL, incrementally maintained materialized views, and S3-backed state for cheap scaling. The open-source pick for Materialize-style streaming SQL you can actually self-host.",
+    "homepage_url": "https://risingwave.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "streaming",
+      "sql",
+      "rust",
+      "incremental-views"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "rudderstack",
+    "name": "RudderStack",
+    "category_slug": "movement-streaming/reverse-etl",
+    "secondary_category_slugs": [
+      "movement-streaming/cdp"
+    ],
+    "description": "Warehouse-first customer data pipeline covering event collection, routing to destinations, and reverse ETL, with an open-source core you can self-host. The Segment alternative for teams that want the warehouse — not the vendor — to own the customer data.",
+    "homepage_url": "https://www.rudderstack.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "token",
+            "label": "Access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "write_key",
+        "name": "Write key",
+        "fields": [
+          {
+            "key": "data_plane_url",
+            "label": "Data plane URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "write_key",
+            "label": "Write key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "reverse-etl",
+      "cdp",
+      "event-tracking",
+      "warehouse-first"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "segment",
+    "name": "Segment",
+    "category_slug": "movement-streaming/cdp",
+    "secondary_category_slugs": [],
+    "description": "The category-defining CDP: one tracking API and SDK set, hundreds of downstream destinations, plus identity resolution and audiences in the Twilio-owned platform. The safe default for event collection and routing; costs climb steeply with event volume.",
+    "homepage_url": "https://segment.com",
+    "aliases": [
+      "Twilio Segment"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "token",
+            "label": "Access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "write_key",
+        "name": "Write key",
+        "fields": [
+          {
+            "key": "write_key",
+            "label": "Write key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cdp",
+      "event-tracking",
+      "identity",
+      "saas"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "singer",
+    "name": "Singer",
+    "category_slug": "movement-streaming/el-platforms",
+    "secondary_category_slugs": [],
+    "description": "The original open-source spec for composable taps and targets exchanging JSON over stdout, created by Stitch. The spec itself is effectively frozen and tap quality is uneven — today you'd consume it through Meltano rather than adopt it raw.",
+    "homepage_url": "https://www.singer.io",
+    "aliases": [
+      "Singer spec"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "legacy",
+    "tags": [
+      "elt",
+      "specification",
+      "connectors"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "snowplow",
+    "name": "Snowplow",
+    "category_slug": "movement-streaming/cdp",
+    "secondary_category_slugs": [],
+    "description": "Behavioral data platform you run in your own cloud, producing rich, schema-validated event data straight into your warehouse or stream — maximum ownership and granularity. Pick it when event data quality and control matter more than plug-and-play; the core moved from Apache 2.0 to a source-available license in 2024.",
+    "homepage_url": "https://snowplow.io",
+    "aliases": [
+      "Snowplow Analytics"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "organization_id",
+            "label": "Organization ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key_id",
+            "label": "API key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cdp",
+      "event-tracking",
+      "behavioral-data",
+      "source-available"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "spark-structured-streaming",
+    "name": "Spark Structured Streaming",
+    "category_slug": "movement-streaming/stream-processing",
+    "secondary_category_slugs": [],
+    "description": "Spark's micro-batch streaming API, sharing the DataFrame engine and cluster with batch jobs. The pragmatic choice when you already run Spark (especially on Databricks) and second-scale latency is acceptable; pick Flink when you need true per-event processing.",
+    "homepage_url": "https://spark.apache.org/streaming/",
+    "aliases": [
+      "Structured Streaming"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "streaming",
+      "spark",
+      "micro-batch",
+      "jvm"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "stitch",
+    "name": "Stitch",
+    "category_slug": "movement-streaming/el-platforms",
+    "secondary_category_slugs": [],
+    "description": "Early managed EL service built on the Singer spec, now part of Qlik (via Talend) and in maintenance mode. Reasonable for simple, low-volume replication you already have running, but rarely the right choice for new builds.",
+    "homepage_url": "https://www.stitchdata.com",
+    "aliases": [
+      "Stitch Data"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "elt",
+      "connectors",
+      "singer"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "striim",
+    "name": "Striim",
+    "category_slug": "movement-streaming/cdc",
+    "secondary_category_slugs": [
+      "movement-streaming/stream-processing"
+    ],
+    "description": "Commercial platform combining log-based CDC with in-flight SQL stream processing and delivery to warehouses and Kafka. Suits enterprises that want CDC plus transformation in one supported product rather than stitching Debezium and Flink together.",
+    "homepage_url": "https://www.striim.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "cloud",
+      "on_prem"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cdc",
+      "streaming",
+      "enterprise",
+      "sql"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "license",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "warpstream",
+    "name": "WarpStream",
+    "category_slug": "movement-streaming/event-streaming",
+    "secondary_category_slugs": [],
+    "description": "A Kafka-compatible streaming platform that replaces local disks and inter-broker replication with object storage, eliminating cross-AZ traffic costs and stateful brokers. It trades higher latency for radically cheaper, easier-to-operate streaming, and its agents can run inside your own cloud account.",
+    "homepage_url": "https://www.warpstream.com",
+    "aliases": [],
+    "deployment_models": [
+      "cloud",
+      "on_prem",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "sasl_scram",
+        "name": "SASL/SCRAM",
+        "fields": [
+          {
+            "key": "bootstrap_servers",
+            "label": "Bootstrap servers",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "event-streaming",
+      "kafka-compatible",
+      "object-storage",
+      "serverless"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "zeromq",
+    "name": "ZeroMQ",
+    "category_slug": "movement-streaming/message-queues",
+    "secondary_category_slugs": [],
+    "description": "Brokerless messaging library that embeds socket patterns (pub/sub, req/rep, push/pull) directly in your process for microsecond-level latency. Pick it for high-performance point-to-point plumbing where you accept no persistence and no delivery guarantees.",
+    "homepage_url": "https://zeromq.org",
+    "aliases": [
+      "ØMQ",
+      "0MQ",
+      "zmq"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "messaging",
+      "library",
+      "brokerless",
+      "low-latency"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  }
+]

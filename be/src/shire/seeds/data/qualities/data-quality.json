@@ -1,0 +1,194 @@
+{
+  "slug": "data-quality",
+  "name": "Data quality",
+  "category": "data-integrity",
+  "summary": "Data is accurate, complete, valid, and fresh — enforced by contracts, tests, and observability rather than assumed.",
+  "description": "Data quality is the degree to which data is accurate, complete, valid, timely, and fit for use. High-quality architectures enforce expectations at the boundary with contracts and validation tests, refine raw inputs through curated layers, and watch for anomalies with observability instead of trusting inputs blindly. Low-quality designs land data as-is with schema-on-read and no enforcement, pushing every correctness burden onto downstream consumers.",
+  "mechanisms": [
+    {
+      "name": "Data contracts",
+      "note": "Producer-consumer contracts pin schema, types, and semantics at the boundary so breaking or malformed data is rejected before it spreads.",
+      "related_technology_slugs": [
+        "confluent-schema-registry",
+        "dbt",
+        "great-expectations"
+      ]
+    },
+    {
+      "name": "Validation tests",
+      "note": "Declarative expectation and assertion suites catch nulls, range violations, and referential breaks on every run before data is published.",
+      "related_technology_slugs": [
+        "great-expectations",
+        "soda",
+        "dbt",
+        "pandera"
+      ]
+    },
+    {
+      "name": "Anomaly detection and observability",
+      "note": "Continuous freshness, volume, and distribution monitoring surfaces silent regressions that pass explicit tests but still signal bad data.",
+      "related_technology_slugs": [
+        "monte-carlo",
+        "anomalo",
+        "elementary",
+        "bigeye"
+      ]
+    },
+    {
+      "name": "Curated refinement layers",
+      "note": "Progressively cleansing raw inputs through silver/curated stages deduplicates, conforms, and validates so gold outputs are trustworthy.",
+      "related_technology_slugs": [
+        "dbt",
+        "spark-structured-streaming",
+        "delta-lake"
+      ]
+    },
+    {
+      "name": "Quarantine of bad records",
+      "note": "Routing rows that fail validation to a dead-letter or quarantine zone keeps clean tables clean while preserving rejects for repair.",
+      "related_technology_slugs": [
+        "apache-spark",
+        "soda",
+        "deequ"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "strong",
+      "statement": "Progressive bronze-to-silver-to-gold refinement with tests at each hop makes curated quality the explicit design goal of the architecture."
+    },
+    {
+      "blueprint_slug": "layered-warehouse-dbt",
+      "rating": "strong",
+      "statement": "dbt tests on staging and marts assert not-null, uniqueness, and referential rules on every build, so quality is codified and enforced in CI."
+    },
+    {
+      "blueprint_slug": "data-vault-warehouse",
+      "rating": "strong",
+      "statement": "Structured integration with full lineage and load auditing lets teams trace and validate every source contribution to the integrated core."
+    },
+    {
+      "blueprint_slug": "mdm-hub",
+      "rating": "strong",
+      "statement": "Matching, survivorship, and stewardship rules exist specifically to raise completeness and accuracy into trustworthy golden records."
+    },
+    {
+      "blueprint_slug": "kimball-data-warehouse",
+      "rating": "strong",
+      "statement": "Conformed dimensions and pre-load cleansing enforce validity and consistency so business reporting rests on curated, tested facts."
+    },
+    {
+      "blueprint_slug": "customer-360-cdp",
+      "rating": "strong",
+      "statement": "Identity resolution, deduplication, and enrichment are core to producing complete, accurate unified profiles fit for activation."
+    },
+    {
+      "blueprint_slug": "self-serve-data-platform-mesh",
+      "rating": "strong",
+      "statement": "Data products ship with contracts and embedded quality checks as first-class SLAs, so each domain owns and guarantees its output quality."
+    },
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "moderate",
+      "statement": "Warehouse-native tests catch many issues, but load-first-transform-later means raw quality problems can surface downstream before they are caught."
+    },
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "moderate",
+      "statement": "The mirror is only as accurate as the source, and merge logic plus schema drift require monitoring to keep the replica trustworthy."
+    },
+    {
+      "blueprint_slug": "iot-telemetry-platform",
+      "rating": "moderate",
+      "statement": "Device data can be noisy, dropped, or out of order, so quality depends on validation and gap detection applied after high-volume ingestion."
+    },
+    {
+      "blueprint_slug": "streaming-lakehouse",
+      "rating": "moderate",
+      "statement": "Streaming validation and expectations are feasible, but continuous commits and late-arriving events make thorough per-record checks harder than in batch."
+    },
+    {
+      "blueprint_slug": "rag-pipeline",
+      "rating": "moderate",
+      "statement": "Retrieval quality hinges on chunking, dedup, and freshness of the corpus, which need deliberate curation that pipelines often under-invest in."
+    },
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "moderate",
+      "statement": "Inline stream checks catch some issues, but validating completeness across an unbounded stream is inherently harder than gating a finite batch."
+    },
+    {
+      "blueprint_slug": "classic-batch-etl",
+      "rating": "moderate",
+      "statement": "Transform-before-load allows cleansing en route, but quality depends entirely on rules coded into brittle jobs with limited observability."
+    },
+    {
+      "blueprint_slug": "classic-raw-data-lake",
+      "rating": "limited",
+      "statement": "Schema-on-read landing with no enforcement means everything arrives as-is; quality is unmanaged and pushed entirely onto downstream consumers."
+    },
+    {
+      "blueprint_slug": "log-clickstream-analytics",
+      "rating": "limited",
+      "statement": "Raw high-volume events arrive with malformed, duplicate, and bot traffic, so trustworthy metrics require heavy downstream cleansing not present at ingest."
+    },
+    {
+      "blueprint_slug": "query-federation",
+      "rating": "limited",
+      "statement": "Reading sources in place means their varying, unvetted quality is inherited directly, with no shared layer to validate or cleanse before serving."
+    },
+    {
+      "blueprint_slug": "hybrid-onprem-cloud-sync",
+      "rating": "limited",
+      "statement": "Legacy on-prem sources carry accumulated quality debt, and incremental sync propagates those defects into the cloud unless separately remediated."
+    },
+    {
+      "blueprint_slug": "data-sharing-clean-room",
+      "rating": "moderate",
+      "statement": "Governed sharing contracts and agreed schemas give consumers a defined, validated surface, though quality still depends on the provider's upstream curation."
+    },
+    {
+      "blueprint_slug": "pii-safe-analytics-zone",
+      "rating": "moderate",
+      "statement": "Classification and policy enforcement keep sensitive fields well-governed, but masking and tokenization can obscure values enough to complicate downstream quality checks."
+    },
+    {
+      "blueprint_slug": "semantic-metrics-layer",
+      "rating": "moderate",
+      "statement": "Centralizing metric logic removes definitional drift and copy-paste errors, though it governs calculation correctness rather than the quality of the underlying rows."
+    }
+  ],
+  "related_technology_slugs": [
+    "great-expectations",
+    "soda",
+    "dbt",
+    "monte-carlo",
+    "confluent-schema-registry",
+    "elementary"
+  ],
+  "related_quality_slugs": [
+    "schema-evolvability",
+    "observability",
+    "consistency"
+  ],
+  "position": 20,
+  "tradeoffs": [
+    {
+      "title": "Latency",
+      "note": "Validation, quarantine, and reconciliation steps sit inline in the pipeline, delaying when records become available for downstream consumption.",
+      "quality_slug": "latency"
+    },
+    {
+      "title": "Throughput",
+      "note": "Running constraint, freshness, and integrity checks on every batch consumes compute and slows the rate at which data can be ingested and published.",
+      "quality_slug": "throughput"
+    },
+    {
+      "title": "Cost efficiency",
+      "note": "Sustaining high data quality requires observability tooling, test suites, and extra compute for profiling and reconciliation, all of which add ongoing cost.",
+      "quality_slug": "cost-efficiency"
+    }
+  ]
+}

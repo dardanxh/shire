@@ -1,0 +1,191 @@
+{
+  "slug": "maintainability",
+  "name": "Maintainability",
+  "category": "operability",
+  "summary": "How easily the system can be changed, tested, and operated over time — small edits stay safe, breakage is localized, and new engineers can reason about the flow.",
+  "description": "Maintainability is the cost of the second, tenth, and hundredth change to a pipeline. It grows from modular transformations under version control, automated tests, declarative definitions, and a single source of truth for each concept, so a change in one place propagates predictably instead of rippling through bespoke jobs. Stacks built with software-engineering discipline let teams refactor with confidence; hand-rolled scripts and duplicated logic decay into fragile systems only their author understands.",
+  "mechanisms": [
+    {
+      "name": "Modular transformations",
+      "note": "Composable, dependency-aware models with clear inputs and outputs let a change touch one node without rewriting the whole pipeline.",
+      "related_technology_slugs": [
+        "dbt",
+        "sqlmesh",
+        "dataform",
+        "coalesce"
+      ]
+    },
+    {
+      "name": "Version control and CI",
+      "note": "Pipeline logic in Git with review and continuous integration makes every change auditable, revertible, and validated before it ships.",
+      "related_technology_slugs": [
+        "dbt",
+        "dagster",
+        "sqlmesh",
+        "terraform"
+      ]
+    },
+    {
+      "name": "Automated data tests",
+      "note": "Assertions on schema, uniqueness, and business rules catch regressions at build time so refactors are safe rather than a leap of faith.",
+      "related_technology_slugs": [
+        "dbt",
+        "great-expectations",
+        "pandera",
+        "soda"
+      ]
+    },
+    {
+      "name": "Declarative pipeline definitions",
+      "note": "Describing the desired state and dependencies rather than imperative steps lets the framework handle ordering, retries, and reruns consistently.",
+      "related_technology_slugs": [
+        "dagster",
+        "sqlmesh",
+        "prefect",
+        "kestra"
+      ]
+    },
+    {
+      "name": "Single source of truth",
+      "note": "Defining each metric or entity exactly once, with clear layer boundaries, removes the duplicated logic that makes changes risky and inconsistent.",
+      "related_technology_slugs": [
+        "dbt-semantic-layer",
+        "cube",
+        "dbt",
+        "unity-catalog"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "layered-warehouse-dbt",
+      "rating": "strong",
+      "statement": "A clean staging-to-marts split of small tested dbt models under version control means changes localize to one layer and CI catches regressions before they ship."
+    },
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "strong",
+      "statement": "Warehouse-native SQL models with tests, lineage, and Git review bring software-engineering discipline to transformation, so the pipeline stays refactorable as it grows."
+    },
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "strong",
+      "statement": "Explicit bronze/silver/gold boundaries with declarative, tested transformations make each promotion step independently changeable and easy to reason about."
+    },
+    {
+      "blueprint_slug": "semantic-metrics-layer",
+      "rating": "strong",
+      "statement": "Defining every metric exactly once removes duplicated logic across tools, so a business-rule change is a single edit instead of a hunt through dashboards."
+    },
+    {
+      "blueprint_slug": "small-data-duckdb-stack",
+      "rating": "strong",
+      "statement": "One in-process engine and a handful of SQL or Python files mean the entire pipeline fits in one head, making changes trivially cheap to understand and test."
+    },
+    {
+      "blueprint_slug": "data-vault-warehouse",
+      "rating": "moderate",
+      "statement": "Rigid hub/link/satellite patterns make loads uniform and predictable, but the many-object model and downstream marts add moving parts every change must respect."
+    },
+    {
+      "blueprint_slug": "kimball-data-warehouse",
+      "rating": "moderate",
+      "statement": "Well-understood dimensional patterns are maintainable, but conformed dimensions and SCD logic create cross-cutting dependencies that make some changes ripple widely."
+    },
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "moderate",
+      "statement": "Managed connectors keep replication low-touch, but schema drift at the source and merge logic downstream still demand ongoing attention to keep the mirror correct."
+    },
+    {
+      "blueprint_slug": "customer-360-cdp",
+      "rating": "moderate",
+      "statement": "Warehouse-built profiles are refactorable, but identity-resolution rules and activation mappings accumulate special cases that make the logic progressively harder to change."
+    },
+    {
+      "blueprint_slug": "real-time-analytics-serving",
+      "rating": "moderate",
+      "statement": "Declarative streaming SQL keeps definitions readable, but stateful operators, watermarks, and reprocessing make changes riskier to validate than batch models."
+    },
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "moderate",
+      "statement": "One streaming code path avoids duplication, but stateful processing, evolving schemas, and the difficulty of testing continuous logic raise the cost of each change."
+    },
+    {
+      "blueprint_slug": "rag-pipeline",
+      "rating": "moderate",
+      "statement": "Ingestion and chunking are modular, but retrieval tuning, prompt logic, and embedding-model changes lack strong test harnesses, so improvements are often trial-and-error."
+    },
+    {
+      "blueprint_slug": "lambda-batch-speed",
+      "rating": "trade-off",
+      "statement": "Every business rule must be implemented and kept in sync across separate batch and speed codebases, deliberately doubling maintenance effort to serve both views."
+    },
+    {
+      "blueprint_slug": "self-serve-data-platform-mesh",
+      "rating": "trade-off",
+      "statement": "Domain ownership keeps each product small, but many independently evolving teams and a shared platform contract trade local simplicity for real cross-domain coordination cost."
+    },
+    {
+      "blueprint_slug": "classic-batch-etl",
+      "rating": "limited",
+      "statement": "Bespoke hand-coded jobs with embedded, duplicated logic and little test coverage are brittle to change, and edits often break in places only the original author foresaw."
+    },
+    {
+      "blueprint_slug": "classic-raw-data-lake",
+      "rating": "limited",
+      "statement": "Schema-on-read pushes undocumented parsing logic into every consumer, so a source change forces uncoordinated edits across many independent readers."
+    },
+    {
+      "blueprint_slug": "hybrid-onprem-cloud-sync",
+      "rating": "limited",
+      "statement": "Custom sync scripts straddling on-prem and cloud, often without tests or version control, become fragile glue that few engineers dare to modify."
+    },
+    {
+      "blueprint_slug": "mdm-hub",
+      "rating": "limited",
+      "statement": "Accumulated matching rules, survivorship exceptions, and stewardship overrides make the golden-record logic dense and risky to change without regressions."
+    },
+    {
+      "blueprint_slug": "inmon-cif-edw",
+      "rating": "limited",
+      "statement": "A normalized enterprise core with many dependent marts creates deep dependency chains, so a model change can require coordinated updates across the whole EDW."
+    },
+    {
+      "blueprint_slug": "pii-safe-analytics-zone",
+      "rating": "trade-off",
+      "statement": "Keeping masking rules, tokenization vaults, classification tags, and access policies correct as schemas evolve is ongoing overhead that makes the zone harder to maintain than an open one."
+    }
+  ],
+  "related_technology_slugs": [
+    "dbt",
+    "sqlmesh",
+    "dagster",
+    "great-expectations",
+    "dbt-semantic-layer",
+    "terraform"
+  ],
+  "related_quality_slugs": [
+    "schema-evolvability",
+    "observability"
+  ],
+  "position": 30,
+  "tradeoffs": [
+    {
+      "title": "Latency",
+      "note": "Modular boundaries, abstraction layers, and declarative orchestration add indirection and serialization hops that a hand-fused pipeline would avoid.",
+      "quality_slug": "latency"
+    },
+    {
+      "title": "Cost efficiency",
+      "note": "Managed, well-integrated tools and mature frameworks that keep the system easy to change cost more than lean, hand-rolled components doing the minimum.",
+      "quality_slug": "cost-efficiency"
+    },
+    {
+      "title": "Throughput",
+      "note": "Clean, generic, declarative transformations are rarely as raw-optimal as bespoke code tuned to the data, leaving some peak processing rate on the table.",
+      "quality_slug": "throughput"
+    }
+  ]
+}

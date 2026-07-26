@@ -1,6 +1,13 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export interface PaginationLabels {
   rowsPerPage: string;
@@ -36,20 +43,24 @@ export function DataTablePagination({
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-3">
-      <label className="flex items-center gap-2 text-sm text-muted-foreground">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
         {labels.rowsPerPage}
-        <select
-          className="h-8 rounded-lg border border-input bg-transparent px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-          value={size}
-          onChange={(e) => onSizeChange(Number(e.target.value))}
+        <Select<string>
+          value={String(size)}
+          onValueChange={(value) => value && onSizeChange(Number(value))}
         >
-          {sizeOptions.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
-      </label>
+          <SelectTrigger className="h-8 w-18" aria-label={labels.rowsPerPage}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {sizeOptions.map((opt) => (
+              <SelectItem key={opt} value={String(opt)}>
+                {opt}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       <div className="flex items-center gap-4">
         <span className="text-sm text-muted-foreground tabular-nums">

@@ -1,0 +1,182 @@
+{
+  "slug": "schema-evolvability",
+  "name": "Schema evolvability",
+  "category": "data-integrity",
+  "summary": "Schemas can change over time — add, rename, or reorder fields — without breaking consumers or rewriting existing data.",
+  "description": "Schema evolvability is how safely a design absorbs schema change as requirements shift. Evolvable architectures use open table formats that track column changes in metadata, schema registries that enforce compatibility rules, and serialization formats built for forward and backward compatibility. Rigid designs bake schema into physical layout and downstream logic, so any change ripples into costly rewrites and coordinated consumer updates.",
+  "mechanisms": [
+    {
+      "name": "Open table format schema evolution",
+      "note": "Formats that track columns in metadata let you add, drop, rename, and reorder without rewriting existing data files.",
+      "related_technology_slugs": [
+        "apache-iceberg",
+        "delta-lake",
+        "apache-hudi",
+        "apache-paimon"
+      ]
+    },
+    {
+      "name": "Schema registry with compatibility rules",
+      "note": "A central registry validates each new schema version against backward/forward compatibility before producers can publish it.",
+      "related_technology_slugs": [
+        "confluent-schema-registry",
+        "aws-glue-schema-registry",
+        "apicurio-registry"
+      ]
+    },
+    {
+      "name": "Compatible serialization formats",
+      "note": "Avro and Protobuf encode field IDs and defaults so old and new readers interoperate across added or optional fields.",
+      "related_technology_slugs": [
+        "avro",
+        "protobuf",
+        "parquet"
+      ]
+    },
+    {
+      "name": "Versioned data contracts",
+      "note": "Explicit, versioned producer-consumer contracts make schema change a governed, backward-compatible negotiation instead of a silent break.",
+      "related_technology_slugs": [
+        "confluent-schema-registry",
+        "dbt",
+        "datahub"
+      ]
+    },
+    {
+      "name": "Slowly changing dimension handling",
+      "note": "SCD patterns absorb attribute changes over time by versioning rows, letting the model evolve without discarding history.",
+      "related_technology_slugs": [
+        "dbt",
+        "sqlmesh",
+        "snowflake"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "open-iceberg-lakehouse",
+      "rating": "strong",
+      "statement": "Iceberg tracks columns by stable field ID, so add, drop, rename, and reorder are pure metadata operations with no data rewrite and no reader breakage."
+    },
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "strong",
+      "statement": "Format-level schema evolution lets bronze absorb new source columns and silver/gold adapt incrementally without rewriting historical files."
+    },
+    {
+      "blueprint_slug": "streaming-lakehouse",
+      "rating": "strong",
+      "statement": "Continuous commits ride on an evolvable table format, so new fields flow through the stream and land in tables without stopping the pipeline."
+    },
+    {
+      "blueprint_slug": "event-driven-architecture",
+      "rating": "strong",
+      "statement": "A schema registry enforcing backward compatibility lets producers add fields while existing consumers keep deserializing older-shaped events safely."
+    },
+    {
+      "blueprint_slug": "data-vault-warehouse",
+      "rating": "strong",
+      "statement": "The hub/link/satellite pattern absorbs new sources and attributes by adding satellites, so schema growth is additive and non-disruptive."
+    },
+    {
+      "blueprint_slug": "iot-telemetry-platform",
+      "rating": "strong",
+      "statement": "Registry-governed device schemas let new sensor fields roll out across a heterogeneous fleet while older firmware payloads remain readable."
+    },
+    {
+      "blueprint_slug": "classic-raw-data-lake",
+      "rating": "strong",
+      "statement": "Schema-on-read defers interpretation to query time, so producers can change layout freely — the trade is that consumers absorb the resulting drift."
+    },
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "moderate",
+      "statement": "Warehouses add columns easily and dbt models adapt, but downstream models and tests must be updated deliberately when upstream shapes shift."
+    },
+    {
+      "blueprint_slug": "layered-warehouse-dbt",
+      "rating": "moderate",
+      "statement": "The staging layer isolates source changes from marts, but propagating a new field to gold still means editing and re-testing the dependent models."
+    },
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "moderate",
+      "statement": "Many CDC tools propagate source DDL automatically, but incompatible source changes like type narrowing can still stall or break the replication stream."
+    },
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "moderate",
+      "statement": "Registry-backed events evolve cleanly, but stateful operators holding prior-shape state may need migration or reprocessing when schemas change."
+    },
+    {
+      "blueprint_slug": "self-serve-data-platform-mesh",
+      "rating": "moderate",
+      "statement": "Versioned data-product contracts make evolution explicit, yet coordinating compatible change across many autonomous domain consumers adds real overhead."
+    },
+    {
+      "blueprint_slug": "ml-feature-pipeline",
+      "rating": "moderate",
+      "statement": "Feature stores version definitions, but changing a feature's schema risks train/serve skew and often forces careful backfills to stay point-in-time correct."
+    },
+    {
+      "blueprint_slug": "kimball-data-warehouse",
+      "rating": "moderate",
+      "statement": "SCD patterns evolve dimension attributes gracefully, but reshaping conformed dimensions or fact grain is a coordinated, cross-mart undertaking."
+    },
+    {
+      "blueprint_slug": "inmon-cif-edw",
+      "rating": "limited",
+      "statement": "A rigid normalized 3NF core bakes relationships into physical structure, so schema change ripples through the core and every dependent mart."
+    },
+    {
+      "blueprint_slug": "classic-batch-etl",
+      "rating": "limited",
+      "statement": "Schema is hard-coded into transform jobs and target DDL, so a single upstream column change forces edits across brittle, tightly coupled pipelines."
+    },
+    {
+      "blueprint_slug": "hybrid-onprem-cloud-sync",
+      "rating": "limited",
+      "statement": "Legacy on-prem source schemas change awkwardly, and each change demands coordinated updates on both sides of the sync to avoid breakage."
+    },
+    {
+      "blueprint_slug": "embedded-analytics",
+      "rating": "trade-off",
+      "statement": "Customer-facing schemas and APIs are contractually stable, so evolvability is deliberately sacrificed for a frozen surface that external clients depend on."
+    },
+    {
+      "blueprint_slug": "semantic-metrics-layer",
+      "rating": "moderate",
+      "statement": "Metrics are defined against models, so a definition can absorb upstream column changes in one place, though breaking source schema shifts still require updating the underlying mappings."
+    }
+  ],
+  "related_technology_slugs": [
+    "apache-iceberg",
+    "delta-lake",
+    "confluent-schema-registry",
+    "avro",
+    "protobuf",
+    "aws-glue-schema-registry"
+  ],
+  "related_quality_slugs": [
+    "maintainability",
+    "data-quality"
+  ],
+  "position": 30,
+  "tradeoffs": [
+    {
+      "title": "Maintainability",
+      "note": "Upholding forward/backward compatibility rules, versioning schemas, and coordinating migrations across producers and consumers is ongoing discipline that adds process overhead.",
+      "quality_slug": "maintainability"
+    },
+    {
+      "title": "Consistency",
+      "note": "Permissive, loosely-typed schemas make change easy but let field meanings and definitions drift across producers, weakening shared consistency of the data model.",
+      "quality_slug": "consistency"
+    },
+    {
+      "title": "Data quality",
+      "note": "Flexible or optional-heavy schemas admit malformed, missing, or unexpected values that stricter contracts would have rejected at the boundary.",
+      "quality_slug": "data-quality"
+    }
+  ]
+}

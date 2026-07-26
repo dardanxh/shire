@@ -1,0 +1,146 @@
+{
+  "slug": "lambda-batch-speed",
+  "name": "Lambda (batch + speed)",
+  "use_case": "Combined historical + real-time views",
+  "description": "Lambda runs two parallel paths over the same source events: a batch layer that periodically recomputes accurate, complete views over the full history on the lake, and a speed layer that maintains approximate, low-latency views over recent events. A serving layer merges them so queries see both deep history and the last few seconds. The pattern's honest cost is dual implementation — the same logic exists twice, in batch code and streaming code, and keeping them consistent is a permanent tax. Modern table formats and real-time OLAP stores have eaten much of Lambda's original motivation, but the shape survives where batch recomputation over massive history must coexist with real-time freshness and neither path can be compromised.",
+  "when_to_use": [
+    "Choose this when you need both provably-correct results over years of history (batch recomputation as the error-correction mechanism) and seconds-fresh views, and a single system cannot deliver both — common in metrics platforms, billing/usage analytics, and large-scale monitoring.",
+    "It also fits brownfield reality: a solid batch platform already exists and real-time is being added alongside rather than instead.",
+    "You must serve both years of history and the last few seconds in one answer."
+  ],
+  "when_not_to_use": [
+    "Do not start here greenfield — evaluate Kappa (5) or a real-time OLAP store with batch backfill (8) first, as either avoids maintaining duplicate logic.",
+    "If 'real-time' actually means minutes, micro-batch on the existing batch stack is far cheaper.",
+    "The dual-codebase tax compounds with every metric added, so avoid Lambda when the metric surface is broad and fast-changing."
+  ],
+  "use_cases": [
+    "realtime",
+    "reporting"
+  ],
+  "hot_spots": [
+    {
+      "title": "Dual codebases",
+      "detail": "Batch and speed implement the same logic twice and inevitably drift apart."
+    },
+    {
+      "title": "Serving merge",
+      "detail": "Incorrect merge windows double-count or drop events at the batch/speed boundary."
+    },
+    {
+      "title": "Batch latency",
+      "detail": "Errors fixed only by recomputation wait for the next batch cycle."
+    }
+  ],
+  "complexity": "high",
+  "evolution": [
+    {
+      "to_slug": "kappa-streaming-pipeline",
+      "reason": "Collapse the dual codebases into a single streaming path."
+    },
+    {
+      "to_slug": "real-time-analytics-serving",
+      "reason": "A real-time OLAP store with batch backfill replaces both layers for query serving."
+    }
+  ],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|all events, append-only| MD[Master Dataset]:::store\n  MD -->|complete history| BATCH[Batch Layer]:::process\n  SRC -->|live events| SPEED[Speed Layer]:::process\n  BATCH -->|recomputed views| BV[Batch Views]:::store\n  SPEED -->|incremental updates| RV[Real-time Views]:::store\n  BV -->|accurate history| MERGE[Serving Merge]:::serve\n  RV -->|latest increments| MERGE\n  MERGE -->|unified answers| CONS[Consumers]:::serve"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  ES[Event Sources]:::source -->|append all events| LM[Object Storage Master Dataset]:::store\n  LM -->|full history reads| BE[Batch Processing Engine]:::process\n  ES -->|stream| SE[Stream Processing Engine]:::process\n  BE -->|full recompute| BS[Batch View Store]:::store\n  SE -->|append recent| SS[Speed View Store]:::store\n  BS -->|historic slices| SRV[Serving Database]:::serve\n  SS -->|fresh slices| SRV\n  SRV -->|merged queries| API[APIs + Dashboards]:::serve"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([all historical events]):::source -->|append| MD2([immutable master dataset]):::store\n  MD2 -->|recompute nightly| B([batch views]):::store\n  R([recent events]):::source -->|update continuously| C([speed views]):::store\n  B -->|merge| E([unified answers]):::serve\n  C -->|merge| E\n  E -->|query| F([dashboards]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant S as Sources\n  participant B as Batch Engine\n  participant M as Master Dataset\n  participant F as Speed Engine\n  participant V as Serving Layer\n  participant C as Client\n  S->>M: append events continuously\n  B->>M: read complete history (nightly)\n  B->>V: publish recomputed views\n  S->>F: live events (continuous)\n  F->>V: apply increments\n  C->>V: query\n  V-->>C: batch + fresh merged"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|all events, append-only| MD[\"Amazon S3 + Iceberg<br/><i>Master Dataset</i>\"]:::store\n  MD -->|complete history| BATCH[\"Amazon EMR<br/><i>Batch Layer</i>\"]:::process\n  SRC -->|live events| SPEED[\"Amazon Managed Flink<br/><i>Speed Layer</i>\"]:::process\n  BATCH -->|recomputed views| BV[\"S3 + Athena tables<br/><i>Batch Views</i>\"]:::store\n  SPEED -->|incremental updates| RV[\"Amazon DynamoDB<br/><i>Real-time Views</i>\"]:::store\n  BV -->|accurate history| MERGE[\"AWS AppSync API<br/><i>Serving Merge</i>\"]:::serve\n  RV -->|latest increments| MERGE\n  MERGE -->|unified answers| CONS[Consumers]:::serve"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|all events, append-only| MD[\"ADLS + Iceberg<br/><i>Master Dataset</i>\"]:::store\n  MD -->|complete history| BATCH[\"Azure HDInsight<br/><i>Batch Layer</i>\"]:::process\n  SRC -->|live events| SPEED[\"Azure Stream Analytics<br/><i>Speed Layer</i>\"]:::process\n  BATCH -->|recomputed views| BV[\"ADLS + Synapse tables<br/><i>Batch Views</i>\"]:::store\n  SPEED -->|incremental updates| RV[\"Azure Cosmos DB<br/><i>Real-time Views</i>\"]:::store\n  BV -->|accurate history| MERGE[\"Azure API Management<br/><i>Serving Merge</i>\"]:::serve\n  RV -->|latest increments| MERGE\n  MERGE -->|unified answers| CONS[Consumers]:::serve"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|all events, append-only| MD[\"GCS + Iceberg<br/><i>Master Dataset</i>\"]:::store\n  MD -->|complete history| BATCH[\"Google Dataproc<br/><i>Batch Layer</i>\"]:::process\n  SRC -->|live events| SPEED[\"Google Dataflow<br/><i>Speed Layer</i>\"]:::process\n  BATCH -->|recomputed views| BV[\"BigQuery tables<br/><i>Batch Views</i>\"]:::store\n  SPEED -->|incremental updates| RV[\"Cloud Bigtable<br/><i>Real-time Views</i>\"]:::store\n  BV -->|accurate history| MERGE[\"Cloud Run API<br/><i>Serving Merge</i>\"]:::serve\n  RV -->|latest increments| MERGE\n  MERGE -->|unified answers| CONS[Consumers]:::serve"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|all events, append-only| MD[\"MinIO + Iceberg<br/><i>Master Dataset</i>\"]:::store\n  MD -->|complete history| BATCH[\"Apache Spark<br/><i>Batch Layer</i>\"]:::process\n  SRC -->|live events| SPEED[\"Apache Flink<br/><i>Speed Layer</i>\"]:::process\n  BATCH -->|recomputed views| BV[\"ClickHouse tables<br/><i>Batch Views</i>\"]:::store\n  SPEED -->|incremental updates| RV[\"Apache Druid · Redis<br/><i>Real-time Views</i>\"]:::store\n  BV -->|accurate history| MERGE[\"Custom query API<br/><i>Serving Merge</i>\"]:::serve\n  RV -->|latest increments| MERGE\n  MERGE -->|unified answers| CONS[Consumers]:::serve"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|all events, append-only| MD[\"Snowflake Iceberg tables<br/><i>Master Dataset</i>\"]:::store\n  MD -->|complete history| BATCH[\"Snowpark batch jobs<br/><i>Batch Layer</i>\"]:::process\n  SRC -->|live events| SPEED[\"Snowpark Streams + Tasks<br/><i>Speed Layer</i>\"]:::process\n  BATCH -->|recomputed views| BV[\"Snowflake tables<br/><i>Batch Views</i>\"]:::store\n  SPEED -->|incremental updates| RV[\"Snowflake hybrid tables<br/><i>Real-time Views</i>\"]:::store\n  BV -->|accurate history| MERGE[\"Snowflake views over both<br/><i>Serving Merge</i>\"]:::serve\n  RV -->|latest increments| MERGE\n  MERGE -->|unified answers| CONS[Consumers]:::serve"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|all events, append-only| MD[\"Delta Lake<br/><i>Master Dataset</i>\"]:::store\n  MD -->|complete history| BATCH[\"Databricks Jobs (Spark)<br/><i>Batch Layer</i>\"]:::process\n  SRC -->|live events| SPEED[\"Spark Structured Streaming<br/><i>Speed Layer</i>\"]:::process\n  BATCH -->|recomputed views| BV[\"Delta Lake tables<br/><i>Batch Views</i>\"]:::store\n  SPEED -->|incremental updates| RV[\"Databricks online tables<br/><i>Real-time Views</i>\"]:::store\n  BV -->|accurate history| MERGE[\"Databricks SQL views<br/><i>Serving Merge</i>\"]:::serve\n  RV -->|latest increments| MERGE\n  MERGE -->|unified answers| CONS[Consumers]:::serve"
+    }
+  ],
+  "family_tags": [
+    "streaming-realtime",
+    "storage-platform"
+  ],
+  "archetype_slugs": [
+    "stream-processing-pipeline",
+    "real-time-analytics-serving",
+    "data-lake-build"
+  ],
+  "position": 6,
+  "stages": [
+    {
+      "name": "Master dataset",
+      "role": "Immutable, append-only store of every raw event — the batch layer recomputes from it",
+      "recommended_technology_slug": "amazon-s3",
+      "alternative_technology_slugs": [
+        "azure-blob-storage",
+        "google-cloud-storage",
+        "minio"
+      ],
+      "rationale": "Cheap immutable object storage as the landing layer decouples ingestion from processing: replays, backfills, and audits read the raw dump instead of re-extracting from sources."
+    },
+    {
+      "position": 0,
+      "name": "Batch layer",
+      "role": "Periodically recompute complete, accurate views over full history on the lake",
+      "recommended_technology_slug": "apache-spark",
+      "alternative_technology_slugs": [
+        "trino",
+        "amazon-emr",
+        "databricks-sql"
+      ],
+      "rationale": "Spark over lake storage (Parquet/Iceberg) is the proven engine for full-history recomputation — it scales to the scan volumes involved and shares infrastructure with the rest of a lakehouse. The batch layer's job is correctness: it silently fixes whatever the speed layer got wrong. Trino fits when recomputation is expressible as SQL and you already run it for interactive queries; EMR and Databricks are the managed places to run the Spark itself."
+    },
+    {
+      "position": 1,
+      "name": "Speed layer",
+      "role": "Maintain low-latency incremental views over events the batch layer has not yet processed",
+      "recommended_technology_slug": "apache-flink",
+      "alternative_technology_slugs": [
+        "kafka-streams",
+        "spark-structured-streaming",
+        "materialize"
+      ],
+      "rationale": "Flink's event-time windowing and managed state fit the speed layer's job — incremental aggregates over the recent window, tolerating that batch will overwrite them with the truth later. Approximation is acceptable here by design, which relaxes the exactly-once pressure that makes streaming hard elsewhere. Kafka Streams keeps it library-simple inside JVM services; Spark Structured Streaming minimizes the dual-stack problem by sharing the batch engine's APIs — a real argument if you chose Spark for batch; Materialize replaces hand-built incremental logic with maintained SQL views."
+    },
+    {
+      "position": 2,
+      "name": "Serving merge",
+      "role": "Store both view sets and answer queries that merge historical and real-time results",
+      "recommended_technology_slug": "apache-druid",
+      "alternative_technology_slugs": [
+        "apache-pinot",
+        "clickhouse",
+        "starrocks"
+      ],
+      "rationale": "Druid was practically designed for Lambda serving — native dual ingestion (batch index jobs from the lake plus streaming from Kafka) with automatic segment replacement, so the batch layer's corrected history transparently supersedes speed-layer data without query-time merge logic. Pinot offers the same hybrid-table pattern with a more modern architecture; ClickHouse can play the role with materialized views plus batch inserts but leaves the merge semantics to you; StarRocks when joins at serve time matter. The segment-replacement mechanics are the whole trick — pick a store where they are first-class."
+    }
+  ]
+}

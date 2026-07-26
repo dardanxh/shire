@@ -1,0 +1,164 @@
+{
+  "slug": "pii-safe-analytics-zone",
+  "name": "PII-safe analytics zone",
+  "use_case": "Analytics on sensitive data without exposure",
+  "description": "A zone architecture where analytics runs at full utility while raw PII stays contained: sensitive fields are discovered and classified as data enters, tokenized or masked at ingest so the analytical zone never holds raw identifiers, a policy engine enforces attribute-based access (who sees masked vs clear values, by purpose) as views over the data, and every access lands in an audit trail. The load-bearing decision is masking at ingest rather than at query time — if raw PII never enters the analytical zone, the blast radius of any downstream mistake (a misconfigured share, an over-permissioned dashboard, an exported CSV) is structurally bounded rather than policy-bounded. Deterministic tokenization preserves joinability, so customer_id still links tables; format-preserving techniques keep downstream code unaware.\n\nClassification is the stage teams underinvest in and regret: policy can only protect what is found, and PII hides in free-text columns, JSON blobs, and 'notes' fields that column-name heuristics miss. Automated scanning (pattern- and ML-based) must run continuously — on new sources, new columns, and schema drift — not as a one-time audit, and its output should drive tagging that the policy engine consumes directly, so discovery-to-enforcement is a pipeline, not a spreadsheet handoff.\n\nThe operational reality is that this blueprint is as much governance as engineering: purpose-based access ('marketing analytics may see city, fraud investigation may unmask email with approval') requires someone to own the policy matrix, a re-identification path with approvals for the rare legitimate need, and audit review that actually happens. Done right, analysts stop being blocked on 'can I use this table' — the zone answers it structurally, which is the productivity payoff hiding inside the compliance story.",
+  "when_to_use": [
+    "Choose this when analytics must run over data containing personal or regulated information under GDPR/CCPA/HIPAA-class obligations — customer analytics, healthcare, fintech — and especially when the analyst population is large enough that per-person trust does not scale.",
+    "It is also the enabling groundwork for safely using production-shaped data in ML training and lower environments.",
+    "Analysts need the data but must never see the person behind it."
+  ],
+  "when_not_to_use": [
+    "Overkill when sensitive data is confined to a few columns in a small, tightly-held warehouse — native warehouse masking policies plus role hygiene may suffice without a dedicated classification and policy stack.",
+    "It does not substitute for data minimization (the cheapest PII to protect is the PII you never ingest), and if the real requirement is sharing data across organizations, that is the clean-room blueprint (19).",
+    "The dataset contains no personal or regulated attributes worth the overhead."
+  ],
+  "use_cases": [
+    "compliance",
+    "reporting"
+  ],
+  "hot_spots": [
+    {
+      "title": "Classification recall",
+      "detail": "PII the scanner misses flows unprotected into analyst views."
+    },
+    {
+      "title": "Re-identification",
+      "detail": "Joining masked datasets can still re-identify individuals."
+    },
+    {
+      "title": "Policy sprawl",
+      "detail": "Overlapping grants and masks become impossible to reason about."
+    }
+  ],
+  "complexity": "medium",
+  "evolution": [],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw records with PII| QZ[Quarantine Landing Zone]:::store\n  QZ -->|restricted raw| CLS[Classification]:::process\n  CLS -->|tagged data| PROT[Tokenize + Mask]:::process\n  PROT -->|de-identified data| SAFE[Safe Zone Store]:::store\n  SAFE -->|role-filtered views| AN[Analysts]:::serve\n  POL[Policy Engine]:::govern -. access rules .-> SAFE\n  AUD[Audit Log]:::govern -. every access recorded .-> AN"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  SRC[Source Systems]:::source -->|raw ingest| QZL[Quarantine Object Storage]:::store\n  QZL -->|restricted scan| SCN[Scanner + Classifier]:::process\n  SCN -->|tagged columns| TOK[Tokenization Service]:::process\n  TOK -->|masked datasets| GW[Governed Warehouse]:::store\n  GW -->|policy-enforced views| VW[Role-based Views]:::serve\n  PE[Policy Engine]:::govern -. grants and masks .-> VW\n  AL[Audit Log]:::govern -. query history .-> VW"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([raw records]):::source -->|land restricted| QZ2([quarantined raw records]):::store\n  QZ2 -->|classify| B([tagged records]):::process\n  B -->|tokenize + mask| C([de-identified records]):::store\n  C -->|authorize by role| E([role-scoped views]):::store\n  E -->|analyze| F([privacy-safe insights]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant L as Loader\n  participant C as Classifier\n  participant Q as Quarantine Zone\n  participant P as Protector\n  participant S as Safe Store\n  participant A as Analyst\n  participant G as Policy Engine\n  L->>Q: land raw in quarantine\n  C->>Q: scan quarantined data\n  C->>P: tag PII columns\n  P->>S: write masked datasets\n  A->>S: query view\n  S->>G: check role + purpose\n  G-->>S: allow permitted subset\n  S-->>A: privacy-safe results\n  S->>S: append audit record"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw records with PII| QZ[\"Amazon S3 restricted bucket<br/><i>Quarantine Landing Zone</i>\"]:::store\n  QZ -->|restricted raw| CLS[\"Amazon Macie<br/><i>Classification</i>\"]:::process\n  CLS -->|tagged data| PROT[\"AWS Glue + KMS tokenization<br/><i>Tokenize + Mask</i>\"]:::process\n  PROT -->|de-identified data| SAFE[\"Amazon Redshift<br/><i>Safe Zone Store</i>\"]:::store\n  SAFE -->|role-filtered views| AN[Analysts]:::serve\n  POL[\"Lake Formation permissions<br/><i>Policy Engine</i>\"]:::govern -. access rules .-> SAFE\n  AUD[\"AWS CloudTrail<br/><i>Audit Log</i>\"]:::govern -. every access recorded .-> AN"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw records with PII| QZ[\"ADLS restricted container<br/><i>Quarantine Landing Zone</i>\"]:::store\n  QZ -->|restricted raw| CLS[\"Microsoft Purview classification<br/><i>Classification</i>\"]:::process\n  CLS -->|tagged data| PROT[\"Purview + Azure Key Vault masking<br/><i>Tokenize + Mask</i>\"]:::process\n  PROT -->|de-identified data| SAFE[\"Azure Synapse Analytics<br/><i>Safe Zone Store</i>\"]:::store\n  SAFE -->|role-filtered views| AN[Analysts]:::serve\n  POL[\"Purview policies<br/><i>Policy Engine</i>\"]:::govern -. access rules .-> SAFE\n  AUD[\"Azure Monitor audit logs<br/><i>Audit Log</i>\"]:::govern -. every access recorded .-> AN"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw records with PII| QZ[\"GCS restricted bucket<br/><i>Quarantine Landing Zone</i>\"]:::store\n  QZ -->|restricted raw| CLS[\"Google Cloud DLP<br/><i>Classification</i>\"]:::process\n  CLS -->|tagged data| PROT[\"Cloud DLP de-identification<br/><i>Tokenize + Mask</i>\"]:::process\n  PROT -->|de-identified data| SAFE[\"BigQuery<br/><i>Safe Zone Store</i>\"]:::store\n  SAFE -->|role-filtered views| AN[Analysts]:::serve\n  POL[\"BigQuery policy tags<br/><i>Policy Engine</i>\"]:::govern -. access rules .-> SAFE\n  AUD[\"Google Cloud Audit Logs<br/><i>Audit Log</i>\"]:::govern -. every access recorded .-> AN"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw records with PII| QZ[\"MinIO restricted<br/><i>Quarantine Landing Zone</i>\"]:::store\n  QZ -->|restricted raw| CLS[\"Presidio · OpenMetadata tags<br/><i>Classification</i>\"]:::process\n  CLS -->|tagged data| PROT[\"Presidio anonymizer<br/><i>Tokenize + Mask</i>\"]:::process\n  PROT -->|de-identified data| SAFE[\"ClickHouse<br/><i>Safe Zone Store</i>\"]:::store\n  SAFE -->|role-filtered views| AN[Analysts]:::serve\n  POL[\"Open Policy Agent<br/><i>Policy Engine</i>\"]:::govern -. access rules .-> SAFE\n  AUD[\"OpenSearch audit trail<br/><i>Audit Log</i>\"]:::govern -. every access recorded .-> AN"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw records with PII| QZ[\"Snowflake restricted schema<br/><i>Quarantine Landing Zone</i>\"]:::store\n  QZ -->|restricted raw| CLS[\"Snowflake sensitive data classification<br/><i>Classification</i>\"]:::process\n  CLS -->|tagged data| PROT[\"Snowflake dynamic data masking<br/><i>Tokenize + Mask</i>\"]:::process\n  PROT -->|de-identified data| SAFE[\"Snowflake<br/><i>Safe Zone Store</i>\"]:::store\n  SAFE -->|role-filtered views| AN[Analysts]:::serve\n  POL[\"Snowflake row/column policies<br/><i>Policy Engine</i>\"]:::govern -. access rules .-> SAFE\n  AUD[\"Snowflake ACCESS_HISTORY<br/><i>Audit Log</i>\"]:::govern -. every access recorded .-> AN"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw records with PII| QZ[\"Unity Catalog restricted volume<br/><i>Quarantine Landing Zone</i>\"]:::store\n  QZ -->|restricted raw| CLS[\"Unity Catalog classification<br/><i>Classification</i>\"]:::process\n  CLS -->|tagged data| PROT[\"Unity Catalog column masks<br/><i>Tokenize + Mask</i>\"]:::process\n  PROT -->|de-identified data| SAFE[\"Databricks SQL<br/><i>Safe Zone Store</i>\"]:::store\n  SAFE -->|role-filtered views| AN[Analysts]:::serve\n  POL[\"Unity Catalog policies<br/><i>Policy Engine</i>\"]:::govern -. access rules .-> SAFE\n  AUD[\"Unity Catalog audit logs<br/><i>Audit Log</i>\"]:::govern -. every access recorded .-> AN"
+    }
+  ],
+  "family_tags": [
+    "governance-security-compliance"
+  ],
+  "archetype_slugs": [
+    "pii-handling-initiative",
+    "masking-tokenization",
+    "access-control-rollout",
+    "data-classification-program"
+  ],
+  "position": 18,
+  "stages": [
+    {
+      "name": "Quarantine landing",
+      "role": "Restricted-access raw landing — nothing leaves until classified and protected",
+      "recommended_technology_slug": "amazon-s3",
+      "alternative_technology_slugs": [
+        "azure-blob-storage",
+        "google-cloud-storage",
+        "minio"
+      ],
+      "rationale": "Cheap immutable object storage as the landing layer decouples ingestion from processing: replays, backfills, and audits read the raw dump instead of re-extracting from sources."
+    },
+    {
+      "position": 0,
+      "name": "Classify",
+      "role": "Discover and tag sensitive fields continuously across sources and the analytical estate",
+      "recommended_technology_slug": "microsoft-presidio",
+      "alternative_technology_slugs": [
+        "bigid",
+        "amazon-s3",
+        "microsoft-purview"
+      ],
+      "rationale": "Presidio is the open-source engine for the detection itself — NER- and pattern-based recognizers for names, emails, nationals IDs and custom entities, embeddable directly in ingest pipelines so classification happens in-line rather than as a periodic scan; that pipeline-embeddability is why it leads here. BigID is the enterprise discovery platform pick: it crawls the whole estate (databases, files, SaaS), correlates identities across systems, and feeds governance workflows — the right tool when the problem is 'find all PII we have anywhere', with Purview the Azure-native equivalent. In practice mature setups run both layers: platform-wide discovery to map the estate, in-pipeline detection to catch what arrives tomorrow. Route all output into machine-readable tags on columns — classification that lives in a PDF protects nothing."
+    },
+    {
+      "position": 1,
+      "name": "Tokenize/mask",
+      "role": "Replace raw identifiers at ingest: deterministic tokens for joinable IDs, masking/redaction for display fields, vault or vaultless key custody",
+      "recommended_technology_slug": "skyflow",
+      "alternative_technology_slugs": [
+        "privitar",
+        "microsoft-presidio",
+        "hashicorp-vault",
+        "tonic-ai"
+      ],
+      "rationale": "Skyflow productizes the data-privacy-vault pattern: raw PII lives only in an isolated, purpose-built vault, downstream systems hold deterministic tokens, and detokenization is an audited API call with policy attached — the cleanest realization of 'the analytics zone never holds raw PII'. Privitar (now Informatica) is the enterprise policy-driven masking platform for large regulated estates; the build-side alternative composes Presidio for detection/redaction with HashiCorp Vault's transform engine for format-preserving tokenization — more integration work, no per-record vendor pricing. Tonic covers the adjacent need of realistic synthetic data for lower environments. Two rules regardless of tool: deterministic tokenization for anything that must join (analytics dies without it), and key/vault custody separated from the analytics platform's own admin plane — otherwise tokenization is theater against the insider threat it exists to bound."
+    },
+    {
+      "position": 2,
+      "name": "Policy engine",
+      "role": "Centralize attribute- and purpose-based access policy; push enforcement into the platforms holding data",
+      "recommended_technology_slug": "immuta",
+      "alternative_technology_slugs": [
+        "apache-ranger",
+        "privacera",
+        "open-policy-agent",
+        "satori"
+      ],
+      "rationale": "Immuta is the category leader for exactly this seat: policies expressed once against classification tags ('mask columns tagged pii.email for anyone outside fraud-investigation purpose'), enforced natively across Snowflake, Databricks, and friends by compiling down to each platform's own masking and row-access primitives — tag-driven policy is what keeps the matrix maintainable as columns multiply. Ranger is the open-source enforcement fabric for Hadoop/Trino-lineage stacks and remains the default in self-hosted lakehouse estates, with Privacera as its commercial cloud-spanning descendant; Satori takes a proxy approach that adds no per-platform integration; OPA fits when policy-as-code must span beyond data into services, at the cost of building the data-platform bindings yourself. Whatever engine, insist policies reference tags (from the classify stage), never raw column names — that coupling is what makes the whole zone self-maintaining as schemas evolve."
+    },
+    {
+      "position": 3,
+      "name": "Role-based views",
+      "role": "The enforcement surface analysts actually touch: masked, filtered views per role and purpose — realized inside the warehouse, not a separate product",
+      "recommended_technology_slug": "snowflake",
+      "alternative_technology_slugs": [
+        "bigquery",
+        "databricks-sql",
+        "postgresql"
+      ],
+      "rationale": "Enforcement ultimately materializes as the warehouse's own primitives — Snowflake dynamic masking and row-access policies, BigQuery policy tags and authorized views, Unity Catalog column masks, Postgres RLS — because enforcement inside the engine cannot be bypassed by a clever client, and this stage names that surface rather than a new tool. The policy engine above should be generating these; hand-maintaining per-role secure views is viable only at small scale before it drifts. Design principle: analysts get one schema of governed views and query normally — the moment the safe path is slower or uglier than the raw path, people route around the zone and the architecture has failed socially even where it holds technically."
+    },
+    {
+      "position": 4,
+      "name": "Audit",
+      "role": "Capture who accessed what, when, under which policy and purpose; make review and anomaly detection routine",
+      "recommended_technology_slug": "satori",
+      "alternative_technology_slugs": [
+        "immuta",
+        "apache-ranger",
+        "datahub",
+        "openmetadata"
+      ],
+      "rationale": "Satori's proxy position makes it the strongest dedicated answer for data-access audit — every query, the identity behind it, and the sensitive columns it touched, recorded uniformly across heterogeneous stores without per-platform log wrangling. If Immuta or Ranger is already the policy engine, their audit trails cover most needs — decision-plus-access logging in one place — and the warehouses' native access history feeds the same story; DataHub/OpenMetadata add usage context that makes review meaningful. The differentiator is not collection but practice: detokenization events and policy exceptions should page someone, access reviews should run on a calendar, and audit data should itself live under this zone's controls — it is, after all, a record of who looked at whom."
+    }
+  ]
+}

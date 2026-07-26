@@ -1,0 +1,150 @@
+{
+  "slug": "mdm-hub",
+  "name": "MDM hub",
+  "use_case": "Golden records across systems",
+  "description": "A master data management hub resolves the same real-world entity — customer, product, supplier — scattered inconsistently across CRMs, ERPs, and product databases into one golden record. Source records flow in, an ML-assisted match/merge engine clusters records that refer to the same entity, survivorship rules pick winning attribute values, human stewards adjudicate the uncertain middle through a review UI, and golden records publish back out via API and warehouse tables. The stewardship loop is not optional garnish: match models produce a gray zone by construction, and the hubs that work are the ones where humans efficiently clear it and their decisions retrain the matcher.",
+  "when_to_use": [
+    "Choose this when the same entities live in multiple systems and the inconsistency has a business cost you can name — duplicate customer outreach, compliance reports that disagree, M&A integrations, a 360-degree customer view that is actually six different views.",
+    "It presupposes executive sponsorship for cross-system data ownership, because match/merge is the easy half; agreeing whose attribute wins is the hard half.",
+    "The same customer exists in five systems and nobody agrees which record is right."
+  ],
+  "when_not_to_use": [
+    "Skip the hub if entities effectively live in one system — enforce quality at the source instead.",
+    "Deduplication within a single analytical table is the entity-resolution archetype without hub machinery: run the matcher in the pipeline and move on.",
+    "And do not start MDM as a technology project without governance mandate; a hub nobody stewards and no system trusts is the most expensive way to produce another conflicting copy."
+  ],
+  "use_cases": [
+    "operational",
+    "integration",
+    "compliance"
+  ],
+  "hot_spots": [
+    {
+      "title": "Match thresholds",
+      "detail": "Too-loose matching merges different people; too-strict spawns duplicates."
+    },
+    {
+      "title": "Steward backlog",
+      "detail": "Ambiguous matches pile up and golden records go stale."
+    },
+    {
+      "title": "Survivorship rules",
+      "detail": "Wrong precedence lets a stale system overwrite fresh truth."
+    }
+  ],
+  "complexity": "high",
+  "evolution": [],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[System Data Sources]:::source -->|entity extracts| LZ[Source Landing]:::store\n  LZ -->|raw records| STD[Standardization]:::process\n  STD -->|normalized records| MATCH[Matching + Merge]:::process\n  MATCH -->|golden records| HUB[Master Data Store]:::store\n  HUB -->|published masters| CONS[Consuming Systems]:::serve\n  STEW[Data Stewards]:::govern -. manual match resolutions .-> MATCH\n  QA[Quality Rules]:::govern -. survivorship policies .-> MATCH"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  SRC[CRM + ERP + App Sources]:::source -->|raw extracts| LZL[Object Storage Landing]:::store\n  LZL -->|ingest| ING[Ingestion Layer]:::process\n  ING -->|standardized records| ME[Match + Survivorship Engine]:::process\n  ME -->|golden records| MDS[Master Data Store]:::store\n  ME -->|ambiguous clusters| SW[Steward Workbench]:::govern\n  SW -->|resolutions| ME\n  MDS -->|publish + APIs| OUT[Downstream Sync]:::serve"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([entity records per system]):::source -->|land| LD2([landed source extracts]):::store\n  LD2 -->|standardize| B([normalized records]):::process\n  B -->|match| C([duplicate clusters]):::process\n  C -->|survivorship rules| E([golden records]):::store\n  E -->|distribute| F([synced master data]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant S as Source Systems\n  participant H as MDM Hub\n  participant L as Source Landing\n  participant M as Matcher\n  participant W as Steward\n  participant G as Master Store\n  S->>L: land raw extracts\n  H->>L: read landed records\n  H->>M: standardize + cluster\n  alt confident match\n    M->>G: write golden record\n  else ambiguous\n    M->>W: review task\n    W->>M: resolution\n    M->>G: write golden record\n  end\n  G->>S: publish masters back"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[System Data Sources]:::source -->|entity extracts| LZ[\"Amazon S3<br/><i>Source Landing</i>\"]:::store\n  LZ -->|raw records| STD[\"AWS Glue standardization jobs<br/><i>Standardization</i>\"]:::process\n  STD -->|normalized records| MATCH[\"AWS Entity Resolution<br/><i>Matching + Merge</i>\"]:::process\n  MATCH -->|golden records| HUB[\"Amazon Aurora master store<br/><i>Master Data Store</i>\"]:::store\n  HUB -->|published masters| CONS[Consuming Systems]:::serve\n  STEW[Data Stewards]:::govern -. manual match resolutions .-> MATCH\n  QA[\"AWS Glue Data Quality<br/><i>Quality Rules</i>\"]:::govern -. survivorship policies .-> MATCH"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[System Data Sources]:::source -->|entity extracts| LZ[\"Azure Data Lake Storage<br/><i>Source Landing</i>\"]:::store\n  LZ -->|raw records| STD[\"ADF standardization flows<br/><i>Standardization</i>\"]:::process\n  STD -->|normalized records| MATCH[\"Profisee on Azure<br/><i>Matching + Merge</i>\"]:::process\n  MATCH -->|golden records| HUB[\"Azure SQL master store<br/><i>Master Data Store</i>\"]:::store\n  HUB -->|published masters| CONS[Consuming Systems]:::serve\n  STEW[Data Stewards]:::govern -. manual match resolutions .-> MATCH\n  QA[\"Microsoft Purview Data Quality<br/><i>Quality Rules</i>\"]:::govern -. survivorship policies .-> MATCH"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[System Data Sources]:::source -->|entity extracts| LZ[\"Google Cloud Storage<br/><i>Source Landing</i>\"]:::store\n  LZ -->|raw records| STD[\"Dataflow standardization<br/><i>Standardization</i>\"]:::process\n  STD -->|normalized records| MATCH[\"Google Entity Reconciliation<br/><i>Matching + Merge</i>\"]:::process\n  MATCH -->|golden records| HUB[\"Cloud Spanner master store<br/><i>Master Data Store</i>\"]:::store\n  HUB -->|published masters| CONS[Consuming Systems]:::serve\n  STEW[Data Stewards]:::govern -. manual match resolutions .-> MATCH\n  QA[\"Dataplex Data Quality<br/><i>Quality Rules</i>\"]:::govern -. survivorship policies .-> MATCH"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[System Data Sources]:::source -->|entity extracts| LZ[\"MinIO<br/><i>Source Landing</i>\"]:::store\n  LZ -->|raw records| STD[\"OpenRefine · custom Spark<br/><i>Standardization</i>\"]:::process\n  STD -->|normalized records| MATCH[\"Zingg · Splink<br/><i>Matching + Merge</i>\"]:::process\n  MATCH -->|golden records| HUB[\"PostgreSQL master store<br/><i>Master Data Store</i>\"]:::store\n  HUB -->|published masters| CONS[Consuming Systems]:::serve\n  STEW[Data Stewards]:::govern -. manual match resolutions .-> MATCH\n  QA[\"Great Expectations · Soda<br/><i>Quality Rules</i>\"]:::govern -. survivorship policies .-> MATCH"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[System Data Sources]:::source -->|entity extracts| LZ[\"Snowflake stage<br/><i>Source Landing</i>\"]:::store\n  LZ -->|raw records| STD[\"Talend Data Quality<br/><i>Standardization</i>\"]:::process\n  STD -->|normalized records| MATCH[\"Talend MDM · Reltio<br/><i>Matching + Merge</i>\"]:::process\n  MATCH -->|golden records| HUB[\"Snowflake master store<br/><i>Master Data Store</i>\"]:::store\n  HUB -->|published masters| CONS[Consuming Systems]:::serve\n  STEW[Data Stewards]:::govern -. manual match resolutions .-> MATCH\n  QA[\"Soda · Monte Carlo<br/><i>Quality Rules</i>\"]:::govern -. survivorship policies .-> MATCH"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[System Data Sources]:::source -->|entity extracts| LZ[\"Delta Lake bronze<br/><i>Source Landing</i>\"]:::store\n  LZ -->|raw records| STD[\"Databricks standardization jobs<br/><i>Standardization</i>\"]:::process\n  STD -->|normalized records| MATCH[\"Zingg on Databricks<br/><i>Matching + Merge</i>\"]:::process\n  MATCH -->|golden records| HUB[\"Delta Lake master store<br/><i>Master Data Store</i>\"]:::store\n  HUB -->|published masters| CONS[Consuming Systems]:::serve\n  STEW[Data Stewards]:::govern -. manual match resolutions .-> MATCH\n  QA[\"Delta Live Tables expectations<br/><i>Quality Rules</i>\"]:::govern -. survivorship policies .-> MATCH"
+    }
+  ],
+  "family_tags": [
+    "governance-security-compliance",
+    "transformation-modelling"
+  ],
+  "archetype_slugs": [
+    "master-data-management",
+    "entity-resolution-deduplication",
+    "data-cleansing-standardization"
+  ],
+  "position": 17,
+  "stages": [
+    {
+      "position": 0,
+      "name": "Sources",
+      "role": "Feed candidate records from CRMs, ERPs, and operational databases into the hub with source lineage preserved",
+      "recommended_technology_slug": "airbyte",
+      "alternative_technology_slugs": [
+        "fivetran",
+        "dlt",
+        "debezium"
+      ],
+      "rationale": "Getting records into the hub is ordinary EL — Airbyte/Fivetran connectors for the SaaS and database sources, dlt for the odd ones, Debezium when golden records must track source changes in near real time. The MDM-specific requirement is lineage: every candidate record must carry its source system and source key immutably, because survivorship rules and steward decisions are expressed in terms of which system said what. Standardize and cleanse (casing, addresses, phone formats) on the way in — matching quality is mostly preprocessing quality."
+    },
+    {
+      "name": "Landing",
+      "role": "Raw landing of source entity extracts before standardization and matching",
+      "recommended_technology_slug": "amazon-s3",
+      "alternative_technology_slugs": [
+        "azure-blob-storage",
+        "google-cloud-storage",
+        "minio"
+      ],
+      "rationale": "Cheap immutable object storage as the landing layer decouples ingestion from processing: replays, backfills, and audits read the raw dump instead of re-extracting from sources."
+    },
+    {
+      "position": 1,
+      "name": "Match/merge",
+      "role": "Cluster records referring to the same entity and compute golden records via survivorship rules",
+      "recommended_technology_slug": "zingg",
+      "alternative_technology_slugs": [
+        "senzing",
+        "tamr",
+        "informatica-mdm"
+      ],
+      "rationale": "Zingg is the open-source, Spark-based matcher: active-learning training on your own data, blocking to keep pairwise comparison tractable at scale, and output that lands as tables in the stack you already run — the right starting point for a data-team-led hub. Senzing is a purpose-built entity-resolution engine with excellent out-of-the-box accuracy on person/company data and real-time resolution APIs, the pick when you would rather configure than train; Tamr brings ML-driven mastering with enterprise handholding; Informatica MDM is the full-suite incumbent when the org wants matching, workflow, and governance in one (expensive) box. Keep survivorship rules explicit and versioned regardless of engine — 'most recent non-null from the most trusted source' style rules are business policy, not tuning parameters."
+    },
+    {
+      "position": 2,
+      "name": "Steward UI",
+      "role": "Human review of uncertain matches and merge decisions — a workflow surface with no dedicated corpus entry; build thin or use a suite's built-in console",
+      "recommended_technology_slug": null,
+      "alternative_technology_slugs": [
+        "streamlit",
+        "informatica-mdm",
+        "reltio"
+      ],
+      "rationale": "No standalone corpus tool owns this seat. The build path is a thin internal app (Streamlit is the fastest credible version) presenting match pairs in the confidence gray zone with approve/reject/split actions, writing decisions back as matcher training data and survivorship overrides. The buy path is the consoles inside MDM suites (Informatica, Reltio), which add workflow, audit, and role management you would otherwise rebuild. Two design rules either way: stewards see source lineage and confidence for every pair, and every decision is captured as labeled data — a stewardship queue that does not retrain the matcher is a treadmill."
+    },
+    {
+      "position": 3,
+      "name": "Publish",
+      "role": "Expose golden records: a lookup/API surface for operational consumers and tables for analytics",
+      "recommended_technology_slug": "postgresql",
+      "alternative_technology_slugs": [
+        "snowflake",
+        "redis",
+        "hightouch"
+      ],
+      "rationale": "Publishing is dual-channel by nature. Operationally, golden records and the crosswalk (source key to master key) live in a database backing a thin API — Postgres is the boring, right answer, with Redis caching in front if lookup volume demands it. Analytically, the same tables land in the warehouse so every mart joins through master keys instead of per-source identities — which is where most of the ROI quietly materializes. Hightouch closes the loop by syncing golden attributes back into the CRMs that fed the hub, turning MDM from a reporting fix into source-system hygiene."
+    }
+  ]
+}

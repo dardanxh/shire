@@ -1,0 +1,2768 @@
+[
+  {
+    "slug": "redshift",
+    "name": "Amazon Redshift",
+    "category_slug": "analytical-stores/cloud-warehouses",
+    "secondary_category_slugs": [],
+    "description": "AWS's data warehouse, evolved from provisioned MPP clusters to serverless with separated storage (RA3) and deep AWS integration (Spectrum over S3, zero-ETL from Aurora). Pick it when the estate is firmly AWS; head-to-head, Snowflake and BigQuery usually beat it on ergonomics.",
+    "homepage_url": "https://aws.amazon.com/redshift/",
+    "aliases": [
+      "Redshift"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret (IAM)",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "warehouse",
+      "aws",
+      "mpp",
+      "sql"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "amazon-s3",
+    "name": "Amazon S3",
+    "category_slug": "analytical-stores/object-storage",
+    "secondary_category_slugs": [],
+    "description": "The object store that defined the API the whole industry now speaks; eleven-nines durability, endless tiering options, and first-target support from every data tool. On AWS it isn't a choice, it's the substrate — S3 Tables even bakes Iceberg in natively.",
+    "homepage_url": "https://aws.amazon.com/s3/",
+    "aliases": [
+      "S3"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "object-storage",
+      "aws",
+      "data-lake"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "arrow",
+    "name": "Apache Arrow",
+    "category_slug": "analytical-stores/file-formats",
+    "secondary_category_slugs": [],
+    "description": "The in-memory columnar standard that lets engines and libraries (DuckDB, Polars, pandas, Spark) share data with zero copying, plus wire protocols like Arrow Flight. You rarely 'choose' Arrow directly — you benefit from it whenever your stack is built on it.",
+    "homepage_url": "https://arrow.apache.org",
+    "aliases": [],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "format",
+      "columnar",
+      "in-memory",
+      "interoperability"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "avro",
+    "name": "Apache Avro",
+    "category_slug": "analytical-stores/file-formats",
+    "secondary_category_slugs": [],
+    "description": "A row-oriented serialization format with schemas stored alongside data and well-defined schema evolution rules. The de facto payload format for Kafka (with a schema registry) and a solid choice for write-heavy pipelines and data interchange, complementing columnar formats at rest.",
+    "homepage_url": "https://avro.apache.org",
+    "aliases": [
+      "Avro"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "format",
+      "row-oriented",
+      "schema-evolution",
+      "kafka"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "apache-doris",
+    "name": "Apache Doris",
+    "category_slug": "analytical-stores/realtime-olap",
+    "secondary_category_slugs": [],
+    "description": "An MPP real-time OLAP database with MySQL-protocol compatibility, big in the Chinese internet sector and increasingly visible elsewhere. Similar trade-offs to StarRocks (its fork): good joins and easy onboarding for MySQL-fluent teams.",
+    "homepage_url": "https://doris.apache.org",
+    "aliases": [
+      "Doris"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "olap",
+      "realtime-analytics",
+      "mysql-compatible",
+      "mpp"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "apache-druid",
+    "name": "Apache Druid",
+    "category_slug": "analytical-stores/realtime-olap",
+    "secondary_category_slugs": [],
+    "description": "A real-time OLAP store built for streaming ingestion (Kafka/Kinesis) with sub-second slice-and-dice over event data, proven at large scale (Netflix, Confluent). Powerful but operationally heavy — its many node roles mean you should want its exact strengths before signing up.",
+    "homepage_url": "https://druid.apache.org",
+    "aliases": [
+      "Druid"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password (HTTP basic auth)",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "olap",
+      "realtime-analytics",
+      "streaming-ingest",
+      "jvm"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "apache-hudi",
+    "name": "Apache Hudi",
+    "category_slug": "analytical-stores/table-formats",
+    "secondary_category_slugs": [],
+    "description": "The table format that pioneered incremental upsert/delete pipelines on the data lake (Uber lineage), with merge-on-read tables and built-in ingestion tooling. Still the strongest at record-level streaming upserts, but it has lost the ecosystem race to Iceberg for general use.",
+    "homepage_url": "https://hudi.apache.org",
+    "aliases": [
+      "Hudi"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "format",
+      "table-format",
+      "lakehouse",
+      "upserts",
+      "cdc"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "apache-iceberg",
+    "name": "Apache Iceberg",
+    "category_slug": "analytical-stores/table-formats",
+    "secondary_category_slugs": [],
+    "description": "The open table format that has become the industry's neutral standard for lakehouse tables: ACID snapshots, hidden partitioning, schema evolution, and a REST catalog spec every engine is adopting. Pick it by default for new lakehouse builds — vendor momentum (Snowflake, Databricks, AWS) has consolidated behind it.",
+    "homepage_url": "https://iceberg.apache.org",
+    "aliases": [
+      "Iceberg"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "format",
+      "table-format",
+      "lakehouse",
+      "acid"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "orc",
+    "name": "Apache ORC",
+    "category_slug": "analytical-stores/file-formats",
+    "secondary_category_slugs": [],
+    "description": "The Hive-lineage columnar format with strong compression and built-in indexes, historically favored in Hortonworks/Hive shops. Technically excellent but ecosystem-wise it lost to Parquet — choose it only when an existing Hive/Trino estate already standardized on it.",
+    "homepage_url": "https://orc.apache.org",
+    "aliases": [
+      "Optimized Row Columnar"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "format",
+      "columnar",
+      "hive",
+      "compression"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "apache-paimon",
+    "name": "Apache Paimon",
+    "category_slug": "analytical-stores/table-formats",
+    "secondary_category_slugs": [],
+    "description": "A newer lake table format designed around an LSM-tree architecture for high-throughput streaming upserts, developed hand-in-glove with Apache Flink. Pick it for Flink-centric streaming lakehouses; elsewhere Iceberg remains the safer bet.",
+    "homepage_url": "https://paimon.apache.org",
+    "aliases": [
+      "Paimon",
+      "Flink Table Store"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "format",
+      "table-format",
+      "streaming",
+      "flink"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "parquet",
+    "name": "Apache Parquet",
+    "category_slug": "analytical-stores/file-formats",
+    "secondary_category_slugs": [],
+    "description": "The universal columnar file format for analytics: efficient compression, predicate pushdown via column statistics, and support in essentially every engine and library. The unquestioned default for analytical data at rest — every table format sits on top of it.",
+    "homepage_url": "https://parquet.apache.org",
+    "aliases": [
+      "Parquet"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "format",
+      "columnar",
+      "compression",
+      "analytics"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "apache-pinot",
+    "name": "Apache Pinot",
+    "category_slug": "analytical-stores/realtime-olap",
+    "secondary_category_slugs": [],
+    "description": "LinkedIn's real-time OLAP engine, designed for user-facing analytics at extreme query concurrency (its star-tree index is the signature feature). Pick it over Druid when thousands of concurrent low-latency queries from an application are the workload; StarTree offers the managed version.",
+    "homepage_url": "https://pinot.apache.org",
+    "aliases": [
+      "Pinot"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password (HTTP basic auth)",
+        "fields": [
+          {
+            "key": "controller_url",
+            "label": "Controller URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "Bearer token",
+        "fields": [
+          {
+            "key": "controller_url",
+            "label": "Controller URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "olap",
+      "realtime-analytics",
+      "user-facing",
+      "high-concurrency"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "apache-polaris",
+    "name": "Apache Polaris",
+    "category_slug": "analytical-stores/catalogs-metastores",
+    "secondary_category_slugs": [],
+    "description": "The Iceberg REST catalog Snowflake open-sourced and donated to the ASF, offering vendor-neutral, credential-vending access control across engines. A leading candidate for the 'open catalog' role in Iceberg-first architectures — young, but with serious backing.",
+    "homepage_url": "https://polaris.apache.org",
+    "aliases": [
+      "Polaris"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Catalog base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "Bearer token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Catalog base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "catalog",
+      "iceberg",
+      "rest-catalog",
+      "governance"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "thrift",
+    "name": "Apache Thrift",
+    "category_slug": "analytical-stores/file-formats",
+    "secondary_category_slugs": [],
+    "description": "Facebook-lineage serialization plus RPC framework, still embedded in older infrastructure (notably the Hive Metastore protocol). For new work Protobuf/gRPC has won this space — you deal with Thrift because something you depend on already speaks it.",
+    "homepage_url": "https://thrift.apache.org",
+    "aliases": [
+      "Thrift"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "legacy",
+    "tags": [
+      "format",
+      "serialization",
+      "rpc"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "aws-glue-catalog",
+    "name": "AWS Glue Data Catalog",
+    "category_slug": "analytical-stores/catalogs-metastores",
+    "secondary_category_slugs": [],
+    "description": "AWS's serverless, Hive-compatible metastore shared by Athena, EMR, Redshift Spectrum, and Lake Formation, with growing Iceberg REST support. The path of least resistance for table metadata on AWS — you use it because you're on AWS, not because you chose it.",
+    "homepage_url": "https://aws.amazon.com/glue/",
+    "aliases": [
+      "Glue Data Catalog",
+      "Glue Catalog"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "metastore",
+      "catalog",
+      "aws",
+      "serverless"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "azure-blob-storage",
+    "name": "Azure Blob Storage",
+    "category_slug": "analytical-stores/object-storage",
+    "secondary_category_slugs": [],
+    "description": "Azure's massively scalable object storage for unstructured data, with hot/cool/archive tiers and the foundation for the data lake. When the hierarchical namespace is enabled it becomes Azure Data Lake Storage (ADLS) Gen2, the standard analytics-optimized layer. It's the direct analog to Amazon S3 and Google Cloud Storage; pick it as the default landing zone and lakehouse storage on Azure.",
+    "homepage_url": "https://azure.microsoft.com/products/storage/blobs",
+    "aliases": [
+      "Blob Storage"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "access_key_secret",
+        "name": "Account name & key",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Storage account name",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Account key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials (service principal)",
+        "fields": [
+          {
+            "key": "account_name",
+            "label": "Storage account name",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "azure",
+      "object-storage",
+      "data-lake",
+      "storage"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "azure-data-explorer",
+    "name": "Azure Data Explorer",
+    "category_slug": "analytical-stores/realtime-olap",
+    "secondary_category_slugs": [
+      "databases/time-series"
+    ],
+    "description": "A fully managed, high-performance analytics engine for log, telemetry, and time-series data, queried with the Kusto Query Language (KQL). It's Azure's answer to Amazon Timestream / analytical stores like ClickHouse or Druid, and the engine underneath Log Analytics and Microsoft Fabric's Real-Time Intelligence. Pick it when you need fast interactive exploration over huge streams of append-only observability or IoT data.",
+    "homepage_url": "https://azure.microsoft.com/products/data-explorer",
+    "aliases": [
+      "Kusto",
+      "ADX"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials (service principal)",
+        "fields": [
+          {
+            "key": "cluster_url",
+            "label": "Cluster URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "azure",
+      "olap",
+      "analytics",
+      "kusto",
+      "time-series"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "azure-data-lake-storage",
+    "name": "Azure Data Lake Storage",
+    "category_slug": "analytical-stores/object-storage",
+    "secondary_category_slugs": [],
+    "description": "Azure Blob Storage with a hierarchical namespace (Gen2), giving filesystem semantics — atomic renames, POSIX-ish ACLs — that analytics engines want. The standard lake layer on Azure and the storage under Fabric's OneLake.",
+    "homepage_url": "https://azure.microsoft.com/products/storage/data-lake-storage",
+    "aliases": [
+      "ADLS",
+      "ADLS Gen2"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "access_key_secret",
+        "name": "Account name & key",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Storage account name",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Account key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials (service principal)",
+        "fields": [
+          {
+            "key": "account_name",
+            "label": "Storage account name",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "object-storage",
+      "azure",
+      "data-lake",
+      "hierarchical-namespace"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "azure-synapse",
+    "name": "Azure Synapse Analytics",
+    "category_slug": "analytical-stores/cloud-warehouses",
+    "secondary_category_slugs": [],
+    "description": "Azure's integrated analytics platform bundling a dedicated SQL warehouse (ex SQL DW), serverless SQL, and Spark pools. Still widely deployed, but Microsoft's investment has clearly shifted to Fabric — think twice before starting anything new on Synapse.",
+    "homepage_url": "https://azure.microsoft.com/products/synapse-analytics",
+    "aliases": [
+      "Synapse",
+      "Azure SQL Data Warehouse"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "SQL authentication",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Server (SQL endpoint)",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials (service principal)",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Server (SQL endpoint)",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "warehouse",
+      "azure",
+      "mpp",
+      "sql"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "backblaze-b2",
+    "name": "Backblaze B2",
+    "category_slug": "analytical-stores/object-storage",
+    "secondary_category_slugs": [],
+    "description": "Low-cost cloud object storage exposing both a native B2 API and an S3-compatible API, positioned as one of the cheapest alternatives to Amazon S3 for backup and cold data. Its differentiator is aggressively low per-GB storage pricing plus free egress to partners like Cloudflare via the Bandwidth Alliance, making it a common cold-storage and archive tier.",
+    "homepage_url": "https://www.backblaze.com/cloud-storage",
+    "aliases": [
+      "B2"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Application key",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Application key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "endpoint",
+            "label": "S3 endpoint",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "backblaze",
+      "object-storage",
+      "s3-compatible",
+      "cold-storage"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "bigquery",
+    "name": "BigQuery",
+    "category_slug": "analytical-stores/cloud-warehouses",
+    "secondary_category_slugs": [],
+    "description": "Google's serverless data warehouse: no clusters to size, petabyte scans on demand, and tight integration with GCP's ML and streaming stack. The obvious pick on Google Cloud; on-demand pricing per byte scanned makes partitioning and cost hygiene mandatory.",
+    "homepage_url": "https://cloud.google.com/bigquery",
+    "aliases": [
+      "Google BigQuery",
+      "BQ"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "service_account_json",
+            "label": "Service account key JSON",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "warehouse",
+      "serverless",
+      "gcp",
+      "sql"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "ceph",
+    "name": "Ceph",
+    "category_slug": "analytical-stores/object-storage",
+    "secondary_category_slugs": [],
+    "description": "A unified software-defined storage system providing object (S3-compatible RGW), block, and file interfaces from one self-healing cluster. Pick it when you're building serious on-prem storage infrastructure and have (or will hire) the operational depth it demands.",
+    "homepage_url": "https://ceph.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret (RGW, S3-compatible)",
+        "fields": [
+          {
+            "key": "endpoint",
+            "label": "RGW endpoint URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "object-storage",
+      "block-storage",
+      "software-defined",
+      "s3-compatible"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "clickhouse",
+    "name": "ClickHouse",
+    "category_slug": "analytical-stores/realtime-olap",
+    "secondary_category_slugs": [],
+    "description": "The fastest widely-used columnar OLAP database: brutal single-query speed, great compression, and a huge function library, born at Yandex and now with a strong managed cloud. The default pick for real-time and log/event analytics when you can model around its eventual-consistency merges and limited join ergonomics.",
+    "homepage_url": "https://clickhouse.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "olap",
+      "columnar",
+      "realtime-analytics",
+      "sql"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "cloudflare-r2",
+    "name": "Cloudflare R2",
+    "category_slug": "analytical-stores/object-storage",
+    "secondary_category_slugs": [],
+    "description": "S3-compatible object storage that runs on Cloudflare's global edge network, the small-cloud analog to Amazon S3, Azure Blob, and Google Cloud Storage. Its defining differentiator is zero egress fees: you pay for storage and operations but never for data transfer out, which makes it attractive for serving assets and data lakes with heavy read traffic.",
+    "homepage_url": "https://www.cloudflare.com/developer-platform/products/r2/",
+    "aliases": [
+      "R2"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret (S3-compatible)",
+        "fields": [
+          {
+            "key": "account_id",
+            "label": "Account ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cloudflare",
+      "object-storage",
+      "s3-compatible",
+      "edge"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "csv",
+    "name": "CSV",
+    "category_slug": "analytical-stores/file-formats",
+    "secondary_category_slugs": [],
+    "description": "The lowest common denominator of data exchange: human-readable, universally supported, and standardized only loosely (RFC 4180). Unbeatable for interoperability with non-technical partners; a liability for anything else — no types, no schema, and quoting edge cases everywhere.",
+    "homepage_url": "https://datatracker.ietf.org/doc/html/rfc4180",
+    "aliases": [
+      "Comma-Separated Values"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "format",
+      "text",
+      "interchange"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "databricks-sql",
+    "name": "Databricks SQL",
+    "category_slug": "analytical-stores/cloud-warehouses",
+    "secondary_category_slugs": [],
+    "description": "Databricks' warehouse experience over the lakehouse: Photon-accelerated SQL on Delta/Iceberg tables with serverless warehouses and standard BI connectivity. Pick it when Databricks is already your platform — you get warehouse-grade SQL without copying data out of the lake.",
+    "homepage_url": "https://www.databricks.com/product/databricks-sql",
+    "aliases": [
+      "DBSQL"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Personal access token",
+        "fields": [
+          {
+            "key": "workspace_url",
+            "label": "Workspace URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "http_path",
+            "label": "HTTP path (SQL warehouse)",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials (service principal M2M)",
+        "fields": [
+          {
+            "key": "workspace_url",
+            "label": "Workspace URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID (service principal)",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "warehouse",
+      "lakehouse",
+      "sql",
+      "photon"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "delta-lake",
+    "name": "Delta Lake",
+    "category_slug": "analytical-stores/table-formats",
+    "secondary_category_slugs": [],
+    "description": "Databricks' open table format bringing ACID transactions, time travel, and upserts to Parquet on object storage, with the deepest Spark integration of the formats. The natural choice inside the Databricks ecosystem; interoperability layers (UniForm) now blur the line with Iceberg.",
+    "homepage_url": "https://delta.io",
+    "aliases": [
+      "Delta"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "format",
+      "table-format",
+      "lakehouse",
+      "acid",
+      "spark"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "digitalocean-spaces",
+    "name": "DigitalOcean Spaces",
+    "category_slug": "analytical-stores/object-storage",
+    "secondary_category_slugs": [],
+    "description": "S3-compatible object storage from DigitalOcean aimed at developers and small teams, the small-cloud analog to Amazon S3. Its differentiator is a built-in CDN and simple flat-rate pricing that bundles a generous storage and transfer allowance, making it a low-friction choice for serving static assets and backups alongside DigitalOcean Droplets.",
+    "homepage_url": "https://www.digitalocean.com/products/spaces",
+    "aliases": [
+      "Spaces"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region (e.g. nyc3)",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "digitalocean",
+      "object-storage",
+      "s3-compatible",
+      "cdn"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "exasol",
+    "name": "Exasol",
+    "category_slug": "analytical-stores/mpp",
+    "secondary_category_slugs": [],
+    "description": "An in-memory columnar MPP database with a long record of topping TPC-H benchmarks, popular in European enterprises. Pick it when raw query speed on-prem (or self-managed in cloud) is the requirement and a niche vendor relationship is acceptable.",
+    "homepage_url": "https://www.exasol.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "mpp",
+      "in-memory",
+      "columnar",
+      "sql"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "license",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "firebolt",
+    "name": "Firebolt",
+    "category_slug": "analytical-stores/cloud-warehouses",
+    "secondary_category_slugs": [],
+    "description": "A cloud warehouse engineered for low-latency, high-concurrency analytics via aggressive indexing and Postgres-dialect SQL. Pick it for customer-facing analytics where sub-second dashboards on large data must be served cheaply — a niche between classic warehouses and real-time OLAP engines.",
+    "homepage_url": "https://www.firebolt.io",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "Service account (OAuth client credentials)",
+        "fields": [
+          {
+            "key": "account_name",
+            "label": "Account name",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Service account ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Service account secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "warehouse",
+      "low-latency",
+      "customer-facing-analytics",
+      "sql"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "google-cloud-storage",
+    "name": "Google Cloud Storage",
+    "category_slug": "analytical-stores/object-storage",
+    "secondary_category_slugs": [],
+    "description": "GCP's object storage: S3-comparable durability and tiering with a single global namespace and strong BigQuery/Dataproc integration. The default lake substrate on Google Cloud; its interoperability mode also speaks the S3 API.",
+    "homepage_url": "https://cloud.google.com/storage",
+    "aliases": [
+      "GCS"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "service_account_json",
+            "label": "Service account key JSON",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "access_key_secret",
+        "name": "HMAC key (S3 interoperability)",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "HMAC access key",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "HMAC secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "object-storage",
+      "gcp",
+      "data-lake"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "greenplum",
+    "name": "Greenplum",
+    "category_slug": "analytical-stores/mpp",
+    "secondary_category_slugs": [],
+    "description": "A Postgres-based open-source MPP warehouse that had a strong on-prem run under Pivotal/VMware. Broadcom closed the open-source repository in 2024, leaving the community to forks (Cloudberry) — avoid for new builds, plan exits for existing ones.",
+    "homepage_url": "https://greenplum.org",
+    "aliases": [
+      "VMware Greenplum"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "mpp",
+      "postgres-based",
+      "warehouse",
+      "sql"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "hdfs",
+    "name": "HDFS",
+    "category_slug": "analytical-stores/object-storage",
+    "secondary_category_slugs": [],
+    "description": "The Hadoop Distributed File System — the storage layer the big-data era was built on, with data locality for co-located compute. Still serving existing on-prem Hadoop estates, but object storage has decisively won: don't build anything new on it.",
+    "homepage_url": "https://hadoop.apache.org",
+    "aliases": [
+      "Hadoop Distributed File System"
+    ],
+    "deployment_models": [
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "kerberos",
+        "name": "Kerberos (keytab)",
+        "fields": [
+          {
+            "key": "namenode_url",
+            "label": "NameNode / WebHDFS URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "principal",
+            "label": "Principal",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "keytab",
+            "label": "Keytab (base64)",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "simple",
+        "name": "Simple authentication (username)",
+        "fields": [
+          {
+            "key": "namenode_url",
+            "label": "NameNode / WebHDFS URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "filesystem",
+      "hadoop",
+      "distributed",
+      "jvm"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "hetzner-object-storage",
+    "name": "Hetzner Object Storage",
+    "category_slug": "analytical-stores/object-storage",
+    "secondary_category_slugs": [],
+    "description": "S3-compatible object storage from Hetzner, a German provider, positioned as a low-cost alternative to Amazon S3. Its differentiator is EU-based data residency and Hetzner's characteristically low, predictable pricing including cheap egress, making it appealing for cost-sensitive European workloads with data-sovereignty requirements.",
+    "homepage_url": "https://www.hetzner.com/storage/object-storage/",
+    "aliases": [
+      "Hetzner Object Storage"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "endpoint",
+            "label": "Endpoint (e.g. fsn1.your-objectstorage.com)",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "hetzner",
+      "object-storage",
+      "s3-compatible",
+      "eu"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "hive-metastore",
+    "name": "Hive Metastore",
+    "category_slug": "analytical-stores/catalogs-metastores",
+    "secondary_category_slugs": [],
+    "description": "The Hadoop-era metadata service that became the accidental standard: for a decade nearly every engine (Spark, Trino, Presto) spoke its Thrift API to find tables. Still everywhere in existing platforms, but new builds should prefer a REST-based Iceberg catalog.",
+    "homepage_url": "https://hive.apache.org",
+    "aliases": [
+      "HMS"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "unauthenticated",
+        "name": "Unauthenticated (Thrift URI)",
+        "fields": [
+          {
+            "key": "metastore_uris",
+            "label": "Metastore Thrift URI(s)",
+            "secret": false,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "kerberos",
+        "name": "Kerberos (keytab)",
+        "fields": [
+          {
+            "key": "metastore_uris",
+            "label": "Metastore Thrift URI(s)",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "principal",
+            "label": "Principal",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "keytab",
+            "label": "Keytab (base64)",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "metastore",
+      "catalog",
+      "hadoop",
+      "thrift"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "netezza",
+    "name": "IBM Netezza",
+    "category_slug": "analytical-stores/mpp",
+    "secondary_category_slugs": [],
+    "description": "The pioneering data-warehouse appliance (FPGA-accelerated), now living on as IBM Netezza Performance Server on Cloud Pak. Encountered almost exclusively as a legacy estate to migrate off — nobody starts here in 2026.",
+    "homepage_url": "https://www.ibm.com/products/netezza",
+    "aliases": [
+      "Netezza",
+      "IBM PureData"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "mpp",
+      "appliance",
+      "warehouse",
+      "ibm"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "json-ndjson",
+    "name": "JSON / NDJSON",
+    "category_slug": "analytical-stores/file-formats",
+    "secondary_category_slugs": [],
+    "description": "The universal semi-structured interchange format; the newline-delimited variant (NDJSON/JSON Lines) makes it streamable and splittable for data pipelines. The default for APIs, logs, and event payloads — convert to a columnar format before analytics at any real scale.",
+    "homepage_url": "https://www.json.org",
+    "aliases": [
+      "NDJSON",
+      "JSON Lines",
+      "JSONL"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "format",
+      "semi-structured",
+      "text",
+      "interchange"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "lakekeeper",
+    "name": "Lakekeeper",
+    "category_slug": "analytical-stores/catalogs-metastores",
+    "secondary_category_slugs": [],
+    "description": "A lightweight, Rust-built Apache-licensed Iceberg REST catalog with Postgres as its backing store and OpenFGA-based authorization. Attractive as a self-hosted, no-JVM catalog for teams who want Iceberg without adopting a vendor platform — still early-days.",
+    "homepage_url": "https://lakekeeper.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Catalog base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "token_url",
+            "label": "IdP token endpoint",
+            "secret": false,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "Bearer token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Catalog base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "catalog",
+      "iceberg",
+      "rest-catalog",
+      "rust"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "microsoft-fabric",
+    "name": "Microsoft Fabric",
+    "category_slug": "analytical-stores/cloud-warehouses",
+    "secondary_category_slugs": [],
+    "description": "Microsoft's all-in-one SaaS analytics platform unifying warehouse, lakehouse (OneLake on Delta), data engineering, and Power BI under a single capacity-based license. The strategic path for Microsoft shops; the breadth is real but the pieces vary in maturity, so validate your specific workloads.",
+    "homepage_url": "https://www.microsoft.com/microsoft-fabric",
+    "aliases": [
+      "Fabric"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials (service principal)",
+        "fields": [
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "warehouse",
+      "lakehouse",
+      "azure",
+      "power-bi"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "minio",
+    "name": "MinIO",
+    "category_slug": "analytical-stores/object-storage",
+    "secondary_category_slugs": [],
+    "description": "The leading self-hosted, S3-compatible object store: a single Go binary that scales to high-performance distributed clusters. The default answer for on-prem and air-gapped data lakes; note the 2025 gutting of the community console pushed some users toward forks and alternatives.",
+    "homepage_url": "https://min.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "hybrid"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "endpoint",
+            "label": "Endpoint URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "object-storage",
+      "s3-compatible",
+      "self-hosted"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "motherduck",
+    "name": "MotherDuck",
+    "category_slug": "analytical-stores/cloud-warehouses",
+    "secondary_category_slugs": [],
+    "description": "A serverless warehouse built on DuckDB with a hybrid execution model that splits queries between your laptop and the cloud. Compelling for small-to-mid data teams who love DuckDB locally and want shared, managed storage without Snowflake-class cost or ceremony.",
+    "homepage_url": "https://motherduck.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "token",
+            "label": "MotherDuck token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "warehouse",
+      "duckdb",
+      "serverless",
+      "hybrid-execution"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "oracle-cloud-object-storage",
+    "name": "Oracle Cloud Object Storage",
+    "category_slug": "analytical-stores/object-storage",
+    "secondary_category_slugs": [],
+    "description": "Object storage on Oracle Cloud Infrastructure with S3-compatible and native APIs, the OCI analog to Amazon S3 and Azure Blob. Its differentiator is enterprise-grade tiering (Standard, Infrequent Access, and Archive) tightly integrated with OCI's data and analytics services and Oracle's aggressive egress pricing relative to the big three.",
+    "homepage_url": "https://www.oracle.com/cloud/storage/object-storage/",
+    "aliases": [
+      "OCI Object Storage"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_signing_key",
+        "name": "API signing key",
+        "fields": [
+          {
+            "key": "tenancy_ocid",
+            "label": "Tenancy OCID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "user_ocid",
+            "label": "User OCID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "fingerprint",
+            "label": "Key fingerprint",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "private_key",
+            "label": "Private key (PEM)",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "passphrase",
+            "label": "Key passphrase",
+            "secret": true,
+            "required": false
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "access_key_secret",
+        "name": "Customer secret key (S3-compatible)",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "namespace",
+            "label": "Object storage namespace",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "oracle",
+      "oci",
+      "object-storage",
+      "s3-compatible"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "nessie",
+    "name": "Project Nessie",
+    "category_slug": "analytical-stores/catalogs-metastores",
+    "secondary_category_slugs": [],
+    "description": "A transactional catalog for Iceberg that adds Git-like semantics — branches, tags, and multi-table commits — enabling isolated dev/test on production data (Dremio-sponsored). Pick it when data-as-code workflows matter more than broad vendor support.",
+    "homepage_url": "https://projectnessie.org",
+    "aliases": [
+      "Nessie"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Nessie API URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "token_url",
+            "label": "OAuth2 token endpoint",
+            "secret": false,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "Bearer token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Nessie API URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "catalog",
+      "iceberg",
+      "git-for-data",
+      "branching"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "protobuf",
+    "name": "Protocol Buffers",
+    "category_slug": "analytical-stores/file-formats",
+    "secondary_category_slugs": [],
+    "description": "Google's compact binary serialization with schema-first codegen across languages, and the wire format underneath gRPC. The default for service-to-service payloads and increasingly common on Kafka; less convenient than Avro for dynamic, registry-driven data pipelines.",
+    "homepage_url": "https://protobuf.dev",
+    "aliases": [
+      "Protobuf"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "format",
+      "binary",
+      "serialization",
+      "grpc"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "rockset",
+    "name": "Rockset",
+    "category_slug": "analytical-stores/realtime-olap",
+    "secondary_category_slugs": [],
+    "description": "A real-time analytics service built on converged indexing over RocksDB, notable for SQL on semi-structured data with no schema management. OpenAI acquired the company in 2024 and the public service was shut down — listed for historical/migration context only.",
+    "homepage_url": "https://rockset.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "legacy",
+    "tags": [
+      "olap",
+      "realtime-analytics",
+      "discontinued",
+      "indexing"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "snowflake",
+    "name": "Snowflake",
+    "category_slug": "analytical-stores/cloud-warehouses",
+    "secondary_category_slugs": [],
+    "description": "The cloud data warehouse that defined the category: separated storage/compute, near-zero administration, instant scaling, and easy data sharing across accounts and clouds. The safe enterprise default when analyst productivity outweighs cost control — its consumption pricing rewards governance discipline.",
+    "homepage_url": "https://www.snowflake.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "key_pair",
+        "name": "Key pair",
+        "fields": [
+          {
+            "key": "account",
+            "label": "Account identifier",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "private_key",
+            "label": "Private key (PEM)",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "passphrase",
+            "label": "Key passphrase",
+            "secret": true,
+            "required": false
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "account",
+            "label": "Account identifier",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "Programmatic access token",
+        "fields": [
+          {
+            "key": "account",
+            "label": "Account identifier",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Programmatic access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "warehouse",
+      "sql",
+      "elastic-compute",
+      "data-sharing"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "starrocks",
+    "name": "StarRocks",
+    "category_slug": "analytical-stores/realtime-olap",
+    "secondary_category_slugs": [],
+    "description": "A Doris-descended MPP OLAP engine (now Linux Foundation) whose distinguishing strength is fast multi-table joins — no forced denormalization — plus direct lakehouse querying over Iceberg/Hudi. A strong ClickHouse rival when your schema is genuinely relational.",
+    "homepage_url": "https://www.starrocks.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "olap",
+      "realtime-analytics",
+      "joins",
+      "lakehouse"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "teradata",
+    "name": "Teradata",
+    "category_slug": "analytical-stores/mpp",
+    "secondary_category_slugs": [],
+    "description": "The original enterprise MPP warehouse, still running mission-critical analytics in banks, telcos, and retailers, with a cloud offering in VantageCloud. Formidable workload management, but green-field selections are rare — it's primarily a migration source these days.",
+    "homepage_url": "https://www.teradata.com",
+    "aliases": [
+      "Teradata Vantage"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "mpp",
+      "warehouse",
+      "enterprise",
+      "sql"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "unity-catalog",
+    "name": "Unity Catalog",
+    "category_slug": "analytical-stores/catalogs-metastores",
+    "secondary_category_slugs": [],
+    "description": "Databricks' governance-grade catalog — tables, files, models, and lineage with fine-grained access control — open-sourced under Apache 2.0 in 2024. Essentially mandatory on Databricks; the OSS server is young, so treat the managed and open flavors as different maturity levels.",
+    "homepage_url": "https://www.unitycatalog.io",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Server or workspace URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials (service principal)",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Server or workspace URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "catalog",
+      "metastore",
+      "governance",
+      "databricks"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "vertica",
+    "name": "Vertica",
+    "category_slug": "analytical-stores/mpp",
+    "secondary_category_slugs": [],
+    "description": "A columnar MPP warehouse (Stonebraker's C-Store lineage, now OpenText) known for strong compression and projections-based query speed. Still solid for on-prem columnar analytics, but momentum has moved to cloud warehouses and ClickHouse-style engines.",
+    "homepage_url": "https://www.vertica.com",
+    "aliases": [
+      "OpenText Vertica"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "mpp",
+      "columnar",
+      "warehouse",
+      "sql"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "license",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "xml",
+    "name": "XML",
+    "category_slug": "analytical-stores/file-formats",
+    "secondary_category_slugs": [],
+    "description": "The elder statesman of structured interchange, with mature schema (XSD) and transformation (XSLT) tooling. Verbose and unloved in modern data stacks, but unavoidable in B2B, finance, healthcare, and government feeds — plan parsers accordingly.",
+    "homepage_url": "https://www.w3.org/XML/",
+    "aliases": [
+      "Extensible Markup Language"
+    ],
+    "deployment_models": [],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "format",
+      "text",
+      "b2b",
+      "schema"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  }
+]

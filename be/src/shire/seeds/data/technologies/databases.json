@@ -1,0 +1,4444 @@
+[
+  {
+    "slug": "aerospike",
+    "name": "Aerospike",
+    "category_slug": "databases/key-value",
+    "secondary_category_slugs": [],
+    "description": "A key-value database engineered for hybrid memory/flash architectures, delivering predictable sub-millisecond reads at millions of ops/sec on small clusters. The go-to in adtech, fraud detection, and other extreme-throughput, low-latency niches where Redis-in-RAM gets too expensive.",
+    "homepage_url": "https://aerospike.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "key-value",
+      "low-latency",
+      "flash-optimized",
+      "high-throughput"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "algolia",
+    "name": "Algolia",
+    "category_slug": "databases/search",
+    "secondary_category_slugs": [],
+    "description": "The premium hosted search-as-a-service: superb latency, polished front-end libraries, and merchandising/analytics tooling for product discovery. Pick it when search quality directly drives revenue and you'd rather pay per-request than run infrastructure.",
+    "homepage_url": "https://www.algolia.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "application_id",
+            "label": "Application ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "search",
+      "instant-search",
+      "hosted",
+      "ecommerce"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "alloydb",
+    "name": "AlloyDB",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [],
+    "description": "Google Cloud's souped-up managed PostgreSQL with a columnar engine for hybrid transactional/analytical queries and better price-performance than stock Cloud SQL. Pick it for demanding Postgres workloads on GCP; an on-prem 'Omni' variant exists for hybrid estates.",
+    "homepage_url": "https://cloud.google.com/alloydb",
+    "aliases": [
+      "AlloyDB for PostgreSQL"
+    ],
+    "deployment_models": [
+      "cloud",
+      "hybrid"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "service_account_json",
+        "name": "IAM database authentication (service account)",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "service_account_json",
+            "label": "Service account key (JSON)",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "gcp",
+      "managed",
+      "postgres-compatible",
+      "htap"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "amazon-aurora",
+    "name": "Amazon Aurora",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [],
+    "description": "AWS's cloud-native MySQL/Postgres-compatible database with storage decoupled from compute, giving fast failover, read replicas, and serverless scaling. The pragmatic default for relational OLTP on AWS when plain RDS isn't enough and you accept the AWS lock-in.",
+    "homepage_url": "https://aws.amazon.com/rds/aurora/",
+    "aliases": [
+      "Aurora",
+      "AWS Aurora"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "access_key_secret",
+        "name": "AWS IAM database authentication",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Database username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "aws",
+      "managed",
+      "postgres-compatible",
+      "mysql-compatible"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "amazon-documentdb",
+    "name": "Amazon DocumentDB",
+    "category_slug": "databases/document",
+    "secondary_category_slugs": [],
+    "description": "AWS's managed MongoDB-compatible document database built on Aurora-style separated storage. Pick it when you want Mongo's API inside the AWS fold with IAM/VPC integration and no Atlas relationship — but verify compatibility, since it trails the real MongoDB API.",
+    "homepage_url": "https://aws.amazon.com/documentdb/",
+    "aliases": [
+      "DocumentDB"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "document",
+      "aws",
+      "managed",
+      "mongodb-compatible"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "dynamodb",
+    "name": "Amazon DynamoDB",
+    "category_slug": "databases/key-value",
+    "secondary_category_slugs": [
+      "databases/wide-column"
+    ],
+    "description": "AWS's fully managed serverless key-value/wide-column store with single-digit-millisecond latency at practically any scale and zero operational burden. Superb for well-understood access patterns; punishing if your query patterns are still evolving, since single-table design must be decided up front.",
+    "homepage_url": "https://aws.amazon.com/dynamodb/",
+    "aliases": [
+      "DynamoDB"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "key-value",
+      "serverless",
+      "aws",
+      "managed"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "amazon-neptune",
+    "name": "Amazon Neptune",
+    "category_slug": "databases/graph",
+    "secondary_category_slugs": [],
+    "description": "AWS's managed graph database supporting both property graphs (Gremlin, openCypher) and RDF/SPARQL. Pick it when you're committed to AWS and want a graph store without cluster operations; the dual-model support is broad but each API is shallower than the specialists'.",
+    "homepage_url": "https://aws.amazon.com/neptune/",
+    "aliases": [
+      "Neptune"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "AWS IAM (Signature V4)",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Cluster endpoint",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "graph",
+      "aws",
+      "managed",
+      "rdf"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "amazon-timestream",
+    "name": "Amazon Timestream",
+    "category_slug": "databases/time-series",
+    "secondary_category_slugs": [],
+    "description": "AWS's managed time-series offering, spanning a serverless engine and a managed InfluxDB flavor. Reasonable for IoT/ops telemetry when you're all-in on AWS and want zero operations, but it has seen limited traction versus self-run alternatives.",
+    "homepage_url": "https://aws.amazon.com/timestream/",
+    "aliases": [
+      "Timestream"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "time-series",
+      "aws",
+      "managed",
+      "serverless"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "cassandra",
+    "name": "Apache Cassandra",
+    "category_slug": "databases/wide-column",
+    "secondary_category_slugs": [],
+    "description": "The reference wide-column store: masterless, linearly scalable, multi-datacenter writes with tunable consistency. Pick it for huge, write-heavy, always-on workloads with known query patterns — and accept that data modeling and cluster operations demand real expertise.",
+    "homepage_url": "https://cassandra.apache.org",
+    "aliases": [
+      "Cassandra"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "wide-column",
+      "distributed",
+      "write-heavy",
+      "multi-datacenter"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "couchdb",
+    "name": "Apache CouchDB",
+    "category_slug": "databases/document",
+    "secondary_category_slugs": [],
+    "description": "The original HTTP/JSON document database, notable for its multi-master replication protocol that powers offline-first sync (PouchDB). Its replication model is still unique, but for new projects it has largely been passed over in favor of MongoDB or Postgres.",
+    "homepage_url": "https://couchdb.apache.org",
+    "aliases": [
+      "CouchDB"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "document",
+      "replication",
+      "offline-first",
+      "nosql"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "hbase",
+    "name": "Apache HBase",
+    "category_slug": "databases/wide-column",
+    "secondary_category_slugs": [],
+    "description": "The Hadoop-native wide-column store modeled on Google Bigtable, backed by HDFS. Still running inside legacy Hadoop estates, but effectively never chosen green-field today — Cassandra, ScyllaDB, or cloud Bigtable cover the same ground with less operational pain.",
+    "homepage_url": "https://hbase.apache.org",
+    "aliases": [
+      "HBase"
+    ],
+    "deployment_models": [
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "kerberos",
+        "name": "Kerberos",
+        "fields": [
+          {
+            "key": "host",
+            "label": "ZooKeeper quorum",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "principal",
+            "label": "Principal",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "keytab",
+            "label": "Keytab",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "wide-column",
+      "hadoop",
+      "hdfs",
+      "jvm"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "solr",
+    "name": "Apache Solr",
+    "category_slug": "databases/search",
+    "secondary_category_slugs": [],
+    "description": "The elder Lucene-based search server, still capable and fully open source, with deep faceting and a long enterprise track record. Rarely chosen green-field anymore — Elasticsearch/OpenSearch won the ecosystem — but common in existing enterprise search estates.",
+    "homepage_url": "https://solr.apache.org",
+    "aliases": [
+      "Solr"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "search",
+      "full-text",
+      "lucene",
+      "faceting"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "arangodb",
+    "name": "ArangoDB",
+    "category_slug": "databases/graph",
+    "secondary_category_slugs": [
+      "databases/document"
+    ],
+    "description": "A multi-model database combining graph, document, and key-value access under one query language (AQL). Attractive when you genuinely need documents and graph traversals over the same data; its 2024 move to a BUSL license with usage caps dented its open-source appeal.",
+    "homepage_url": "https://arangodb.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "graph",
+      "multi-model",
+      "document"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "azure-ai-search",
+    "name": "Azure AI Search",
+    "category_slug": "databases/search",
+    "secondary_category_slugs": [
+      "databases/vector"
+    ],
+    "description": "A managed search-as-a-service with full-text, faceted, and semantic search plus built-in vector search for RAG and AI applications. It's the Azure counterpart to Amazon OpenSearch Service or Elastic Cloud, formerly branded Azure Cognitive Search. Pick it when you need enterprise search and hybrid keyword+vector retrieval tightly integrated with Azure OpenAI.",
+    "homepage_url": "https://azure.microsoft.com/products/ai-services/ai-search",
+    "aliases": [
+      "Azure Cognitive Search",
+      "Azure Search"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Endpoint URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "Microsoft Entra ID (service principal)",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Endpoint URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "azure",
+      "search",
+      "vector",
+      "rag"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "azure-cache-for-redis",
+    "name": "Azure Cache for Redis",
+    "category_slug": "databases/key-value",
+    "secondary_category_slugs": [],
+    "description": "A fully managed in-memory data store based on Redis (and Redis Enterprise tiers), used for caching, session storage, and pub/sub. It is Azure's analog to Amazon ElastiCache and Google Memorystore for Redis. Reach for it when you need low-latency key-value caching without operating Redis nodes yourself.",
+    "homepage_url": "https://azure.microsoft.com/products/cache",
+    "aliases": [],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key",
+        "name": "Access key",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "access_key",
+            "label": "Access key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "Microsoft Entra ID (service principal)",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "azure",
+      "redis",
+      "cache",
+      "key-value"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "azure-cosmos-db",
+    "name": "Azure Cosmos DB",
+    "category_slug": "databases/wide-column",
+    "secondary_category_slugs": [
+      "databases/document"
+    ],
+    "description": "Azure's globally distributed multi-model database with turnkey geo-replication, five tunable consistency levels, and APIs for documents (its native mode), Cassandra, Gremlin, and table storage. The default NoSQL choice on Azure; watch the RU-based pricing model closely.",
+    "homepage_url": "https://azure.microsoft.com/products/cosmos-db",
+    "aliases": [
+      "Cosmos DB"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "account_key",
+        "name": "Account key",
+        "fields": [
+          {
+            "key": "account_endpoint",
+            "label": "Account endpoint URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "account_key",
+            "label": "Account key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "Microsoft Entra ID (service principal)",
+        "fields": [
+          {
+            "key": "account_endpoint",
+            "label": "Account endpoint URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "multi-model",
+      "azure",
+      "managed",
+      "multi-region"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "azure-database-for-postgresql",
+    "name": "Azure Database for PostgreSQL",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [],
+    "description": "A fully managed PostgreSQL service (Flexible Server) with automated backups, high availability, and read replicas, alongside a sibling Azure Database for MySQL offering. It's Azure's counterpart to Amazon RDS/Aurora and Google Cloud SQL for open-source relational workloads. Reach for it when you want standard Postgres compatibility without operating the database yourself.",
+    "homepage_url": "https://azure.microsoft.com/products/postgresql",
+    "aliases": [
+      "Azure Postgres"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "Microsoft Entra ID (service principal)",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "azure",
+      "postgresql",
+      "relational",
+      "oltp"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "chdb",
+    "name": "chDB",
+    "category_slug": "databases/embedded-analytical",
+    "secondary_category_slugs": [
+      "processing-transformation/processing-libraries"
+    ],
+    "description": "ClickHouse's engine packaged as an in-process library, importable from Python and friends — DuckDB's proposition with ClickHouse SQL and format support. Pick it when your team already lives in ClickHouse dialect and wants the same semantics for local/embedded analytics.",
+    "homepage_url": "https://github.com/chdb-io/chdb",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "olap",
+      "in-process",
+      "clickhouse",
+      "python"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "chroma",
+    "name": "Chroma",
+    "category_slug": "databases/vector",
+    "secondary_category_slugs": [],
+    "description": "A developer-friendly, embeddable vector store that runs in-process from Python/JS with minimal ceremony — the SQLite of vector databases. Ideal for prototypes and modest RAG applications; graduate to a server-grade store when scale or multi-tenancy demands it.",
+    "homepage_url": "https://www.trychroma.com",
+    "aliases": [
+      "ChromaDB"
+    ],
+    "deployment_models": [
+      "embedded",
+      "on_prem",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key (Chroma Cloud)",
+        "fields": [
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "tenant",
+            "label": "Tenant",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "Static token (self-hosted)",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "vector",
+      "embedded",
+      "rag",
+      "python"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "cloudflare-d1",
+    "name": "Cloudflare D1",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [],
+    "description": "Serverless SQLite-based relational database native to Cloudflare Workers, positioned against Amazon Aurora Serverless and Neon as an edge-first OLTP store. Its differentiator is running SQLite close to Workers with automatic read replication across regions, billed per-query with no servers to manage, ideal for per-tenant and application databases.",
+    "homepage_url": "https://developers.cloudflare.com/d1/",
+    "aliases": [
+      "D1"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "API token",
+        "fields": [
+          {
+            "key": "account_id",
+            "label": "Account ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "database_id",
+            "label": "Database ID",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cloudflare",
+      "relational",
+      "sqlite",
+      "serverless"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "cloudflare-vectorize",
+    "name": "Cloudflare Vectorize",
+    "category_slug": "databases/vector",
+    "secondary_category_slugs": [],
+    "description": "Managed vector database integrated with Cloudflare Workers AI for storing and querying embeddings at the edge, comparable to Pinecone or Amazon OpenSearch vector search. Its differentiator is tight coupling with Workers AI so embeddings can be generated and queried in the same edge runtime with low latency and no separate infrastructure.",
+    "homepage_url": "https://developers.cloudflare.com/vectorize/",
+    "aliases": [
+      "Vectorize"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "API token",
+        "fields": [
+          {
+            "key": "account_id",
+            "label": "Account ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cloudflare",
+      "vector-database",
+      "embeddings",
+      "edge"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "cloudflare-workers-kv",
+    "name": "Cloudflare Workers KV",
+    "category_slug": "databases/key-value",
+    "secondary_category_slugs": [],
+    "description": "Globally distributed, eventually-consistent key-value store designed for high-read, low-write workloads served from Cloudflare's edge, analogous to DynamoDB global tables or Azure Cosmos DB for simple KV. Its differentiator is aggressive edge caching of values near readers, making it well suited to configuration, feature flags, and content that changes infrequently but is read everywhere.",
+    "homepage_url": "https://developers.cloudflare.com/kv/",
+    "aliases": [
+      "Workers KV"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "API token",
+        "fields": [
+          {
+            "key": "account_id",
+            "label": "Account ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "namespace_id",
+            "label": "Namespace ID",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cloudflare",
+      "key-value",
+      "edge",
+      "serverless"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "cockroachdb",
+    "name": "CockroachDB",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [],
+    "description": "A distributed, Postgres-wire-compatible SQL database built for horizontal scale and multi-region survivability with serializable transactions. Pick it when a single-node Postgres genuinely can't hold your write volume or availability requirements; note its license moved from OSS to a source-available enterprise model.",
+    "homepage_url": "https://www.cockroachlabs.com",
+    "aliases": [
+      "CRDB"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "distributed-sql",
+      "newsql",
+      "postgres-compatible",
+      "multi-region"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "couchbase",
+    "name": "Couchbase",
+    "category_slug": "databases/document",
+    "secondary_category_slugs": [
+      "databases/key-value"
+    ],
+    "description": "A distributed document database with a memory-first key-value core, SQL-like querying (SQL++/N1QL), and strong mobile/edge sync via Couchbase Lite. Pick it for low-latency, high-throughput document workloads with offline-capable clients — a niche it genuinely owns.",
+    "homepage_url": "https://www.couchbase.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "document",
+      "key-value",
+      "mobile-sync",
+      "nosql"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "license",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "digitalocean-managed-databases",
+    "name": "DigitalOcean Managed Databases",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [
+      "databases/key-value"
+    ],
+    "description": "Fully managed database service from DigitalOcean covering PostgreSQL, MySQL, Redis/Valkey, Kafka, and MongoDB, the small-cloud analog to Amazon RDS. Its differentiator is simple flat-rate pricing and one-click provisioning with automated backups, failover, and connection pooling aimed at developers who want managed OLTP without hyperscaler complexity.",
+    "homepage_url": "https://www.digitalocean.com/products/managed-databases",
+    "aliases": [
+      "DigitalOcean Managed Databases"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "digitalocean",
+      "relational",
+      "postgresql",
+      "managed-database"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "duckdb",
+    "name": "DuckDB",
+    "category_slug": "databases/embedded-analytical",
+    "secondary_category_slugs": [
+      "processing-transformation/processing-libraries"
+    ],
+    "description": "The in-process analytical database — 'SQLite for OLAP' — with a vectorized columnar engine that queries Parquet, CSV, and data-frame data directly from Python, R, or the CLI. It has become the default tool for local analytics and lightweight pipeline transforms; reach for it before standing up any analytics server.",
+    "homepage_url": "https://duckdb.org",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "olap",
+      "in-process",
+      "columnar",
+      "sql",
+      "parquet"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "elasticsearch",
+    "name": "Elasticsearch",
+    "category_slug": "databases/search",
+    "secondary_category_slugs": [
+      "databases/vector"
+    ],
+    "description": "The dominant Lucene-based search and analytics engine, covering full-text search, log analytics (the ELK stack), and now vector/hybrid retrieval. The safe default for serious search; it returned to open source with an AGPL option in 2024 after its licensing detour.",
+    "homepage_url": "https://www.elastic.co/elasticsearch",
+    "aliases": [
+      "ES"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "search",
+      "full-text",
+      "lucene",
+      "log-analytics"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "etcd",
+    "name": "etcd",
+    "category_slug": "databases/key-value",
+    "secondary_category_slugs": [],
+    "description": "A strongly consistent, Raft-based key-value store designed for configuration, coordination, and service discovery — most famously as Kubernetes' backing store. Pick it for cluster metadata and distributed locks, never as a general application database.",
+    "homepage_url": "https://etcd.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "mtls",
+        "name": "Mutual TLS (client certificate)",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_cert",
+            "label": "Client certificate",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_key",
+            "label": "Client key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "ca_cert",
+            "label": "CA certificate",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "key-value",
+      "raft",
+      "coordination",
+      "kubernetes"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "firestore",
+    "name": "Firestore",
+    "category_slug": "databases/document",
+    "secondary_category_slugs": [],
+    "description": "Google's serverless document database with real-time client sync and offline support, tightly coupled to the Firebase SDK ecosystem. Excellent for mobile/web app backends on GCP; a poor fit for analytical queries or anything relational-shaped.",
+    "homepage_url": "https://cloud.google.com/firestore",
+    "aliases": [
+      "Cloud Firestore"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "project_id",
+            "label": "Project ID",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "service_account_json",
+            "label": "Service account key (JSON)",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "document",
+      "serverless",
+      "gcp",
+      "realtime-sync"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "bigtable",
+    "name": "Google Cloud Bigtable",
+    "category_slug": "databases/wide-column",
+    "secondary_category_slugs": [],
+    "description": "Google's managed wide-column store — the original Bigtable paper's technology as a service, with an HBase-compatible API. Pick it on GCP for massive time-series, IoT, or personalization workloads with high sustained throughput and simple row-key access patterns.",
+    "homepage_url": "https://cloud.google.com/bigtable",
+    "aliases": [
+      "Bigtable"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "project_id",
+            "label": "Project ID",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "instance_id",
+            "label": "Instance ID",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "service_account_json",
+            "label": "Service account key (JSON)",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "wide-column",
+      "gcp",
+      "managed",
+      "high-throughput"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "cloud-spanner",
+    "name": "Google Cloud Spanner",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [],
+    "description": "Google's globally distributed relational database offering external consistency across regions via TrueTime — the original inspiration for the distributed-SQL category. Pick it for planet-scale transactional workloads on GCP where you can absorb its cost and its slightly non-standard SQL surface.",
+    "homepage_url": "https://cloud.google.com/spanner",
+    "aliases": [
+      "Spanner"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "project_id",
+            "label": "Project ID",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "instance_id",
+            "label": "Instance ID",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "service_account_json",
+            "label": "Service account key (JSON)",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "distributed-sql",
+      "gcp",
+      "multi-region",
+      "managed"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "usage_based",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "google-cloud-sql",
+    "name": "Google Cloud SQL",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [],
+    "description": "Fully managed relational database service for PostgreSQL, MySQL, and SQL Server on Google Cloud. It is the GCP analog to Amazon RDS and Azure SQL Database. Pick it for standard OLTP workloads when you want a managed single-region engine without the scale-out complexity (or cost) of Spanner or AlloyDB.",
+    "homepage_url": "https://cloud.google.com/sql",
+    "aliases": [
+      "Cloud SQL"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "service_account_json",
+        "name": "IAM database authentication (service account)",
+        "fields": [
+          {
+            "key": "instance_connection_name",
+            "label": "Instance connection name",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "service_account_json",
+            "label": "Service account key (JSON)",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "gcp",
+      "managed-database",
+      "relational"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "google-memorystore",
+    "name": "Google Memorystore",
+    "category_slug": "databases/key-value",
+    "secondary_category_slugs": [],
+    "description": "Fully managed in-memory data store service for Redis, Memcached, and Valkey, providing sub-millisecond caching and low-latency key-value access. It is the GCP analog to Amazon ElastiCache / MemoryDB and Azure Cache for Redis. Pick it for application caching, session stores, and leaderboards when you want a managed Redis- or Memcached-compatible engine on GCP.",
+    "homepage_url": "https://cloud.google.com/memorystore",
+    "aliases": [
+      "Memorystore"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "AUTH string",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "password",
+            "label": "AUTH string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "gcp",
+      "key-value",
+      "in-memory",
+      "cache",
+      "redis"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "ibm-db2",
+    "name": "IBM Db2",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [],
+    "description": "IBM's venerable enterprise database, still core to mainframe (z/OS) and legacy banking/insurance estates. Solid and actively maintained, but essentially never chosen for new non-IBM workloads — you encounter it as a migration source.",
+    "homepage_url": "https://www.ibm.com/products/db2",
+    "aliases": [
+      "DB2"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "sql",
+      "oltp",
+      "mainframe",
+      "enterprise"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "influxdb",
+    "name": "InfluxDB",
+    "category_slug": "databases/time-series",
+    "secondary_category_slugs": [],
+    "description": "The best-known purpose-built time-series database, now (v3) rebuilt in Rust on Arrow/Parquet with SQL support. Strong for metrics and IoT telemetry with high ingest rates; its repeated architecture and query-language reboots are the main adoption caveat.",
+    "homepage_url": "https://www.influxdata.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "API token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "org",
+            "label": "Organization",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "username_password",
+        "name": "Username & password (v1)",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "time-series",
+      "metrics",
+      "iot"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "janusgraph",
+    "name": "JanusGraph",
+    "category_slug": "databases/graph",
+    "secondary_category_slugs": [],
+    "description": "A fully open-source, Gremlin-native distributed graph layer that stores data in a pluggable backend (Cassandra, HBase, Bigtable). Pick it when you need huge graphs on infrastructure you already run and want zero licensing friction — at the cost of operating two systems.",
+    "homepage_url": "https://janusgraph.org",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "graph",
+      "gremlin",
+      "distributed",
+      "pluggable-storage"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "lancedb",
+    "name": "LanceDB",
+    "category_slug": "databases/vector",
+    "secondary_category_slugs": [],
+    "description": "An embedded vector database built on the Lance columnar format, designed to run in-process next to your application much like SQLite or DuckDB rather than as a separate server. It stores vectors alongside metadata and raw data on object storage, making it a strong fit for retrieval workloads that need versioning and cheap scans without operating a cluster.",
+    "homepage_url": "https://lancedb.com",
+    "aliases": [],
+    "deployment_models": [
+      "embedded",
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key (LanceDB Cloud)",
+        "fields": [
+          {
+            "key": "uri",
+            "label": "Database URI",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "vector",
+      "embedded",
+      "columnar",
+      "retrieval"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "mariadb",
+    "name": "MariaDB",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [],
+    "description": "The community fork of MySQL created after the Oracle acquisition, drop-in compatible for most workloads and fully GPL. Pick it when you want MySQL semantics without Oracle stewardship, or when your Linux distro ships it as the default.",
+    "homepage_url": "https://mariadb.org",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "sql",
+      "oltp",
+      "mysql-compatible"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "marqo",
+    "name": "Marqo",
+    "category_slug": "databases/vector",
+    "secondary_category_slugs": [],
+    "description": "An end-to-end vector search engine that bundles embedding generation and inference into the database itself, so you index and query raw text or images without running a separate model-serving layer. This batteries-included approach lowers the barrier to semantic search but couples you to Marqo's model management choices.",
+    "homepage_url": "https://www.marqo.ai",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "vector",
+      "semantic-search",
+      "embeddings",
+      "multimodal"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "meilisearch",
+    "name": "Meilisearch",
+    "category_slug": "databases/search",
+    "secondary_category_slugs": [],
+    "description": "A Rust-built, MIT-licensed search engine focused on relevant, typo-tolerant instant search with near-zero configuration, plus hybrid semantic search. Like Typesense, it targets delightful product search rather than log analytics — pick whichever API style your team prefers.",
+    "homepage_url": "https://www.meilisearch.com",
+    "aliases": [
+      "Meili"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "search",
+      "instant-search",
+      "rust",
+      "typo-tolerant"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "memcached",
+    "name": "Memcached",
+    "category_slug": "databases/key-value",
+    "secondary_category_slugs": [],
+    "description": "The original distributed memory cache: a deliberately minimal get/set store that is trivially simple to operate and scale horizontally. Still a fine choice for pure ephemeral caching, though Redis/Valkey usually win on features for the same operational cost.",
+    "homepage_url": "https://memcached.org",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "SASL username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "key-value",
+      "cache",
+      "in-memory"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "memgraph",
+    "name": "Memgraph",
+    "category_slug": "databases/graph",
+    "secondary_category_slugs": [],
+    "description": "An in-memory, Cypher-compatible graph database aimed at real-time streaming graph workloads, with native Kafka ingestion and a library of graph algorithms (MAGE). Pick it as a faster, lighter Neo4j alternative when the graph fits in memory and latency matters.",
+    "homepage_url": "https://memgraph.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "graph",
+      "in-memory",
+      "cypher",
+      "streaming"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "sql-server",
+    "name": "Microsoft SQL Server",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [],
+    "description": "Microsoft's enterprise RDBMS, deeply integrated with the Windows/.NET/Azure ecosystem and strong tooling (SSMS, columnstore indexes, SSIS/SSRS heritage). The natural pick in Microsoft-centric shops; less compelling outside them given licensing costs.",
+    "homepage_url": "https://www.microsoft.com/sql-server",
+    "aliases": [
+      "MSSQL",
+      "SQL Server"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "sql",
+      "oltp",
+      "microsoft",
+      "enterprise"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "license",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "milvus",
+    "name": "Milvus",
+    "category_slug": "databases/vector",
+    "secondary_category_slugs": [],
+    "description": "A cloud-native, horizontally scalable vector database (LF AI & Data project) with a rich choice of index types and GPU acceleration, offered managed as Zilliz Cloud. Pick it when vector counts reach the billions and you need a distributed architecture rather than a single node.",
+    "homepage_url": "https://milvus.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "API token (Zilliz Cloud)",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Cluster URI",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "vector",
+      "distributed",
+      "similarity-search",
+      "rag"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "mongodb",
+    "name": "MongoDB",
+    "category_slug": "databases/document",
+    "secondary_category_slugs": [],
+    "description": "The dominant document database: flexible JSON-like documents, secondary indexes, and a mature managed offering in Atlas. Pick it when your data is naturally document-shaped and schema evolves fast; be honest that many teams reach for it when Postgres JSONB would do.",
+    "homepage_url": "https://www.mongodb.com",
+    "aliases": [
+      "Mongo"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "document",
+      "json",
+      "nosql"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "mysql",
+    "name": "MySQL",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [],
+    "description": "The classic web-era relational database, still ubiquitous behind LAMP-style apps and offered managed by every cloud. Reliable and well-understood for read-heavy OLTP, though Postgres has largely overtaken it for green-field work on features and extensibility.",
+    "homepage_url": "https://www.mysql.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "sql",
+      "oltp",
+      "acid"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "neo4j",
+    "name": "Neo4j",
+    "category_slug": "databases/graph",
+    "secondary_category_slugs": [],
+    "description": "The market-leading native graph database and home of the Cypher query language (now standardized as GQL). Pick it when relationship traversal is the workload — fraud rings, knowledge graphs, recommendations — rather than a bolt-on to tabular data.",
+    "homepage_url": "https://neo4j.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "graph",
+      "cypher",
+      "knowledge-graph"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "opensearch",
+    "name": "OpenSearch",
+    "category_slug": "databases/search",
+    "secondary_category_slugs": [
+      "databases/vector"
+    ],
+    "description": "The Apache-2.0 fork of Elasticsearch/Kibana created by AWS after Elastic's 2021 license change, now under the Linux Foundation. Pick it for guaranteed-open search and log analytics, especially on AWS where it's the managed default; feature sets have diverged, so check specifics.",
+    "homepage_url": "https://opensearch.org",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "search",
+      "full-text",
+      "lucene",
+      "log-analytics"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "oracle-autonomous-database",
+    "name": "Oracle Autonomous Database",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [],
+    "description": "Self-driving managed Oracle Database on OCI that automates provisioning, tuning, patching, and scaling, offered in transaction-processing (ATP) and data-warehouse (ADW) flavors. Its differentiator is machine-learning-driven autonomous operations on the full-featured Oracle engine, targeting enterprises that want RDS-style management without giving up Oracle Database capabilities.",
+    "homepage_url": "https://www.oracle.com/autonomous-database/",
+    "aliases": [
+      "Autonomous Database"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "service_name",
+            "label": "Service name",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "oracle",
+      "oci",
+      "relational",
+      "autonomous"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "usage_based",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "oracle-database",
+    "name": "Oracle Database",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [],
+    "description": "The heavyweight enterprise RDBMS: unmatched depth in features (RAC, partitioning, PL/SQL) and still the system of record in many large enterprises. You inherit it far more often than you choose it green-field, mostly because of cost and lock-in.",
+    "homepage_url": "https://www.oracle.com/database/",
+    "aliases": [
+      "Oracle"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "sql",
+      "oltp",
+      "enterprise"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "pgvector",
+    "name": "pgvector",
+    "category_slug": "databases/vector",
+    "secondary_category_slugs": [],
+    "description": "The Postgres extension for vector similarity search, adding vector types with IVFFlat and HNSW indexes to plain SQL. The right first move for vector search when you already run Postgres — no new system, transactional consistency with your relational data, good-enough performance for most RAG workloads.",
+    "homepage_url": "https://github.com/pgvector/pgvector",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "vector",
+      "postgres-extension",
+      "sql",
+      "rag"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "pinecone",
+    "name": "Pinecone",
+    "category_slug": "databases/vector",
+    "secondary_category_slugs": [],
+    "description": "The best-known fully managed vector database: serverless indexes, straightforward APIs, and predictable recall/latency without any infrastructure to run. Pick it when you want RAG-scale vector search as a pure service and don't mind proprietary vendor hosting.",
+    "homepage_url": "https://www.pinecone.io",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "vector",
+      "similarity-search",
+      "rag",
+      "serverless"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "postgresql",
+    "name": "PostgreSQL",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [],
+    "description": "The default choice for a general-purpose relational database: rock-solid ACID semantics, a rich type system (JSONB, arrays, ranges), and an extension ecosystem that stretches it into geo, time-series, and vector workloads. Pick it unless you have a specific reason not to.",
+    "homepage_url": "https://www.postgresql.org",
+    "aliases": [
+      "Postgres"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "sql",
+      "acid",
+      "oltp",
+      "extensible"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "prometheus",
+    "name": "Prometheus",
+    "category_slug": "databases/time-series",
+    "secondary_category_slugs": [],
+    "description": "The CNCF-standard monitoring system with a pull-based scrape model, its own time-series store, and PromQL — the lingua franca of infrastructure metrics. Pick it for operational monitoring by default; pair it with a remote store (Thanos, Mimir, VictoriaMetrics) for long retention and HA.",
+    "homepage_url": "https://prometheus.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Basic auth",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "Bearer token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "time-series",
+      "metrics",
+      "monitoring",
+      "promql"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "qdrant",
+    "name": "Qdrant",
+    "category_slug": "databases/vector",
+    "secondary_category_slugs": [],
+    "description": "A Rust-built open-source vector search engine known for strong filtering alongside ANN search, quantization options, and lean resource usage. A favorite for self-hosted RAG workloads where payload-filtered vector queries are the norm.",
+    "homepage_url": "https://qdrant.tech",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "vector",
+      "similarity-search",
+      "rust",
+      "rag"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "questdb",
+    "name": "QuestDB",
+    "category_slug": "databases/time-series",
+    "secondary_category_slugs": [],
+    "description": "A high-performance time-series database with columnar storage, SQL with time-series extensions (SAMPLE BY, ASOF joins), and very fast InfluxDB-line-protocol ingestion. A strong pick for financial market data and telemetry where single-node ingest speed is the priority.",
+    "homepage_url": "https://questdb.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "time-series",
+      "sql",
+      "columnar",
+      "high-ingest"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "redis",
+    "name": "Redis",
+    "category_slug": "databases/key-value",
+    "secondary_category_slugs": [],
+    "description": "The de facto in-memory data structure store: caching, sessions, queues, rate limiting, pub/sub, and increasingly search and vector features. Sub-millisecond latency and a dead-simple operational story make it the first thing you bolt next to almost any database.",
+    "homepage_url": "https://redis.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "key-value",
+      "in-memory",
+      "cache",
+      "pub-sub"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "scylladb",
+    "name": "ScyllaDB",
+    "category_slug": "databases/wide-column",
+    "secondary_category_slugs": [],
+    "description": "A C++ rewrite of Cassandra using a shard-per-core, no-GC architecture, typically delivering the same API at a fraction of the node count and tail latency. Pick it when you want Cassandra semantics with far better price-performance; note it dropped its OSS edition for a source-available license in 2025.",
+    "homepage_url": "https://www.scylladb.com",
+    "aliases": [
+      "Scylla"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "wide-column",
+      "cassandra-compatible",
+      "low-latency",
+      "shard-per-core"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "singlestore",
+    "name": "SingleStore",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [
+      "analytical-stores/realtime-olap"
+    ],
+    "description": "A distributed SQL database that unifies transactional and analytical workloads in one engine, combining in-memory rowstore and on-disk columnstore to serve fast reads over freshly written data. Formerly MemSQL, it targets real-time analytics and HTAP use cases where you'd otherwise stitch together an OLTP store and a warehouse.",
+    "homepage_url": "https://www.singlestore.com",
+    "aliases": [
+      "MemSQL"
+    ],
+    "deployment_models": [
+      "cloud",
+      "on_prem",
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "relational",
+      "htap",
+      "distributed-sql",
+      "real-time"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "license",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "sqlite",
+    "name": "SQLite",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [
+      "databases/embedded-analytical"
+    ],
+    "description": "The world's most deployed database: a zero-configuration, single-file, in-process SQL engine that is effectively the standard for local and embedded storage. Pick it for edge, mobile, tooling, and small-service persistence — not for concurrent multi-writer server workloads.",
+    "homepage_url": "https://sqlite.org",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "sql",
+      "embedded",
+      "in-process",
+      "single-file"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "surrealdb",
+    "name": "SurrealDB",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [
+      "databases/document"
+    ],
+    "description": "A multi-model database written in Rust that exposes relational, document, and graph paradigms through a single SQL-like query language, and can run embedded or as a server. Its ambition to be a one-stop backend with built-in auth and realtime is compelling but still maturing compared to specialized incumbents.",
+    "homepage_url": "https://surrealdb.com",
+    "aliases": [],
+    "deployment_models": [
+      "embedded",
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "namespace",
+            "label": "Namespace",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "multi-model",
+      "relational",
+      "document",
+      "graph"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "tigergraph",
+    "name": "TigerGraph",
+    "category_slug": "databases/graph",
+    "secondary_category_slugs": [],
+    "description": "A distributed graph database built for deep-link analytics — multi-hop traversals over very large graphs at speed, queried with GSQL. Pick it for enterprise-scale graph analytics (fraud, AML, supply chain) where Neo4j's single-server core becomes the bottleneck.",
+    "homepage_url": "https://www.tigergraph.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "gsql_secret",
+        "name": "GSQL secret",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret",
+            "label": "Secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "graph",
+      "distributed",
+      "analytics",
+      "gsql"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "license",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "timescaledb",
+    "name": "TimescaleDB",
+    "category_slug": "databases/time-series",
+    "secondary_category_slugs": [
+      "databases/relational"
+    ],
+    "description": "Time-series as a Postgres extension: hypertables, columnar compression, and continuous aggregates while keeping full SQL, joins, and the Postgres ecosystem. The right call when you want time-series without leaving Postgres; the company behind it now trades as TigerData.",
+    "homepage_url": "https://www.timescale.com",
+    "aliases": [
+      "Timescale",
+      "TigerData"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "time-series",
+      "postgres-extension",
+      "sql"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "turbopuffer",
+    "name": "Turbopuffer",
+    "category_slug": "databases/vector",
+    "secondary_category_slugs": [],
+    "description": "A serverless vector and full-text search database built directly on object storage, trading a little tail latency for dramatically lower cost at scale by keeping cold data in S3 rather than in memory. It is a proprietary managed service aimed at teams that want billions of vectors without paying to keep them all resident in RAM.",
+    "homepage_url": "https://turbopuffer.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "vector",
+      "serverless",
+      "object-storage",
+      "full-text-search"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "typesense",
+    "name": "Typesense",
+    "category_slug": "databases/search",
+    "secondary_category_slugs": [],
+    "description": "A fast, typo-tolerant, open-source search engine optimized for instant search-as-you-type experiences with a deliberately simple API. The self-hostable Algolia alternative: pick it for product and site search where developer ergonomics beat Elasticsearch's power.",
+    "homepage_url": "https://typesense.org",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "search",
+      "instant-search",
+      "typo-tolerant"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "valkey",
+    "name": "Valkey",
+    "category_slug": "databases/key-value",
+    "secondary_category_slugs": [],
+    "description": "The Linux Foundation fork of Redis created after Redis's 2024 license change, backed by AWS, Google, and Oracle and kept BSD-licensed. Drop-in compatible today; pick it when you want Redis semantics with guaranteed open-source governance.",
+    "homepage_url": "https://valkey.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "key-value",
+      "in-memory",
+      "cache",
+      "redis-compatible"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "vespa",
+    "name": "Vespa",
+    "category_slug": "databases/vector",
+    "secondary_category_slugs": [
+      "databases/search"
+    ],
+    "description": "Yahoo-lineage serving engine that combines vector search, lexical search, and ML model inference (ranking) in one low-latency platform. Overkill for simple RAG, but the strongest option when you need true hybrid retrieval plus custom ranking at large scale.",
+    "homepage_url": "https://vespa.ai",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "mtls",
+        "name": "Mutual TLS (client certificate)",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Endpoint URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_cert",
+            "label": "Client certificate",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_key",
+            "label": "Client key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "ca_cert",
+            "label": "CA certificate",
+            "secret": false,
+            "required": false
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "Access token (Vespa Cloud)",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Endpoint URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "vector",
+      "search",
+      "ranking",
+      "hybrid-search"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "victoriametrics",
+    "name": "VictoriaMetrics",
+    "category_slug": "databases/time-series",
+    "secondary_category_slugs": [],
+    "description": "A fast, resource-frugal metrics database that speaks PromQL-compatible MetricsQL and ingests from Prometheus, Influx, and Graphite protocols. The pragmatic choice for long-term, high-cardinality Prometheus storage at a fraction of the hardware of alternatives.",
+    "homepage_url": "https://victoriametrics.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Basic auth",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "Bearer token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "time-series",
+      "metrics",
+      "monitoring",
+      "prometheus-compatible"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "weaviate",
+    "name": "Weaviate",
+    "category_slug": "databases/vector",
+    "secondary_category_slugs": [],
+    "description": "An open-source vector database with built-in vectorizer modules, hybrid (keyword + vector) search, and a GraphQL-flavored API. A good middle ground when you want batteries-included semantic search you can self-host or take as a managed cloud.",
+    "homepage_url": "https://weaviate.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "vector",
+      "hybrid-search",
+      "rag"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "yugabytedb",
+    "name": "YugabyteDB",
+    "category_slug": "databases/relational",
+    "secondary_category_slugs": [],
+    "description": "An Apache-licensed distributed SQL database that reuses the actual Postgres query layer on top of a sharded, Raft-replicated storage engine. The open-source alternative to CockroachDB when you need geo-distributed Postgres-compatible OLTP.",
+    "homepage_url": "https://www.yugabyte.com",
+    "aliases": [
+      "Yugabyte"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "database",
+            "label": "Database",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "connection_string",
+        "name": "Connection string",
+        "fields": [
+          {
+            "key": "connection_string",
+            "label": "Connection string",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "distributed-sql",
+      "postgres-compatible",
+      "multi-region"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  }
+]

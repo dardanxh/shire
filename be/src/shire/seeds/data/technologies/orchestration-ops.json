@@ -1,0 +1,1618 @@
+[
+  {
+    "slug": "anomalo",
+    "name": "Anomalo",
+    "category_slug": "orchestration-ops/observability",
+    "secondary_category_slugs": [],
+    "description": "Data-quality monitoring that leans hardest into unsupervised ML: point it at warehouse tables and it detects distribution shifts and anomalies with minimal manual rule-writing. Pick it when you have too many tables to configure checks by hand and want deep, values-level monitoring rather than just freshness/volume metadata.",
+    "homepage_url": "https://www.anomalo.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "observability",
+      "anomaly-detection",
+      "ml",
+      "data-quality"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "ansible",
+    "name": "Ansible",
+    "category_slug": "orchestration-ops/iac",
+    "secondary_category_slugs": [],
+    "description": "Agentless, SSH-based configuration management and automation using YAML playbooks — the workhorse for configuring VMs and on-prem servers. Pick it for imperative provisioning and config drift management in on-prem or hybrid estates; in cloud-native, container-first stacks it cedes ground to Terraform plus Kubernetes.",
+    "homepage_url": "https://www.ansible.com",
+    "aliases": [
+      "Red Hat Ansible"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "configuration-management",
+      "automation",
+      "yaml",
+      "on-prem"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "apache-airflow",
+    "name": "Apache Airflow",
+    "category_slug": "orchestration-ops/orchestrators",
+    "secondary_category_slugs": [],
+    "description": "The incumbent workflow orchestrator: Python-defined DAGs, a massive provider ecosystem, and managed offerings on every cloud (MWAA, Cloud Composer, Astronomer). Pick it when you want the safest hiring and integration story; its task-centric model and operational sharp edges are what Dagster and Prefect were built to fix.",
+    "homepage_url": "https://airflow.apache.org",
+    "aliases": [
+      "Airflow"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "orchestration",
+      "scheduling",
+      "python",
+      "dags"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "argo-workflows",
+    "name": "Argo Workflows",
+    "category_slug": "orchestration-ops/orchestrators",
+    "secondary_category_slugs": [],
+    "description": "Kubernetes-native workflow engine where every step is a container and workflows are CRDs — massively parallel, language-agnostic, and CNCF-graduated. Pick it when your platform is Kubernetes-first and workloads are containerized (ML pipelines, CI-like fan-out); it's infrastructure-flavored orchestration, not a data-aware tool like Dagster.",
+    "homepage_url": "https://argoproj.github.io/workflows/",
+    "aliases": [
+      "Argo"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Argo Server URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Bearer token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "kubernetes",
+      "orchestration",
+      "containers",
+      "cncf"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "aws-step-functions",
+    "name": "AWS Step Functions",
+    "category_slug": "orchestration-ops/orchestrators",
+    "secondary_category_slugs": [],
+    "description": "AWS's serverless state-machine orchestrator, defined in JSON/ASL and wired natively into Lambda, Glue, EMR, and 200+ AWS services. Pick it for event-driven, AWS-native workflows where you want zero infrastructure and per-transition pricing; complex data DAGs and local development are notably more pleasant in dedicated orchestrators.",
+    "homepage_url": "https://aws.amazon.com/step-functions/",
+    "aliases": [
+      "Step Functions"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "aws",
+      "serverless",
+      "state-machines",
+      "orchestration"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "azure-logic-apps",
+    "name": "Azure Logic Apps",
+    "category_slug": "orchestration-ops/orchestrators",
+    "secondary_category_slugs": [],
+    "description": "A managed, low-code workflow and integration service that orchestrates tasks across hundreds of SaaS and enterprise connectors using visual designer or code. It's Azure's analog to AWS Step Functions plus a heavy dose of integration-platform (iPaaS) capability like Amazon EventBridge/AppFlow. Pick it for event-driven business workflows and app integration rather than pure data-pipeline orchestration, which leans on Data Factory.",
+    "homepage_url": "https://azure.microsoft.com/products/logic-apps",
+    "aliases": [],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "subscription_id",
+            "label": "Subscription ID",
+            "secret": false,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "azure",
+      "orchestration",
+      "workflow",
+      "integration"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "bigeye",
+    "name": "Bigeye",
+    "category_slug": "orchestration-ops/observability",
+    "secondary_category_slugs": [],
+    "description": "Data observability platform emphasizing metric-based monitoring with fine-grained, configurable thresholds and strong lineage, increasingly aimed at large enterprises with hybrid estates. Pick it when you want more explicit control over what's monitored than pure ML-anomaly products give you.",
+    "homepage_url": "https://www.bigeye.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "observability",
+      "monitoring",
+      "data-quality",
+      "lineage"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "enterprise",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "circleci",
+    "name": "CircleCI",
+    "category_slug": "orchestration-ops/cicd",
+    "secondary_category_slugs": [],
+    "description": "Managed CI/CD known for fast container-based builds, good caching/parallelism controls, and reusable orbs. Pick it when you want a dedicated, performance-tuned CI platform decoupled from your git host; its main headwind is that GitHub Actions is 'good enough' and already there for most teams.",
+    "homepage_url": "https://circleci.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Personal API token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "token",
+            "label": "Personal API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cicd",
+      "automation",
+      "managed",
+      "devops"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "cloud-composer",
+    "name": "Cloud Composer",
+    "category_slug": "orchestration-ops/orchestrators",
+    "secondary_category_slugs": [],
+    "description": "Google Cloud's managed Apache Airflow, handling the scheduler, workers, and upgrades while integrating with GCP IAM and services out of the box. Pick it when you want Airflow on GCP without operating it yourself; you accept GCP's upgrade cadence and a price premium in exchange.",
+    "homepage_url": "https://cloud.google.com/composer",
+    "aliases": [
+      "Google Cloud Composer",
+      "GCP Composer"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "service_account_json",
+            "label": "Service account key (JSON)",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "base_url",
+            "label": "Airflow web server URL",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "gcp",
+      "airflow",
+      "managed",
+      "orchestration"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "cloudformation",
+    "name": "CloudFormation",
+    "category_slug": "orchestration-ops/iac",
+    "secondary_category_slugs": [],
+    "description": "AWS's native declarative IaC service (JSON/YAML templates, or CDK compiling to it), with stack lifecycle management built into the platform. Pick it for AWS-only shops that value first-party support and no external state to manage; multi-cloud or data-platform provisioning (Snowflake, Databricks) pushes you to Terraform.",
+    "homepage_url": "https://aws.amazon.com/cloudformation/",
+    "aliases": [
+      "AWS CloudFormation",
+      "CFN"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "iac",
+      "aws",
+      "provisioning",
+      "templates"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "dagster",
+    "name": "Dagster",
+    "category_slug": "orchestration-ops/orchestrators",
+    "secondary_category_slugs": [],
+    "description": "Asset-centric orchestrator that models pipelines as the data assets they produce, with first-class lineage, partitioning, declarative freshness policies, and deep dbt integration. Pick it for greenfield data platforms where 'is this table up to date?' matters more than 'did this task run?'; Dagster+ adds the hosted control plane.",
+    "homepage_url": "https://dagster.io",
+    "aliases": [
+      "Dagster+"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "organization",
+            "label": "Organization",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "deployment",
+            "label": "Deployment",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "token",
+            "label": "User token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "orchestration",
+      "data-assets",
+      "python",
+      "lineage"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "deequ",
+    "name": "Deequ",
+    "category_slug": "orchestration-ops/data-quality",
+    "secondary_category_slugs": [],
+    "description": "AWS Labs' data-quality library for Apache Spark, computing metrics, constraint checks, and anomaly detection at big-data scale on Scala/Spark (with a PyDeequ wrapper). Pick it when your quality checks must run inside large Spark jobs; outside the Spark ecosystem there's no reason to reach for it.",
+    "homepage_url": "https://github.com/awslabs/deequ",
+    "aliases": [
+      "PyDeequ",
+      "AWS Deequ"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "data-quality",
+      "spark",
+      "scala",
+      "big-data"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "docker",
+    "name": "Docker",
+    "category_slug": "orchestration-ops/containers",
+    "secondary_category_slugs": [],
+    "description": "The standard for building and running containers: Dockerfiles and OCI images are the packaging format of essentially all modern data tooling, and Compose remains the simplest way to run a local multi-service dev stack. It's table stakes rather than a differentiating choice — the decisions live one layer up, in how you orchestrate.",
+    "homepage_url": "https://www.docker.com",
+    "aliases": [
+      "Docker Engine",
+      "Docker Compose"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "containers",
+      "packaging",
+      "devtools",
+      "oci"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "elementary",
+    "name": "Elementary",
+    "category_slug": "orchestration-ops/data-quality",
+    "secondary_category_slugs": [
+      "orchestration-ops/observability"
+    ],
+    "description": "dbt-native data observability: it piggybacks on your dbt runs to collect test results, anomalies, and lineage, surfacing them in a report or its cloud platform. Pick it when dbt is the center of your transformation world and you want observability without instrumenting anything new — the dbt coupling is both its superpower and its ceiling.",
+    "homepage_url": "https://www.elementary-data.com",
+    "aliases": [
+      "Elementary Data"
+    ],
+    "deployment_models": [
+      "embedded",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "data-quality",
+      "observability",
+      "dbt",
+      "monitoring"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "github-actions",
+    "name": "GitHub Actions",
+    "category_slug": "orchestration-ops/cicd",
+    "secondary_category_slugs": [],
+    "description": "GitHub's built-in CI/CD with a huge marketplace of reusable actions — the path of least resistance for any repo already on GitHub, including dbt runs, Terraform plans, and container builds. Pick it by default when you're on GitHub; self-hosted runners and Enterprise Server cover the locked-down cases.",
+    "homepage_url": "https://github.com/features/actions",
+    "aliases": [
+      "GHA"
+    ],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Personal access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "token",
+            "label": "Personal access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cicd",
+      "automation",
+      "github",
+      "devops"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "gitlab-ci",
+    "name": "GitLab CI",
+    "category_slug": "orchestration-ops/cicd",
+    "secondary_category_slugs": [],
+    "description": "The CI/CD system built into GitLab, configured via .gitlab-ci.yml, with mature pipeline features (DAG stages, environments, review apps) and a genuinely strong self-hosted story on the open-core Community Edition. Pick it when your code is on GitLab — especially in enterprises that self-host their DevOps platform.",
+    "homepage_url": "https://docs.gitlab.com/ee/ci/",
+    "aliases": [
+      "GitLab CI/CD"
+    ],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Personal access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "token",
+            "label": "Personal access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cicd",
+      "automation",
+      "gitlab",
+      "devops"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "google-cloud-workflows",
+    "name": "Google Cloud Workflows",
+    "category_slug": "orchestration-ops/orchestrators",
+    "secondary_category_slugs": [],
+    "description": "Serverless orchestration service that sequences Google Cloud and HTTP-based services into declarative, YAML-defined workflows with built-in retries and error handling. It is the GCP counterpart to AWS Step Functions and Azure Logic Apps. Pick it for lightweight, event- or API-driven service orchestration rather than heavyweight data-pipeline DAGs, which belong on Cloud Composer.",
+    "homepage_url": "https://cloud.google.com/workflows",
+    "aliases": [
+      "Workflows"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "service_account_json",
+            "label": "Service account key (JSON)",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "gcp",
+      "orchestration",
+      "serverless",
+      "workflow"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "great-expectations",
+    "name": "Great Expectations",
+    "category_slug": "orchestration-ops/data-quality",
+    "secondary_category_slugs": [],
+    "description": "The most widely known data-quality framework: declarative 'expectations' validated against pandas, Spark, or SQL data sources, with data docs generated from results. Pick it for rich, expressive validation suites outside dbt's reach; be ready for its heavyweight configuration surface, or use GX Cloud to soften it.",
+    "homepage_url": "https://greatexpectations.io",
+    "aliases": [
+      "GX",
+      "GX Core"
+    ],
+    "deployment_models": [
+      "embedded",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "organization_id",
+            "label": "Organization ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "data-quality",
+      "testing",
+      "validation",
+      "python"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "helm",
+    "name": "Helm",
+    "category_slug": "orchestration-ops/iac",
+    "secondary_category_slugs": [],
+    "description": "The package manager for Kubernetes: charts template and version entire application deployments, and virtually every self-hostable data tool (Airflow, Kafka, Superset) ships an official chart. Pick it whenever you deploy data infrastructure onto Kubernetes — it's less a choice than a given in that world.",
+    "homepage_url": "https://helm.sh",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "kubernetes",
+      "iac",
+      "packaging",
+      "deployment"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "jenkins",
+    "name": "Jenkins",
+    "category_slug": "orchestration-ops/cicd",
+    "secondary_category_slugs": [],
+    "description": "The veteran open-source automation server: infinitely pluggable, self-hosted, and still running enormous amounts of enterprise CI. Its plugin-maintenance burden and dated ergonomics mean few teams choose it fresh anymore, but it remains the pragmatic answer inside organizations that already operate it at scale.",
+    "homepage_url": "https://www.jenkins.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "API token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "cicd",
+      "automation",
+      "self-hosted",
+      "devops"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "kestra",
+    "name": "Kestra",
+    "category_slug": "orchestration-ops/orchestrators",
+    "secondary_category_slugs": [],
+    "description": "Declarative, YAML-first orchestrator with a strong UI, event-driven triggers, and hundreds of plugins, aimed at teams beyond just Python engineers. Pick it when you want language-agnostic, config-driven workflows that non-data-engineers can read and contribute to; it's one of the fastest-growing Airflow alternatives.",
+    "homepage_url": "https://kestra.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "API token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "orchestration",
+      "declarative",
+      "yaml",
+      "event-driven"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "kubernetes",
+    "name": "Kubernetes",
+    "category_slug": "orchestration-ops/containers",
+    "secondary_category_slugs": [],
+    "description": "The universal container orchestration substrate — self-hosted data platforms (Airflow, Spark-on-K8s, Kafka, Trino) increasingly assume it. Pick it when you're running enough self-hosted infrastructure to justify its considerable operational complexity, ideally via a managed control plane (EKS/GKE/AKS); don't adopt it for a single small app.",
+    "homepage_url": "https://kubernetes.io",
+    "aliases": [
+      "k8s"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Service account token",
+        "fields": [
+          {
+            "key": "api_server",
+            "label": "API server URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Bearer token",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "ca_cert",
+            "label": "CA certificate",
+            "secret": false,
+            "required": false
+          }
+        ]
+      },
+      {
+        "slug": "mtls",
+        "name": "Mutual TLS (client certificate)",
+        "fields": [
+          {
+            "key": "api_server",
+            "label": "API server URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_cert",
+            "label": "Client certificate",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_key",
+            "label": "Client key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "ca_cert",
+            "label": "CA certificate",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "containers",
+      "orchestration",
+      "cncf",
+      "infrastructure"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "luigi",
+    "name": "Luigi",
+    "category_slug": "orchestration-ops/orchestrators",
+    "secondary_category_slugs": [],
+    "description": "Spotify's pioneering Python pipeline framework built around tasks with file-based targets and dependency resolution. It shaped everything that came after but is now in maintenance mode with no scheduler UI worth the name — choose a modern orchestrator instead and migrate Luigi estates when you meet them.",
+    "homepage_url": "https://github.com/spotify/luigi",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "legacy",
+    "tags": [
+      "orchestration",
+      "python",
+      "batch",
+      "pipelines"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "mage",
+    "name": "Mage",
+    "category_slug": "orchestration-ops/orchestrators",
+    "secondary_category_slugs": [],
+    "description": "Notebook-style open-source pipeline tool that blends interactive block-based development (Python/SQL/R) with scheduling and built-in integrations, pitching itself as a friendlier Airflow. Pick it for small teams who want to build and run pipelines in one approachable UI; larger platforms tend to outgrow it toward Dagster or Airflow.",
+    "homepage_url": "https://www.mage.ai",
+    "aliases": [
+      "Mage AI"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "orchestration",
+      "pipelines",
+      "python",
+      "low-code"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "metaplane",
+    "name": "Metaplane",
+    "category_slug": "orchestration-ops/observability",
+    "secondary_category_slugs": [],
+    "description": "Lightweight, fast-to-deploy data observability (acquired by Datadog in 2025) with ML monitors, column-level lineage, and Slack-native alerting, priced for mid-market teams. Pick it when you want Monte Carlo-style coverage in an afternoon rather than a procurement cycle — and note the Datadog integration path if you already live there.",
+    "homepage_url": "https://www.metaplane.dev",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "observability",
+      "monitoring",
+      "anomaly-detection",
+      "alerting"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "monte-carlo",
+    "name": "Monte Carlo",
+    "category_slug": "orchestration-ops/observability",
+    "secondary_category_slugs": [],
+    "description": "The category-defining data observability platform: ML-driven anomaly detection on freshness, volume, and schema across warehouses, lakes, and BI, plus incident workflows and lineage-based impact analysis. Pick it when data downtime has real business cost and you can afford the enterprise price tag; it's the safe, premium choice in the category it named.",
+    "homepage_url": "https://www.montecarlodata.com",
+    "aliases": [
+      "Monte Carlo Data"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "api_key_id",
+            "label": "API key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_secret",
+            "label": "API secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "observability",
+      "data-quality",
+      "anomaly-detection",
+      "lineage"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "nomad",
+    "name": "Nomad",
+    "category_slug": "orchestration-ops/containers",
+    "secondary_category_slugs": [],
+    "description": "HashiCorp's simpler alternative to Kubernetes: a single-binary scheduler that runs containers, JVM apps, and raw binaries alike. Pick it when you want workload orchestration without Kubernetes' complexity and are comfortable with a much smaller ecosystem — and note it moved to the source-available BUSL license alongside Terraform.",
+    "homepage_url": "https://www.nomadproject.io",
+    "aliases": [
+      "HashiCorp Nomad"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "ACL token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "ACL token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "containers",
+      "scheduling",
+      "hashicorp",
+      "orchestration"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "pandera",
+    "name": "pandera",
+    "category_slug": "orchestration-ops/data-quality",
+    "secondary_category_slugs": [],
+    "description": "Lightweight, Pythonic dataframe validation: define typed schemas as classes and validate pandas/Polars/PySpark frames inline, with tight pydantic-style ergonomics. Pick it for validating data inside Python pipelines and at function boundaries — it's a library-level complement to warehouse-level tools like dbt tests or Soda, not a replacement.",
+    "homepage_url": "https://pandera.readthedocs.io",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "data-quality",
+      "python",
+      "validation",
+      "dataframes"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "prefect",
+    "name": "Prefect",
+    "category_slug": "orchestration-ops/orchestrators",
+    "secondary_category_slugs": [],
+    "description": "Pythonic workflow orchestration where flows are just decorated functions — minimal ceremony, dynamic runtime DAGs, and a polished hybrid model (open-source engine, Prefect Cloud control plane). Pick it when you want orchestration that feels like writing normal Python and don't need Dagster's asset semantics.",
+    "homepage_url": "https://www.prefect.io",
+    "aliases": [
+      "Prefect Cloud"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "API URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "account_id",
+            "label": "Account ID",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "workspace_id",
+            "label": "Workspace ID",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "orchestration",
+      "python",
+      "workflows",
+      "dynamic-dags"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "pulumi",
+    "name": "Pulumi",
+    "category_slug": "orchestration-ops/iac",
+    "secondary_category_slugs": [],
+    "description": "Infrastructure as code in real programming languages (TypeScript, Python, Go) instead of HCL, reusing Terraform's provider ecosystem underneath. Pick it when your platform team wants loops, abstractions, and tests from a general-purpose language — and when engineers writing IaC are engineers first.",
+    "homepage_url": "https://www.pulumi.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Personal access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "token",
+            "label": "Access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "iac",
+      "provisioning",
+      "python",
+      "typescript"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "sifflet",
+    "name": "Sifflet",
+    "category_slug": "orchestration-ops/observability",
+    "secondary_category_slugs": [],
+    "description": "Full-stack data observability from a European vendor, combining monitoring, field-level lineage, and catalog-like metadata in one platform. Pick it when you want observability and discovery unified (especially with EU data-residency preferences) rather than stitching a monitor onto a separate catalog.",
+    "homepage_url": "https://www.siffletdata.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Tenant URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "observability",
+      "lineage",
+      "monitoring",
+      "catalog"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "enterprise",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "soda",
+    "name": "Soda",
+    "category_slug": "orchestration-ops/data-quality",
+    "secondary_category_slugs": [],
+    "description": "Data-quality platform built around SodaCL, a readable YAML checks language executed by the open-source Soda Core engine against warehouses and lakes, with Soda Cloud adding monitoring, alerting, and anomaly detection. Pick it when you want checks that analysts can actually write and a smoother path to a managed monitoring layer than Great Expectations offers.",
+    "homepage_url": "https://www.soda.io",
+    "aliases": [
+      "Soda Core",
+      "SodaCL"
+    ],
+    "deployment_models": [
+      "embedded",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key_id",
+            "label": "API key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key_secret",
+            "label": "API key secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "data-quality",
+      "testing",
+      "monitoring",
+      "yaml"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "temporal",
+    "name": "Temporal",
+    "category_slug": "orchestration-ops/orchestrators",
+    "secondary_category_slugs": [],
+    "description": "Durable execution platform: workflows are ordinary code whose state survives crashes, retries, and month-long waits, with exactly-once semantics handled by the engine. Pick it for long-running, failure-sensitive application workflows (payments, provisioning, sagas, agentic systems) rather than scheduled batch ETL — it complements data orchestrators more than it replaces them.",
+    "homepage_url": "https://temporal.io",
+    "aliases": [
+      "Temporal Cloud"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "address",
+            "label": "gRPC address",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "namespace",
+            "label": "Namespace",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "mtls",
+        "name": "Mutual TLS (client certificate)",
+        "fields": [
+          {
+            "key": "address",
+            "label": "gRPC address",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "namespace",
+            "label": "Namespace",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_cert",
+            "label": "Client certificate",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_key",
+            "label": "Client key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "ca_cert",
+            "label": "CA certificate",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "durable-execution",
+      "workflows",
+      "microservices",
+      "reliability"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "terraform",
+    "name": "Terraform",
+    "category_slug": "orchestration-ops/iac",
+    "secondary_category_slugs": [],
+    "description": "The de facto standard for declarative infrastructure as code, with providers for every cloud and most data platforms (Snowflake, Databricks, Confluent). Its 2023 switch to the BUSL license (spawning the OpenTofu fork) makes it source-available rather than open source, but ecosystem gravity keeps it the default pick for provisioning data infrastructure.",
+    "homepage_url": "https://www.terraform.io",
+    "aliases": [
+      "HCP Terraform"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "API token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "organization",
+            "label": "Organization",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "iac",
+      "provisioning",
+      "hcl",
+      "multi-cloud"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  }
+]

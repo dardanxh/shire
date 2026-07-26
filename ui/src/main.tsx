@@ -7,6 +7,7 @@ import { ErrorBoundary } from "react-error-boundary";
 
 import { ErrorFallback } from "@/components/shared/ErrorFallback";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "@/lib/i18n";
 import { queryClient } from "@/lib/query-client";
 import { router } from "@/router";
@@ -19,14 +20,16 @@ createRoot(rootEl).render(
   <StrictMode>
     <ThemeProvider
       attribute="class"
-      defaultTheme="light"
-      enableSystem={false}
+      defaultTheme="system"
+      enableSystem
       disableTransitionOnChange
     >
       <QueryClientProvider client={queryClient}>
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <RouterProvider router={router} />
-        </ErrorBoundary>
+        <TooltipProvider>
+          <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <RouterProvider router={router} />
+          </ErrorBoundary>
+        </TooltipProvider>
         <Toaster richColors position="bottom-right" />
       </QueryClientProvider>
     </ThemeProvider>

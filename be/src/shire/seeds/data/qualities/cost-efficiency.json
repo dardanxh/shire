@@ -1,0 +1,212 @@
+{
+  "slug": "cost-efficiency",
+  "name": "Cost efficiency",
+  "category": "operability",
+  "summary": "Delivering the required data outcomes at the lowest sustainable spend by matching cheap storage, right-sized compute, and incremental work to the actual demand.",
+  "description": "Cost efficiency is getting the answers the business needs without paying for idle capacity, duplicated copies, or reprocessing that never changes. It comes from separating storage from compute, tiering cold data cheaply, columnar compression, serverless auto-suspend, and processing only what changed. Architectures built on cheap object storage and one shared copy stay lean; designs that keep clusters running 24/7 or maintain parallel code paths burn money whether or not anyone is querying.",
+  "mechanisms": [
+    {
+      "name": "Separation of storage and compute",
+      "note": "Keeping data in cheap object storage and paying for compute only while it runs stops idle clusters from accruing cost between workloads.",
+      "related_technology_slugs": [
+        "amazon-s3",
+        "snowflake",
+        "trino",
+        "databricks-sql"
+      ]
+    },
+    {
+      "name": "Columnar formats and compression",
+      "note": "Column-oriented, compressed files cut both storage bytes and the amount of data scanned per query, lowering cost on every read.",
+      "related_technology_slugs": [
+        "parquet",
+        "apache-iceberg",
+        "clickhouse",
+        "delta-lake"
+      ]
+    },
+    {
+      "name": "Auto-suspend and serverless compute",
+      "note": "Warehouses and engines that suspend when idle and bill per query eliminate the cost of always-on capacity for spiky workloads.",
+      "related_technology_slugs": [
+        "snowflake",
+        "bigquery",
+        "duckdb",
+        "motherduck"
+      ]
+    },
+    {
+      "name": "Incremental processing",
+      "note": "Transforming only new or changed rows instead of full refreshes avoids paying to recompute data that has not moved.",
+      "related_technology_slugs": [
+        "dbt",
+        "sqlmesh",
+        "apache-hudi",
+        "apache-iceberg"
+      ]
+    },
+    {
+      "name": "Single-node analytics for small data",
+      "note": "When data fits on one machine, an in-process engine avoids the fixed cost and overhead of distributed infrastructure entirely.",
+      "related_technology_slugs": [
+        "duckdb",
+        "polars",
+        "motherduck",
+        "pandas"
+      ]
+    },
+    {
+      "name": "Storage tiering",
+      "note": "Moving cold partitions to cheaper storage classes keeps rarely accessed history affordable while hot data stays fast.",
+      "related_technology_slugs": [
+        "amazon-s3",
+        "google-cloud-storage",
+        "azure-data-lake-storage",
+        "cloudflare-r2"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "open-iceberg-lakehouse",
+      "rating": "strong",
+      "statement": "One compressed copy of data in object storage queried by many engines avoids duplicated storage and per-tool copies, so you pay once for data and only for the compute you run."
+    },
+    {
+      "blueprint_slug": "small-data-duckdb-stack",
+      "rating": "strong",
+      "statement": "In-process analytics on a single node eliminates cluster, warehouse-credit, and orchestration cost entirely for datasets that fit on one machine."
+    },
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "strong",
+      "statement": "Cheap object storage for bronze/silver/gold plus separable, right-sized compute keeps large volumes affordable and bills compute only per promotion job."
+    },
+    {
+      "blueprint_slug": "classic-raw-data-lake",
+      "rating": "strong",
+      "statement": "Landing everything as-is on object storage is the cheapest possible ingestion, deferring all compute cost to schema-on-read when data is actually needed."
+    },
+    {
+      "blueprint_slug": "query-federation",
+      "rating": "strong",
+      "statement": "Querying data in place avoids the storage and pipeline cost of copying it into a central store, paying only for the federated query's compute."
+    },
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "moderate",
+      "statement": "Auto-suspending warehouses and incremental models are efficient, but unbounded self-serve SQL and full refreshes can quietly run up serverless credits without governance."
+    },
+    {
+      "blueprint_slug": "layered-warehouse-dbt",
+      "rating": "moderate",
+      "statement": "Incremental models keep recompute low, but materializing many intermediate marts multiplies storage and build minutes if not pruned deliberately."
+    },
+    {
+      "blueprint_slug": "kimball-data-warehouse",
+      "rating": "moderate",
+      "statement": "Dimensional models on an MPP warehouse are compute-efficient for reporting, but conformed-dimension rebuilds and always-warm concurrency can add credit cost."
+    },
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "moderate",
+      "statement": "Replicating only changes is cheaper than full reloads, but high-churn tables and frequent merge operations into the warehouse keep compute continuously busy."
+    },
+    {
+      "blueprint_slug": "multi-tenant-saas-analytics",
+      "rating": "moderate",
+      "statement": "Shared compute across tenants amortizes cost well, but isolating noisy or very large tenants can force dedicated capacity that erodes the efficiency."
+    },
+    {
+      "blueprint_slug": "real-time-analytics-serving",
+      "rating": "trade-off",
+      "statement": "Sub-second freshness requires OLAP engines and ingestion running 24/7, so you pay for always-on compute regardless of whether anyone is querying at that moment."
+    },
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "trade-off",
+      "statement": "Continuous stream processing keeps compute and brokers running around the clock, trading higher steady-state cost for low latency even during quiet periods."
+    },
+    {
+      "blueprint_slug": "streaming-lakehouse",
+      "rating": "trade-off",
+      "statement": "Minutes-fresh tables need always-on streaming writers and frequent small commits, costing more in compute and compaction than a batch load of the same data."
+    },
+    {
+      "blueprint_slug": "lambda-batch-speed",
+      "rating": "trade-off",
+      "statement": "Maintaining both batch and speed layers doubles the infrastructure and the operational effort, deliberately paying twice to get both history and freshness."
+    },
+    {
+      "blueprint_slug": "embedded-analytics",
+      "rating": "trade-off",
+      "statement": "Customer-facing latency SLAs force warm, provisioned serving capacity per tenant, trading cost efficiency for the responsiveness the product experience requires."
+    },
+    {
+      "blueprint_slug": "iot-telemetry-platform",
+      "rating": "trade-off",
+      "statement": "Continuous high-volume ingestion and retention of raw telemetry run up storage and compute cost, accepted as the price of always-on device visibility."
+    },
+    {
+      "blueprint_slug": "data-vault-warehouse",
+      "rating": "limited",
+      "statement": "Splitting every source into hubs, links, and satellites multiplies row counts and join-heavy compute, so audit completeness comes at a real storage and query cost."
+    },
+    {
+      "blueprint_slug": "mdm-hub",
+      "rating": "limited",
+      "statement": "Continuous matching, survivorship, and stewardship workflows are compute- and labor-intensive, making golden records an expensive outcome to sustain."
+    },
+    {
+      "blueprint_slug": "data-sharing-clean-room",
+      "rating": "strong",
+      "statement": "Collaborators query a single shared copy in place, eliminating the storage duplication and egress of copying datasets to every partner."
+    },
+    {
+      "blueprint_slug": "pii-safe-analytics-zone",
+      "rating": "trade-off",
+      "statement": "Tokenization, dynamic masking, policy engines, and audit tooling add governance layers that raise per-query and platform cost versus an ungoverned zone."
+    },
+    {
+      "blueprint_slug": "self-serve-data-platform-mesh",
+      "rating": "moderate",
+      "statement": "A shared self-serve platform amortizes infrastructure across domains, though duplicated compute and per-domain storage can erode savings without central FinOps guardrails."
+    }
+  ],
+  "related_technology_slugs": [
+    "amazon-s3",
+    "parquet",
+    "duckdb",
+    "snowflake",
+    "apache-iceberg",
+    "dbt"
+  ],
+  "related_quality_slugs": [
+    "elasticity",
+    "scalability",
+    "maintainability"
+  ],
+  "position": 20,
+  "tradeoffs": [
+    {
+      "title": "Latency",
+      "note": "Cheap batch schedules and cold or tiered object storage trade fast, always-warm access for lower spend, so queries against saved-on data are slower to return.",
+      "quality_slug": "latency"
+    },
+    {
+      "title": "Availability",
+      "note": "Cutting replicas, dropping standbys, and running single-region to save money removes the redundancy that absorbs failures, shrinking uptime headroom.",
+      "quality_slug": "availability"
+    },
+    {
+      "title": "Durability",
+      "note": "Keeping fewer copies, shorter retention, and less frequent backups lowers storage cost but raises the odds that a failure loses data with no clean copy to restore.",
+      "quality_slug": "durability"
+    },
+    {
+      "title": "Scalability",
+      "note": "Right-sizing capacity to steady-state demand leaves little burst headroom, so unexpected spikes throttle or fail instead of scaling smoothly.",
+      "quality_slug": "scalability"
+    }
+  ]
+}

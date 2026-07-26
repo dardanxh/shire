@@ -1,0 +1,133 @@
+{
+  "slug": "data-vault-warehouse",
+  "name": "Data Vault warehouse",
+  "use_case": "Audit-heavy, multi-source integration",
+  "description": "Data Vault 2.0 separates what never changes from what always does: hubs hold business keys, links hold relationships, satellites hold descriptive attributes with full load history — insert-only, hash-keyed, and source-auditable by construction. Raw vault stores data exactly as sources delivered it (audit trail included for free); business vault layers derived rules and conformity on top without touching the raw record; downstream marts (usually Kimball-style stars) serve the actual queries, because nobody should ever point BI at a vault. The pattern absorbs new sources and schema drift with minimal rework — add satellites, never alter — at the cost of an explosion in table count and joins that makes discipline and code generation non-negotiable.",
+  "when_to_use": [
+    "Choose this when many volatile sources must be integrated and full auditability is a requirement, not a preference — regulated finance, insurance, healthcare, where 'show me exactly what the source said on March 3rd' is a real question.",
+    "It shines when sources change faster than modelling committees can meet, since raw vault loading is pattern-based and automatable.",
+    "Source systems change often and you need to absorb churn without remodeling."
+  ],
+  "when_not_to_use": [
+    "Avoid it for analytics-first teams with a handful of stable sources — the hub/link/satellite ceremony is pure overhead there, and Kimball-on-dbt (12) delivers value months sooner.",
+    "Do not adopt without automation and at least one experienced vault modeller: hand-written vault SQL at scale is a maintenance disaster.",
+    "Query performance directly on the vault is poor by design — if you cannot afford the marts layer, you cannot afford the vault."
+  ],
+  "use_cases": [
+    "compliance",
+    "integration",
+    "reporting"
+  ],
+  "hot_spots": [
+    {
+      "title": "Modeling discipline",
+      "detail": "Inconsistent hub, link, and satellite design erodes the audit guarantees."
+    },
+    {
+      "title": "Join complexity",
+      "detail": "Vault queries explode into many-way joins; skipping marts kills BI performance."
+    },
+    {
+      "title": "Load ordering",
+      "detail": "Parallel loads with wrong dependencies corrupt satellite history."
+    }
+  ],
+  "complexity": "high",
+  "evolution": [],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw loads| STG[Staging]:::store\n  STG -->|hashed keys and records| RV[Raw Vault]:::store\n  RV -->|business rules applied| BV[Business Vault]:::store\n  BV -->|dimensional extracts| MART[Marts]:::store\n  MART -->|reports| CONS[Business Consumers]:::serve\n  AUD[Audit Trail]:::govern -. full load history .-> RV"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  SRC[Source Systems]:::source -->|batch loads| LZ[Landing Storage]:::store\n  LZ -->|hash + split| VL[Vault Loader]:::process\n  VL -->|insert-only| RV[Hubs + Links + Satellites]:::store\n  RV -->|derivation jobs| RE[Rule Engine]:::process\n  RE -->|conformed entities| BV[Business Vault]:::store\n  BV -->|mart builder| MART[Dimensional Marts]:::store\n  MART -->|queries| BI[BI Layer]:::serve"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([source records]):::source -->|hash business keys| B([hubs + links + satellites]):::store\n  B -->|apply business rules| C([conformed entities]):::store\n  C -->|shape for analytics| E([dimensional marts]):::store\n  E -->|serve| F([reports]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant S as Scheduler\n  participant L as Vault Loader\n  participant G as Staging\n  participant R as Raw Vault\n  participant E as Rule Engine\n  participant M as Mart Builder\n  S->>L: batch trigger\n  L->>G: land raw\n  L->>R: insert-only history load\n  E->>R: read raw history\n  E->>E: derive business entities\n  M->>M: rebuild marts\n  Note over R: nothing is ever updated - full auditability"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw loads| STG[\"Amazon S3<br/><i>Staging</i>\"]:::store\n  STG -->|hashed keys and records| RV[\"Redshift raw vault<br/><i>Raw Vault</i>\"]:::store\n  RV -->|business rules applied| BV[\"Redshift business vault<br/><i>Business Vault</i>\"]:::store\n  BV -->|dimensional extracts| MART[\"Redshift marts<br/><i>Marts</i>\"]:::store\n  MART -->|reports| CONS[Business Consumers]:::serve\n  AUD[\"AWS CloudTrail<br/><i>Audit Trail</i>\"]:::govern -. full load history .-> RV"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw loads| STG[\"Azure Data Lake Storage<br/><i>Staging</i>\"]:::store\n  STG -->|hashed keys and records| RV[\"Synapse raw vault<br/><i>Raw Vault</i>\"]:::store\n  RV -->|business rules applied| BV[\"Synapse business vault<br/><i>Business Vault</i>\"]:::store\n  BV -->|dimensional extracts| MART[\"Synapse marts<br/><i>Marts</i>\"]:::store\n  MART -->|reports| CONS[Business Consumers]:::serve\n  AUD[\"Azure Monitor audit logs<br/><i>Audit Trail</i>\"]:::govern -. full load history .-> RV"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw loads| STG[\"Google Cloud Storage<br/><i>Staging</i>\"]:::store\n  STG -->|hashed keys and records| RV[\"BigQuery raw vault<br/><i>Raw Vault</i>\"]:::store\n  RV -->|business rules applied| BV[\"BigQuery business vault<br/><i>Business Vault</i>\"]:::store\n  BV -->|dimensional extracts| MART[\"BigQuery marts<br/><i>Marts</i>\"]:::store\n  MART -->|reports| CONS[Business Consumers]:::serve\n  AUD[\"Google Cloud Audit Logs<br/><i>Audit Trail</i>\"]:::govern -. full load history .-> RV"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw loads| STG[\"MinIO<br/><i>Staging</i>\"]:::store\n  STG -->|hashed keys and records| RV[\"PostgreSQL raw vault<br/><i>Raw Vault</i>\"]:::store\n  RV -->|business rules applied| BV[\"PostgreSQL business vault<br/><i>Business Vault</i>\"]:::store\n  BV -->|dimensional extracts| MART[\"PostgreSQL marts<br/><i>Marts</i>\"]:::store\n  MART -->|reports| CONS[Business Consumers]:::serve\n  AUD[\"OpenSearch audit trail<br/><i>Audit Trail</i>\"]:::govern -. full load history .-> RV"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw loads| STG[\"Snowflake stage<br/><i>Staging</i>\"]:::store\n  STG -->|hashed keys and records| RV[\"Snowflake raw vault<br/><i>Raw Vault</i>\"]:::store\n  RV -->|business rules applied| BV[\"Snowflake business vault<br/><i>Business Vault</i>\"]:::store\n  BV -->|dimensional extracts| MART[\"Snowflake marts<br/><i>Marts</i>\"]:::store\n  MART -->|reports| CONS[Business Consumers]:::serve\n  AUD[\"Snowflake ACCESS_HISTORY<br/><i>Audit Trail</i>\"]:::govern -. full load history .-> RV"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|raw loads| STG[\"Delta Lake on object storage<br/><i>Staging</i>\"]:::store\n  STG -->|hashed keys and records| RV[\"Delta Lake raw vault<br/><i>Raw Vault</i>\"]:::store\n  RV -->|business rules applied| BV[\"Delta Lake business vault<br/><i>Business Vault</i>\"]:::store\n  BV -->|dimensional extracts| MART[\"Databricks gold marts<br/><i>Marts</i>\"]:::store\n  MART -->|reports| CONS[Business Consumers]:::serve\n  AUD[\"Unity Catalog audit logs<br/><i>Audit Trail</i>\"]:::govern -. full load history .-> RV"
+    }
+  ],
+  "family_tags": [
+    "transformation-modelling",
+    "governance-security-compliance"
+  ],
+  "archetype_slugs": [
+    "data-vault-model",
+    "data-warehouse-design-build"
+  ],
+  "position": 13,
+  "stages": [
+    {
+      "position": 0,
+      "name": "Staging",
+      "role": "Land source deltas and compute hash keys and hashdiffs ready for vault loading",
+      "recommended_technology_slug": "dbt",
+      "alternative_technology_slugs": [
+        "fivetran",
+        "airbyte"
+      ],
+      "rationale": "Vault staging is where hash keys (business-key hashes) and hashdiffs (change-detection hashes) get computed, and dbt with the AutomateDV package (formerly dbtvault — no separate corpus entry, it rides on dbt) generates exactly this boilerplate from configuration. Physical landing happens upstream via your EL tool (Fivetran/Airbyte). Get hashing rules — casing, trimming, null handling, delimiter choice — standardized here and never change them; inconsistent hashing corrupts a vault irreparably."
+    },
+    {
+      "position": 1,
+      "name": "Raw vault",
+      "role": "Insert-only hubs, links, and satellites storing source data unmodified with full history",
+      "recommended_technology_slug": "dbt",
+      "alternative_technology_slugs": [
+        "sqlmesh",
+        "coalesce"
+      ],
+      "rationale": "Raw vault loading is deliberately mechanical — the same insert-only patterns per entity type — which is why generation beats hand-writing: dbt plus AutomateDV templates hubs, links, and satellites from metadata, keeping hundreds of tables consistent. Dedicated Data Vault automation suites (VaultSpeed, WhereScape) have no corpus entries but are worth knowing about at enterprise scale; Coalesce ships vault patterns in its GUI. The insert-only rule is sacred: no updates, no deletes, ever — that is the audit guarantee."
+    },
+    {
+      "position": 2,
+      "name": "Business vault",
+      "role": "Derived satellites, computed links, and point-in-time tables applying business rules over the raw record",
+      "recommended_technology_slug": "dbt",
+      "alternative_technology_slugs": [
+        "sqlmesh"
+      ],
+      "rationale": "Business vault is where soft rules live — deduplication verdicts, computed effectivity, PIT and bridge tables that make downstream querying tractable — kept strictly separate from raw so rules can be rebuilt without touching the audit record. PIT tables deserve emphasis: they are the difference between marts that join in seconds and marts that join in hours. Still dbt/SQLMesh territory; the separation is architectural, not tooling."
+    },
+    {
+      "position": 3,
+      "name": "Marts",
+      "role": "Kimball-style stars and flat views built from the vault for actual consumption",
+      "recommended_technology_slug": "dbt",
+      "alternative_technology_slugs": [
+        "cube",
+        "power-bi"
+      ],
+      "rationale": "The vault is for storage and audit; marts are for people. Build dimensional stars (blueprint 12's discipline applies wholesale) from PIT-assisted vault queries with dbt, and let BI and semantic layers (Cube, Power BI models) see only this layer — vault internals leaking into reports is the classic failure smell. Because marts are fully derived, they are disposable and rebuildable, which is exactly the flexibility the vault's rigidity purchased."
+    }
+  ]
+}

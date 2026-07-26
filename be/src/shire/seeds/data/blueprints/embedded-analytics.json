@@ -1,0 +1,157 @@
+{
+  "slug": "embedded-analytics",
+  "name": "Embedded analytics",
+  "use_case": "Customer-facing analytics in-product",
+  "description": "Analytics shipped as product surface: dashboards, reports, and metrics rendered inside your application for your customers, holding to product-grade latency and strict tenant isolation. The stack inverts internal-BI priorities — a fast OLAP store (or warehouse tuned for concurrency) does the scanning, a semantic layer defines metrics once and enforces row-level tenancy and caching in front of every query, and the presentation layer is either an embeddable BI tool (fast to ship, styling limits) or custom components over the semantic layer's API (full control, more build). Tenancy enforcement belongs in the semantic layer or below, never in frontend query-building: a customer seeing another tenant's numbers is a security incident, not a bug.",
+  "when_to_use": [
+    "Choose this when analytics is part of the product's value proposition — usage dashboards in a SaaS app, campaign reporting for advertisers, portfolio views for clients — with real concurrency and sub-second expectations at the 95th percentile.",
+    "It fits as soon as ad-hoc, per-customer report exports stop scaling or analytics becomes a priced tier.",
+    "Analytics is part of the product's value proposition, not an internal tool."
+  ],
+  "when_not_to_use": [
+    "Internal dashboards do not need this — blueprint 2's BI layer serves employees fine at a fraction of the effort.",
+    "If only a handful of enterprise customers need reports, scheduled exports or a shared BI folder buys time honestly.",
+    "And do not point embedded workloads at the same warehouse compute your analysts use: customer-facing p95 latency and month-end analyst scans are incompatible tenants."
+  ],
+  "use_cases": [
+    "embedded",
+    "reporting"
+  ],
+  "hot_spots": [
+    {
+      "title": "Tenant isolation",
+      "detail": "One missing row-level filter is a cross-customer data breach."
+    },
+    {
+      "title": "Noisy neighbors",
+      "detail": "A single heavy tenant degrades dashboards for everyone."
+    },
+    {
+      "title": "Semantic drift",
+      "detail": "In-product metrics diverging from internal BI erodes customer trust."
+    }
+  ],
+  "complexity": "medium",
+  "evolution": [
+    {
+      "to_slug": "real-time-analytics-serving",
+      "reason": "Customer-facing dashboards start demanding sub-second freshness."
+    },
+    {
+      "to_slug": "multi-tenant-saas-analytics",
+      "reason": "Add tenant isolation, metering, and a semantic API when embedded dashboards scale to many customers."
+    }
+  ],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Product Data Sources]:::source -->|raw app data| LZ[Raw Landing Zone]:::store\n  LZ -->|modeled loads| STORE[Analytics Store]:::store\n  STORE -->|modeled tables| SEM[Semantic Layer]:::process\n  SEM -->|governed metrics| EMB[Embedded Dashboards]:::serve\n  EMB -->|in-product analytics| CUST[End Customers]:::serve\n  TEN[Tenant Isolation]:::govern -. row-level filters .-> SEM"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  APP[Application Databases]:::source -->|raw extracts| LZL[Object Storage Landing]:::store\n  LZL -->|modeled loads| OLAP[Low-latency OLAP Store]:::store\n  OLAP -->|models| SEM[Metrics / Semantic Layer]:::process\n  SEM -->|scoped queries| SDK[Embedded BI SDK]:::serve\n  SDK -->|iframe / components| PROD[Customer-facing App]:::serve\n  RLS[Row-level Security Policies]:::govern -. tenant scoping .-> SEM"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([app events + records]):::source -->|dump raw| LD2([landed raw data]):::store\n  LD2 -->|load modeled| B([tenant-partitioned tables]):::store\n  B -->|define| C([metric definitions]):::process\n  C -->|query per tenant| E([tenant-scoped results]):::store\n  E -->|render| F([in-app charts]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant C as Customer\n  participant A as Product App\n  participant E as Embedded BI\n  participant S as Semantic Layer\n  participant O as OLAP Store\n  C->>A: open analytics tab\n  A->>E: request dashboard with tenant token\n  E->>S: metric query\n  S->>O: SQL filtered to tenant rows\n  O-->>S: results\n  S-->>E: metrics\n  E-->>A: rendered charts"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Product Data Sources]:::source -->|raw app data| LZ[\"Amazon S3<br/><i>Raw Landing Zone</i>\"]:::store\n  LZ -->|modeled loads| STORE[\"Amazon Redshift<br/><i>Analytics Store</i>\"]:::store\n  STORE -->|modeled tables| SEM[\"Amazon QuickSight datasets<br/><i>Semantic Layer</i>\"]:::process\n  SEM -->|governed metrics| EMB[\"Amazon QuickSight Embedded<br/><i>Embedded Dashboards</i>\"]:::serve\n  EMB -->|in-product analytics| CUST[End Customers]:::serve\n  TEN[\"Redshift RLS policies<br/><i>Tenant Isolation</i>\"]:::govern -. row-level filters .-> SEM"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Product Data Sources]:::source -->|raw app data| LZ[\"Azure Data Lake Storage<br/><i>Raw Landing Zone</i>\"]:::store\n  LZ -->|modeled loads| STORE[\"Azure Data Explorer<br/><i>Analytics Store</i>\"]:::store\n  STORE -->|modeled tables| SEM[\"Power BI semantic models<br/><i>Semantic Layer</i>\"]:::process\n  SEM -->|governed metrics| EMB[\"Power BI Embedded<br/><i>Embedded Dashboards</i>\"]:::serve\n  EMB -->|in-product analytics| CUST[End Customers]:::serve\n  TEN[\"Power BI RLS<br/><i>Tenant Isolation</i>\"]:::govern -. row-level filters .-> SEM"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Product Data Sources]:::source -->|raw app data| LZ[\"Google Cloud Storage<br/><i>Raw Landing Zone</i>\"]:::store\n  LZ -->|modeled loads| STORE[\"BigQuery + BI Engine<br/><i>Analytics Store</i>\"]:::store\n  STORE -->|modeled tables| SEM[\"Looker (LookML)<br/><i>Semantic Layer</i>\"]:::process\n  SEM -->|governed metrics| EMB[\"Looker Embedded<br/><i>Embedded Dashboards</i>\"]:::serve\n  EMB -->|in-product analytics| CUST[End Customers]:::serve\n  TEN[\"BigQuery row-level security<br/><i>Tenant Isolation</i>\"]:::govern -. row-level filters .-> SEM"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Product Data Sources]:::source -->|raw app data| LZ[\"MinIO<br/><i>Raw Landing Zone</i>\"]:::store\n  LZ -->|modeled loads| STORE[\"ClickHouse · DuckDB<br/><i>Analytics Store</i>\"]:::store\n  STORE -->|modeled tables| SEM[\"Cube · MetricFlow<br/><i>Semantic Layer</i>\"]:::process\n  SEM -->|governed metrics| EMB[\"Apache Superset embedded · Evidence<br/><i>Embedded Dashboards</i>\"]:::serve\n  EMB -->|in-product analytics| CUST[End Customers]:::serve\n  TEN[\"ClickHouse row policies<br/><i>Tenant Isolation</i>\"]:::govern -. row-level filters .-> SEM"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Product Data Sources]:::source -->|raw app data| LZ[\"Snowflake stage<br/><i>Raw Landing Zone</i>\"]:::store\n  LZ -->|modeled loads| STORE[\"Snowflake<br/><i>Analytics Store</i>\"]:::store\n  STORE -->|modeled tables| SEM[\"Snowflake Semantic Views · Cube<br/><i>Semantic Layer</i>\"]:::process\n  SEM -->|governed metrics| EMB[\"Sigma · ThoughtSpot embedded<br/><i>Embedded Dashboards</i>\"]:::serve\n  EMB -->|in-product analytics| CUST[End Customers]:::serve\n  TEN[\"Snowflake row access policies<br/><i>Tenant Isolation</i>\"]:::govern -. row-level filters .-> SEM"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Product Data Sources]:::source -->|raw app data| LZ[\"Delta Lake bronze<br/><i>Raw Landing Zone</i>\"]:::store\n  LZ -->|modeled loads| STORE[\"Databricks SQL Serverless<br/><i>Analytics Store</i>\"]:::store\n  STORE -->|modeled tables| SEM[\"Unity Catalog metrics · AtScale<br/><i>Semantic Layer</i>\"]:::process\n  SEM -->|governed metrics| EMB[\"Databricks AI/BI embedded<br/><i>Embedded Dashboards</i>\"]:::serve\n  EMB -->|in-product analytics| CUST[End Customers]:::serve\n  TEN[\"Unity Catalog row filters<br/><i>Tenant Isolation</i>\"]:::govern -. row-level filters .-> SEM"
+    }
+  ],
+  "family_tags": [
+    "analytics-serving"
+  ],
+  "archetype_slugs": [
+    "embedded-analytics",
+    "data-api-data-as-a-product",
+    "real-time-analytics-serving"
+  ],
+  "position": 22,
+  "stages": [
+    {
+      "name": "Landing",
+      "role": "Immutable raw dump of product data before modeling",
+      "recommended_technology_slug": "amazon-s3",
+      "alternative_technology_slugs": [
+        "azure-blob-storage",
+        "google-cloud-storage",
+        "minio"
+      ],
+      "rationale": "Cheap immutable object storage as the landing layer decouples ingestion from processing: replays, backfills, and audits read the raw dump instead of re-extracting from sources."
+    },
+    {
+      "position": 0,
+      "name": "Warehouse/OLAP",
+      "role": "Serve customer-facing query volume at product latency and concurrency",
+      "recommended_technology_slug": "clickhouse",
+      "alternative_technology_slugs": [
+        "apache-pinot",
+        "starrocks",
+        "snowflake",
+        "duckdb"
+      ],
+      "rationale": "ClickHouse is the workhorse of embedded analytics — millisecond scans, high concurrency for the money, and materialized views that pre-shape per-tenant aggregates; design tables tenant-first (tenant_id leading the sort key) and most latency problems never appear. Pinot overtakes it at very high QPS user-facing workloads where its index arsenal shines; StarRocks when customer dashboards need real joins rather than denormalized tables. Serving straight from Snowflake (dedicated warehouse, aggressive caching) is legitimate at modest concurrency and keeps one platform — until the compute bill says otherwise; DuckDB embedded per-tenant is a clever pattern for small isolated datasets."
+    },
+    {
+      "position": 1,
+      "name": "Semantic layer",
+      "role": "Define metrics once; enforce row-level tenancy, caching, and a stable API between store and product",
+      "recommended_technology_slug": "cube",
+      "alternative_technology_slugs": [
+        "dbt-semantic-layer",
+        "atscale"
+      ],
+      "rationale": "Cube was practically built for this seat: metric definitions as code, security contexts that inject tenant filters into every query from the app's JWT (tenancy enforced below the UI, where it belongs), pre-aggregations that make p95 latency survivable, and REST/GraphQL/SQL APIs that both embeddable BI tools and custom frontends consume. This layer is what keeps 'revenue' identical across the in-app dashboard and the CSV export, and what lets you swap the store later without touching product code. The dbt Semantic Layer keeps definitions beside your models but has a thinner embedded/consumption story; AtScale plays here at enterprise scale. Skipping the layer and hand-writing tenant-filtered SQL in the backend works right up until the second surface ships."
+    },
+    {
+      "position": 2,
+      "name": "Embedded BI",
+      "role": "Render dashboards inside the product: embeddable open-source BI, or custom components over the semantic API — the doc's 'custom' half is your frontend code",
+      "recommended_technology_slug": "apache-superset",
+      "alternative_technology_slugs": [
+        "metabase",
+        "grafana",
+        "streamlit"
+      ],
+      "rationale": "Superset's embedded SDK with guest tokens is the strongest open-source path to shipping real dashboards in-app quickly — full chart builder, no per-viewer licensing, self-hosted so data stays put; its limits are styling depth and the operational care Superset itself needs. Metabase embedding (interactive or static) is simpler to run and fine for straightforward dashboards, with licensing tiers to watch; Grafana suits ops-flavored embedded views. The custom path — your own React components calling Cube's APIs, with a charting library — costs the most and is where successful analytics products usually end up, because pixel-perfect brand fit and UX control eventually beat any embedded tool; many teams sensibly ship Superset first and migrate surface by surface. Streamlit covers the internal-prototype rung of that ladder."
+    },
+    {
+      "position": 3,
+      "name": "Row-level tenancy",
+      "role": "Guarantee each customer sees only their rows — an enforcement pattern spanning the semantic layer and store, not a standalone product",
+      "recommended_technology_slug": null,
+      "alternative_technology_slugs": [
+        "cube",
+        "postgresql",
+        "open-policy-agent"
+      ],
+      "rationale": "Tenancy is a property you enforce in depth, not a tool you install, hence no recommended slug. The primary control is the semantic layer's security context (Cube injecting tenant_id from a server-verified JWT into every query); back it with store-level defense — ClickHouse row policies, Postgres RLS if serving from Postgres, per-tenant database/schema isolation when contracts demand hard separation — so a bug in one layer is not a breach. OPA fits when tenancy rules are complex enough to centralize as policy. Test it like the security boundary it is: automated cross-tenant leakage tests in CI, and never accept tenant identifiers from the client side of the trust boundary."
+    }
+  ]
+}

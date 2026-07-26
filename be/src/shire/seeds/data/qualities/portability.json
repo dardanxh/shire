@@ -1,0 +1,190 @@
+{
+  "slug": "portability",
+  "name": "Portability",
+  "category": "operability",
+  "summary": "The ability to run the same data and workloads across different engines, clouds, and environments without rewriting or re-copying, avoiding lock-in to any one vendor.",
+  "description": "Portability is how freely you can move — swap a query engine, migrate clouds, or run the same pipeline on a laptop and in production — without being trapped by proprietary storage or dialects. It comes from open table and file formats, open catalogs, containerized compute, and adherence to SQL standards, so data outlives the tool that wrote it. Open-format lakehouses keep one copy readable by many engines; warehouse-centric stacks buy convenience at the price of some lock-in to the vendor's storage and functions.",
+  "mechanisms": [
+    {
+      "name": "Open table formats",
+      "note": "Storing tables in Iceberg, Delta, or Hudi lets any compatible engine read and write the same data without proprietary lock-in.",
+      "related_technology_slugs": [
+        "apache-iceberg",
+        "delta-lake",
+        "apache-hudi",
+        "apache-paimon"
+      ]
+    },
+    {
+      "name": "Open file formats",
+      "note": "Columnar Parquet and row-based Avro are readable by virtually every engine, keeping raw data portable independent of any catalog or platform.",
+      "related_technology_slugs": [
+        "parquet",
+        "avro",
+        "protobuf",
+        "apache-iceberg"
+      ]
+    },
+    {
+      "name": "Open catalogs",
+      "note": "A neutral table catalog exposes the same metadata to competing engines, so governance and discovery do not bind you to one vendor's control plane.",
+      "related_technology_slugs": [
+        "apache-polaris",
+        "nessie",
+        "unity-catalog",
+        "lakekeeper"
+      ]
+    },
+    {
+      "name": "Containerized, decoupled compute",
+      "note": "Packaging processing in containers and separating it from storage lets the same workload run on any Kubernetes or cloud without rewriting deployment.",
+      "related_technology_slugs": [
+        "kubernetes",
+        "docker",
+        "helm",
+        "apache-spark"
+      ]
+    },
+    {
+      "name": "Engine-agnostic query engines",
+      "note": "Standards-based SQL engines that read open formats let you point a different engine at the same data without migrating storage.",
+      "related_technology_slugs": [
+        "trino",
+        "dremio",
+        "duckdb",
+        "presto"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "open-iceberg-lakehouse",
+      "rating": "strong",
+      "statement": "One copy of data in an open table format with an open catalog is readable by many engines and clouds, so switching or adding an engine needs no data migration."
+    },
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "strong",
+      "statement": "Bronze/silver/gold on open table formats over object storage keeps data engine-neutral, letting Spark, Trino, or a warehouse read the same tables interchangeably."
+    },
+    {
+      "blueprint_slug": "query-federation",
+      "rating": "strong",
+      "statement": "Standards-based SQL over data left in place is inherently portable across sources, and the federation engine can be swapped without moving any underlying data."
+    },
+    {
+      "blueprint_slug": "classic-raw-data-lake",
+      "rating": "strong",
+      "statement": "Raw Parquet and open files on object storage are readable by essentially any engine, so the landed data carries no vendor lock-in whatsoever."
+    },
+    {
+      "blueprint_slug": "streaming-lakehouse",
+      "rating": "strong",
+      "statement": "Continuous commits land in open table formats, so the same fresh tables stay readable by batch and interactive engines beyond the streaming writer."
+    },
+    {
+      "blueprint_slug": "small-data-duckdb-stack",
+      "rating": "strong",
+      "statement": "An in-process engine reading open Parquet files runs identically on a laptop, a CI runner, or a server, with no platform to migrate off of."
+    },
+    {
+      "blueprint_slug": "event-driven-architecture",
+      "rating": "moderate",
+      "statement": "Open serialization with a schema registry keeps event contracts portable, but reliance on a specific broker's semantics and connectors adds some migration friction."
+    },
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "moderate",
+      "statement": "Open formats on the log keep data portable, but stateful processing tied to one engine's checkpoint and state model makes swapping the processor nontrivial."
+    },
+    {
+      "blueprint_slug": "iot-telemetry-platform",
+      "rating": "moderate",
+      "statement": "Telemetry landed in open formats is portable, but managed ingestion and device gateways often bind to a specific cloud's services."
+    },
+    {
+      "blueprint_slug": "hybrid-onprem-cloud-sync",
+      "rating": "moderate",
+      "statement": "Spanning on-prem and cloud is the point, so the design is deliberately cross-environment, though bespoke sync glue can itself become a portability constraint."
+    },
+    {
+      "blueprint_slug": "layered-warehouse-dbt",
+      "rating": "moderate",
+      "statement": "dbt models are somewhat portable across warehouses, but dialect-specific SQL and proprietary storage mean a platform move still requires meaningful rework."
+    },
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "trade-off",
+      "statement": "Warehouse-native transformation buys convenience by leaning on one vendor's storage, functions, and dialect, deliberately accepting lock-in for developer velocity."
+    },
+    {
+      "blueprint_slug": "kimball-data-warehouse",
+      "rating": "trade-off",
+      "statement": "Dimensional models built inside a proprietary warehouse tie data and SQL to that platform, trading portability for the vendor's performance and management."
+    },
+    {
+      "blueprint_slug": "real-time-analytics-serving",
+      "rating": "trade-off",
+      "statement": "Sub-second serving depends on a specific OLAP engine's storage layout and ingestion, so its speed comes at the cost of being hard to move off that engine."
+    },
+    {
+      "blueprint_slug": "embedded-analytics",
+      "rating": "trade-off",
+      "statement": "In-product analytics are optimized around one serving engine and its SDKs, so the tight coupling that delivers the experience also binds you to that platform."
+    },
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "trade-off",
+      "statement": "Replication targets a specific warehouse's merge and storage semantics, so the operational mirror is convenient but coupled to the destination platform."
+    },
+    {
+      "blueprint_slug": "multi-tenant-saas-analytics",
+      "rating": "limited",
+      "statement": "Tenant isolation and serving are usually wired to one cloud's storage and identity model, making a platform migration a deep re-architecture rather than a swap."
+    },
+    {
+      "blueprint_slug": "reverse-etl-activation-loop",
+      "rating": "limited",
+      "statement": "Activation depends on each SaaS destination's proprietary API and object model, so the outbound side is bound to specific tools that cannot be abstracted away."
+    },
+    {
+      "blueprint_slug": "data-sharing-clean-room",
+      "rating": "strong",
+      "statement": "Share-in-place over open table formats means consumers query the provider's data where it lives, with zero data movement and no proprietary export, so it is portable across any engine that reads the format."
+    }
+  ],
+  "related_technology_slugs": [
+    "apache-iceberg",
+    "parquet",
+    "apache-polaris",
+    "kubernetes",
+    "trino",
+    "delta-lake"
+  ],
+  "related_quality_slugs": [
+    "cost-efficiency",
+    "schema-evolvability"
+  ],
+  "position": 40,
+  "tradeoffs": [
+    {
+      "title": "Cost efficiency",
+      "note": "Open, portable stacks you assemble and self-manage often take more engineering effort and infra spend than turnkey managed services from a single vendor.",
+      "quality_slug": "cost-efficiency"
+    },
+    {
+      "title": "Latency",
+      "note": "Portable open formats and abstraction layers that hide the underlying engine are usually slower than a vendor's native, deeply optimized execution path.",
+      "quality_slug": "latency"
+    },
+    {
+      "title": "Vendor features",
+      "note": "Avoiding lock-in means forgoing proprietary accelerations, tight integrations, and convenience features that only the native platform offers."
+    },
+    {
+      "title": "Maintainability",
+      "note": "Running open-source infrastructure yourself instead of leaning on a managed service shifts patching, tuning, and upgrades onto your team as ongoing operational work.",
+      "quality_slug": "maintainability"
+    }
+  ]
+}

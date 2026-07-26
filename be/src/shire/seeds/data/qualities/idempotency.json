@@ -1,0 +1,180 @@
+{
+  "slug": "idempotency",
+  "name": "Idempotency",
+  "category": "recovery",
+  "summary": "Reprocessing the same input yields the same result — no duplicates, so retries and reruns are safe.",
+  "description": "Idempotency guarantees that applying the same input more than once has the same effect as applying it once. It is the property that makes retries, restarts, and at-least-once delivery safe: a re-delivered record or a re-run batch converges to the same state rather than inserting duplicates. It is achieved with deterministic or natural keys, MERGE/upsert sinks, primary-key dedup, exactly-once sinks, and transactional table formats. It is strongest in warehouse/lakehouse MERGE and CDC upserts, and a trade-off in append-only logs where duplicates are possible and must be de-duplicated downstream.",
+  "mechanisms": [
+    {
+      "name": "Deterministic / natural keys",
+      "note": "Deriving a stable key from the record's own content means the same input always maps to the same row, so a re-processed record overwrites rather than duplicates.",
+      "related_technology_slugs": [
+        "dbt",
+        "sqlmesh",
+        "apache-flink",
+        "spark-structured-streaming"
+      ]
+    },
+    {
+      "name": "MERGE / upsert sinks",
+      "note": "Writing with MERGE INTO on a key updates existing rows and inserts new ones, so re-running a batch converges to the same table state without duplicates.",
+      "related_technology_slugs": [
+        "snowflake",
+        "bigquery",
+        "delta-lake",
+        "apache-iceberg"
+      ]
+    },
+    {
+      "name": "Primary-key deduplication",
+      "note": "De-duplicating on a primary key at read or write time absorbs duplicate deliveries from at-least-once sources into a single logical record.",
+      "related_technology_slugs": [
+        "clickhouse",
+        "apache-hudi",
+        "apache-pinot",
+        "materialize"
+      ]
+    },
+    {
+      "name": "Exactly-once / transactional sinks",
+      "note": "Two-phase-commit or transactional writes tie output to committed input positions so a retried write is not double-applied.",
+      "related_technology_slugs": [
+        "apache-flink",
+        "apache-kafka",
+        "kafka-streams"
+      ]
+    },
+    {
+      "name": "Transactional table formats",
+      "note": "ACID commits on open table formats make a write atomic and repeatable — a retried commit either lands once or not at all, never partially twice.",
+      "related_technology_slugs": [
+        "delta-lake",
+        "apache-iceberg",
+        "apache-hudi",
+        "apache-paimon"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "strong",
+      "statement": "CDC applies changes as key-based upserts, so re-delivering the same change or re-running from an earlier offset converges the mirror to the same current state without duplicating rows."
+    },
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "strong",
+      "statement": "Silver and gold typically MERGE on business keys into transactional tables, so re-running a batch is idempotent by construction and safe to retry after any failure."
+    },
+    {
+      "blueprint_slug": "open-iceberg-lakehouse",
+      "rating": "strong",
+      "statement": "ACID MERGE on stable keys plus atomic snapshot commits mean a retried write either lands once or not at all, giving strong out-of-the-box idempotency."
+    },
+    {
+      "blueprint_slug": "layered-warehouse-dbt",
+      "rating": "strong",
+      "statement": "Incremental models keyed with unique_key perform MERGE-style upserts, so re-running a model reconciles to the same rows and duplicate source loads are absorbed on key."
+    },
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "strong",
+      "statement": "Warehouse-native MERGE and dbt's unique-key incrementals make transformations idempotent, so re-running after a failed load produces the same table without double-counting."
+    },
+    {
+      "blueprint_slug": "mdm-hub",
+      "rating": "strong",
+      "statement": "Golden-record survivorship deterministically resolves the same inputs to the same master record, so re-processing a source contribution converges rather than forking new duplicate masters."
+    },
+    {
+      "blueprint_slug": "kimball-data-warehouse",
+      "rating": "moderate",
+      "statement": "Dimension loads upsert on natural keys idempotently, but naive append-style fact loads can double-count on rerun unless guarded by a load key or delete-insert-by-partition pattern."
+    },
+    {
+      "blueprint_slug": "classic-batch-etl",
+      "rating": "moderate",
+      "statement": "Idempotency is achievable via delete-insert-by-partition or MERGE, but it is a design choice per job; plain append loads are not idempotent and a rerun duplicates the batch."
+    },
+    {
+      "blueprint_slug": "streaming-lakehouse",
+      "rating": "moderate",
+      "statement": "Transactional commits give idempotent table writes, and upsert modes dedupe on key; still, achieving true end-to-end exactly-once requires the source, processor, and sink to cooperate."
+    },
+    {
+      "blueprint_slug": "customer-360-cdp",
+      "rating": "moderate",
+      "statement": "Identity resolution upserts profiles on resolved keys, so re-ingesting a source is usually idempotent; ambiguous or changing match keys can occasionally split or merge profiles differently on rerun."
+    },
+    {
+      "blueprint_slug": "ml-feature-pipeline",
+      "rating": "moderate",
+      "statement": "Offline feature tables upsert on entity+timestamp keys idempotently, but online writes to a low-latency store may be last-write-wins, so out-of-order retries can momentarily set a stale value."
+    },
+    {
+      "blueprint_slug": "reverse-etl-activation-loop",
+      "rating": "moderate",
+      "statement": "Idempotency matters most here — double-sending an email or record is user-visible — so syncs upsert on a destination key and diff against last-synced state; safety depends on the destination honoring the key."
+    },
+    {
+      "blueprint_slug": "real-time-analytics-serving",
+      "rating": "moderate",
+      "statement": "Stores like ClickHouse offer replacing/aggregating engines that dedupe on key eventually, giving practical idempotency, though duplicates can be briefly visible before background merges reconcile them."
+    },
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "trade-off",
+      "statement": "At-least-once delivery is the default, so duplicates are possible; exactly-once requires transactional sinks and keyed dedup, trading some latency and throughput for idempotent output."
+    },
+    {
+      "blueprint_slug": "event-driven-architecture",
+      "rating": "trade-off",
+      "statement": "Durable logs favor at-least-once delivery for availability, so consumers must be written to dedupe on an idempotency key; the log itself does not guarantee once-only processing."
+    },
+    {
+      "blueprint_slug": "log-clickstream-analytics",
+      "rating": "trade-off",
+      "statement": "High-throughput append-only ingestion accepts duplicate events as the cost of speed, pushing de-duplication downstream into aggregation or a dedup pass rather than the ingest path."
+    },
+    {
+      "blueprint_slug": "iot-telemetry-platform",
+      "rating": "trade-off",
+      "statement": "Devices retransmit on flaky networks, so at-least-once duplicates are routine; idempotency is recovered downstream by deduping on device-id plus event-time rather than at the edge."
+    },
+    {
+      "blueprint_slug": "classic-raw-data-lake",
+      "rating": "limited",
+      "statement": "Append-only file landing offers no key semantics, so re-running an ingest drops duplicate files; idempotency has to be imposed entirely by downstream readers deduping on content."
+    }
+  ],
+  "related_technology_slugs": [
+    "delta-lake",
+    "apache-iceberg",
+    "snowflake",
+    "apache-flink",
+    "dbt",
+    "apache-hudi"
+  ],
+  "related_quality_slugs": [
+    "restartability",
+    "consistency"
+  ],
+  "position": 40,
+  "tradeoffs": [
+    {
+      "title": "Throughput",
+      "note": "Deduplication, MERGE, and upsert bookkeeping require read-before-write and key lookups that are inherently slower than a blind append-only insert.",
+      "quality_slug": "throughput"
+    },
+    {
+      "title": "Latency",
+      "note": "Upserting into a keyed table incurs index maintenance and conflict resolution per row, adding write latency compared to a straight append.",
+      "quality_slug": "latency"
+    },
+    {
+      "title": "Maintainability",
+      "note": "Achieving idempotency demands disciplined natural or deterministic key design across every producer and stage, which is easy to get subtly wrong and costly to enforce.",
+      "quality_slug": "maintainability"
+    }
+  ]
+}

@@ -119,7 +119,7 @@ export function RoadmapViewPage({
 
   if (isPending || !roadmap) {
     return (
-      <div className="space-y-4 p-6">
+      <div className="space-y-4">
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-64 w-full" />
       </div>
@@ -130,7 +130,7 @@ export function RoadmapViewPage({
   const generation = roadmap.generation;
 
   return (
-    <div className="space-y-4 p-6">
+    <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h1 className="text-xl font-semibold tracking-tight">

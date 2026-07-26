@@ -1,0 +1,165 @@
+{
+  "slug": "inmon-cif-edw",
+  "name": "Inmon CIF (3NF EDW)",
+  "use_case": "Normalized enterprise core, dependent marts",
+  "description": "Bill Inmon's Corporate Information Factory builds the warehouse top-down: ETL cleanses and integrates every source into a subject-oriented, normalized (3NF) enterprise core — the single version of truth for the whole company — and departmental data marts are then derived from that core, never loaded directly from sources. The inverse of Kimball's mart-first approach: slower to first value, but the integrated core makes cross-domain consistency structural rather than aspirational. It remains the backbone pattern in banks, insurers, and other institutions where an authoritative, auditable enterprise model outweighs delivery speed.",
+  "when_to_use": [
+    "Cross-domain consistency is the core requirement — finance, risk, and regulatory reporting must reconcile to one integrated model.",
+    "The organization is large and long-lived enough to amortize months of enterprise modeling before the first mart ships.",
+    "Auditability matters: regulators expect a documented, normalized system of record with controlled derivations.",
+    "Many marts will exist — deriving them from one core beats integrating the same sources repeatedly."
+  ],
+  "when_not_to_use": [
+    "You need analytics in weeks — mart-first dimensional delivery (12) or an ELT stack (2) reaches value an order of magnitude faster.",
+    "Sources change frequently — every upstream change ripples through the normalized core and its derivations.",
+    "The team lacks dedicated data modelers; a 3NF enterprise model is a specialist discipline, not a side task.",
+    "Audit-heavy multi-source integration with more agility is the actual need — Data Vault (13) was designed as exactly that middle ground."
+  ],
+  "use_cases": [
+    "reporting",
+    "compliance",
+    "integration"
+  ],
+  "hot_spots": [
+    {
+      "title": "Delivery latency",
+      "detail": "Months of enterprise modeling pass before the first mart ships, and sponsorship can die before value arrives."
+    },
+    {
+      "title": "Model rigidity",
+      "detail": "Every source schema change ripples through the 3NF core and every dependent mart — change control becomes the bottleneck."
+    },
+    {
+      "title": "Mart drift",
+      "detail": "Under deadline pressure, marts get loaded straight from sources, quietly breaking the single-version-of-truth guarantee."
+    },
+    {
+      "title": "Key management",
+      "detail": "Enterprise-wide surrogate key pipelines are fragile; a key collision or late-arriving master record corrupts joins across subjects."
+    }
+  ],
+  "complexity": "high",
+  "evolution": [
+    {
+      "to_slug": "data-vault-warehouse",
+      "reason": "Move the integration layer to Data Vault when source volatility makes the 3NF core too rigid."
+    }
+  ],
+  "family_tags": [
+    "transformation-modelling",
+    "governance-security-compliance"
+  ],
+  "archetype_slugs": [
+    "3nf-enterprise-model",
+    "data-warehouse-design-build",
+    "aggregation-reporting-marts"
+  ],
+  "position": 27,
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|extract + cleanse| ETL[ETL]:::process\n  ETL -->|conformed loads| STG[Staging Area]:::store\n  STG -->|integrate by subject| EDW[3NF Enterprise DW]:::store\n  EDW -->|derive + aggregate| MART[Dependent Data Marts]:::store\n  MART -->|departmental queries| BI[BI + Reporting]:::serve\n  GOV[Metadata + Governance]:::govern -. enterprise model .-> EDW"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  SRC[Operational Systems]:::source -->|scheduled extracts| STG[(staging tables)]:::store\n  STG -->|cleanse + conform| INT[Integration ETL]:::process\n  INT -->|subject areas in 3NF| EDW[(enterprise core)]:::store\n  EDW -->|derivation ETL| D1[(finance mart)]:::store\n  EDW -->|derivation ETL| D2[(risk mart)]:::store\n  EDW -->|derivation ETL| D3[(marketing mart)]:::store\n  META[Enterprise Model + Metadata]:::govern -. definitions .-> EDW\n  D1 --> BI[Reporting + OLAP]:::serve\n  D2 --> BI\n  D3 --> BI"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([source records]):::source -->|cleanse + conform| B([staging]):::store\n  B -->|integrate by subject| C([3NF enterprise core]):::store\n  C -->|derive per department| D([dependent marts]):::store\n  D -->|consistent answers| E([enterprise reporting]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant S as Source Systems\n  participant E as ETL\n  participant G as Staging\n  participant C as 3NF Core\n  participant M as Data Marts\n  participant B as BI\n  S->>E: nightly extracts\n  E->>G: load staging\n  E->>C: integrate into subject areas\n  Note over C: single version of truth<br/>normalized, audited\n  C->>M: derive departmental marts\n  B->>M: departmental queries\n  B->>C: enterprise-wide analysis"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|extract + cleanse| ETL[\"AWS Glue · Informatica<br/><i>ETL</i>\"]:::process\n  ETL -->|conformed loads| STG[\"S3 + Redshift staging<br/><i>Staging Area</i>\"]:::store\n  STG -->|integrate by subject| EDW[\"Amazon Redshift<br/><i>3NF Enterprise DW</i>\"]:::store\n  EDW -->|derive + aggregate| MART[\"Redshift schemas<br/><i>Dependent Data Marts</i>\"]:::store\n  MART -->|departmental queries| BI[\"QuickSight · MicroStrategy<br/><i>BI + Reporting</i>\"]:::serve\n  GOV[Metadata + Governance]:::govern -. enterprise model .-> EDW"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|extract + cleanse| ETL[\"Azure Data Factory · Informatica<br/><i>ETL</i>\"]:::process\n  ETL -->|conformed loads| STG[\"Synapse staging<br/><i>Staging Area</i>\"]:::store\n  STG -->|integrate by subject| EDW[\"Azure Synapse<br/><i>3NF Enterprise DW</i>\"]:::store\n  EDW -->|derive + aggregate| MART[\"Synapse dedicated marts<br/><i>Dependent Data Marts</i>\"]:::store\n  MART -->|departmental queries| BI[\"Power BI<br/><i>BI + Reporting</i>\"]:::serve\n  GOV[Metadata + Governance]:::govern -. enterprise model .-> EDW"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|extract + cleanse| ETL[\"Cloud Data Fusion · Informatica<br/><i>ETL</i>\"]:::process\n  ETL -->|conformed loads| STG[\"BigQuery staging datasets<br/><i>Staging Area</i>\"]:::store\n  STG -->|integrate by subject| EDW[\"BigQuery (normalized)<br/><i>3NF Enterprise DW</i>\"]:::store\n  EDW -->|derive + aggregate| MART[\"BigQuery mart datasets<br/><i>Dependent Data Marts</i>\"]:::store\n  MART -->|departmental queries| BI[\"Looker<br/><i>BI + Reporting</i>\"]:::serve\n  GOV[Metadata + Governance]:::govern -. enterprise model .-> EDW"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|extract + cleanse| ETL[\"Talend · Pentaho<br/><i>ETL</i>\"]:::process\n  ETL -->|conformed loads| STG[\"PostgreSQL staging<br/><i>Staging Area</i>\"]:::store\n  STG -->|integrate by subject| EDW[\"PostgreSQL · Greenplum<br/><i>3NF Enterprise DW</i>\"]:::store\n  EDW -->|derive + aggregate| MART[\"Postgres mart schemas<br/><i>Dependent Data Marts</i>\"]:::store\n  MART -->|departmental queries| BI[\"Metabase · JasperReports<br/><i>BI + Reporting</i>\"]:::serve\n  GOV[Metadata + Governance]:::govern -. enterprise model .-> EDW"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|extract + cleanse| ETL[\"Informatica · Matillion<br/><i>ETL</i>\"]:::process\n  ETL -->|conformed loads| STG[\"Snowflake staging<br/><i>Staging Area</i>\"]:::store\n  STG -->|integrate by subject| EDW[\"Snowflake (3NF core)<br/><i>3NF Enterprise DW</i>\"]:::store\n  EDW -->|derive + aggregate| MART[\"Snowflake mart schemas<br/><i>Dependent Data Marts</i>\"]:::store\n  MART -->|departmental queries| BI[\"Tableau · Power BI<br/><i>BI + Reporting</i>\"]:::serve\n  GOV[Metadata + Governance]:::govern -. enterprise model .-> EDW"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|extract + cleanse| ETL[\"Lakeflow · Matillion<br/><i>ETL</i>\"]:::process\n  ETL -->|conformed loads| STG[\"Delta staging<br/><i>Staging Area</i>\"]:::store\n  STG -->|integrate by subject| EDW[\"Delta 3NF core<br/><i>3NF Enterprise DW</i>\"]:::store\n  EDW -->|derive + aggregate| MART[\"Delta mart schemas<br/><i>Dependent Data Marts</i>\"]:::store\n  MART -->|departmental queries| BI[\"AI/BI · Power BI<br/><i>BI + Reporting</i>\"]:::serve\n  GOV[Metadata + Governance]:::govern -. enterprise model .-> EDW"
+    }
+  ],
+  "stages": [
+    {
+      "position": 0,
+      "name": "ETL",
+      "role": "Cleansing, conforming, and integrating sources before load",
+      "recommended_technology_slug": "informatica",
+      "alternative_technology_slugs": [
+        "talend",
+        "matillion",
+        "azure-data-factory",
+        "pentaho"
+      ],
+      "rationale": "CIF shops run on heavyweight ETL suites with metadata management and change control; Informatica remains the enterprise standard in this pattern."
+    },
+    {
+      "position": 1,
+      "name": "EDW core",
+      "role": "Subject-oriented normalized enterprise store — the single version of truth",
+      "recommended_technology_slug": "snowflake",
+      "alternative_technology_slugs": [
+        "teradata",
+        "oracle-database",
+        "ibm-db2",
+        "greenplum",
+        "bigquery"
+      ],
+      "rationale": "The modern build runs the 3NF core on a cloud warehouse; Teradata, Oracle, and Db2 are where most existing CIF estates live today."
+    },
+    {
+      "position": 2,
+      "name": "Dependent marts",
+      "role": "Dimensional derivations of the core per department",
+      "recommended_technology_slug": "snowflake",
+      "alternative_technology_slugs": [
+        "redshift",
+        "azure-synapse",
+        "postgresql"
+      ],
+      "rationale": "Marts usually live as schemas in the same platform as the core — the discipline is that they derive from the core, never from sources."
+    },
+    {
+      "position": 3,
+      "name": "Metadata + governance",
+      "role": "The enterprise model, business glossary, and lineage that make the core authoritative",
+      "recommended_technology_slug": "collibra",
+      "alternative_technology_slugs": [
+        "alation",
+        "microsoft-purview",
+        "datahub"
+      ],
+      "rationale": "CIF stands or falls on governed definitions; Collibra and Alation are the enterprise glossary/stewardship tools, DataHub the open alternative."
+    },
+    {
+      "position": 4,
+      "name": "BI + reporting",
+      "role": "Departmental reporting on marts, enterprise analysis on the core",
+      "recommended_technology_slug": "power-bi",
+      "alternative_technology_slugs": [
+        "tableau",
+        "qlik-sense",
+        "looker"
+      ],
+      "rationale": "Standard enterprise BI over dependent marts; the guarantee that any two reports reconcile comes from the shared core, not the tool."
+    }
+  ]
+}

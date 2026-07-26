@@ -1,0 +1,1848 @@
+[
+  {
+    "slug": "ab-initio",
+    "name": "Ab Initio",
+    "category_slug": "processing-transformation/visual-etl",
+    "secondary_category_slugs": [],
+    "description": "Famously secretive, famously expensive enterprise ETL platform prized in banking and telecom for raw performance and metadata-driven pipelines. You inherit Ab Initio, you don't adopt it: new projects encounter it almost exclusively as the legacy system a modernization program is trying to exit.",
+    "homepage_url": "https://www.abinitio.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "enterprise",
+      "etl",
+      "visual",
+      "banking"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "amazon-athena",
+    "name": "Amazon Athena",
+    "category_slug": "processing-transformation/compute-engines",
+    "secondary_category_slugs": [],
+    "description": "Serverless, pay-per-query SQL over data in S3, built on Trino/Presto and tightly integrated with the Glue Catalog. Excellent as a zero-ops entry point for lake analytics and ad-hoc investigation; heavy or latency-sensitive workloads eventually outgrow its per-TB-scanned model.",
+    "homepage_url": "https://aws.amazon.com/athena/",
+    "aliases": [
+      "Athena",
+      "AWS Athena"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "aws",
+      "serverless",
+      "sql",
+      "data-lake"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "amazon-emr",
+    "name": "Amazon EMR",
+    "category_slug": "processing-transformation/compute-engines",
+    "secondary_category_slugs": [],
+    "description": "AWS's managed big-data platform for running Spark, Trino, Flink, Hive, and the broader Hadoop ecosystem on EC2, EKS, or serverless. Pick it when you're AWS-native and want cluster lifecycle, autoscaling, and spot economics handled for you without buying into Databricks.",
+    "homepage_url": "https://aws.amazon.com/emr/",
+    "aliases": [
+      "AWS EMR",
+      "Elastic MapReduce"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "aws",
+      "managed",
+      "spark",
+      "big-data"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "datafusion",
+    "name": "Apache DataFusion",
+    "category_slug": "processing-transformation/processing-libraries",
+    "secondary_category_slugs": [],
+    "description": "Extensible, Arrow-native SQL query engine written in Rust, designed to be embedded — it powers a wave of modern data systems (InfluxDB 3, Comet, Ballista, many startups). Pick it when you are building a data tool and need a fast, customizable query engine as a library, not when you just need to run queries as an end user.",
+    "homepage_url": "https://datafusion.apache.org",
+    "aliases": [
+      "DataFusion",
+      "Arrow DataFusion"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "rust",
+      "arrow",
+      "sql",
+      "query-engine"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "hadoop-mapreduce",
+    "name": "Apache Hadoop MapReduce",
+    "category_slug": "processing-transformation/compute-engines",
+    "secondary_category_slugs": [],
+    "description": "The original open-source distributed batch processing model that defined the big-data era, running map/reduce jobs over HDFS. Effectively superseded by Spark and cloud warehouses for new work; you encounter it today almost exclusively in legacy on-prem Hadoop estates slated for migration.",
+    "homepage_url": "https://hadoop.apache.org",
+    "aliases": [
+      "MapReduce",
+      "Hadoop"
+    ],
+    "deployment_models": [
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "kerberos",
+        "name": "Kerberos",
+        "fields": [
+          {
+            "key": "host",
+            "label": "ResourceManager host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "principal",
+            "label": "Principal",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "keytab",
+            "label": "Keytab",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "batch",
+      "hadoop",
+      "jvm",
+      "big-data"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "apache-spark",
+    "name": "Apache Spark",
+    "category_slug": "processing-transformation/compute-engines",
+    "secondary_category_slugs": [],
+    "description": "The default distributed compute engine for large-scale batch transformation, with mature SQL, DataFrame, and ML APIs across Python, Scala, and Java. Pick it when data genuinely exceeds a single machine or you're on a platform (Databricks, EMR, Dataproc) that runs it for you; for smaller data its cluster overhead is pure tax.",
+    "homepage_url": "https://spark.apache.org",
+    "aliases": [
+      "Spark",
+      "PySpark"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "distributed",
+      "batch",
+      "jvm",
+      "big-data"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "apache-zeppelin",
+    "name": "Apache Zeppelin",
+    "category_slug": "processing-transformation/notebooks",
+    "secondary_category_slugs": [],
+    "description": "Web-based multi-interpreter notebook from the Hadoop era, best known for first-class Spark and JDBC integration in on-prem big-data clusters. Development has slowed and its role is filled by Jupyter and platform-native notebooks; expect to meet it only inside aging Hadoop/EMR estates.",
+    "homepage_url": "https://zeppelin.apache.org",
+    "aliases": [
+      "Zeppelin"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "notebooks",
+      "spark",
+      "hadoop",
+      "jvm"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "aws-glue-studio",
+    "name": "AWS Glue Studio",
+    "category_slug": "processing-transformation/visual-etl",
+    "secondary_category_slugs": [],
+    "description": "The visual authoring interface for AWS Glue, generating serverless Spark jobs from drag-and-drop pipelines wired into the Glue Data Catalog. Pick it for AWS-native teams who want managed Spark ETL without cluster ops and with a visual on-ramp; complex logic usually ends up dropping down to Glue's PySpark scripts anyway.",
+    "homepage_url": "https://aws.amazon.com/glue/",
+    "aliases": [
+      "Glue Studio",
+      "AWS Glue"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "aws",
+      "etl",
+      "visual",
+      "serverless",
+      "spark"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "azure-data-factory",
+    "name": "Azure Data Factory",
+    "category_slug": "processing-transformation/visual-etl",
+    "secondary_category_slugs": [
+      "orchestration-ops/orchestrators"
+    ],
+    "description": "Azure's managed data-integration service, doing double duty as a visual ETL authoring tool (mapping data flows, 100+ connectors) and as the default pipeline orchestrator/scheduler on Azure. Pick it as the glue for Azure-centric data estates — it's rarely best-in-class at either job, but it's serviceable at both and deeply integrated with Synapse and Fabric.",
+    "homepage_url": "https://azure.microsoft.com/en-us/products/data-factory",
+    "aliases": [
+      "ADF"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials (service principal)",
+        "fields": [
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "subscription_id",
+            "label": "Subscription ID",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "azure",
+      "etl",
+      "orchestration",
+      "visual"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "azure-hdinsight",
+    "name": "Azure HDInsight",
+    "category_slug": "processing-transformation/compute-engines",
+    "secondary_category_slugs": [],
+    "description": "A managed Hadoop-ecosystem cluster service for running Apache Spark, Hive, Kafka, and HBase on Azure. It is the direct analog to Amazon EMR and Google Dataproc for provisioned, open-source big-data compute. Pick it when you have existing Hadoop/Spark workloads to lift-and-shift, though newer Azure work increasingly favors Synapse and Microsoft Fabric.",
+    "homepage_url": "https://azure.microsoft.com/products/hdinsight",
+    "aliases": [],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password (cluster login)",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Cluster endpoint",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials (service principal)",
+        "fields": [
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "subscription_id",
+            "label": "Subscription ID",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "azure",
+      "hadoop",
+      "spark",
+      "compute"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "coalesce",
+    "name": "Coalesce",
+    "category_slug": "processing-transformation/sql-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Column-aware, GUI-driven transformation platform for Snowflake that generates standardized SQL from reusable node templates. Pick it when a Snowflake-centric team wants dbt-style rigor with visual authoring and enforced patterns rather than hand-written SQL; it trades flexibility for consistency and speed.",
+    "homepage_url": "https://coalesce.io",
+    "aliases": [
+      "Coalesce.io"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "token",
+            "label": "Access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "snowflake",
+      "transformation",
+      "low-code",
+      "sql"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "license",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "cudf",
+    "name": "cuDF",
+    "category_slug": "processing-transformation/processing-libraries",
+    "secondary_category_slugs": [],
+    "description": "NVIDIA RAPIDS' GPU DataFrame library exposing a pandas-like API (including a zero-code-change pandas accelerator mode) with order-of-magnitude speedups on suitable workloads. Pick it when you have GPUs available and columnar workloads heavy enough to justify them; without a GPU fleet it's a non-starter.",
+    "homepage_url": "https://rapids.ai",
+    "aliases": [
+      "RAPIDS cuDF"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "gpu",
+      "python",
+      "dataframes",
+      "rapids"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "daft",
+    "name": "Daft",
+    "category_slug": "processing-transformation/processing-libraries",
+    "secondary_category_slugs": [
+      "processing-transformation/compute-engines"
+    ],
+    "description": "A distributed dataframe library written in Rust with a Python API, designed to handle multimodal data such as images, tensors, and URLs as first-class column types alongside tabular data. It targets ML and complex ETL workloads where pandas breaks down, offering lazy evaluation and a query optimizer that scales from a laptop to a Ray cluster.",
+    "homepage_url": "https://www.getdaft.io",
+    "aliases": [],
+    "deployment_models": [
+      "embedded",
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "dataframe",
+      "distributed",
+      "multimodal",
+      "rust"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "dask",
+    "name": "Dask",
+    "category_slug": "processing-transformation/compute-engines",
+    "secondary_category_slugs": [],
+    "description": "Python-native parallel and distributed computing that scales the pandas/NumPy idiom from a laptop to a cluster with minimal code change. Pick it when your team lives in the PyData ecosystem and wants to parallelize existing workloads without adopting the JVM/Spark world; it trades Spark's raw SQL maturity for Python ergonomics.",
+    "homepage_url": "https://www.dask.org",
+    "aliases": [],
+    "deployment_models": [
+      "embedded",
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "python",
+      "distributed",
+      "parallel",
+      "pydata"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "databricks-notebooks",
+    "name": "Databricks Notebooks",
+    "category_slug": "processing-transformation/notebooks",
+    "secondary_category_slugs": [],
+    "description": "The notebook environment built into the Databricks platform: multi-language cells (Python/SQL/Scala/R) executing directly against Spark clusters and Unity Catalog data, with jobs scheduling attached. Pick it by default if you're on Databricks — the tight platform coupling is the whole point, and also the reason it's irrelevant off-platform.",
+    "homepage_url": "https://www.databricks.com/product/collaborative-notebooks",
+    "aliases": [],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Personal access token",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Workspace URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Personal access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials (service principal)",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Workspace URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "notebooks",
+      "databricks",
+      "spark",
+      "collaboration"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "dataform",
+    "name": "Dataform",
+    "category_slug": "processing-transformation/sql-frameworks",
+    "secondary_category_slugs": [],
+    "description": "Google's dbt-like SQL transformation framework (SQLX), acquired and folded into BigQuery as a fully managed, Git-integrated service. Pick it when you are all-in on BigQuery and want zero-infrastructure transformation with native GCP scheduling; outside BigQuery it is not a serious option.",
+    "homepage_url": "https://cloud.google.com/dataform",
+    "aliases": [
+      "Google Cloud Dataform"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "service_account_key",
+            "label": "Service account key (JSON)",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "project_id",
+            "label": "Project ID",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "sql",
+      "bigquery",
+      "gcp",
+      "transformation"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "dataproc",
+    "name": "Dataproc",
+    "category_slug": "processing-transformation/compute-engines",
+    "secondary_category_slugs": [],
+    "description": "Google Cloud's managed Spark/Hadoop service with fast cluster spin-up and serverless Spark options. Pick it on GCP when you need Spark for jobs that don't fit BigQuery's SQL-first model, or when lifting an existing Hadoop/Spark estate into the cloud with minimal rework.",
+    "homepage_url": "https://cloud.google.com/dataproc",
+    "aliases": [
+      "Google Cloud Dataproc"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "service_account_key",
+            "label": "Service account key (JSON)",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "project_id",
+            "label": "Project ID",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "gcp",
+      "managed",
+      "spark",
+      "big-data"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "dbt",
+    "name": "dbt",
+    "category_slug": "processing-transformation/sql-frameworks",
+    "secondary_category_slugs": [
+      "orchestration-ops/data-quality"
+    ],
+    "description": "The de facto standard for in-warehouse SQL transformation: version-controlled models, ref-based DAGs, built-in tests, and generated docs brought software engineering discipline to analytics. Pick it whenever transformation happens in a warehouse; its built-in and package-provided tests also make it many teams' first data-quality layer.",
+    "homepage_url": "https://www.getdbt.com",
+    "aliases": [
+      "dbt Core",
+      "dbt Cloud"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "dbt Cloud API token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Access URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "account_id",
+            "label": "Account ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "sql",
+      "transformation",
+      "analytics-engineering",
+      "testing"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "deepnote",
+    "name": "Deepnote",
+    "category_slug": "processing-transformation/notebooks",
+    "secondary_category_slugs": [],
+    "description": "Cloud notebook focused on real-time collaboration — think Google Docs for Jupyter-compatible notebooks, with SQL cells, scheduling, and app publishing. Pick it for teams that want low-friction shared exploration and teaching/onboarding workflows; it competes head-on with Hex at a similar altitude.",
+    "homepage_url": "https://deepnote.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "notebooks",
+      "collaboration",
+      "cloud",
+      "python"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "dremio",
+    "name": "Dremio",
+    "category_slug": "processing-transformation/compute-engines",
+    "secondary_category_slugs": [],
+    "description": "Lakehouse query platform combining an Arrow-based SQL engine with semantic-layer features (reflections, virtual datasets) directly over Iceberg and object storage. Pick it when you want warehouse-like BI performance on the lake without copying data into a warehouse; it competes with Trino plus a caching layer rolled into one product.",
+    "homepage_url": "https://www.dremio.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "token",
+        "name": "Personal access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Personal access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "lakehouse",
+      "sql",
+      "iceberg",
+      "arrow"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "license",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "google-cloud-data-fusion",
+    "name": "Google Cloud Data Fusion",
+    "category_slug": "processing-transformation/visual-etl",
+    "secondary_category_slugs": [],
+    "description": "Fully managed, visual data integration service built on the open-source CDAP project, offering a drag-and-drop pipeline builder that executes on Dataproc under the hood. It is the GCP analog to AWS Glue Studio and Azure Data Factory's mapping data flows. Pick it when teams want code-free ETL/ELT with a broad connector library while staying inside GCP.",
+    "homepage_url": "https://cloud.google.com/data-fusion",
+    "aliases": [
+      "Data Fusion"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "service_account_key",
+            "label": "Service account key (JSON)",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "project_id",
+            "label": "Project ID",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "gcp",
+      "etl",
+      "visual-etl",
+      "cdap",
+      "data-integration"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "hex",
+    "name": "Hex",
+    "category_slug": "processing-transformation/notebooks",
+    "secondary_category_slugs": [],
+    "description": "Collaborative SaaS notebook blending SQL and Python cells with a reactive DAG execution model and one-click publishing of notebooks as interactive data apps. Pick it when analytics teams want notebook flexibility plus stakeholder-facing outputs without maintaining infrastructure; it has become the default modern-data-stack notebook.",
+    "homepage_url": "https://hex.tech",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "token",
+            "label": "Access token (personal or workspace)",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "notebooks",
+      "collaboration",
+      "sql",
+      "data-apps"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "ibis",
+    "name": "Ibis",
+    "category_slug": "processing-transformation/processing-libraries",
+    "secondary_category_slugs": [],
+    "description": "A portable Python dataframe API that compiles the same expression code to 20+ backends — DuckDB locally, Snowflake/BigQuery/Spark in production. Pick it when you want to prototype on a laptop and push the same logic down to a warehouse without rewriting; it is the strongest answer to dataframe lock-in.",
+    "homepage_url": "https://ibis-project.org",
+    "aliases": [
+      "Ibis Project"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "python",
+      "dataframes",
+      "portability",
+      "sql"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "informatica",
+    "name": "Informatica",
+    "category_slug": "processing-transformation/visual-etl",
+    "secondary_category_slugs": [],
+    "description": "The enterprise data-integration heavyweight: PowerCenter on-prem and the IDMC cloud platform cover ETL, data quality, MDM, and governance under one (expensive) roof. Pick it in large, compliance-heavy organizations that value vendor consolidation and certified connectors over developer ergonomics; modern code-first teams rarely choose it greenfield.",
+    "homepage_url": "https://www.informatica.com",
+    "aliases": [
+      "Informatica PowerCenter",
+      "IDMC",
+      "Informatica Intelligent Data Management Cloud"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "enterprise",
+      "etl",
+      "visual",
+      "data-integration"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "jupyter",
+    "name": "Jupyter",
+    "category_slug": "processing-transformation/notebooks",
+    "secondary_category_slugs": [],
+    "description": "The canonical open-source notebook environment (Notebook/JupyterLab) for interactive Python, exploration, and analysis — universally known, endlessly extensible. Pick it as the default local/self-hosted notebook; its well-known weaknesses (hidden state, poor git diffs, no reactivity) are exactly what marimo and the SaaS notebooks compete on.",
+    "homepage_url": "https://jupyter.org",
+    "aliases": [
+      "JupyterLab",
+      "Jupyter Notebook"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Server URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Server token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "notebooks",
+      "python",
+      "interactive",
+      "exploration"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "marimo",
+    "name": "marimo",
+    "category_slug": "processing-transformation/notebooks",
+    "secondary_category_slugs": [],
+    "description": "Reactive Python notebook stored as pure .py files: cells re-run automatically when dependencies change, eliminating hidden state, and every notebook is git-diffable and runnable as a script or app. Pick it for reproducibility-minded teams frustrated with Jupyter's execution-order footguns; it's young but the momentum is real.",
+    "homepage_url": "https://marimo.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "notebooks",
+      "python",
+      "reactive",
+      "reproducibility"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "matillion",
+    "name": "Matillion",
+    "category_slug": "processing-transformation/visual-etl",
+    "secondary_category_slugs": [],
+    "description": "Cloud-native visual ELT that pushes transformation down into Snowflake, Redshift, BigQuery, or Databricks rather than processing data itself. Pick it when a mixed-skill team wants approachable drag-and-drop pipelines with warehouse-native execution; SQL-fluent teams often prefer dbt for the same push-down pattern with better version control.",
+    "homepage_url": "https://www.matillion.com",
+    "aliases": [
+      "Matillion ETL",
+      "Data Productivity Cloud"
+    ],
+    "deployment_models": [
+      "cloud",
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "username_password",
+        "name": "Username & password (Matillion ETL instance)",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Instance URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "elt",
+      "visual",
+      "cloud",
+      "push-down"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "license",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "modin",
+    "name": "Modin",
+    "category_slug": "processing-transformation/processing-libraries",
+    "secondary_category_slugs": [],
+    "description": "Drop-in pandas replacement that parallelizes the pandas API across cores or a Ray/Dask cluster — change one import, keep your code. Pick it when you have a large existing pandas codebase that is too slow and a rewrite to Polars or Spark isn't on the table; greenfield projects are usually better served by Polars.",
+    "homepage_url": "https://modin.readthedocs.io",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "python",
+      "pandas",
+      "parallel",
+      "dataframes"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "numpy",
+    "name": "NumPy",
+    "category_slug": "processing-transformation/processing-libraries",
+    "secondary_category_slugs": [],
+    "description": "The foundational n-dimensional array library underpinning the entire scientific Python stack. You rarely choose NumPy for data engineering directly, but it is the substrate for numeric computation, and fluency in its vectorized idiom pays off across pandas, ML, and beyond.",
+    "homepage_url": "https://numpy.org",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "python",
+      "arrays",
+      "numeric",
+      "pydata"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "pandas",
+    "name": "pandas",
+    "category_slug": "processing-transformation/processing-libraries",
+    "secondary_category_slugs": [],
+    "description": "The lingua franca of tabular data manipulation in Python — every data practitioner reads it, every tool interoperates with it. Pick it for exploratory work and small-to-medium single-machine datasets; it is memory-hungry and single-threaded, so heavy pipelines increasingly reach for Polars or DuckDB instead.",
+    "homepage_url": "https://pandas.pydata.org",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "python",
+      "dataframes",
+      "pydata"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "pentaho",
+    "name": "Pentaho",
+    "category_slug": "processing-transformation/visual-etl",
+    "secondary_category_slugs": [],
+    "description": "Hitachi Vantara's BI and data-integration suite whose ETL tool (Pentaho Data Integration, née Kettle) was once the go-to open-source visual ETL. Its open-source lineage now lives on in Apache Hop, and the commercial product mostly persists in existing installations — a migration source, not a modern pick.",
+    "homepage_url": "https://www.pentaho.com",
+    "aliases": [
+      "Pentaho Data Integration",
+      "PDI",
+      "Kettle"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Server URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "etl",
+      "visual",
+      "bi",
+      "kettle"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "license",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "polars",
+    "name": "Polars",
+    "category_slug": "processing-transformation/processing-libraries",
+    "secondary_category_slugs": [],
+    "description": "Rust-powered DataFrame library with a lazy, expression-based API that is dramatically faster and more memory-efficient than pandas on a single machine. Pick it for new Python pipelines where performance matters and data fits on one (possibly large) box; its API is stricter than pandas, which is mostly a feature.",
+    "homepage_url": "https://pola.rs",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "rust",
+      "python",
+      "dataframes",
+      "performance"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "presto",
+    "name": "Presto",
+    "category_slug": "processing-transformation/compute-engines",
+    "secondary_category_slugs": [],
+    "description": "The original Facebook-born distributed SQL query engine for interactive analytics over federated sources, still maintained under the Linux Foundation (PrestoDB). Most of the community momentum moved to its fork Trino, so choose Presto mainly when you're tied to Meta-lineage deployments or Athena-era tooling.",
+    "homepage_url": "https://prestodb.io",
+    "aliases": [
+      "PrestoDB"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "kerberos",
+        "name": "Kerberos",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "principal",
+            "label": "Principal",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "keytab",
+            "label": "Keytab",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "sql",
+      "federated-query",
+      "mpp"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "pyarrow",
+    "name": "PyArrow",
+    "category_slug": "processing-transformation/processing-libraries",
+    "secondary_category_slugs": [],
+    "description": "Python bindings for Apache Arrow: the columnar in-memory format plus fast Parquet/CSV IO, dataset scanning, and zero-copy interchange between engines. Pick it when you need efficient columnar IO or interoperability glue between pandas, Polars, DuckDB, and warehouses — it is the plumbing of the modern Python data stack.",
+    "homepage_url": "https://arrow.apache.org",
+    "aliases": [
+      "Apache Arrow (Python)"
+    ],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "arrow",
+      "columnar",
+      "parquet",
+      "python"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "ray",
+    "name": "Ray",
+    "category_slug": "processing-transformation/compute-engines",
+    "secondary_category_slugs": [],
+    "description": "General-purpose distributed Python framework centered on tasks and actors, with a strong ecosystem for ML workloads (Ray Train, Tune, Serve, Data). Pick it for scaling Python compute that is more ML/heterogeneous than tabular ETL; for classic SQL-shaped transformation, Spark or a warehouse is usually a better fit.",
+    "homepage_url": "https://www.ray.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "python",
+      "distributed",
+      "ml",
+      "actors"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "sqlmesh",
+    "name": "SQLMesh",
+    "category_slug": "processing-transformation/sql-frameworks",
+    "secondary_category_slugs": [],
+    "description": "dbt's most credible challenger, built on SQLGlot: it parses your SQL to understand column-level lineage, detects breaking vs. non-breaking changes, and offers virtual data environments and blue-green deploys out of the box. Pick it when dbt's rebuild-the-world model and state handling start to hurt at scale, or greenfield if you value correctness-by-construction; it can even run existing dbt projects.",
+    "homepage_url": "https://sqlmesh.com",
+    "aliases": [
+      "Tobiko SQLMesh"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud",
+      "saas"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "sql",
+      "transformation",
+      "lineage",
+      "analytics-engineering"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "ssis",
+    "name": "SSIS",
+    "category_slug": "processing-transformation/visual-etl",
+    "secondary_category_slugs": [],
+    "description": "SQL Server Integration Services: Microsoft's classic on-prem visual ETL, ubiquitous in SQL Server shops for two decades. It still runs enormous amounts of enterprise plumbing (and can be lifted into Azure via ADF's SSIS runtime), but for new work Microsoft itself points you at Data Factory and Fabric — treat SSIS as migration inventory.",
+    "homepage_url": "https://learn.microsoft.com/en-us/sql/integration-services/sql-server-integration-services",
+    "aliases": [
+      "SQL Server Integration Services"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password (SQL Server)",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "microsoft",
+      "etl",
+      "visual",
+      "sql-server"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "license",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "talend",
+    "name": "Talend",
+    "category_slug": "processing-transformation/visual-etl",
+    "secondary_category_slugs": [],
+    "description": "Long-running visual data-integration suite (now part of Qlik) with broad connectivity and embedded data-quality features; its free Open Studio edition was retired in 2024, making it a fully commercial product. Pick it where it's already entrenched or where a Qlik-aligned enterprise wants supported drag-and-drop ETL; momentum has shifted to cloud-native alternatives.",
+    "homepage_url": "https://www.talend.com",
+    "aliases": [
+      "Talend Data Integration",
+      "Talend Open Studio",
+      "Qlik Talend"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Personal access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Region API URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "token",
+            "label": "Personal access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "etl",
+      "visual",
+      "enterprise",
+      "data-integration"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "license",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "trino",
+    "name": "Trino",
+    "category_slug": "processing-transformation/compute-engines",
+    "secondary_category_slugs": [],
+    "description": "Distributed MPP SQL engine for interactive, federated queries over data lakes and dozens of connectors, born as the community fork of Presto. Pick it for fast ad-hoc SQL on Iceberg/Parquet in object storage or for querying across heterogeneous sources without moving data; it is a query engine, not a storage system.",
+    "homepage_url": "https://trino.io",
+    "aliases": [
+      "PrestoSQL"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "port",
+            "label": "Port",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "kerberos",
+        "name": "Kerberos",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "principal",
+            "label": "Principal",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "keytab",
+            "label": "Keytab",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "mtls",
+        "name": "Mutual TLS (client certificate)",
+        "fields": [
+          {
+            "key": "host",
+            "label": "Host",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_cert",
+            "label": "Client certificate",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_key",
+            "label": "Client key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "ca_cert",
+            "label": "CA certificate",
+            "secret": false,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "sql",
+      "federated-query",
+      "data-lake",
+      "mpp"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "vaex",
+    "name": "Vaex",
+    "category_slug": "processing-transformation/processing-libraries",
+    "secondary_category_slugs": [],
+    "description": "Out-of-core DataFrame library that pioneered lazy, memory-mapped processing of billion-row datasets on a single machine. Development has largely stalled and its niche is now covered by Polars and DuckDB, so treat it as something to migrate away from rather than adopt.",
+    "homepage_url": "https://vaex.io",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "legacy",
+    "tags": [
+      "python",
+      "out-of-core",
+      "dataframes"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  }
+]

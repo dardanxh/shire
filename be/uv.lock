@@ -496,6 +496,20 @@ wheels = [
 ]
 
 [[package]]
+name = "fastapi-pagination"
+version = "0.15.15"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "pydantic" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f8/79/826b79dd718b0d9a91f21c3cfed365e5ecf44bc31419615c4cebeebb9ada/fastapi_pagination-0.15.15.tar.gz", hash = "sha256:d6e9e4bc4d6e20709dcabc11b16056cd5cd184c995ee214b0190f6b81426fa0c", size = 614873, upload-time = "2026-06-16T17:25:44.055Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c5/02/2e794ea498515afdadf2891f89aaed404de3ed619dd9cbf1ca637f17df19/fastapi_pagination-0.15.15-py3-none-any.whl", hash = "sha256:dc828d7cd15614c650c284bd2c3a98a8a2d9ce340508be3970dc8986908a02aa", size = 65864, upload-time = "2026-06-16T17:25:42.734Z" },
+]
+
+[[package]]
 name = "fsspec"
 version = "2026.6.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1856,6 +1870,7 @@ dependencies = [
     { name = "bandit" },
     { name = "cryptography" },
     { name = "fastapi" },
+    { name = "fastapi-pagination" },
     { name = "gitpython" },
     { name = "httpx" },
     { name = "lizard" },
@@ -1885,6 +1900,7 @@ requires-dist = [
     { name = "bandit", specifier = ">=1.9.4" },
     { name = "cryptography", specifier = ">=44.0" },
     { name = "fastapi", specifier = ">=0.115" },
+    { name = "fastapi-pagination", specifier = ">=0.15.12" },
     { name = "gitpython", specifier = ">=3.1.43" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "lizard", specifier = ">=1.23.0" },

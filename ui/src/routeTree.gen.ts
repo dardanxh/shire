@@ -10,41 +10,89 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ToolsRouteImport } from './routes/tools'
+import { Route as TechnologiesRouteImport } from './routes/technologies'
+import { Route as SizingRouteImport } from './routes/sizing'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SecurityRouteImport } from './routes/security'
 import { Route as RoadmapsRouteImport } from './routes/roadmaps'
 import { Route as RepositoriesRouteImport } from './routes/repositories'
+import { Route as QualitiesRouteImport } from './routes/qualities'
 import { Route as PrinciplesRouteImport } from './routes/principles'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as MergeReviewsRouteImport } from './routes/merge-reviews'
 import { Route as MembersRouteImport } from './routes/members'
 import { Route as JobsRouteImport } from './routes/jobs'
 import { Route as HobitsRouteImport } from './routes/hobits'
+import { Route as DataRouteImport } from './routes/data'
 import { Route as CouncilRouteImport } from './routes/council'
 import { Route as ConnectorsRouteImport } from './routes/connectors'
+import { Route as ArchitecturesRouteImport } from './routes/architectures'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TechnologiesIndexRouteImport } from './routes/technologies/index'
+import { Route as SettingsIndexRouteImport } from './routes/settings/index'
+import { Route as SecurityIndexRouteImport } from './routes/security/index'
 import { Route as RoadmapsIndexRouteImport } from './routes/roadmaps.index'
 import { Route as RepositoriesIndexRouteImport } from './routes/repositories.index'
+import { Route as QualitiesIndexRouteImport } from './routes/qualities/index'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
 import { Route as HobitsIndexRouteImport } from './routes/hobits.index'
+import { Route as DataIndexRouteImport } from './routes/data/index'
 import { Route as CouncilIndexRouteImport } from './routes/council.index'
+import { Route as ArchitecturesIndexRouteImport } from './routes/architectures/index'
+import { Route as TechnologiesNewRouteImport } from './routes/technologies/new'
+import { Route as TechnologiesCompareRouteImport } from './routes/technologies/compare'
+import { Route as SettingsArchetypesRouteImport } from './routes/settings/archetypes'
 import { Route as RoadmapsNewRouteImport } from './routes/roadmaps.new'
 import { Route as RoadmapsIdRouteImport } from './routes/roadmaps.$id'
 import { Route as RepositoriesIdRouteImport } from './routes/repositories.$id'
+import { Route as QualitiesIdRouteImport } from './routes/qualities/$id'
 import { Route as MergeReviewsIdRouteImport } from './routes/merge-reviews.$id'
 import { Route as JobsIdRouteImport } from './routes/jobs.$id'
 import { Route as HobitsSlugRouteImport } from './routes/hobits.$slug'
+import { Route as DataNewRouteImport } from './routes/data/new'
+import { Route as DataCompareRouteImport } from './routes/data/compare'
 import { Route as CouncilNewRouteImport } from './routes/council.new'
 import { Route as CouncilIdRouteImport } from './routes/council.$id'
+import { Route as ArchitecturesNewRouteImport } from './routes/architectures/new'
+import { Route as ArchitecturesCompareRouteImport } from './routes/architectures/compare'
+import { Route as ArchitecturesAdvisorRouteImport } from './routes/architectures/advisor'
+import { Route as TechnologiesIdIndexRouteImport } from './routes/technologies/$id/index'
+import { Route as SettingsArchetypesIndexRouteImport } from './routes/settings/archetypes/index'
+import { Route as DataIdIndexRouteImport } from './routes/data/$id/index'
+import { Route as ArchitecturesIdIndexRouteImport } from './routes/architectures/$id/index'
+import { Route as TechnologiesIdEditRouteImport } from './routes/technologies/$id/edit'
+import { Route as SettingsArchetypesNewRouteImport } from './routes/settings/archetypes/new'
+import { Route as SecurityRegulationsIdRouteImport } from './routes/security/regulations/$id'
+import { Route as SecurityPracticesIdRouteImport } from './routes/security/practices/$id'
 import { Route as DiagramRepoIdKindRouteImport } from './routes/diagram.$repoId.$kind'
+import { Route as DataIdEditRouteImport } from './routes/data/$id/edit'
+import { Route as ArchitecturesIdEditRouteImport } from './routes/architectures/$id/edit'
+import { Route as ArchitecturesIdDiagramRouteImport } from './routes/architectures/$id/diagram'
+import { Route as SettingsArchetypesIdEditRouteImport } from './routes/settings/archetypes/$id/edit'
 
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
   path: '/tools',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TechnologiesRoute = TechnologiesRouteImport.update({
+  id: '/technologies',
+  path: '/technologies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SizingRoute = SizingRouteImport.update({
+  id: '/sizing',
+  path: '/sizing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityRoute = SecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RoadmapsRoute = RoadmapsRouteImport.update({
@@ -55,6 +103,11 @@ const RoadmapsRoute = RoadmapsRouteImport.update({
 const RepositoriesRoute = RepositoriesRouteImport.update({
   id: '/repositories',
   path: '/repositories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QualitiesRoute = QualitiesRouteImport.update({
+  id: '/qualities',
+  path: '/qualities',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrinciplesRoute = PrinciplesRouteImport.update({
@@ -87,6 +140,11 @@ const HobitsRoute = HobitsRouteImport.update({
   path: '/hobits',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DataRoute = DataRouteImport.update({
+  id: '/data',
+  path: '/data',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CouncilRoute = CouncilRouteImport.update({
   id: '/council',
   path: '/council',
@@ -97,10 +155,30 @@ const ConnectorsRoute = ConnectorsRouteImport.update({
   path: '/connectors',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArchitecturesRoute = ArchitecturesRouteImport.update({
+  id: '/architectures',
+  path: '/architectures',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const TechnologiesIndexRoute = TechnologiesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TechnologiesRoute,
+} as any)
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SecurityIndexRoute = SecurityIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SecurityRoute,
 } as any)
 const RoadmapsIndexRoute = RoadmapsIndexRouteImport.update({
   id: '/',
@@ -112,6 +190,11 @@ const RepositoriesIndexRoute = RepositoriesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => RepositoriesRoute,
 } as any)
+const QualitiesIndexRoute = QualitiesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => QualitiesRoute,
+} as any)
 const JobsIndexRoute = JobsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -122,10 +205,35 @@ const HobitsIndexRoute = HobitsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => HobitsRoute,
 } as any)
+const DataIndexRoute = DataIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DataRoute,
+} as any)
 const CouncilIndexRoute = CouncilIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => CouncilRoute,
+} as any)
+const ArchitecturesIndexRoute = ArchitecturesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ArchitecturesRoute,
+} as any)
+const TechnologiesNewRoute = TechnologiesNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => TechnologiesRoute,
+} as any)
+const TechnologiesCompareRoute = TechnologiesCompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => TechnologiesRoute,
+} as any)
+const SettingsArchetypesRoute = SettingsArchetypesRouteImport.update({
+  id: '/archetypes',
+  path: '/archetypes',
+  getParentRoute: () => SettingsRoute,
 } as any)
 const RoadmapsNewRoute = RoadmapsNewRouteImport.update({
   id: '/new',
@@ -142,6 +250,11 @@ const RepositoriesIdRoute = RepositoriesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => RepositoriesRoute,
 } as any)
+const QualitiesIdRoute = QualitiesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => QualitiesRoute,
+} as any)
 const MergeReviewsIdRoute = MergeReviewsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -157,6 +270,16 @@ const HobitsSlugRoute = HobitsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => HobitsRoute,
 } as any)
+const DataNewRoute = DataNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => DataRoute,
+} as any)
+const DataCompareRoute = DataCompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => DataRoute,
+} as any)
 const CouncilNewRoute = CouncilNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -167,40 +290,149 @@ const CouncilIdRoute = CouncilIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => CouncilRoute,
 } as any)
+const ArchitecturesNewRoute = ArchitecturesNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => ArchitecturesRoute,
+} as any)
+const ArchitecturesCompareRoute = ArchitecturesCompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => ArchitecturesRoute,
+} as any)
+const ArchitecturesAdvisorRoute = ArchitecturesAdvisorRouteImport.update({
+  id: '/advisor',
+  path: '/advisor',
+  getParentRoute: () => ArchitecturesRoute,
+} as any)
+const TechnologiesIdIndexRoute = TechnologiesIdIndexRouteImport.update({
+  id: '/$id/',
+  path: '/$id/',
+  getParentRoute: () => TechnologiesRoute,
+} as any)
+const SettingsArchetypesIndexRoute = SettingsArchetypesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SettingsArchetypesRoute,
+} as any)
+const DataIdIndexRoute = DataIdIndexRouteImport.update({
+  id: '/$id/',
+  path: '/$id/',
+  getParentRoute: () => DataRoute,
+} as any)
+const ArchitecturesIdIndexRoute = ArchitecturesIdIndexRouteImport.update({
+  id: '/$id/',
+  path: '/$id/',
+  getParentRoute: () => ArchitecturesRoute,
+} as any)
+const TechnologiesIdEditRoute = TechnologiesIdEditRouteImport.update({
+  id: '/$id/edit',
+  path: '/$id/edit',
+  getParentRoute: () => TechnologiesRoute,
+} as any)
+const SettingsArchetypesNewRoute = SettingsArchetypesNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => SettingsArchetypesRoute,
+} as any)
+const SecurityRegulationsIdRoute = SecurityRegulationsIdRouteImport.update({
+  id: '/regulations/$id',
+  path: '/regulations/$id',
+  getParentRoute: () => SecurityRoute,
+} as any)
+const SecurityPracticesIdRoute = SecurityPracticesIdRouteImport.update({
+  id: '/practices/$id',
+  path: '/practices/$id',
+  getParentRoute: () => SecurityRoute,
+} as any)
 const DiagramRepoIdKindRoute = DiagramRepoIdKindRouteImport.update({
   id: '/diagram/$repoId/$kind',
   path: '/diagram/$repoId/$kind',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DataIdEditRoute = DataIdEditRouteImport.update({
+  id: '/$id/edit',
+  path: '/$id/edit',
+  getParentRoute: () => DataRoute,
+} as any)
+const ArchitecturesIdEditRoute = ArchitecturesIdEditRouteImport.update({
+  id: '/$id/edit',
+  path: '/$id/edit',
+  getParentRoute: () => ArchitecturesRoute,
+} as any)
+const ArchitecturesIdDiagramRoute = ArchitecturesIdDiagramRouteImport.update({
+  id: '/$id/diagram',
+  path: '/$id/diagram',
+  getParentRoute: () => ArchitecturesRoute,
+} as any)
+const SettingsArchetypesIdEditRoute =
+  SettingsArchetypesIdEditRouteImport.update({
+    id: '/$id/edit',
+    path: '/$id/edit',
+    getParentRoute: () => SettingsArchetypesRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/architectures': typeof ArchitecturesRouteWithChildren
   '/connectors': typeof ConnectorsRoute
   '/council': typeof CouncilRouteWithChildren
+  '/data': typeof DataRouteWithChildren
   '/hobits': typeof HobitsRouteWithChildren
   '/jobs': typeof JobsRouteWithChildren
   '/members': typeof MembersRoute
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
+  '/qualities': typeof QualitiesRouteWithChildren
   '/repositories': typeof RepositoriesRouteWithChildren
   '/roadmaps': typeof RoadmapsRouteWithChildren
-  '/settings': typeof SettingsRoute
+  '/security': typeof SecurityRouteWithChildren
+  '/settings': typeof SettingsRouteWithChildren
+  '/sizing': typeof SizingRoute
+  '/technologies': typeof TechnologiesRouteWithChildren
   '/tools': typeof ToolsRoute
+  '/architectures/advisor': typeof ArchitecturesAdvisorRoute
+  '/architectures/compare': typeof ArchitecturesCompareRoute
+  '/architectures/new': typeof ArchitecturesNewRoute
   '/council/$id': typeof CouncilIdRoute
   '/council/new': typeof CouncilNewRoute
+  '/data/compare': typeof DataCompareRoute
+  '/data/new': typeof DataNewRoute
   '/hobits/$slug': typeof HobitsSlugRoute
   '/jobs/$id': typeof JobsIdRoute
   '/merge-reviews/$id': typeof MergeReviewsIdRoute
+  '/qualities/$id': typeof QualitiesIdRoute
   '/repositories/$id': typeof RepositoriesIdRoute
   '/roadmaps/$id': typeof RoadmapsIdRoute
   '/roadmaps/new': typeof RoadmapsNewRoute
+  '/settings/archetypes': typeof SettingsArchetypesRouteWithChildren
+  '/technologies/compare': typeof TechnologiesCompareRoute
+  '/technologies/new': typeof TechnologiesNewRoute
+  '/architectures/': typeof ArchitecturesIndexRoute
   '/council/': typeof CouncilIndexRoute
+  '/data/': typeof DataIndexRoute
   '/hobits/': typeof HobitsIndexRoute
   '/jobs/': typeof JobsIndexRoute
+  '/qualities/': typeof QualitiesIndexRoute
   '/repositories/': typeof RepositoriesIndexRoute
   '/roadmaps/': typeof RoadmapsIndexRoute
+  '/security/': typeof SecurityIndexRoute
+  '/settings/': typeof SettingsIndexRoute
+  '/technologies/': typeof TechnologiesIndexRoute
+  '/architectures/$id/diagram': typeof ArchitecturesIdDiagramRoute
+  '/architectures/$id/edit': typeof ArchitecturesIdEditRoute
+  '/data/$id/edit': typeof DataIdEditRoute
   '/diagram/$repoId/$kind': typeof DiagramRepoIdKindRoute
+  '/security/practices/$id': typeof SecurityPracticesIdRoute
+  '/security/regulations/$id': typeof SecurityRegulationsIdRoute
+  '/settings/archetypes/new': typeof SettingsArchetypesNewRoute
+  '/technologies/$id/edit': typeof TechnologiesIdEditRoute
+  '/architectures/$id/': typeof ArchitecturesIdIndexRoute
+  '/data/$id/': typeof DataIdIndexRoute
+  '/settings/archetypes/': typeof SettingsArchetypesIndexRoute
+  '/technologies/$id/': typeof TechnologiesIdIndexRoute
+  '/settings/archetypes/$id/edit': typeof SettingsArchetypesIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -209,83 +441,175 @@ export interface FileRoutesByTo {
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
-  '/settings': typeof SettingsRoute
+  '/sizing': typeof SizingRoute
   '/tools': typeof ToolsRoute
+  '/architectures/advisor': typeof ArchitecturesAdvisorRoute
+  '/architectures/compare': typeof ArchitecturesCompareRoute
+  '/architectures/new': typeof ArchitecturesNewRoute
   '/council/$id': typeof CouncilIdRoute
   '/council/new': typeof CouncilNewRoute
+  '/data/compare': typeof DataCompareRoute
+  '/data/new': typeof DataNewRoute
   '/hobits/$slug': typeof HobitsSlugRoute
   '/jobs/$id': typeof JobsIdRoute
   '/merge-reviews/$id': typeof MergeReviewsIdRoute
+  '/qualities/$id': typeof QualitiesIdRoute
   '/repositories/$id': typeof RepositoriesIdRoute
   '/roadmaps/$id': typeof RoadmapsIdRoute
   '/roadmaps/new': typeof RoadmapsNewRoute
+  '/technologies/compare': typeof TechnologiesCompareRoute
+  '/technologies/new': typeof TechnologiesNewRoute
+  '/architectures': typeof ArchitecturesIndexRoute
   '/council': typeof CouncilIndexRoute
+  '/data': typeof DataIndexRoute
   '/hobits': typeof HobitsIndexRoute
   '/jobs': typeof JobsIndexRoute
+  '/qualities': typeof QualitiesIndexRoute
   '/repositories': typeof RepositoriesIndexRoute
   '/roadmaps': typeof RoadmapsIndexRoute
+  '/security': typeof SecurityIndexRoute
+  '/settings': typeof SettingsIndexRoute
+  '/technologies': typeof TechnologiesIndexRoute
+  '/architectures/$id/diagram': typeof ArchitecturesIdDiagramRoute
+  '/architectures/$id/edit': typeof ArchitecturesIdEditRoute
+  '/data/$id/edit': typeof DataIdEditRoute
   '/diagram/$repoId/$kind': typeof DiagramRepoIdKindRoute
+  '/security/practices/$id': typeof SecurityPracticesIdRoute
+  '/security/regulations/$id': typeof SecurityRegulationsIdRoute
+  '/settings/archetypes/new': typeof SettingsArchetypesNewRoute
+  '/technologies/$id/edit': typeof TechnologiesIdEditRoute
+  '/architectures/$id': typeof ArchitecturesIdIndexRoute
+  '/data/$id': typeof DataIdIndexRoute
+  '/settings/archetypes': typeof SettingsArchetypesIndexRoute
+  '/technologies/$id': typeof TechnologiesIdIndexRoute
+  '/settings/archetypes/$id/edit': typeof SettingsArchetypesIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/architectures': typeof ArchitecturesRouteWithChildren
   '/connectors': typeof ConnectorsRoute
   '/council': typeof CouncilRouteWithChildren
+  '/data': typeof DataRouteWithChildren
   '/hobits': typeof HobitsRouteWithChildren
   '/jobs': typeof JobsRouteWithChildren
   '/members': typeof MembersRoute
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
+  '/qualities': typeof QualitiesRouteWithChildren
   '/repositories': typeof RepositoriesRouteWithChildren
   '/roadmaps': typeof RoadmapsRouteWithChildren
-  '/settings': typeof SettingsRoute
+  '/security': typeof SecurityRouteWithChildren
+  '/settings': typeof SettingsRouteWithChildren
+  '/sizing': typeof SizingRoute
+  '/technologies': typeof TechnologiesRouteWithChildren
   '/tools': typeof ToolsRoute
+  '/architectures/advisor': typeof ArchitecturesAdvisorRoute
+  '/architectures/compare': typeof ArchitecturesCompareRoute
+  '/architectures/new': typeof ArchitecturesNewRoute
   '/council/$id': typeof CouncilIdRoute
   '/council/new': typeof CouncilNewRoute
+  '/data/compare': typeof DataCompareRoute
+  '/data/new': typeof DataNewRoute
   '/hobits/$slug': typeof HobitsSlugRoute
   '/jobs/$id': typeof JobsIdRoute
   '/merge-reviews/$id': typeof MergeReviewsIdRoute
+  '/qualities/$id': typeof QualitiesIdRoute
   '/repositories/$id': typeof RepositoriesIdRoute
   '/roadmaps/$id': typeof RoadmapsIdRoute
   '/roadmaps/new': typeof RoadmapsNewRoute
+  '/settings/archetypes': typeof SettingsArchetypesRouteWithChildren
+  '/technologies/compare': typeof TechnologiesCompareRoute
+  '/technologies/new': typeof TechnologiesNewRoute
+  '/architectures/': typeof ArchitecturesIndexRoute
   '/council/': typeof CouncilIndexRoute
+  '/data/': typeof DataIndexRoute
   '/hobits/': typeof HobitsIndexRoute
   '/jobs/': typeof JobsIndexRoute
+  '/qualities/': typeof QualitiesIndexRoute
   '/repositories/': typeof RepositoriesIndexRoute
   '/roadmaps/': typeof RoadmapsIndexRoute
+  '/security/': typeof SecurityIndexRoute
+  '/settings/': typeof SettingsIndexRoute
+  '/technologies/': typeof TechnologiesIndexRoute
+  '/architectures/$id/diagram': typeof ArchitecturesIdDiagramRoute
+  '/architectures/$id/edit': typeof ArchitecturesIdEditRoute
+  '/data/$id/edit': typeof DataIdEditRoute
   '/diagram/$repoId/$kind': typeof DiagramRepoIdKindRoute
+  '/security/practices/$id': typeof SecurityPracticesIdRoute
+  '/security/regulations/$id': typeof SecurityRegulationsIdRoute
+  '/settings/archetypes/new': typeof SettingsArchetypesNewRoute
+  '/technologies/$id/edit': typeof TechnologiesIdEditRoute
+  '/architectures/$id/': typeof ArchitecturesIdIndexRoute
+  '/data/$id/': typeof DataIdIndexRoute
+  '/settings/archetypes/': typeof SettingsArchetypesIndexRoute
+  '/technologies/$id/': typeof TechnologiesIdIndexRoute
+  '/settings/archetypes/$id/edit': typeof SettingsArchetypesIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/architectures'
     | '/connectors'
     | '/council'
+    | '/data'
     | '/hobits'
     | '/jobs'
     | '/members'
     | '/merge-reviews'
     | '/news'
     | '/principles'
+    | '/qualities'
     | '/repositories'
     | '/roadmaps'
+    | '/security'
     | '/settings'
+    | '/sizing'
+    | '/technologies'
     | '/tools'
+    | '/architectures/advisor'
+    | '/architectures/compare'
+    | '/architectures/new'
     | '/council/$id'
     | '/council/new'
+    | '/data/compare'
+    | '/data/new'
     | '/hobits/$slug'
     | '/jobs/$id'
     | '/merge-reviews/$id'
+    | '/qualities/$id'
     | '/repositories/$id'
     | '/roadmaps/$id'
     | '/roadmaps/new'
+    | '/settings/archetypes'
+    | '/technologies/compare'
+    | '/technologies/new'
+    | '/architectures/'
     | '/council/'
+    | '/data/'
     | '/hobits/'
     | '/jobs/'
+    | '/qualities/'
     | '/repositories/'
     | '/roadmaps/'
+    | '/security/'
+    | '/settings/'
+    | '/technologies/'
+    | '/architectures/$id/diagram'
+    | '/architectures/$id/edit'
+    | '/data/$id/edit'
     | '/diagram/$repoId/$kind'
+    | '/security/practices/$id'
+    | '/security/regulations/$id'
+    | '/settings/archetypes/new'
+    | '/technologies/$id/edit'
+    | '/architectures/$id/'
+    | '/data/$id/'
+    | '/settings/archetypes/'
+    | '/technologies/$id/'
+    | '/settings/archetypes/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -294,66 +618,131 @@ export interface FileRouteTypes {
     | '/merge-reviews'
     | '/news'
     | '/principles'
-    | '/settings'
+    | '/sizing'
     | '/tools'
+    | '/architectures/advisor'
+    | '/architectures/compare'
+    | '/architectures/new'
     | '/council/$id'
     | '/council/new'
+    | '/data/compare'
+    | '/data/new'
     | '/hobits/$slug'
     | '/jobs/$id'
     | '/merge-reviews/$id'
+    | '/qualities/$id'
     | '/repositories/$id'
     | '/roadmaps/$id'
     | '/roadmaps/new'
+    | '/technologies/compare'
+    | '/technologies/new'
+    | '/architectures'
     | '/council'
+    | '/data'
     | '/hobits'
     | '/jobs'
+    | '/qualities'
     | '/repositories'
     | '/roadmaps'
+    | '/security'
+    | '/settings'
+    | '/technologies'
+    | '/architectures/$id/diagram'
+    | '/architectures/$id/edit'
+    | '/data/$id/edit'
     | '/diagram/$repoId/$kind'
+    | '/security/practices/$id'
+    | '/security/regulations/$id'
+    | '/settings/archetypes/new'
+    | '/technologies/$id/edit'
+    | '/architectures/$id'
+    | '/data/$id'
+    | '/settings/archetypes'
+    | '/technologies/$id'
+    | '/settings/archetypes/$id/edit'
   id:
     | '__root__'
     | '/'
+    | '/architectures'
     | '/connectors'
     | '/council'
+    | '/data'
     | '/hobits'
     | '/jobs'
     | '/members'
     | '/merge-reviews'
     | '/news'
     | '/principles'
+    | '/qualities'
     | '/repositories'
     | '/roadmaps'
+    | '/security'
     | '/settings'
+    | '/sizing'
+    | '/technologies'
     | '/tools'
+    | '/architectures/advisor'
+    | '/architectures/compare'
+    | '/architectures/new'
     | '/council/$id'
     | '/council/new'
+    | '/data/compare'
+    | '/data/new'
     | '/hobits/$slug'
     | '/jobs/$id'
     | '/merge-reviews/$id'
+    | '/qualities/$id'
     | '/repositories/$id'
     | '/roadmaps/$id'
     | '/roadmaps/new'
+    | '/settings/archetypes'
+    | '/technologies/compare'
+    | '/technologies/new'
+    | '/architectures/'
     | '/council/'
+    | '/data/'
     | '/hobits/'
     | '/jobs/'
+    | '/qualities/'
     | '/repositories/'
     | '/roadmaps/'
+    | '/security/'
+    | '/settings/'
+    | '/technologies/'
+    | '/architectures/$id/diagram'
+    | '/architectures/$id/edit'
+    | '/data/$id/edit'
     | '/diagram/$repoId/$kind'
+    | '/security/practices/$id'
+    | '/security/regulations/$id'
+    | '/settings/archetypes/new'
+    | '/technologies/$id/edit'
+    | '/architectures/$id/'
+    | '/data/$id/'
+    | '/settings/archetypes/'
+    | '/technologies/$id/'
+    | '/settings/archetypes/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ArchitecturesRoute: typeof ArchitecturesRouteWithChildren
   ConnectorsRoute: typeof ConnectorsRoute
   CouncilRoute: typeof CouncilRouteWithChildren
+  DataRoute: typeof DataRouteWithChildren
   HobitsRoute: typeof HobitsRouteWithChildren
   JobsRoute: typeof JobsRouteWithChildren
   MembersRoute: typeof MembersRoute
   MergeReviewsRoute: typeof MergeReviewsRouteWithChildren
   NewsRoute: typeof NewsRoute
   PrinciplesRoute: typeof PrinciplesRoute
+  QualitiesRoute: typeof QualitiesRouteWithChildren
   RepositoriesRoute: typeof RepositoriesRouteWithChildren
   RoadmapsRoute: typeof RoadmapsRouteWithChildren
-  SettingsRoute: typeof SettingsRoute
+  SecurityRoute: typeof SecurityRouteWithChildren
+  SettingsRoute: typeof SettingsRouteWithChildren
+  SizingRoute: typeof SizingRoute
+  TechnologiesRoute: typeof TechnologiesRouteWithChildren
   ToolsRoute: typeof ToolsRoute
   DiagramRepoIdKindRoute: typeof DiagramRepoIdKindRoute
 }
@@ -367,11 +756,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/technologies': {
+      id: '/technologies'
+      path: '/technologies'
+      fullPath: '/technologies'
+      preLoaderRoute: typeof TechnologiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sizing': {
+      id: '/sizing'
+      path: '/sizing'
+      fullPath: '/sizing'
+      preLoaderRoute: typeof SizingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security': {
+      id: '/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof SecurityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/roadmaps': {
@@ -386,6 +796,13 @@ declare module '@tanstack/react-router' {
       path: '/repositories'
       fullPath: '/repositories'
       preLoaderRoute: typeof RepositoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/qualities': {
+      id: '/qualities'
+      path: '/qualities'
+      fullPath: '/qualities'
+      preLoaderRoute: typeof QualitiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/principles': {
@@ -430,6 +847,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HobitsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/data': {
+      id: '/data'
+      path: '/data'
+      fullPath: '/data'
+      preLoaderRoute: typeof DataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/council': {
       id: '/council'
       path: '/council'
@@ -444,12 +868,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConnectorsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/architectures': {
+      id: '/architectures'
+      path: '/architectures'
+      fullPath: '/architectures'
+      preLoaderRoute: typeof ArchitecturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/technologies/': {
+      id: '/technologies/'
+      path: '/'
+      fullPath: '/technologies/'
+      preLoaderRoute: typeof TechnologiesIndexRouteImport
+      parentRoute: typeof TechnologiesRoute
+    }
+    '/settings/': {
+      id: '/settings/'
+      path: '/'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof SettingsIndexRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/security/': {
+      id: '/security/'
+      path: '/'
+      fullPath: '/security/'
+      preLoaderRoute: typeof SecurityIndexRouteImport
+      parentRoute: typeof SecurityRoute
     }
     '/roadmaps/': {
       id: '/roadmaps/'
@@ -465,6 +917,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RepositoriesIndexRouteImport
       parentRoute: typeof RepositoriesRoute
     }
+    '/qualities/': {
+      id: '/qualities/'
+      path: '/'
+      fullPath: '/qualities/'
+      preLoaderRoute: typeof QualitiesIndexRouteImport
+      parentRoute: typeof QualitiesRoute
+    }
     '/jobs/': {
       id: '/jobs/'
       path: '/'
@@ -479,12 +938,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HobitsIndexRouteImport
       parentRoute: typeof HobitsRoute
     }
+    '/data/': {
+      id: '/data/'
+      path: '/'
+      fullPath: '/data/'
+      preLoaderRoute: typeof DataIndexRouteImport
+      parentRoute: typeof DataRoute
+    }
     '/council/': {
       id: '/council/'
       path: '/'
       fullPath: '/council/'
       preLoaderRoute: typeof CouncilIndexRouteImport
       parentRoute: typeof CouncilRoute
+    }
+    '/architectures/': {
+      id: '/architectures/'
+      path: '/'
+      fullPath: '/architectures/'
+      preLoaderRoute: typeof ArchitecturesIndexRouteImport
+      parentRoute: typeof ArchitecturesRoute
+    }
+    '/technologies/new': {
+      id: '/technologies/new'
+      path: '/new'
+      fullPath: '/technologies/new'
+      preLoaderRoute: typeof TechnologiesNewRouteImport
+      parentRoute: typeof TechnologiesRoute
+    }
+    '/technologies/compare': {
+      id: '/technologies/compare'
+      path: '/compare'
+      fullPath: '/technologies/compare'
+      preLoaderRoute: typeof TechnologiesCompareRouteImport
+      parentRoute: typeof TechnologiesRoute
+    }
+    '/settings/archetypes': {
+      id: '/settings/archetypes'
+      path: '/archetypes'
+      fullPath: '/settings/archetypes'
+      preLoaderRoute: typeof SettingsArchetypesRouteImport
+      parentRoute: typeof SettingsRoute
     }
     '/roadmaps/new': {
       id: '/roadmaps/new'
@@ -507,6 +1001,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RepositoriesIdRouteImport
       parentRoute: typeof RepositoriesRoute
     }
+    '/qualities/$id': {
+      id: '/qualities/$id'
+      path: '/$id'
+      fullPath: '/qualities/$id'
+      preLoaderRoute: typeof QualitiesIdRouteImport
+      parentRoute: typeof QualitiesRoute
+    }
     '/merge-reviews/$id': {
       id: '/merge-reviews/$id'
       path: '/$id'
@@ -528,6 +1029,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HobitsSlugRouteImport
       parentRoute: typeof HobitsRoute
     }
+    '/data/new': {
+      id: '/data/new'
+      path: '/new'
+      fullPath: '/data/new'
+      preLoaderRoute: typeof DataNewRouteImport
+      parentRoute: typeof DataRoute
+    }
+    '/data/compare': {
+      id: '/data/compare'
+      path: '/compare'
+      fullPath: '/data/compare'
+      preLoaderRoute: typeof DataCompareRouteImport
+      parentRoute: typeof DataRoute
+    }
     '/council/new': {
       id: '/council/new'
       path: '/new'
@@ -542,6 +1057,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CouncilIdRouteImport
       parentRoute: typeof CouncilRoute
     }
+    '/architectures/new': {
+      id: '/architectures/new'
+      path: '/new'
+      fullPath: '/architectures/new'
+      preLoaderRoute: typeof ArchitecturesNewRouteImport
+      parentRoute: typeof ArchitecturesRoute
+    }
+    '/architectures/compare': {
+      id: '/architectures/compare'
+      path: '/compare'
+      fullPath: '/architectures/compare'
+      preLoaderRoute: typeof ArchitecturesCompareRouteImport
+      parentRoute: typeof ArchitecturesRoute
+    }
+    '/architectures/advisor': {
+      id: '/architectures/advisor'
+      path: '/advisor'
+      fullPath: '/architectures/advisor'
+      preLoaderRoute: typeof ArchitecturesAdvisorRouteImport
+      parentRoute: typeof ArchitecturesRoute
+    }
+    '/technologies/$id/': {
+      id: '/technologies/$id/'
+      path: '/$id'
+      fullPath: '/technologies/$id/'
+      preLoaderRoute: typeof TechnologiesIdIndexRouteImport
+      parentRoute: typeof TechnologiesRoute
+    }
+    '/settings/archetypes/': {
+      id: '/settings/archetypes/'
+      path: '/'
+      fullPath: '/settings/archetypes/'
+      preLoaderRoute: typeof SettingsArchetypesIndexRouteImport
+      parentRoute: typeof SettingsArchetypesRoute
+    }
+    '/data/$id/': {
+      id: '/data/$id/'
+      path: '/$id'
+      fullPath: '/data/$id/'
+      preLoaderRoute: typeof DataIdIndexRouteImport
+      parentRoute: typeof DataRoute
+    }
+    '/architectures/$id/': {
+      id: '/architectures/$id/'
+      path: '/$id'
+      fullPath: '/architectures/$id/'
+      preLoaderRoute: typeof ArchitecturesIdIndexRouteImport
+      parentRoute: typeof ArchitecturesRoute
+    }
+    '/technologies/$id/edit': {
+      id: '/technologies/$id/edit'
+      path: '/$id/edit'
+      fullPath: '/technologies/$id/edit'
+      preLoaderRoute: typeof TechnologiesIdEditRouteImport
+      parentRoute: typeof TechnologiesRoute
+    }
+    '/settings/archetypes/new': {
+      id: '/settings/archetypes/new'
+      path: '/new'
+      fullPath: '/settings/archetypes/new'
+      preLoaderRoute: typeof SettingsArchetypesNewRouteImport
+      parentRoute: typeof SettingsArchetypesRoute
+    }
+    '/security/regulations/$id': {
+      id: '/security/regulations/$id'
+      path: '/regulations/$id'
+      fullPath: '/security/regulations/$id'
+      preLoaderRoute: typeof SecurityRegulationsIdRouteImport
+      parentRoute: typeof SecurityRoute
+    }
+    '/security/practices/$id': {
+      id: '/security/practices/$id'
+      path: '/practices/$id'
+      fullPath: '/security/practices/$id'
+      preLoaderRoute: typeof SecurityPracticesIdRouteImport
+      parentRoute: typeof SecurityRoute
+    }
     '/diagram/$repoId/$kind': {
       id: '/diagram/$repoId/$kind'
       path: '/diagram/$repoId/$kind'
@@ -549,8 +1141,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DiagramRepoIdKindRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/data/$id/edit': {
+      id: '/data/$id/edit'
+      path: '/$id/edit'
+      fullPath: '/data/$id/edit'
+      preLoaderRoute: typeof DataIdEditRouteImport
+      parentRoute: typeof DataRoute
+    }
+    '/architectures/$id/edit': {
+      id: '/architectures/$id/edit'
+      path: '/$id/edit'
+      fullPath: '/architectures/$id/edit'
+      preLoaderRoute: typeof ArchitecturesIdEditRouteImport
+      parentRoute: typeof ArchitecturesRoute
+    }
+    '/architectures/$id/diagram': {
+      id: '/architectures/$id/diagram'
+      path: '/$id/diagram'
+      fullPath: '/architectures/$id/diagram'
+      preLoaderRoute: typeof ArchitecturesIdDiagramRouteImport
+      parentRoute: typeof ArchitecturesRoute
+    }
+    '/settings/archetypes/$id/edit': {
+      id: '/settings/archetypes/$id/edit'
+      path: '/$id/edit'
+      fullPath: '/settings/archetypes/$id/edit'
+      preLoaderRoute: typeof SettingsArchetypesIdEditRouteImport
+      parentRoute: typeof SettingsArchetypesRoute
+    }
   }
 }
+
+interface ArchitecturesRouteChildren {
+  ArchitecturesAdvisorRoute: typeof ArchitecturesAdvisorRoute
+  ArchitecturesCompareRoute: typeof ArchitecturesCompareRoute
+  ArchitecturesNewRoute: typeof ArchitecturesNewRoute
+  ArchitecturesIndexRoute: typeof ArchitecturesIndexRoute
+  ArchitecturesIdDiagramRoute: typeof ArchitecturesIdDiagramRoute
+  ArchitecturesIdEditRoute: typeof ArchitecturesIdEditRoute
+  ArchitecturesIdIndexRoute: typeof ArchitecturesIdIndexRoute
+}
+
+const ArchitecturesRouteChildren: ArchitecturesRouteChildren = {
+  ArchitecturesAdvisorRoute: ArchitecturesAdvisorRoute,
+  ArchitecturesCompareRoute: ArchitecturesCompareRoute,
+  ArchitecturesNewRoute: ArchitecturesNewRoute,
+  ArchitecturesIndexRoute: ArchitecturesIndexRoute,
+  ArchitecturesIdDiagramRoute: ArchitecturesIdDiagramRoute,
+  ArchitecturesIdEditRoute: ArchitecturesIdEditRoute,
+  ArchitecturesIdIndexRoute: ArchitecturesIdIndexRoute,
+}
+
+const ArchitecturesRouteWithChildren = ArchitecturesRoute._addFileChildren(
+  ArchitecturesRouteChildren,
+)
 
 interface CouncilRouteChildren {
   CouncilIdRoute: typeof CouncilIdRoute
@@ -566,6 +1210,24 @@ const CouncilRouteChildren: CouncilRouteChildren = {
 
 const CouncilRouteWithChildren =
   CouncilRoute._addFileChildren(CouncilRouteChildren)
+
+interface DataRouteChildren {
+  DataCompareRoute: typeof DataCompareRoute
+  DataNewRoute: typeof DataNewRoute
+  DataIndexRoute: typeof DataIndexRoute
+  DataIdEditRoute: typeof DataIdEditRoute
+  DataIdIndexRoute: typeof DataIdIndexRoute
+}
+
+const DataRouteChildren: DataRouteChildren = {
+  DataCompareRoute: DataCompareRoute,
+  DataNewRoute: DataNewRoute,
+  DataIndexRoute: DataIndexRoute,
+  DataIdEditRoute: DataIdEditRoute,
+  DataIdIndexRoute: DataIdIndexRoute,
+}
+
+const DataRouteWithChildren = DataRoute._addFileChildren(DataRouteChildren)
 
 interface HobitsRouteChildren {
   HobitsSlugRoute: typeof HobitsSlugRoute
@@ -604,6 +1266,20 @@ const MergeReviewsRouteWithChildren = MergeReviewsRoute._addFileChildren(
   MergeReviewsRouteChildren,
 )
 
+interface QualitiesRouteChildren {
+  QualitiesIdRoute: typeof QualitiesIdRoute
+  QualitiesIndexRoute: typeof QualitiesIndexRoute
+}
+
+const QualitiesRouteChildren: QualitiesRouteChildren = {
+  QualitiesIdRoute: QualitiesIdRoute,
+  QualitiesIndexRoute: QualitiesIndexRoute,
+}
+
+const QualitiesRouteWithChildren = QualitiesRoute._addFileChildren(
+  QualitiesRouteChildren,
+)
+
 interface RepositoriesRouteChildren {
   RepositoriesIdRoute: typeof RepositoriesIdRoute
   RepositoriesIndexRoute: typeof RepositoriesIndexRoute
@@ -634,19 +1310,90 @@ const RoadmapsRouteWithChildren = RoadmapsRoute._addFileChildren(
   RoadmapsRouteChildren,
 )
 
+interface SecurityRouteChildren {
+  SecurityIndexRoute: typeof SecurityIndexRoute
+  SecurityPracticesIdRoute: typeof SecurityPracticesIdRoute
+  SecurityRegulationsIdRoute: typeof SecurityRegulationsIdRoute
+}
+
+const SecurityRouteChildren: SecurityRouteChildren = {
+  SecurityIndexRoute: SecurityIndexRoute,
+  SecurityPracticesIdRoute: SecurityPracticesIdRoute,
+  SecurityRegulationsIdRoute: SecurityRegulationsIdRoute,
+}
+
+const SecurityRouteWithChildren = SecurityRoute._addFileChildren(
+  SecurityRouteChildren,
+)
+
+interface SettingsArchetypesRouteChildren {
+  SettingsArchetypesNewRoute: typeof SettingsArchetypesNewRoute
+  SettingsArchetypesIndexRoute: typeof SettingsArchetypesIndexRoute
+  SettingsArchetypesIdEditRoute: typeof SettingsArchetypesIdEditRoute
+}
+
+const SettingsArchetypesRouteChildren: SettingsArchetypesRouteChildren = {
+  SettingsArchetypesNewRoute: SettingsArchetypesNewRoute,
+  SettingsArchetypesIndexRoute: SettingsArchetypesIndexRoute,
+  SettingsArchetypesIdEditRoute: SettingsArchetypesIdEditRoute,
+}
+
+const SettingsArchetypesRouteWithChildren =
+  SettingsArchetypesRoute._addFileChildren(SettingsArchetypesRouteChildren)
+
+interface SettingsRouteChildren {
+  SettingsArchetypesRoute: typeof SettingsArchetypesRouteWithChildren
+  SettingsIndexRoute: typeof SettingsIndexRoute
+}
+
+const SettingsRouteChildren: SettingsRouteChildren = {
+  SettingsArchetypesRoute: SettingsArchetypesRouteWithChildren,
+  SettingsIndexRoute: SettingsIndexRoute,
+}
+
+const SettingsRouteWithChildren = SettingsRoute._addFileChildren(
+  SettingsRouteChildren,
+)
+
+interface TechnologiesRouteChildren {
+  TechnologiesCompareRoute: typeof TechnologiesCompareRoute
+  TechnologiesNewRoute: typeof TechnologiesNewRoute
+  TechnologiesIndexRoute: typeof TechnologiesIndexRoute
+  TechnologiesIdEditRoute: typeof TechnologiesIdEditRoute
+  TechnologiesIdIndexRoute: typeof TechnologiesIdIndexRoute
+}
+
+const TechnologiesRouteChildren: TechnologiesRouteChildren = {
+  TechnologiesCompareRoute: TechnologiesCompareRoute,
+  TechnologiesNewRoute: TechnologiesNewRoute,
+  TechnologiesIndexRoute: TechnologiesIndexRoute,
+  TechnologiesIdEditRoute: TechnologiesIdEditRoute,
+  TechnologiesIdIndexRoute: TechnologiesIdIndexRoute,
+}
+
+const TechnologiesRouteWithChildren = TechnologiesRoute._addFileChildren(
+  TechnologiesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ArchitecturesRoute: ArchitecturesRouteWithChildren,
   ConnectorsRoute: ConnectorsRoute,
   CouncilRoute: CouncilRouteWithChildren,
+  DataRoute: DataRouteWithChildren,
   HobitsRoute: HobitsRouteWithChildren,
   JobsRoute: JobsRouteWithChildren,
   MembersRoute: MembersRoute,
   MergeReviewsRoute: MergeReviewsRouteWithChildren,
   NewsRoute: NewsRoute,
   PrinciplesRoute: PrinciplesRoute,
+  QualitiesRoute: QualitiesRouteWithChildren,
   RepositoriesRoute: RepositoriesRouteWithChildren,
   RoadmapsRoute: RoadmapsRouteWithChildren,
-  SettingsRoute: SettingsRoute,
+  SecurityRoute: SecurityRouteWithChildren,
+  SettingsRoute: SettingsRouteWithChildren,
+  SizingRoute: SizingRoute,
+  TechnologiesRoute: TechnologiesRouteWithChildren,
   ToolsRoute: ToolsRoute,
   DiagramRepoIdKindRoute: DiagramRepoIdKindRoute,
 }

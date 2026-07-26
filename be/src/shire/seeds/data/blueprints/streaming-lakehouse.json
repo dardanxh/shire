@@ -1,0 +1,177 @@
+{
+  "slug": "streaming-lakehouse",
+  "name": "Streaming lakehouse",
+  "use_case": "Continuous commits, minutes-fresh tables",
+  "description": "A streaming lakehouse replaces nightly batch loads with continuous ones: a stream processor consumes the event log and commits micro-batches into open-format tables every minute or two, refining bronze to silver to gold as data flows. Consumers query ordinary lakehouse tables — same SQL, same BI tools — but the answers are minutes old instead of a day old. It unifies the kappa pipeline and the medallion lakehouse into one system: one storage layer, one table format, both streaming freshness and full history for batch reprocessing. The cost is operational: checkpointing, exactly-once commit alignment, and relentless compaction.",
+  "when_to_use": [
+    "Dashboards and downstream systems need minutes-level freshness, but sub-second serving stores would be overkill.",
+    "You already run a lakehouse and a separate streaming pipeline, and maintaining two storage layers with two semantics is the pain.",
+    "History matters: unlike a pure stream, every event lands in queryable tables, so backfills and reprocessing use the same data.",
+    "ML features and BI aggregates should come from the same continuously updated tables."
+  ],
+  "when_not_to_use": [
+    "Daily batch freshness satisfies every consumer — a scheduled medallion lakehouse (3) is dramatically simpler to operate.",
+    "You need sub-second query-to-event latency — that is a real-time OLAP serving problem (8), not a lakehouse one.",
+    "The team has no streaming operations experience; checkpoint recovery and commit tuning are unforgiving on-call material.",
+    "Event volumes are trivial — a micro-batch every five minutes through the ordinary batch path costs far less complexity."
+  ],
+  "use_cases": [
+    "realtime",
+    "reporting",
+    "ml",
+    "operational"
+  ],
+  "hot_spots": [
+    {
+      "title": "Small files",
+      "detail": "Continuous commits without aggressive compaction litter the lake with tiny files and slow every reader within weeks."
+    },
+    {
+      "title": "Exactly-once boundaries",
+      "detail": "Processor checkpoints and table commits must align — a mismatch after failure recovery duplicates or drops rows silently."
+    },
+    {
+      "title": "Late and out-of-order data",
+      "detail": "Watermarks decide when windows close; events arriving later than the watermark quietly never reach gold aggregates."
+    },
+    {
+      "title": "Backfill collisions",
+      "detail": "Reprocessing history through the live pipeline competes with real-time flow and can rewrite tables consumers are reading."
+    }
+  ],
+  "complexity": "high",
+  "evolution": [
+    {
+      "to_slug": "self-serve-data-platform-mesh",
+      "reason": "Scale streaming tables across domains with product ownership once multiple teams build on them."
+    }
+  ],
+  "family_tags": [
+    "streaming-realtime",
+    "storage-platform"
+  ],
+  "archetype_slugs": [
+    "lakehouse-implementation",
+    "stream-processing-pipeline",
+    "streaming-ingestion"
+  ],
+  "position": 24,
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|events| LOG[Event Log]:::process\n  LOG -->|consume| PROC[Stream Processor]:::process\n  PROC -->|continuous commits| BR[Bronze Tables]:::store\n  BR -->|streaming refine| SV[Silver Tables]:::store\n  SV -->|aggregate| GD[Gold Tables]:::store\n  CAT[Catalog + Maintenance]:::govern -. commits + compaction .-> BR\n  GD -->|minutes-fresh queries| Q[Query + BI]:::serve\n  Q --> CONS[Analytics Consumers]:::serve"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  SRC[Event Producers]:::source -->|publish| LOG[Durable Event Log]:::process\n  LOG -->|checkpointed consume| P1[Ingest Stream Job]:::process\n  P1 -->|micro-batch commits| LAKE[Open Table Format Lake]:::store\n  LAKE -->|incremental reads| P2[Refinement Stream Jobs]:::process\n  P2 -->|silver + gold commits| LAKE\n  MAINT[Compaction Service]:::process -. rewrite small files .-> LAKE\n  CAT[Table Catalog]:::govern -. snapshot registry .-> LAKE\n  LAKE -->|snapshot queries| QE[Query Engines]:::serve"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([events]):::source -->|seconds| B([event log]):::store\n  B -->|1-2 min commits| C([bronze tables]):::store\n  C -->|streaming cleanse| D([silver tables]):::store\n  D -->|windowed aggregates| E([gold tables]):::store\n  E -->|minutes-fresh| F([dashboards + features]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant P as Producer\n  participant K as Event Log\n  participant F as Stream Processor\n  participant L as Lakehouse\n  participant M as Compactor\n  participant Q as Query Engine\n  P->>K: append events\n  F->>K: consume from checkpoint\n  F->>L: commit micro-batch (bronze)\n  F->>L: refine commit (silver, gold)\n  Note over F,L: checkpoint and commit<br/>advance atomically\n  M->>L: compact small files\n  Q->>L: query latest snapshot"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|events| LOG[\"Amazon MSK · Kinesis<br/><i>Event Log</i>\"]:::process\n  LOG -->|consume| PROC[\"Managed Flink<br/><i>Stream Processor</i>\"]:::process\n  PROC -->|continuous commits| BR[\"S3 + Iceberg bronze<br/><i>Bronze Tables</i>\"]:::store\n  BR -->|streaming refine| SV[\"silver tables\"]:::store\n  SV -->|aggregate| GD[\"gold tables\"]:::store\n  CAT[\"Glue Catalog + EMR compaction<br/><i>Catalog + Maintenance</i>\"]:::govern -. commits + compaction .-> BR\n  GD -->|minutes-fresh queries| SQL[\"Amazon Athena · QuickSight<br/><i>Query + BI</i>\"]:::serve\n  SQL --> CONS[Analytics Consumers]:::serve"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|events| LOG[\"Azure Event Hubs<br/><i>Event Log</i>\"]:::process\n  LOG -->|consume| PROC[\"Flink on HDInsight · Stream Analytics<br/><i>Stream Processor</i>\"]:::process\n  PROC -->|continuous commits| BR[\"ADLS + Iceberg bronze<br/><i>Bronze Tables</i>\"]:::store\n  BR -->|streaming refine| SV[\"silver tables\"]:::store\n  SV -->|aggregate| GD[\"gold tables\"]:::store\n  CAT[\"Fabric OneLake catalog<br/><i>Catalog + Maintenance</i>\"]:::govern -. commits + compaction .-> BR\n  GD -->|minutes-fresh queries| SQL[\"Fabric SQL · Power BI<br/><i>Query + BI</i>\"]:::serve\n  SQL --> CONS[Analytics Consumers]:::serve"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|events| LOG[\"Pub/Sub<br/><i>Event Log</i>\"]:::process\n  LOG -->|consume| PROC[\"Dataflow<br/><i>Stream Processor</i>\"]:::process\n  PROC -->|continuous commits| BR[\"GCS + Iceberg (BigLake) bronze<br/><i>Bronze Tables</i>\"]:::store\n  BR -->|streaming refine| SV[\"silver tables\"]:::store\n  SV -->|aggregate| GD[\"gold tables\"]:::store\n  CAT[\"BigLake Metastore + Dataproc<br/><i>Catalog + Maintenance</i>\"]:::govern -. commits + compaction .-> BR\n  GD -->|minutes-fresh queries| SQL[\"BigQuery · Looker<br/><i>Query + BI</i>\"]:::serve\n  SQL --> CONS[Analytics Consumers]:::serve"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|events| LOG[\"Apache Kafka · Redpanda<br/><i>Event Log</i>\"]:::process\n  LOG -->|consume| PROC[\"Apache Flink<br/><i>Stream Processor</i>\"]:::process\n  PROC -->|continuous commits| BR[\"MinIO + Iceberg bronze<br/><i>Bronze Tables</i>\"]:::store\n  BR -->|streaming refine| SV[\"silver tables\"]:::store\n  SV -->|aggregate| GD[\"gold tables\"]:::store\n  CAT[\"Nessie + Spark compaction<br/><i>Catalog + Maintenance</i>\"]:::govern -. commits + compaction .-> BR\n  GD -->|minutes-fresh queries| SQL[\"Trino · Superset<br/><i>Query + BI</i>\"]:::serve\n  SQL --> CONS[Analytics Consumers]:::serve"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|events| LOG[\"Snowpipe Streaming<br/><i>Event Log</i>\"]:::process\n  LOG -->|consume| PROC[\"Dynamic Tables<br/><i>Stream Processor</i>\"]:::process\n  PROC -->|continuous commits| BR[\"Snowflake-managed Iceberg bronze<br/><i>Bronze Tables</i>\"]:::store\n  BR -->|streaming refine| SV[\"silver tables\"]:::store\n  SV -->|aggregate| GD[\"gold tables\"]:::store\n  CAT[\"Snowflake Open Catalog<br/><i>Catalog + Maintenance</i>\"]:::govern -. commits + compaction .-> BR\n  GD -->|minutes-fresh queries| SQL[\"Snowflake SQL · Sigma<br/><i>Query + BI</i>\"]:::serve\n  SQL --> CONS[Analytics Consumers]:::serve"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|events| LOG[\"Auto Loader · Kafka source<br/><i>Event Log</i>\"]:::process\n  LOG -->|consume| PROC[\"Structured Streaming · DLT<br/><i>Stream Processor</i>\"]:::process\n  PROC -->|continuous commits| BR[\"Delta Lake bronze<br/><i>Bronze Tables</i>\"]:::store\n  BR -->|streaming refine| SV[\"silver tables\"]:::store\n  SV -->|aggregate| GD[\"gold tables\"]:::store\n  CAT[\"Unity Catalog + predictive optimization<br/><i>Catalog + Maintenance</i>\"]:::govern -. commits + compaction .-> BR\n  GD -->|minutes-fresh queries| SQL[\"Databricks SQL · AI/BI<br/><i>Query + BI</i>\"]:::serve\n  SQL --> CONS[Analytics Consumers]:::serve"
+    }
+  ],
+  "stages": [
+    {
+      "position": 0,
+      "name": "Event log",
+      "role": "Durable, replayable buffer decoupling producers from the lakehouse",
+      "recommended_technology_slug": "apache-kafka",
+      "alternative_technology_slugs": [
+        "redpanda",
+        "amazon-kinesis",
+        "azure-event-hubs",
+        "google-pubsub"
+      ],
+      "rationale": "Kafka is the interoperability standard with the deepest connector and processor ecosystem; Redpanda is wire-compatible with less operational surface, and the cloud logs trade control for zero ops."
+    },
+    {
+      "position": 1,
+      "name": "Stream processor",
+      "role": "Consumes the log and commits micro-batches into tables with exactly-once semantics",
+      "recommended_technology_slug": "apache-flink",
+      "alternative_technology_slugs": [
+        "spark-structured-streaming",
+        "google-cloud-dataflow",
+        "azure-stream-analytics"
+      ],
+      "rationale": "Flink's checkpointing and Iceberg sink give true exactly-once table commits with event-time watermarks; Structured Streaming is the natural pick on Spark-centric platforms."
+    },
+    {
+      "position": 2,
+      "name": "Lake storage + format",
+      "role": "Open-format tables receiving continuous commits while staying batch-queryable",
+      "recommended_technology_slug": "apache-iceberg",
+      "alternative_technology_slugs": [
+        "delta-lake",
+        "apache-hudi",
+        "amazon-s3",
+        "minio"
+      ],
+      "rationale": "Iceberg's snapshot isolation makes concurrent streaming writes and analytical reads safe; Delta is the equivalent inside Databricks, Hudi shines for upsert-heavy streams."
+    },
+    {
+      "position": 3,
+      "name": "Catalog",
+      "role": "Registers every commit so readers always see a consistent snapshot",
+      "recommended_technology_slug": "apache-polaris",
+      "alternative_technology_slugs": [
+        "nessie",
+        "aws-glue-catalog",
+        "unity-catalog"
+      ],
+      "rationale": "A REST catalog keeps the streaming writer and every query engine agreeing on the latest snapshot; Nessie adds branch-based deploys for pipeline changes."
+    },
+    {
+      "position": 4,
+      "name": "Table maintenance",
+      "role": "Continuous compaction and snapshot expiry countering small-file buildup",
+      "recommended_technology_slug": "apache-spark",
+      "alternative_technology_slugs": [
+        "apache-airflow",
+        "dagster"
+      ],
+      "rationale": "Streaming commits make compaction load-bearing, not optional — scheduled Spark rewrite jobs keep file sizes healthy and reads fast."
+    },
+    {
+      "position": 5,
+      "name": "Serving + BI",
+      "role": "Minutes-fresh SQL over gold tables for dashboards and features",
+      "recommended_technology_slug": "trino",
+      "alternative_technology_slugs": [
+        "databricks-sql",
+        "snowflake",
+        "amazon-athena",
+        "clickhouse"
+      ],
+      "rationale": "Trino queries the latest snapshot directly with no copy; ClickHouse enters only when dashboard latency requirements outgrow lakehouse scans."
+    }
+  ]
+}

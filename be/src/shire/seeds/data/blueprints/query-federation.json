@@ -1,0 +1,161 @@
+{
+  "slug": "query-federation",
+  "name": "Query federation / virtualization",
+  "use_case": "One SQL over data left in place",
+  "description": "Query federation inverts the usual pattern: instead of moving data into one store, a federation engine presents a single SQL interface over sources left where they are — operational databases, warehouses, lakes, even SaaS APIs — planning each query across connectors, pushing predicates down to the sources, and joining the results. It is the fastest way to answer cross-source questions and a pragmatic bridge during migrations or after acquisitions. The physics are honest: a federated join can never beat a local one, so mature deployments pair the engine with caching or materialization for the hot paths and treat federation as the long tail.",
+  "when_to_use": [
+    "Answers are needed across systems now, and building pipelines for every source first is the blocker.",
+    "During migrations or M&A, when data lives in two estates and consumers should not have to care.",
+    "Data cannot move — residency, sovereignty, or contractual limits keep it in place, but analysis is still required.",
+    "The long tail of rarely-queried sources does not justify pipelines; federate the tail, centralize the hot paths."
+  ],
+  "when_not_to_use": [
+    "Dashboards hit the same joins hourly — repeated federated scans cost more than one pipeline; centralize into an ELT stack (2).",
+    "Sources are fragile production databases that cannot absorb analytical scan load, and no replicas exist.",
+    "Sub-second latency is expected — cross-source planning and network hops set a floor no tuning removes.",
+    "Query results must be perfectly consistent point-in-time across sources — federation reads each source live and cannot freeze them together."
+  ],
+  "use_cases": [
+    "reporting",
+    "integration",
+    "self_serve"
+  ],
+  "hot_spots": [
+    {
+      "title": "Source load",
+      "detail": "Analytical scans hammer operational databases; without replicas or resource limits, federation incidents become production incidents."
+    },
+    {
+      "title": "Pushdown cliffs",
+      "detail": "When a predicate cannot push down, the engine pulls whole tables over the network — the same query runs in seconds or hours depending on plan shape."
+    },
+    {
+      "title": "Semantic mismatches",
+      "detail": "Types, collations, and timezone handling differ per source; joins succeed but return subtly wrong results."
+    },
+    {
+      "title": "Governance bypass",
+      "detail": "Row policies defined inside each source do not travel — the federation layer must re-enforce them or it becomes the leak."
+    }
+  ],
+  "complexity": "medium",
+  "evolution": [
+    {
+      "to_slug": "elt-modern-data-stack",
+      "reason": "Centralize the hot query paths into a warehouse when repeated federated scans outgrow their cost."
+    }
+  ],
+  "family_tags": [
+    "analytics-serving",
+    "discovery-strategy"
+  ],
+  "archetype_slugs": [
+    "self-service-analytics-enablement",
+    "bi-dashboard-build",
+    "data-platform-assessment-audit"
+  ],
+  "position": 29,
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  BI[BI + SQL Clients]:::serve -->|one SQL dialect| FED[Federation Engine]:::process\n  CAT[Catalog + Access Policies]:::govern -. schemas + grants .-> FED\n  FED -->|pushdown query| S1[Operational Databases]:::source\n  FED -->|pushdown query| S2[Warehouses]:::source\n  FED -->|scan in place| S3[Data Lake]:::source\n  FED -->|API connectors| S4[SaaS Systems]:::source\n  FED -->|hot results| CACHE[Result + Materialization Cache]:::store"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  C[SQL Clients + BI]:::serve -->|ANSI SQL| COORD[Query Coordinator]:::process\n  COORD -->|plan + split| W[Worker Fleet]:::process\n  W -->|connector: JDBC| DB[(operational DBs)]:::source\n  W -->|connector: warehouse| WH[(warehouses)]:::source\n  W -->|connector: object storage| LK[(lake files)]:::source\n  COORD -. schema resolution .- CAT[Unified Catalog]:::govern\n  CAT -. column masks + row filters .-> COORD\n  W -->|cache hot datasets| MAT[(materialized views)]:::store"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([question across systems]):::serve -->|single query| B([federated plan]):::process\n  B -->|pushdown| C([per-source partial results]):::source\n  C -->|join + aggregate| D([combined answer]):::serve\n  B -->|hot paths| E([cached materializations]):::store\n  E --> D"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant U as Analyst\n  participant F as Federation Engine\n  participant C as Catalog\n  participant P as Postgres\n  participant L as Lake\n  U->>F: SELECT joining orders + events\n  F->>C: resolve schemas + policies\n  F->>P: pushdown: filtered orders\n  F->>L: pushdown: scan events partition\n  P-->>F: partial rows\n  L-->>F: partial rows\n  F->>F: join + aggregate\n  F-->>U: combined result\n  Note over F: sources stay in place —<br/>only results move"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  BI[\"QuickSight · DBeaver<br/><i>BI + SQL Clients</i>\"]:::serve -->|one SQL dialect| FED[\"Amazon Athena Federated Query<br/><i>Federation Engine</i>\"]:::process\n  CAT[\"Glue Catalog + Lake Formation<br/><i>Catalog + Access Policies</i>\"]:::govern -. schemas + grants .-> FED\n  FED -->|pushdown query| S1[\"Aurora · RDS<br/><i>Operational DB</i>\"]:::source\n  FED -->|pushdown query| S2[\"Redshift<br/><i>Warehouse</i>\"]:::source\n  FED -->|scan in place| S3[\"S3 + Iceberg<br/><i>Data Lake</i>\"]:::source\n  FED -->|hot results| CACHE[Result + Materialization Cache]:::store"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  BI[\"Power BI<br/><i>BI + SQL Clients</i>\"]:::serve -->|one SQL dialect| FED[\"Fabric OneLake shortcuts · Synapse serverless<br/><i>Federation Engine</i>\"]:::process\n  CAT[\"Fabric catalog + Purview<br/><i>Catalog + Access Policies</i>\"]:::govern -. schemas + grants .-> FED\n  FED -->|pushdown query| S1[\"Azure SQL<br/><i>Operational DB</i>\"]:::source\n  FED -->|pushdown query| S2[\"Synapse · Snowflake<br/><i>Warehouse</i>\"]:::source\n  FED -->|scan in place| S3[\"ADLS Gen2<br/><i>Data Lake</i>\"]:::source\n  FED -->|hot results| CACHE[Result + Materialization Cache]:::store"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  BI[\"Looker · Looker Studio<br/><i>BI + SQL Clients</i>\"]:::serve -->|one SQL dialect| FED[\"BigQuery federated queries · Omni<br/><i>Federation Engine</i>\"]:::process\n  CAT[\"Dataplex<br/><i>Catalog + Access Policies</i>\"]:::govern -. schemas + grants .-> FED\n  FED -->|pushdown query| S1[\"Cloud SQL · Spanner<br/><i>Operational DB</i>\"]:::source\n  FED -->|pushdown query| S2[\"BigQuery<br/><i>Warehouse</i>\"]:::source\n  FED -->|scan in place| S3[\"GCS + BigLake<br/><i>Data Lake</i>\"]:::source\n  FED -->|hot results| CACHE[Result + Materialization Cache]:::store"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  BI[\"Superset · Metabase<br/><i>BI + SQL Clients</i>\"]:::serve -->|one SQL dialect| FED[\"Trino<br/><i>Federation Engine</i>\"]:::process\n  CAT[\"Hive Metastore + Ranger · OpenMetadata<br/><i>Catalog + Access Policies</i>\"]:::govern -. schemas + grants .-> FED\n  FED -->|pushdown query| S1[\"PostgreSQL · MySQL<br/><i>Operational DB</i>\"]:::source\n  FED -->|pushdown query| S2[\"ClickHouse<br/><i>Warehouse</i>\"]:::source\n  FED -->|scan in place| S3[\"MinIO + Iceberg<br/><i>Data Lake</i>\"]:::source\n  FED -->|hot results| CACHE[Result + Materialization Cache]:::store"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  BI[\"Sigma · Tableau<br/><i>BI + SQL Clients</i>\"]:::serve -->|one SQL dialect| FED[\"Snowflake external tables + catalog integrations<br/><i>Federation Engine</i>\"]:::process\n  CAT[\"Horizon + Polaris<br/><i>Catalog + Access Policies</i>\"]:::govern -. schemas + grants .-> FED\n  FED -->|pushdown query| S1[\"via Iceberg interop<br/><i>Operational DB</i>\"]:::source\n  FED -->|pushdown query| S2[\"Snowflake native<br/><i>Warehouse</i>\"]:::source\n  FED -->|scan in place| S3[\"S3/ADLS Iceberg<br/><i>Data Lake</i>\"]:::source\n  FED -->|hot results| CACHE[Result + Materialization Cache]:::store"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  BI[\"AI/BI · Power BI<br/><i>BI + SQL Clients</i>\"]:::serve -->|one SQL dialect| FED[\"Lakehouse Federation<br/><i>Federation Engine</i>\"]:::process\n  CAT[\"Unity Catalog<br/><i>Catalog + Access Policies</i>\"]:::govern -. schemas + grants .-> FED\n  FED -->|pushdown query| S1[\"PostgreSQL · MySQL · SQL Server<br/><i>Operational DB</i>\"]:::source\n  FED -->|pushdown query| S2[\"Snowflake · Redshift · BigQuery<br/><i>Warehouse</i>\"]:::source\n  FED -->|scan in place| S3[\"S3/ADLS Delta + Iceberg<br/><i>Data Lake</i>\"]:::source\n  FED -->|hot results| CACHE[Result + Materialization Cache]:::store"
+    }
+  ],
+  "stages": [
+    {
+      "position": 0,
+      "name": "Federation engine",
+      "role": "Plans and executes single-dialect SQL across heterogeneous sources",
+      "recommended_technology_slug": "trino",
+      "alternative_technology_slugs": [
+        "presto",
+        "dremio",
+        "amazon-athena",
+        "databricks-sql"
+      ],
+      "rationale": "Trino is the reference federation engine — the widest connector set and battle-tested pushdown; Athena is its serverless AWS form, Dremio adds reflections (built-in acceleration)."
+    },
+    {
+      "position": 1,
+      "name": "Unified catalog",
+      "role": "One schema and permission surface over all connected sources",
+      "recommended_technology_slug": "aws-glue-catalog",
+      "alternative_technology_slugs": [
+        "hive-metastore",
+        "unity-catalog",
+        "openmetadata"
+      ],
+      "rationale": "The engine needs one place to resolve schemas; pairing it with a discovery catalog keeps analysts from guessing which source holds what."
+    },
+    {
+      "position": 2,
+      "name": "Access governance",
+      "role": "Row filters and column masks enforced at the federation layer",
+      "recommended_technology_slug": "apache-ranger",
+      "alternative_technology_slugs": [
+        "immuta",
+        "privacera"
+      ],
+      "rationale": "Per-source policies do not travel through connectors — enforcing masks and filters in the engine is what keeps federation from becoming the bypass."
+    },
+    {
+      "position": 3,
+      "name": "Acceleration",
+      "role": "Caches and materializations for the hot query paths",
+      "recommended_technology_slug": "clickhouse",
+      "alternative_technology_slugs": [
+        "materialize",
+        "redis"
+      ],
+      "rationale": "Federate the long tail, materialize the hot paths — a small serving store for repeated dashboards keeps federated scan costs sane."
+    },
+    {
+      "position": 4,
+      "name": "BI + clients",
+      "role": "Dashboards and ad-hoc SQL speaking one dialect to everything",
+      "recommended_technology_slug": "apache-superset",
+      "alternative_technology_slugs": [
+        "metabase",
+        "tableau",
+        "power-bi"
+      ],
+      "rationale": "Consumers connect once to the engine instead of once per source — that single connection is most of the product."
+    }
+  ]
+}

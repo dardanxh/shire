@@ -1,0 +1,529 @@
+{
+  "slug": "dpdp-act",
+  "name": "DPDP Act",
+  "full_name": "Digital Personal Data Protection Act, 2023 (India)",
+  "category": "privacy",
+  "region": "india",
+  "jurisdiction": "India",
+  "status": "phasing_in",
+  "effective_year": 2023,
+  "effective_date": "Enacted 11 August 2023; being brought into force in phases via rules",
+  "description": "The DPDP Act is India's first comprehensive personal data protection law, governing the processing of digital personal data within India and processing abroad connected to offering goods or services to individuals in India. It is built on a consent-first model: Data Fiduciaries may process personal data only for lawful purposes with consent or for narrowly defined legitimate uses, and must honour rights of access, correction, erasure, and grievance redressal for Data Principals. Enforcement rests with a new Data Protection Board of India, which can impose penalties of up to ₹250 crore per instance. The Act is being operationalized in phases through rules notified by the Central Government.",
+  "who_is_impacted": [
+    "Any person or entity ('Data Fiduciary') that alone or with others determines the purpose and means of processing digital personal data within India, including data collected offline and later digitized.",
+    "Foreign organizations processing digital personal data outside India in connection with offering goods or services to Data Principals within the territory of India.",
+    "Significant Data Fiduciaries, designated by the Central Government based on factors such as data volume and sensitivity, who face additional obligations including appointing an India-based Data Protection Officer, an independent data auditor, and periodic Data Protection Impact Assessments.",
+    "Data Processors that process personal data on behalf of Data Fiduciaries under valid contracts; accountability for compliance remains with the Data Fiduciary.",
+    "Individuals in India ('Data Principals'), including parents or lawful guardians acting on behalf of children and persons with disabilities, who gain rights of access, correction, erasure, grievance redressal, and nomination.",
+    "Processing for personal or domestic purposes, personal data made publicly available by the Data Principal or under legal obligation, and certain State instrumentalities notified on grounds such as sovereignty and security are exempt in whole or in part under section 17."
+  ],
+  "penalties": "Up to ₹250 crore (~$30M) per instance for failure of security safeguards; up to ₹200 crore for breach-notification failures; monetary penalties adjudicated by the Data Protection Board",
+  "official_url": "https://www.meity.gov.in/data-protection-framework",
+  "unit_label": "section",
+  "triggering_data_classes": ["personal_data", "children_data"],
+  "articles": [
+    {
+      "number": "1",
+      "title": "Short title and commencement",
+      "chapter": "Chapter I — Preliminary"
+    },
+    {
+      "number": "2",
+      "title": "Definitions",
+      "chapter": "Chapter I — Preliminary"
+    },
+    {
+      "number": "3",
+      "title": "Application of Act",
+      "chapter": "Chapter I — Preliminary"
+    },
+    {
+      "number": "4",
+      "title": "Grounds for processing personal data",
+      "chapter": "Chapter II — Obligations of Data Fiduciary",
+      "is_key": true,
+      "summary": "Section 4 establishes the two exclusive lawful bases for processing personal data under the Act: the Data Principal's consent, or a 'certain legitimate use' listed in section 7. Processing must in all cases be for a lawful purpose, meaning one not expressly forbidden by law. There is no equivalent of the GDPR's broad 'legitimate interests' ground — anything outside consent and the enumerated legitimate uses is unlawful.",
+      "key_requirements": [
+        "Process personal data only for a lawful purpose, i.e. a purpose not expressly forbidden by law.",
+        "Rely either on consent given by the Data Principal under section 6, or on one of the enumerated legitimate uses in section 7 — no other lawful bases exist.",
+        "Map every processing activity in scope to one of these two grounds before processing begins."
+      ],
+      "paragraphs": [
+        {
+          "ref": "4(1)",
+          "text": "A person may process the personal data of a Data Principal only in accordance with the provisions of the Act and for a lawful purpose, and only with the consent of the Data Principal or for certain legitimate uses."
+        },
+        {
+          "ref": "4(2)",
+          "text": "'Lawful purpose' means any purpose which is not expressly forbidden by law."
+        }
+      ]
+    },
+    {
+      "number": "5",
+      "title": "Notice",
+      "chapter": "Chapter II — Obligations of Data Fiduciary",
+      "is_key": true,
+      "summary": "Every request for consent must be preceded or accompanied by a notice telling the Data Principal what personal data will be processed and for what purpose, how to exercise their rights, and how to complain to the Data Protection Board. For consent obtained before the Act commenced, the Data Fiduciary must issue the notice as soon as reasonably practicable, though processing may continue until consent is withdrawn. Notices must be made available in English or any of the twenty-two languages in the Eighth Schedule to the Constitution, at the Data Principal's option.",
+      "key_requirements": [
+        "Give or accompany every consent request with a notice describing the personal data to be processed and the purpose of processing.",
+        "Explain in the notice how the Data Principal may exercise the right to withdraw consent and the right of grievance redressal, and how to complain to the Board.",
+        "Issue a catch-up notice for consent collected before the Act's commencement, as soon as reasonably practicable.",
+        "Offer the Data Principal the option to access the notice in English or any language in the Eighth Schedule to the Constitution of India."
+      ],
+      "paragraphs": [
+        {
+          "ref": "5(1)",
+          "text": "Every request for consent must be preceded or accompanied by a notice informing the Data Principal of the personal data and the purpose for which it is proposed to be processed, the manner in which rights under sections 6(4) and 13 may be exercised, and the manner of making a complaint to the Board."
+        },
+        {
+          "ref": "5(2)",
+          "text": "Where consent was given before commencement of the Act, the Data Fiduciary must give the same notice as soon as reasonably practicable; processing may continue until the Data Principal withdraws consent."
+        },
+        {
+          "ref": "5(3)",
+          "text": "The Data Fiduciary must give the Data Principal the option to access the notice in English or any language specified in the Eighth Schedule to the Constitution of India."
+        }
+      ]
+    },
+    {
+      "number": "6",
+      "title": "Consent",
+      "chapter": "Chapter II — Obligations of Data Fiduciary",
+      "is_key": true,
+      "summary": "Consent must be free, specific, informed, unconditional, and unambiguous, given through clear affirmative action, and limited to personal data necessary for the specified purpose. It can be withdrawn at any time with an ease comparable to that with which it was given, after which the Fiduciary and its Processors must stop processing within a reasonable time unless another law requires it. The section also creates the Consent Manager: a Board-registered intermediary accountable to the Data Principal through whom consent can be given, managed, reviewed, and withdrawn.",
+      "key_requirements": [
+        "Obtain consent that is free, specific, informed, unconditional, and unambiguous, signified by a clear affirmative action for the specified purpose.",
+        "Limit consent-based processing to the personal data necessary for that purpose — consent beyond what is necessary is invalid to that extent.",
+        "Make withdrawal of consent as easy as giving it, and cease processing (including by Data Processors) within a reasonable time after withdrawal unless processing is otherwise required or authorised by law.",
+        "Support consent given, managed, reviewed, or withdrawn through a registered Consent Manager, which acts on behalf of and is accountable to the Data Principal.",
+        "Be prepared to prove, in any proceeding, that valid notice was given and valid consent obtained — the burden of proof is on the Data Fiduciary."
+      ],
+      "paragraphs": [
+        {
+          "ref": "6(1)",
+          "text": "Consent must be free, specific, informed, unconditional, and unambiguous, with a clear affirmative action, and must signify agreement to processing for the specified purpose limited to such personal data as is necessary for that purpose."
+        },
+        {
+          "ref": "6(4)–(5)",
+          "text": "The Data Principal may withdraw consent at any time, with the ease of withdrawal comparable to the ease with which consent was given; the consequences of withdrawal are borne by the Data Principal and withdrawal does not affect the legality of processing already carried out."
+        },
+        {
+          "ref": "6(6)",
+          "text": "On withdrawal of consent, the Data Fiduciary must, within a reasonable time, cease processing and cause its Data Processors to cease processing the personal data, unless processing without consent is required or authorised under the Act or any other law."
+        },
+        {
+          "ref": "6(7)–(9)",
+          "text": "Consent may be given, managed, reviewed, or withdrawn through a Consent Manager, who is accountable to the Data Principal, acts on their behalf, and must be registered with the Board subject to prescribed conditions."
+        },
+        {
+          "ref": "6(10)",
+          "text": "Where consent is the basis of processing and a question arises in a proceeding, the Data Fiduciary bears the burden of proving that notice was given and consent was obtained in accordance with the Act."
+        }
+      ]
+    },
+    {
+      "number": "7",
+      "title": "Certain legitimate uses",
+      "chapter": "Chapter II — Obligations of Data Fiduciary",
+      "is_key": true,
+      "summary": "Section 7 enumerates the situations in which personal data may be processed without consent. The most commercially significant is 'voluntary provision': where the Data Principal has voluntarily provided personal data for a specified purpose and has not indicated non-consent. Other legitimate uses cover State functions, subsidies and benefits, legal obligations and judicial functions, medical emergencies, epidemics and disasters, and employment-related purposes including safeguarding the employer from loss.",
+      "key_requirements": [
+        "Rely on voluntary provision only where the Data Principal supplied the data for a specified purpose and has not indicated that they do not consent to its use.",
+        "Confine State processing without consent to specified functions: subsidies, benefits, services, certificates, licences, permits, and functions under law or in the interest of sovereignty, integrity, or security of the State.",
+        "Process without consent where necessary to comply with law or a judgment, decree, or order, including foreign orders relating to contractual or civil claims.",
+        "Apply the medical-emergency, epidemic, and disaster grounds only where processing is genuinely necessary to protect life, health, or safety, or to provide assistance or services.",
+        "Use the employment ground only for employment purposes or to safeguard the employer from loss or liability, such as preventing corporate espionage or protecting trade secrets."
+      ],
+      "paragraphs": [
+        {
+          "ref": "7(a)",
+          "text": "Personal data may be processed for the specified purpose for which the Data Principal has voluntarily provided it and in respect of which they have not indicated that they do not consent to its use."
+        },
+        {
+          "ref": "7(b)–(c)",
+          "text": "The State and its instrumentalities may process personal data to provide or issue subsidies, benefits, services, certificates, licences, or permits (including using data already available in digital form in State databases), and to perform functions under law or in the interest of sovereignty, integrity, or security of the State."
+        },
+        {
+          "ref": "7(d)–(e)",
+          "text": "Processing without consent is permitted to fulfil an obligation under any law to disclose information to the State, and to comply with any judgment, decree, or order under Indian law or foreign judgments relating to contractual or civil claims."
+        },
+        {
+          "ref": "7(f)–(h)",
+          "text": "Processing is permitted to respond to a medical emergency threatening life or health, to provide medical treatment or health services during an epidemic or threat to public health, and to ensure safety or provide assistance during a disaster or breakdown of public order."
+        },
+        {
+          "ref": "7(i)",
+          "text": "Processing is permitted for purposes of employment or to safeguard the employer from loss or liability — such as prevention of corporate espionage, maintenance of confidentiality of trade secrets or intellectual property — or to provide any service or benefit sought by an employee Data Principal."
+        }
+      ]
+    },
+    {
+      "number": "8",
+      "title": "General obligations of Data Fiduciary",
+      "chapter": "Chapter II — Obligations of Data Fiduciary",
+      "is_key": true,
+      "summary": "Section 8 is the core compliance section for Data Fiduciaries. It makes the Fiduciary accountable for compliance regardless of any arrangement with Data Processors, requires accuracy and completeness of data used for decisions or disclosures, mandates reasonable security safeguards to prevent breaches, requires notifying the Board and each affected Data Principal when a breach occurs, and requires erasure of personal data once consent is withdrawn or the specified purpose is served, unless retention is required by law. It also mandates an effective grievance-redressal mechanism and a designated contact point.",
+      "key_requirements": [
+        "Remain responsible for full compliance with the Act for any processing undertaken by the Fiduciary or on its behalf by a Data Processor, engaging processors only under valid contract.",
+        "Ensure completeness, accuracy, and consistency of personal data used to make a decision affecting the Data Principal or disclosed to another Data Fiduciary.",
+        "Implement appropriate technical and organizational measures and reasonable security safeguards to protect personal data in its possession or under its control, including data processed on its behalf, and prevent personal data breaches (s. 8(4)–(5)).",
+        "On a personal data breach, give intimation to the Data Protection Board and to each affected Data Principal in the prescribed form and manner (s. 8(6)).",
+        "Erase personal data — and cause Data Processors to erase it — when the Data Principal withdraws consent or as soon as it is reasonable to assume the specified purpose is no longer being served, unless retention is necessary under law (s. 8(7)).",
+        "Publish contact information of a Data Protection Officer or responsible person, and establish an effective mechanism to redress Data Principals' grievances."
+      ],
+      "paragraphs": [
+        {
+          "ref": "8(1)–(2)",
+          "text": "A Data Fiduciary is responsible for complying with the Act in respect of any processing undertaken by it or on its behalf by a Data Processor, irrespective of any agreement to the contrary or any failure by the Data Principal to carry out their duties, and may engage a Data Processor only under a valid contract."
+        },
+        {
+          "ref": "8(3)",
+          "text": "Where personal data is likely to be used to make a decision that affects the Data Principal or is disclosed to another Data Fiduciary, the Fiduciary must ensure its completeness, accuracy, and consistency."
+        },
+        {
+          "ref": "8(5)",
+          "text": "A Data Fiduciary must protect personal data in its possession or under its control, including in respect of any processing undertaken by it or on its behalf by a Data Processor, by taking reasonable security safeguards to prevent a personal data breach."
+        },
+        {
+          "ref": "8(6)",
+          "text": "In the event of a personal data breach, the Data Fiduciary must give intimation of the breach to the Board and to each affected Data Principal, in such form and manner as may be prescribed."
+        },
+        {
+          "ref": "8(7)",
+          "text": "Unless retention is necessary for compliance with any law, the Data Fiduciary must erase personal data — and cause its Data Processor to erase it — upon the Data Principal withdrawing consent or as soon as it is reasonable to assume that the specified purpose is no longer being served, whichever is earlier."
+        }
+      ]
+    },
+    {
+      "number": "9",
+      "title": "Processing of personal data of children",
+      "chapter": "Chapter II — Obligations of Data Fiduciary",
+      "is_key": true,
+      "summary": "Before processing personal data of a child (anyone under eighteen) or of a person with disability who has a lawful guardian, the Data Fiduciary must obtain verifiable consent of the parent or lawful guardian. Processing likely to cause a detrimental effect on a child's well-being is prohibited, as are tracking, behavioural monitoring, and targeted advertising directed at children. The Central Government may exempt classes of fiduciaries or purposes, and may lower the age threshold for fiduciaries shown to process children's data in a verifiably safe manner.",
+      "key_requirements": [
+        "Obtain verifiable consent of the parent or lawful guardian before processing personal data of a child or of a person with disability who has a lawful guardian.",
+        "Do not undertake processing likely to cause any detrimental effect on the well-being of a child.",
+        "Do not undertake tracking or behavioural monitoring of children, or targeted advertising directed at children.",
+        "Track Central Government notifications for exempted classes of Data Fiduciaries, exempted purposes, and any lowered age of applicability for verifiably safe processing."
+      ],
+      "paragraphs": [
+        {
+          "ref": "9(1)",
+          "text": "Before processing any personal data of a child, or of a person with disability who has a lawful guardian, the Data Fiduciary must obtain the verifiable consent of the parent or lawful guardian, in the prescribed manner."
+        },
+        {
+          "ref": "9(2)–(3)",
+          "text": "A Data Fiduciary must not undertake processing of personal data likely to cause any detrimental effect on the well-being of a child, and must not undertake tracking or behavioural monitoring of children or targeted advertising directed at children."
+        },
+        {
+          "ref": "9(4)–(5)",
+          "text": "The Central Government may by notification exempt classes of Data Fiduciaries or purposes from these obligations subject to conditions, and may notify a lower age for a Data Fiduciary that has ensured its processing of children's data is done in a verifiably safe manner."
+        }
+      ]
+    },
+    {
+      "number": "10",
+      "title": "Additional obligations of Significant Data Fiduciary",
+      "chapter": "Chapter II — Obligations of Data Fiduciary",
+      "is_key": true,
+      "summary": "The Central Government may notify any Data Fiduciary or class of fiduciaries as a Significant Data Fiduciary based on factors such as the volume and sensitivity of personal data processed, risk to Data Principals' rights, potential impact on the sovereignty and integrity of India, electoral democracy, State security, and public order. Significant Data Fiduciaries must appoint an India-based Data Protection Officer answerable to the board of directors, appoint an independent data auditor, and undertake periodic Data Protection Impact Assessments and audits.",
+      "key_requirements": [
+        "Determine whether the organization has been (or is likely to be) notified as a Significant Data Fiduciary based on the statutory factors.",
+        "Appoint a Data Protection Officer based in India who represents the fiduciary under the Act, is responsible to the board of directors or similar governing body, and serves as the point of contact for grievance redressal.",
+        "Appoint an independent data auditor to carry out data audits and evaluate compliance with the Act.",
+        "Undertake periodic Data Protection Impact Assessments and periodic audits, plus other prescribed measures consistent with the Act."
+      ],
+      "paragraphs": [
+        {
+          "ref": "10(1)",
+          "text": "The Central Government may notify any Data Fiduciary or class of Data Fiduciaries as Significant Data Fiduciary, based on assessment of factors including the volume and sensitivity of personal data processed, risk to the rights of Data Principals, potential impact on the sovereignty and integrity of India, risk to electoral democracy, security of the State, and public order."
+        },
+        {
+          "ref": "10(2)",
+          "text": "A Significant Data Fiduciary must appoint a Data Protection Officer based in India who is responsible to its board of directors or similar governing body and acts as the contact point for grievance redressal; appoint an independent data auditor; and undertake periodic Data Protection Impact Assessments, periodic audits, and other prescribed measures."
+        }
+      ]
+    },
+    {
+      "number": "11",
+      "title": "Right to access information about personal data",
+      "chapter": "Chapter III — Rights and Duties of Data Principal",
+      "is_key": true,
+      "summary": "Where processing is based on consent or on the voluntary-provision legitimate use, the Data Principal may request from the Data Fiduciary a summary of the personal data being processed and the processing activities, the identities of all other Data Fiduciaries and Data Processors with whom the data has been shared along with a description of what was shared, and any other prescribed information. An exception applies to sharing with other fiduciaries authorised by law for prevention, detection, or investigation of offences or cyber incidents.",
+      "key_requirements": [
+        "Provide, on request, a summary of the personal data being processed and of the relevant processing activities.",
+        "Disclose the identities of all other Data Fiduciaries and Data Processors with whom the personal data has been shared, with a description of the data shared.",
+        "Provide any other information prescribed by rules relating to the personal data and its processing.",
+        "Note the carve-out: disclosure of sharing with fiduciaries authorised by law to obtain the data for prevention, detection, investigation of offences, or cyber-security incidents is not required."
+      ],
+      "paragraphs": [
+        {
+          "ref": "11(1)",
+          "text": "A Data Principal whose data is processed on the basis of consent or section 7(a) may obtain from the Data Fiduciary a summary of the personal data being processed and the processing activities, the identities of all other Data Fiduciaries and Data Processors with whom the data has been shared together with a description of the data shared, and any other prescribed information."
+        },
+        {
+          "ref": "11(2)",
+          "text": "The disclosure obligation regarding sharing does not extend to sharing with a Data Fiduciary authorised by law to obtain the personal data, where such sharing is for the prevention, detection, or investigation of offences or cyber incidents, or for prosecution or punishment of offences."
+        }
+      ]
+    },
+    {
+      "number": "12",
+      "title": "Right to correction and erasure of personal data",
+      "chapter": "Chapter III — Rights and Duties of Data Principal",
+      "is_key": true,
+      "summary": "Data Principals whose data is processed on the basis of consent or voluntary provision have the right to correction, completion, and updating of their personal data, and to its erasure. On a correction request, the Fiduciary must correct inaccurate or misleading data, complete incomplete data, and update it. On an erasure request, the Fiduciary must erase the data unless retention is necessary for the specified purpose or for compliance with law.",
+      "key_requirements": [
+        "Provide a mechanism for Data Principals to request correction, completion, updating, and erasure of personal data processed on the basis of consent or section 7(a).",
+        "On a correction request, correct inaccurate or misleading personal data, complete incomplete personal data, and update it.",
+        "On an erasure request, erase the personal data unless retention for the specified purpose or for compliance with any law in force is necessary.",
+        "Propagate correction and erasure through Data Processors handling the data on the fiduciary's behalf."
+      ],
+      "paragraphs": [
+        {
+          "ref": "12(1)",
+          "text": "A Data Principal has the right to correction, completion, updating, and erasure of personal data for whose processing they have previously given consent (or provided it under section 7(a)), in accordance with applicable law and prescribed procedure."
+        },
+        {
+          "ref": "12(2)",
+          "text": "Upon receiving a request for correction, completion, or updating, the Data Fiduciary must correct inaccurate or misleading personal data, complete incomplete personal data, and update the personal data."
+        },
+        {
+          "ref": "12(3)",
+          "text": "Upon receiving an erasure request, the Data Fiduciary must erase the personal data unless its retention is necessary for the specified purpose or for compliance with any law for the time being in force."
+        }
+      ]
+    },
+    {
+      "number": "13",
+      "title": "Right of grievance redressal",
+      "chapter": "Chapter III — Rights and Duties of Data Principal",
+      "is_key": true,
+      "summary": "Every Data Principal has the right to readily available means of grievance redressal from the Data Fiduciary or Consent Manager for any act or omission concerning obligations to the Data Principal or exercise of their rights. The Fiduciary or Consent Manager must respond within a prescribed period, and the Data Principal must exhaust this internal channel before approaching the Data Protection Board.",
+      "key_requirements": [
+        "Provide readily available means of registering grievances about any act or omission regarding the Data Principal's rights or the fiduciary's obligations.",
+        "Respond to grievances within the period prescribed by rules for the class of fiduciary.",
+        "Structure the mechanism so that it can serve as the mandatory first tier: Data Principals must exhaust it before escalating to the Data Protection Board."
+      ],
+      "paragraphs": [
+        {
+          "ref": "13(1)–(2)",
+          "text": "A Data Principal has the right to readily available means of grievance redressal provided by a Data Fiduciary or Consent Manager in respect of any act or omission regarding the performance of its obligations or the exercise of the Principal's rights, and the Fiduciary or Consent Manager must respond within the prescribed period."
+        },
+        {
+          "ref": "13(3)",
+          "text": "The Data Principal must exhaust the opportunity of redressing the grievance under this section before approaching the Data Protection Board."
+        }
+      ]
+    },
+    {
+      "number": "14",
+      "title": "Right to nominate",
+      "chapter": "Chapter III — Rights and Duties of Data Principal"
+    },
+    {
+      "number": "15",
+      "title": "Duties of Data Principal",
+      "chapter": "Chapter III — Rights and Duties of Data Principal"
+    },
+    {
+      "number": "16",
+      "title": "Processing of personal data outside India",
+      "chapter": "Chapter IV — Special Provisions"
+    },
+    {
+      "number": "17",
+      "title": "Exemptions",
+      "chapter": "Chapter IV — Special Provisions",
+      "is_key": true,
+      "summary": "Section 17 carves out situations where some or all of the Act does not apply. Chapter II (except security safeguards) and Chapter III do not apply to processing for enforcing legal rights, judicial and regulatory functions, offence prevention and investigation, foreign contracts involving persons outside India, and approved mergers and loan-default assessments. The Central Government may fully exempt notified State instrumentalities on grounds such as sovereignty and security, and may exempt research, archiving, statistical purposes, and notified classes such as startups from specified provisions.",
+      "key_requirements": [
+        "Verify whether a processing activity falls within a section 17(1) carve-out (legal rights and claims, courts and tribunals, offence prevention/detection/investigation/prosecution, processing of non-residents' data under foreign contract, approved schemes of merger or amalgamation, loan-default assessment).",
+        "Note that even where Chapter II is disapplied, the security-safeguards obligation in section 8(5) continues to apply in the 17(1) scenarios.",
+        "Track notifications under 17(2)–(3): full exemption for notified State instrumentalities on sovereignty/security/public-order grounds, and exemptions for research, archiving, statistical purposes, and notified classes such as startups.",
+        "Remember the Central Government may declare, before expiry of five years from commencement, that any provision of the Act shall not apply to specified Data Fiduciaries for a specified period."
+      ],
+      "paragraphs": [
+        {
+          "ref": "17(1)",
+          "text": "The obligations of Chapter II (except sub-sections (1) and (5) of section 8) and the rights of Chapter III do not apply where processing is necessary for enforcing legal rights or claims, by courts and tribunals performing judicial or quasi-judicial functions, for prevention, detection, investigation, or prosecution of offences, for processing personal data of non-residents under a foreign contract, for approved schemes of compromise, arrangement, merger, or amalgamation, or for ascertaining the financial position of a loan defaulter."
+        },
+        {
+          "ref": "17(2)",
+          "text": "The Act does not apply to processing by an instrumentality of the State notified by the Central Government in the interests of sovereignty and integrity of India, security of the State, friendly relations with foreign States, maintenance of public order, or preventing incitement to cognizable offences, nor to processing necessary for research, archiving, or statistical purposes carried out in accordance with prescribed standards."
+        },
+        {
+          "ref": "17(3)–(5)",
+          "text": "The Central Government may exempt notified classes of Data Fiduciaries, including startups, from specified provisions having regard to the volume and nature of personal data processed, and may, before the expiry of five years from commencement, declare that any provision of the Act shall not apply to specified Data Fiduciaries or classes for a specified period."
+        }
+      ]
+    },
+    {
+      "number": "18",
+      "title": "Establishment of Board",
+      "chapter": "Chapter V — Data Protection Board of India"
+    },
+    {
+      "number": "19",
+      "title": "Composition and qualifications for appointment of Chairperson and Members",
+      "chapter": "Chapter V — Data Protection Board of India"
+    },
+    {
+      "number": "20",
+      "title": "Salary, allowances and terms of service of Chairperson and Members",
+      "chapter": "Chapter V — Data Protection Board of India"
+    },
+    {
+      "number": "21",
+      "title": "Disqualifications for appointment and continuation as Chairperson and Members",
+      "chapter": "Chapter V — Data Protection Board of India"
+    },
+    {
+      "number": "22",
+      "title": "Resignation by Members and filling of vacancy",
+      "chapter": "Chapter V — Data Protection Board of India"
+    },
+    {
+      "number": "23",
+      "title": "Proceedings of Board",
+      "chapter": "Chapter V — Data Protection Board of India"
+    },
+    {
+      "number": "24",
+      "title": "Officers and employees of Board",
+      "chapter": "Chapter V — Data Protection Board of India"
+    },
+    {
+      "number": "25",
+      "title": "Members and officers to be public servants",
+      "chapter": "Chapter V — Data Protection Board of India"
+    },
+    {
+      "number": "26",
+      "title": "Powers of Chairperson",
+      "chapter": "Chapter V — Data Protection Board of India"
+    },
+    {
+      "number": "27",
+      "title": "Powers and functions of Board",
+      "chapter": "Chapter VI — Powers, Functions and Procedure"
+    },
+    {
+      "number": "28",
+      "title": "Procedure to be followed by Board",
+      "chapter": "Chapter VI — Powers, Functions and Procedure"
+    },
+    {
+      "number": "29",
+      "title": "Appeal to Appellate Tribunal",
+      "chapter": "Chapter VII — Appeal and Alternate Dispute Resolution"
+    },
+    {
+      "number": "30",
+      "title": "Orders passed by Appellate Tribunal to be executable as decree",
+      "chapter": "Chapter VII — Appeal and Alternate Dispute Resolution"
+    },
+    {
+      "number": "31",
+      "title": "Alternate dispute resolution",
+      "chapter": "Chapter VII — Appeal and Alternate Dispute Resolution"
+    },
+    {
+      "number": "32",
+      "title": "Voluntary undertaking",
+      "chapter": "Chapter VIII — Penalties and Adjudication"
+    },
+    {
+      "number": "33",
+      "title": "Penalties",
+      "chapter": "Chapter VIII — Penalties and Adjudication",
+      "is_key": true,
+      "summary": "If, after an inquiry, the Board determines that a breach of the Act or its rules is significant, it may impose a monetary penalty specified in the Schedule to the Act. The Schedule tops out at ₹250 crore per instance for failing to take reasonable security safeguards under section 8(5), with ₹200 crore each for failing to notify a personal data breach and for breaching children's-data obligations, and ₹150 crore for breaches of Significant Data Fiduciary obligations. The Board must weigh factors such as the nature, gravity, and duration of the breach, the type of data affected, repetitiveness, gains or losses avoided, and mitigation actions.",
+      "key_requirements": [
+        "Understand the penalty ceilings: up to ₹250 crore for failure of reasonable security safeguards (s. 8(5)); up to ₹200 crore for failure to notify the Board and affected Data Principals of a breach (s. 8(6)); up to ₹200 crore for breach of children's-data obligations (s. 9); up to ₹150 crore for breach of Significant Data Fiduciary obligations (s. 10).",
+        "Note the residual ceiling of up to ₹50 crore for other breaches, and up to ₹10,000 for breach of Data Principal duties under section 15.",
+        "Expect the Board to consider nature, gravity, and duration of the breach, the type and nature of personal data affected, repetitive nature, gain or loss avoided, mitigation steps, and proportionality when determining the amount.",
+        "Remember penalties are per instance and are adjudicated by the Data Protection Board after an inquiry with an opportunity to be heard."
+      ],
+      "paragraphs": [
+        {
+          "ref": "33(1)",
+          "text": "If the Board determines on conclusion of an inquiry that a breach of the provisions of the Act or the rules is significant, it may, after giving the person an opportunity of being heard, impose such monetary penalty as specified in the Schedule."
+        },
+        {
+          "ref": "33(2)",
+          "text": "In determining the amount of penalty, the Board must have regard to the nature, gravity, and duration of the breach; the type and nature of the personal data affected; the repetitive nature of the breach; whether the person realised a gain or avoided a loss as a result; actions taken to mitigate the effects and consequences; the proportionality and effectiveness of the penalty; and its likely impact on the person."
+        },
+        {
+          "ref": "Schedule",
+          "text": "The Schedule sets ceilings per breach: ₹250 crore for failing to take reasonable security safeguards under section 8(5); ₹200 crore for failing to give breach intimation under section 8(6); ₹200 crore for breach of obligations relating to children under section 9; ₹150 crore for breach of Significant Data Fiduciary obligations under section 10; ₹10,000 for breach of Data Principal duties under section 15; and ₹50 crore for any other breach."
+        }
+      ]
+    },
+    {
+      "number": "34",
+      "title": "Crediting sums realised by way of penalties to Consolidated Fund of India",
+      "chapter": "Chapter VIII — Penalties and Adjudication"
+    },
+    {
+      "number": "35",
+      "title": "Protection of action taken in good faith",
+      "chapter": "Chapter IX — Miscellaneous"
+    },
+    {
+      "number": "36",
+      "title": "Power to call for information",
+      "chapter": "Chapter IX — Miscellaneous"
+    },
+    {
+      "number": "37",
+      "title": "Power of Central Government to issue directions (blocking of access)",
+      "chapter": "Chapter IX — Miscellaneous"
+    },
+    {
+      "number": "38",
+      "title": "Consistency with other laws",
+      "chapter": "Chapter IX — Miscellaneous"
+    },
+    {
+      "number": "39",
+      "title": "Bar of jurisdiction of civil courts",
+      "chapter": "Chapter IX — Miscellaneous"
+    },
+    {
+      "number": "40",
+      "title": "Power to make rules",
+      "chapter": "Chapter IX — Miscellaneous"
+    },
+    {
+      "number": "41",
+      "title": "Laying of rules and certain notifications before Parliament",
+      "chapter": "Chapter IX — Miscellaneous"
+    },
+    {
+      "number": "42",
+      "title": "Power to amend Schedule",
+      "chapter": "Chapter IX — Miscellaneous"
+    },
+    {
+      "number": "43",
+      "title": "Power to remove difficulties",
+      "chapter": "Chapter IX — Miscellaneous"
+    },
+    {
+      "number": "44",
+      "title": "Amendments to certain Acts",
+      "chapter": "Chapter IX — Miscellaneous"
+    }
+  ],
+  "related_practice_slugs": [
+    "encryption-at-rest",
+    "pseudonymization",
+    "access-control-rbac-abac",
+    "data-retention-deletion",
+    "audit-logging"
+  ],
+  "related_technology_slugs": ["bigid", "microsoft-presidio"],
+  "position": 90
+}

@@ -1,0 +1,1631 @@
+[
+  {
+    "slug": "alation",
+    "name": "Alation",
+    "category_slug": "governance-security/catalogs",
+    "secondary_category_slugs": [],
+    "description": "Pioneer of the enterprise data catalog category, known for behavioral analysis that ranks assets by actual query usage and a strong SQL editor/compose experience. A safe enterprise pick when analyst adoption and search relevance matter more than developer APIs.",
+    "homepage_url": "https://www.alation.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "API access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "metadata",
+      "catalog",
+      "governance",
+      "discovery"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "amundsen",
+    "name": "Amundsen",
+    "category_slug": "governance-security/catalogs",
+    "secondary_category_slugs": [],
+    "description": "Lyft's open-source data discovery tool, one of the first-generation catalogs focused on search and table popularity ranking. Development has largely stalled in favor of DataHub and OpenMetadata, so choose it only if you already run it — not for new deployments.",
+    "homepage_url": "https://www.amundsen.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Bearer token (OIDC)",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Bearer token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "metadata",
+      "catalog",
+      "discovery"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "apache-ranger",
+    "name": "Apache Ranger",
+    "category_slug": "governance-security/access-control",
+    "secondary_category_slugs": [],
+    "description": "Centralized authorization framework from the Hadoop ecosystem, providing fine-grained policies, row filtering, and masking for Hive, HDFS, Kafka, Trino, and more. Still the standard for self-managed big-data platforms, though it carries Hadoop-era operational weight.",
+    "homepage_url": "https://ranger.apache.org",
+    "aliases": [
+      "Ranger"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "access-control",
+      "authorization",
+      "hadoop",
+      "policy",
+      "masking"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "arx",
+    "name": "ARX",
+    "category_slug": "governance-security/privacy",
+    "secondary_category_slugs": [],
+    "description": "Academic-grade open-source tool for statistical anonymization: k-anonymity, l-diversity, t-closeness, and differential privacy with risk analysis, available as a desktop app and Java library. Pick it when you need rigorous, provable de-identification of tabular datasets (e.g. research or health data release), not streaming redaction.",
+    "homepage_url": "https://arx.deidentifier.org",
+    "aliases": [
+      "ARX Data Anonymization Tool"
+    ],
+    "deployment_models": [
+      "embedded",
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "anonymization",
+      "k-anonymity",
+      "differential-privacy",
+      "jvm"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "atlan",
+    "name": "Atlan",
+    "category_slug": "governance-security/catalogs",
+    "secondary_category_slugs": [],
+    "description": "SaaS 'active metadata' platform aimed at modern-stack teams, with strong dbt/Snowflake/Slack integrations and a collaborative, product-like UX. Pick it when you want a hosted catalog that data practitioners will actually use, rather than a governance office tool.",
+    "homepage_url": "https://atlan.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "API token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "metadata",
+      "catalog",
+      "active-metadata",
+      "collaboration"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "aws-kms",
+    "name": "AWS KMS",
+    "category_slug": "governance-security/secrets",
+    "secondary_category_slugs": [],
+    "description": "AWS's managed key service: HSM-backed key storage, envelope encryption, and IAM-integrated key policies that nearly every AWS data service (S3, RDS, Redshift) encrypts against. The default answer for encryption-at-rest on AWS; it manages keys, not application secrets.",
+    "homepage_url": "https://aws.amazon.com/kms/",
+    "aliases": [
+      "AWS Key Management Service"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "access_key_id",
+            "label": "Access key ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_access_key",
+            "label": "Secret access key",
+            "secret": true,
+            "required": true
+          },
+          {
+            "key": "region",
+            "label": "Region",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "session_token",
+            "label": "Session token",
+            "secret": true,
+            "required": false
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "encryption",
+      "key-management",
+      "aws",
+      "hsm"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "azure-key-vault",
+    "name": "Azure Key Vault",
+    "category_slug": "governance-security/secrets",
+    "secondary_category_slugs": [],
+    "description": "Azure's managed vault for secrets, keys, and certificates, integrated with Entra ID and managed identities so services fetch credentials without hardcoding them. The obvious choice on Azure; combines KMS-style key management and application secret storage in one service.",
+    "homepage_url": "https://azure.microsoft.com/en-us/products/key-vault",
+    "aliases": [
+      "Key Vault"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "vault_url",
+            "label": "Vault URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "secrets",
+      "key-management",
+      "azure",
+      "certificates"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "bigid",
+    "name": "BigID",
+    "category_slug": "governance-security/privacy",
+    "secondary_category_slugs": [
+      "governance-security/catalogs"
+    ],
+    "description": "ML-driven data discovery and classification platform that scans structured and unstructured stores to find personal and sensitive data, then powers DSAR fulfillment, retention, and risk workflows. Pick it when the primary problem is 'where is our sensitive data?' at enterprise scale, not day-to-day analyst discovery.",
+    "homepage_url": "https://bigid.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "User token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "User token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "classification",
+      "pii",
+      "compliance",
+      "discovery"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "collibra",
+    "name": "Collibra",
+    "category_slug": "governance-security/catalogs",
+    "secondary_category_slugs": [],
+    "description": "Enterprise data intelligence suite centered on governance workflows: stewardship, policy management, business glossaries, and approval chains. The heavyweight choice for regulated enterprises with a formal data governance office; overkill for lean data teams.",
+    "homepage_url": "https://www.collibra.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "governance",
+      "catalog",
+      "stewardship",
+      "glossary"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "data-world",
+    "name": "data.world",
+    "category_slug": "governance-security/catalogs",
+    "secondary_category_slugs": [],
+    "description": "A cloud data catalog and governance platform built around a knowledge-graph core, letting teams model metadata, lineage, and business context as linked RDF rather than flat tables. It leans into collaborative data-community features and semantic layers, distinguishing it from more warehouse-centric catalog tools.",
+    "homepage_url": "https://data.world",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "API token",
+        "fields": [
+          {
+            "key": "token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "catalog",
+      "governance",
+      "knowledge-graph",
+      "metadata"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "datahub",
+    "name": "DataHub",
+    "category_slug": "governance-security/catalogs",
+    "secondary_category_slugs": [
+      "governance-security/lineage"
+    ],
+    "description": "LinkedIn-born open-source metadata platform with a push-based ingestion model, a rich entity graph, and strong column-level lineage. The default pick when you want a self-hosted, developer-friendly catalog that treats metadata as a real-time stream rather than a nightly crawl.",
+    "homepage_url": "https://datahubproject.io",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Personal access token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "metadata",
+      "catalog",
+      "lineage",
+      "discovery"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "google-cloud-kms",
+    "name": "Google Cloud KMS",
+    "category_slug": "governance-security/secrets",
+    "secondary_category_slugs": [],
+    "description": "Managed service for creating, rotating, and controlling cryptographic keys used to protect data at rest across Google Cloud. It is the GCP counterpart to AWS KMS and Azure Key Vault. Pick it to centralize envelope encryption, enforce CMEK on services like BigQuery and GCS, and satisfy compliance requirements with HSM- or external-key-manager-backed keys.",
+    "homepage_url": "https://cloud.google.com/kms",
+    "aliases": [
+      "Cloud KMS"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "service_account_json",
+            "label": "Service account key (JSON)",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "gcp",
+      "encryption",
+      "key-management",
+      "security"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "hours",
+    "cost_model": "usage_based",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "google-dataplex",
+    "name": "Google Dataplex",
+    "category_slug": "governance-security/catalogs",
+    "secondary_category_slugs": [
+      "governance-security/lineage"
+    ],
+    "description": "Unified data governance and intelligent data fabric service that provides cataloging, metadata search, data quality, and lineage across BigQuery, GCS, and beyond; it absorbed the standalone Data Catalog product. It is the GCP analog to AWS Glue Data Catalog plus Azure Purview / Microsoft Purview. Pick it as the central governance layer for discovering, organizing, and monitoring data across a GCP lakehouse.",
+    "homepage_url": "https://cloud.google.com/dataplex",
+    "aliases": [
+      "Dataplex"
+    ],
+    "deployment_models": [
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "service_account_json",
+            "label": "Service account key (JSON)",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "gcp",
+      "data-catalog",
+      "governance",
+      "lineage",
+      "metadata"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "gretel",
+    "name": "Gretel",
+    "category_slug": "governance-security/privacy",
+    "secondary_category_slugs": [
+      "analytics-ai/synthetic-data"
+    ],
+    "description": "API-first platform for ML-generated synthetic data with differential-privacy guarantees, spanning tabular, text, and time-series data; acquired by NVIDIA in 2025. Pick it when you want model-trained synthetic datasets for analytics or ML training rather than rule-based masking.",
+    "homepage_url": "https://gretel.ai",
+    "aliases": [
+      "Gretel.ai"
+    ],
+    "deployment_models": [
+      "saas",
+      "hybrid"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "synthetic-data",
+      "differential-privacy",
+      "ml",
+      "api"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "hashicorp-vault",
+    "name": "HashiCorp Vault",
+    "category_slug": "governance-security/secrets",
+    "secondary_category_slugs": [],
+    "description": "The de facto standard for self-managed secrets: dynamic database credentials, encryption-as-a-service, PKI, and fine-grained leases behind a single API. Pick it for multi-cloud or on-prem estates; note the 2023 move from MPL to the source-available BSL license (the OpenBao fork remains fully open source).",
+    "homepage_url": "https://www.vaultproject.io",
+    "aliases": [
+      "Vault"
+    ],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Access token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Vault address",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "approle",
+        "name": "AppRole",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Vault address",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "role_id",
+            "label": "Role ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "secret_id",
+            "label": "Secret ID",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "secrets",
+      "encryption",
+      "pki",
+      "credentials"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "immuta",
+    "name": "Immuta",
+    "category_slug": "governance-security/access-control",
+    "secondary_category_slugs": [
+      "governance-security/privacy"
+    ],
+    "description": "Commercial data security platform that enforces attribute-based access policies, dynamic masking, and purpose-based controls natively in Snowflake, Databricks, and other warehouses. Pick it when you need auditable, plain-language policies across multiple compute platforms without hand-writing grants.",
+    "homepage_url": "https://www.immuta.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "access-control",
+      "policy",
+      "masking",
+      "abac"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "informatica-mdm",
+    "name": "Informatica MDM",
+    "category_slug": "governance-security/mdm",
+    "secondary_category_slugs": [],
+    "description": "The incumbent enterprise master data management suite: multidomain golden records, survivorship rules, hierarchy management, and deep integration with Informatica's cloud data management stack. The conservative choice for large enterprises with formal MDM programs and the budget to match.",
+    "homepage_url": "https://www.informatica.com/products/master-data-management.html",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "mdm",
+      "golden-record",
+      "enterprise",
+      "data-quality"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "marquez",
+    "name": "Marquez",
+    "category_slug": "governance-security/lineage",
+    "secondary_category_slugs": [],
+    "description": "The reference backend for OpenLineage: collects lineage events into a graph with a simple UI and API. Good as a lightweight, self-hosted lineage store or a proving ground for OpenLineage adoption before committing to a full catalog platform.",
+    "homepage_url": "https://marquezproject.ai",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "lineage",
+      "metadata",
+      "openlineage"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "microsoft-presidio",
+    "name": "Microsoft Presidio",
+    "category_slug": "governance-security/privacy",
+    "secondary_category_slugs": [],
+    "description": "Open-source PII detection and de-identification toolkit from Microsoft: NER-plus-pattern recognizers for text and images, with pluggable anonymizers (redact, hash, replace). The go-to building block when you need programmatic PII scrubbing inside pipelines rather than a governance product.",
+    "homepage_url": "https://microsoft.github.io/presidio/",
+    "aliases": [
+      "Presidio"
+    ],
+    "deployment_models": [
+      "embedded",
+      "on_prem"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "pii",
+      "anonymization",
+      "python",
+      "nlp"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "microsoft-purview",
+    "name": "Microsoft Purview",
+    "category_slug": "governance-security/catalogs",
+    "secondary_category_slugs": [
+      "governance-security/privacy"
+    ],
+    "description": "Microsoft's unified governance service spanning data cataloging, classification, sensitivity labeling, and compliance across Azure and Microsoft 365. The default for Azure-centric shops that want scanning and policy tied into their existing tenant; less compelling outside the Microsoft ecosystem.",
+    "homepage_url": "https://azure.microsoft.com/en-us/products/purview",
+    "aliases": [
+      "Azure Purview"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "endpoint",
+            "label": "Purview endpoint",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "tenant_id",
+            "label": "Tenant ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "metadata",
+      "catalog",
+      "compliance",
+      "azure",
+      "classification"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "open-policy-agent",
+    "name": "Open Policy Agent",
+    "category_slug": "governance-security/access-control",
+    "secondary_category_slugs": [],
+    "description": "CNCF-graduated general-purpose policy engine that evaluates Rego policies as a sidecar, daemon, or embedded library. The right tool when you want policy-as-code decoupled from application logic — for APIs, Kubernetes admission, or data-service authorization — rather than a data-specific governance suite.",
+    "homepage_url": "https://www.openpolicyagent.org",
+    "aliases": [
+      "OPA"
+    ],
+    "deployment_models": [
+      "embedded",
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "Bearer token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "Bearer token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "policy",
+      "authorization",
+      "policy-as-code",
+      "cncf"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "openlineage",
+    "name": "OpenLineage",
+    "category_slug": "governance-security/lineage",
+    "secondary_category_slugs": [],
+    "description": "The open standard for lineage metadata: a spec plus client integrations (Airflow, Spark, dbt, Flink) that emit run-level lineage events to any compatible backend. Not a product you deploy but the wire format you standardize on so lineage survives tool changes.",
+    "homepage_url": "https://openlineage.io",
+    "aliases": [],
+    "deployment_models": [
+      "embedded"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "lineage",
+      "standard",
+      "metadata",
+      "integration"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "free"
+  },
+  {
+    "slug": "openmetadata",
+    "name": "OpenMetadata",
+    "category_slug": "governance-security/catalogs",
+    "secondary_category_slugs": [
+      "governance-security/lineage"
+    ],
+    "description": "Open-source catalog built around a unified metadata schema and APIs, bundling discovery, lineage, data quality, and glossary features in one deployable unit. Pick it over DataHub when you want a simpler architecture (no Kafka required) and batteries-included quality/profiling out of the box.",
+    "homepage_url": "https://open-metadata.org",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "JWT token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "token",
+            "label": "JWT bot token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "metadata",
+      "catalog",
+      "lineage",
+      "data-quality"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "privacera",
+    "name": "Privacera",
+    "category_slug": "governance-security/access-control",
+    "secondary_category_slugs": [],
+    "description": "Commercial data access governance platform built by Apache Ranger's creators, extending Ranger-style policies across cloud warehouses, lakes, and streaming systems. A natural upgrade path for teams that know Ranger but want managed, multi-cloud coverage.",
+    "homepage_url": "https://privacera.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "access-control",
+      "policy",
+      "governance",
+      "multi-cloud"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "privitar",
+    "name": "Privitar",
+    "category_slug": "governance-security/privacy",
+    "secondary_category_slugs": [],
+    "description": "Enterprise privacy engineering platform for policy-driven de-identification and watermarking of large datasets, popular in banking and healthcare. Acquired by Informatica in 2023 and absorbed into its cloud data management suite, so treat it as a sunset brand rather than a fresh pick.",
+    "homepage_url": "https://www.privitar.com",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "legacy",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "privacy",
+      "de-identification",
+      "policy",
+      "enterprise"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "reltio",
+    "name": "Reltio",
+    "category_slug": "governance-security/mdm",
+    "secondary_category_slugs": [],
+    "description": "Cloud-native, API-first MDM built on a graph model, strong at real-time customer and product 360 profiles consumed by operational systems. Pick it over legacy MDM when you need SaaS delivery and low-latency entity APIs rather than batch golden-record publishing.",
+    "homepage_url": "https://www.reltio.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "oauth2_client",
+        "name": "OAuth client credentials",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Environment URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_id",
+            "label": "Client ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "client_secret",
+            "label": "Client secret",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Environment URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "mdm",
+      "customer-360",
+      "graph",
+      "api"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "satori",
+    "name": "Satori",
+    "category_slug": "governance-security/access-control",
+    "secondary_category_slugs": [],
+    "description": "Data security platform that sits as a transparent proxy in front of warehouses and databases, applying dynamic masking, access workflows, and audit without touching the underlying stores. Attractive when you want fast, agentless enforcement across heterogeneous databases; the proxy-in-the-path model is the main trade-off.",
+    "homepage_url": "https://satoricyber.com",
+    "aliases": [
+      "Satori Cyber"
+    ],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "access_key_secret",
+        "name": "Access key & secret",
+        "fields": [
+          {
+            "key": "service_account_id",
+            "label": "Service account ID",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "service_account_key",
+            "label": "Service account key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "access-control",
+      "masking",
+      "proxy",
+      "audit"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "secoda",
+    "name": "Secoda",
+    "category_slug": "governance-security/catalogs",
+    "secondary_category_slugs": [],
+    "description": "An AI-native data catalog and workspace that unifies search, documentation, lineage, and governance behind a fast, notion-like interface aimed at the whole data team rather than just stewards. It positions itself as an approachable, opinionated alternative to heavyweight enterprise catalogs.",
+    "homepage_url": "https://www.secoda.co",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "catalog",
+      "governance",
+      "documentation",
+      "search"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "select-star",
+    "name": "Select Star",
+    "category_slug": "governance-security/catalogs",
+    "secondary_category_slugs": [
+      "governance-security/lineage"
+    ],
+    "description": "An automated data catalog that discovers documentation, column-level lineage, and popularity signals by parsing query logs across your warehouse and BI tools. Its emphasis on auto-generated lineage and usage analytics makes it appealing to lean teams that don't want to hand-curate metadata.",
+    "homepage_url": "https://www.selectstar.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas",
+      "cloud"
+    ],
+    "oss": false,
+    "maturity": "emerging",
+    "auth_methods": [
+      {
+        "slug": "token",
+        "name": "API token",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "token",
+            "label": "API token",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "catalog",
+      "lineage",
+      "governance",
+      "discovery"
+    ],
+    "learning_curve": "gentle",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "senzing",
+    "name": "Senzing",
+    "category_slug": "governance-security/mdm",
+    "secondary_category_slugs": [],
+    "description": "Embeddable entity-resolution engine (SDK, not a platform) that resolves people and organizations in real time with no model training or match-rule tuning. Pick it when you want proven resolution quality inside your own application — common in fraud, KYC, and watchlist screening.",
+    "homepage_url": "https://senzing.com",
+    "aliases": [],
+    "deployment_models": [
+      "embedded",
+      "on_prem"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "tags": [
+      "entity-resolution",
+      "sdk",
+      "real-time",
+      "identity"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "license",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "skyflow",
+    "name": "Skyflow",
+    "category_slug": "governance-security/privacy",
+    "secondary_category_slugs": [],
+    "description": "Commercial 'data privacy vault': sensitive fields are tokenized into an isolated, polymorphically encrypted store and referenced by token everywhere else. A clean architectural answer when you want PII physically out of your main databases and pipelines, especially for PCI/PHI workloads.",
+    "homepage_url": "https://www.skyflow.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "service_account_json",
+        "name": "Service account key (JSON)",
+        "fields": [
+          {
+            "key": "vault_url",
+            "label": "Vault URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "service_account_json",
+            "label": "Service account credentials (JSON)",
+            "secret": true,
+            "required": true
+          }
+        ]
+      },
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "vault_url",
+            "label": "Vault URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "pii",
+      "tokenization",
+      "vault",
+      "encryption"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "spline",
+    "name": "Spline",
+    "category_slug": "governance-security/lineage",
+    "secondary_category_slugs": [],
+    "description": "Automated lineage tracking for Apache Spark, capturing execution plans via a Spark agent and rendering them as lineage graphs. Niche but effective when Spark jobs are your main black box; not a general-purpose lineage platform.",
+    "homepage_url": "https://absaoss.github.io/spline/",
+    "aliases": [],
+    "deployment_models": [
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "established",
+    "tags": [
+      "lineage",
+      "spark",
+      "jvm"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "free",
+    "cost_tier": "low"
+  },
+  {
+    "slug": "tamr",
+    "name": "Tamr",
+    "category_slug": "governance-security/mdm",
+    "secondary_category_slugs": [],
+    "description": "ML-first entity resolution and data mastering platform that uses human-in-the-loop machine learning instead of hand-written match rules. Best when you must master millions of messy records across many sources and rule-based matching has already failed.",
+    "homepage_url": "https://www.tamr.com",
+    "aliases": [],
+    "deployment_models": [
+      "saas"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "username_password",
+        "name": "Username & password",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "username",
+            "label": "Username",
+            "secret": false,
+            "required": true
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "entity-resolution",
+      "mdm",
+      "ml",
+      "data-mastering"
+    ],
+    "learning_curve": "steep",
+    "time_to_win": "weeks",
+    "cost_model": "enterprise",
+    "cost_tier": "high"
+  },
+  {
+    "slug": "tonic-ai",
+    "name": "Tonic.ai",
+    "category_slug": "governance-security/privacy",
+    "secondary_category_slugs": [
+      "analytics-ai/synthetic-data"
+    ],
+    "description": "Commercial platform for generating de-identified and synthetic copies of production databases while preserving referential integrity and realistic distributions. The strongest pick when engineering teams need safe, production-like data in lower environments across many database types.",
+    "homepage_url": "https://www.tonic.ai",
+    "aliases": [
+      "Tonic"
+    ],
+    "deployment_models": [
+      "saas",
+      "on_prem"
+    ],
+    "oss": false,
+    "maturity": "established",
+    "auth_methods": [
+      {
+        "slug": "api_key",
+        "name": "API key",
+        "fields": [
+          {
+            "key": "base_url",
+            "label": "Base URL",
+            "secret": false,
+            "required": false
+          },
+          {
+            "key": "api_key",
+            "label": "API key",
+            "secret": true,
+            "required": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "synthetic-data",
+      "de-identification",
+      "test-data",
+      "masking"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "days",
+    "cost_model": "usage_based",
+    "cost_tier": "medium"
+  },
+  {
+    "slug": "zingg",
+    "name": "Zingg",
+    "category_slug": "governance-security/mdm",
+    "secondary_category_slugs": [],
+    "description": "Open-source, Spark-based entity resolution with ML-assisted training via active learning labeling. The pragmatic pick when you want identity/dedupe matching inside your own pipelines without buying an MDM suite; you bring the surrounding workflow yourself.",
+    "homepage_url": "https://www.zingg.ai",
+    "aliases": [],
+    "deployment_models": [
+      "embedded",
+      "on_prem",
+      "cloud"
+    ],
+    "oss": true,
+    "maturity": "emerging",
+    "tags": [
+      "entity-resolution",
+      "dedupe",
+      "spark",
+      "ml"
+    ],
+    "learning_curve": "moderate",
+    "time_to_win": "weeks",
+    "cost_model": "free",
+    "cost_tier": "low"
+  }
+]

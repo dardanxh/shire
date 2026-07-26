@@ -1,0 +1,143 @@
+{
+  "slug": "small-data-duckdb-stack",
+  "name": "Small-data DuckDB stack",
+  "use_case": "Analytics without distributed anything",
+  "description": "The anti-big-data stack: dlt pulls sources into Parquet files or MotherDuck, DuckDB provides a shockingly fast single-node SQL engine, dbt (via the duckdb adapter) gives the same modelling discipline as any warehouse stack, and Evidence renders BI as code. Total infrastructure: roughly none — pipelines run on a laptop, a cron box, or CI. The insight it operationalizes is that the overwhelming majority of analytical datasets are under a few hundred gigabytes, where a modern single node outperforms distributed systems while costing nothing and debugging trivially. Because the shape mirrors the modern data stack (EL, store, dbt, BI), graduating to blueprint 2 later is a migration, not a rewrite. Raw tables inside the single store act as the landing layer; a separate lake would be overkill at this scale.",
+  "when_to_use": [
+    "Choose this when data fits comfortably on one machine (up to low-hundreds of GB), the team is small, and speed-to-answer beats platform-building — startups, internal analytics, departmental reporting, data products with bounded scope.",
+    "It is also the right sandbox for validating models before paying for a warehouse.",
+    "Your data fits on one machine and your team fits in one room."
+  ],
+  "when_not_to_use": [
+    "Outgrow it when data or concurrency does: many simultaneous BI users, always-on query APIs, or TB-scale scans point at a warehouse or lakehouse.",
+    "Compliance regimes that demand centralized access control and audit trails fit a governed warehouse better than files.",
+    "And if five teams need to share and write concurrently, single-node DuckDB's write model becomes the constraint — MotherDuck softens this, but only so far."
+  ],
+  "use_cases": [
+    "reporting",
+    "self_serve"
+  ],
+  "hot_spots": [
+    {
+      "title": "Single-node limits",
+      "detail": "One box means one failure domain and a hard ceiling you hit suddenly."
+    },
+    {
+      "title": "Write concurrency",
+      "detail": "Embedded databases dislike many simultaneous writers."
+    },
+    {
+      "title": "Growing up",
+      "detail": "Success outgrows the stack; plan the graduation path before you need it."
+    }
+  ],
+  "complexity": "low",
+  "evolution": [
+    {
+      "to_slug": "elt-modern-data-stack",
+      "reason": "You outgrew one machine — keep the SQL-first workflow, add managed scale."
+    }
+  ],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and exports| ING[Ingestion]:::process\n  ING -->|local datasets| ST[Single-node Store]:::store\n  ST -->|SQL models| TF[Transformation]:::process\n  TF -->|clean marts| ST\n  ST -->|fast queries| BI[Lightweight BI]:::serve"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  SRC[CSV + API + DB Extracts]:::source -->|ingest scripts| ING[Ingest Scripts]:::process\n  ING -->|columnar files| DB[Embedded Analytics Database]:::store\n  DB -->|SQL transformation| TF[SQL Models]:::process\n  TF -->|marts| DB\n  DB -->|queries| BI[Lightweight BI Tool]:::serve"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([source files + exports]):::source -->|ingest| B([raw local tables]):::store\n  B -->|model with SQL| C([clean marts]):::store\n  C -->|explore| E([dashboards]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant A as Analyst\n  participant I as Ingest Script\n  participant D as Local Store\n  participant M as SQL Models\n  participant B as BI Tool\n  A->>I: run ingest\n  I->>D: load files as tables\n  A->>M: run models\n  M->>D: build marts\n  A->>B: explore dashboards\n  B->>D: query marts directly"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and exports| ING[\"Python + Amazon S3<br/><i>Ingestion</i>\"]:::process\n  ING -->|local datasets| ST[\"Amazon Athena over S3<br/><i>Single-node Store</i>\"]:::store\n  ST -->|SQL models| TF[\"dbt + Athena<br/><i>Transformation</i>\"]:::process\n  TF -->|clean marts| ST\n  ST -->|fast queries| BI[\"Amazon QuickSight<br/><i>Lightweight BI</i>\"]:::serve"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and exports| ING[\"Python + Blob Storage<br/><i>Ingestion</i>\"]:::process\n  ING -->|local datasets| ST[\"Synapse serverless over ADLS<br/><i>Single-node Store</i>\"]:::store\n  ST -->|SQL models| TF[\"dbt + Synapse serverless<br/><i>Transformation</i>\"]:::process\n  TF -->|clean marts| ST\n  ST -->|fast queries| BI[\"Power BI<br/><i>Lightweight BI</i>\"]:::serve"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and exports| ING[\"Python + GCS<br/><i>Ingestion</i>\"]:::process\n  ING -->|local datasets| ST[\"BigQuery<br/><i>Single-node Store</i>\"]:::store\n  ST -->|SQL models| TF[\"dbt + BigQuery<br/><i>Transformation</i>\"]:::process\n  TF -->|clean marts| ST\n  ST -->|fast queries| BI[\"Looker Studio<br/><i>Lightweight BI</i>\"]:::serve"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and exports| ING[\"Python scripts<br/><i>Ingestion</i>\"]:::process\n  ING -->|local datasets| ST[\"DuckDB<br/><i>Single-node Store</i>\"]:::store\n  ST -->|SQL models| TF[\"dbt Core + DuckDB<br/><i>Transformation</i>\"]:::process\n  TF -->|clean marts| ST\n  ST -->|fast queries| BI[\"Metabase · Evidence<br/><i>Lightweight BI</i>\"]:::serve"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and exports| ING[\"Snowflake COPY INTO<br/><i>Ingestion</i>\"]:::process\n  ING -->|local datasets| ST[\"Snowflake XS warehouse<br/><i>Single-node Store</i>\"]:::store\n  ST -->|SQL models| TF[\"dbt Cloud<br/><i>Transformation</i>\"]:::process\n  TF -->|clean marts| ST\n  ST -->|fast queries| BI[\"Snowsight dashboards<br/><i>Lightweight BI</i>\"]:::serve"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|files and exports| ING[\"Auto Loader<br/><i>Ingestion</i>\"]:::process\n  ING -->|local datasets| ST[\"Databricks SQL Serverless<br/><i>Single-node Store</i>\"]:::store\n  ST -->|SQL models| TF[\"dbt on Databricks<br/><i>Transformation</i>\"]:::process\n  TF -->|clean marts| ST\n  ST -->|fast queries| BI[\"Databricks Dashboards<br/><i>Lightweight BI</i>\"]:::serve"
+    }
+  ],
+  "family_tags": [
+    "storage-platform",
+    "transformation-modelling",
+    "analytics-serving"
+  ],
+  "archetype_slugs": [
+    "elt-transformation-layer",
+    "aggregation-reporting-marts",
+    "bi-dashboard-build"
+  ],
+  "position": 11,
+  "stages": [
+    {
+      "position": 0,
+      "name": "Ingest",
+      "role": "Pull APIs, databases, and files into local/cloud storage with schema handling",
+      "recommended_technology_slug": "dlt",
+      "alternative_technology_slugs": [
+        "airbyte",
+        "meltano",
+        "singer"
+      ],
+      "rationale": "dlt is pip-installable Python that runs wherever the rest of this stack does — no connector server, no containers — with declarative schema evolution and native DuckDB/Parquet/MotherDuck destinations. That zero-infrastructure fit is the whole game here. Airbyte or Meltano make sense only if you need a connector dlt lacks and would rather run their machinery than write one; Singer taps are the raw-materials fallback."
+    },
+    {
+      "position": 1,
+      "name": "Store",
+      "role": "Hold raw and modelled data: local Parquet/DuckDB files, or MotherDuck for a shared cloud endpoint",
+      "recommended_technology_slug": "motherduck",
+      "alternative_technology_slugs": [
+        "duckdb",
+        "parquet",
+        "amazon-s3"
+      ],
+      "rationale": "MotherDuck is DuckDB-as-a-service — a shared, always-on endpoint that solves the two things files on a laptop cannot: team access and BI tools needing somewhere to connect, while keeping DuckDB's cost profile. Pure-local DuckDB over Parquet files (optionally synced to S3) is even simpler and perfectly right for a solo analyst or CI-driven builds; Parquet as the interchange format keeps everything readable by any future engine, which is your painless exit path either way."
+    },
+    {
+      "position": 2,
+      "name": "Transform",
+      "role": "dbt models executed by DuckDB via the dbt-duckdb adapter — 'dbt-duckdb' has no separate corpus slug, so dbt is the entry",
+      "recommended_technology_slug": "dbt",
+      "alternative_technology_slugs": [
+        "sqlmesh",
+        "polars"
+      ],
+      "rationale": "dbt with the dbt-duckdb adapter gives this tiny stack grown-up habits — tests, docs, lineage, environments — and a model layer that ports to Snowflake or BigQuery nearly unchanged when you graduate; the adapter's ability to read Parquet/S3 directly and write external files is a quiet superpower. SQLMesh also runs beautifully on DuckDB with stronger incremental semantics and is arguably the better greenfield choice for engineer-led teams. Polars covers the transformations that are more naturally dataframe code than SQL."
+    },
+    {
+      "position": 3,
+      "name": "BI",
+      "role": "Publish reports and dashboards from the modelled data as static, versioned pages",
+      "recommended_technology_slug": "evidence",
+      "alternative_technology_slugs": [
+        "metabase",
+        "streamlit",
+        "lightdash"
+      ],
+      "rationale": "Evidence renders markdown-plus-SQL into fast static sites — BI as code in the same repo as the dbt models, deployable anywhere, no server to run, which matches this stack's zero-infrastructure ethos exactly. Metabase is the pick when non-technical users need to self-serve and click around rather than read published pages (point it at MotherDuck). Streamlit when reports become interactive apps; Lightdash when you want dbt-metric-driven exploration."
+    }
+  ]
+}

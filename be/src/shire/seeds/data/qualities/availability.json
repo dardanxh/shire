@@ -1,0 +1,178 @@
+{
+  "slug": "availability",
+  "name": "Availability",
+  "category": "reliability",
+  "summary": "The proportion of time the system is operational and serving requests — measured in nines and defended with redundancy, failover, and managed uptime.",
+  "description": "Availability is how much of the time the system is up and answering. For data architectures it matters most where humans or applications depend on live responses — customer-facing dashboards, embedded charts, activation loops — and less for internal batch jobs that can slip an hour without anyone noticing. It is defended with multi-AZ and multi-region deployment, active-active replicas, load balancing, read replicas, caching, and by leaning on managed services whose SLAs cover the uptime for you. Cross-region links and external dependencies are the usual availability ceiling.",
+  "mechanisms": [
+    {
+      "name": "Multi-AZ / multi-region deployment",
+      "note": "Spreading replicas across availability zones or regions so a datacenter outage doesn't take the service down.",
+      "related_technology_slugs": [
+        "amazon-s3",
+        "google-cloud-storage",
+        "kubernetes"
+      ]
+    },
+    {
+      "name": "Active-active replicas",
+      "note": "Running multiple live copies that all serve traffic so any one can fail without an outage window.",
+      "related_technology_slugs": [
+        "clickhouse",
+        "apache-pinot",
+        "apache-druid"
+      ]
+    },
+    {
+      "name": "Read replicas and load balancing",
+      "note": "Fanning read traffic across replicas behind a balancer so no single node is a bottleneck or single point of failure.",
+      "related_technology_slugs": [
+        "redis",
+        "valkey",
+        "starrocks"
+      ]
+    },
+    {
+      "name": "Managed serverless uptime",
+      "note": "Delegating availability to a cloud service whose SLA and auto-healing keep the endpoint up without operator effort.",
+      "related_technology_slugs": [
+        "snowflake",
+        "bigquery",
+        "google-pubsub",
+        "warpstream"
+      ]
+    },
+    {
+      "name": "Caching and result serving",
+      "note": "Serving hot results from a fast cache so the system stays responsive even when the backing store is slow or briefly unavailable.",
+      "related_technology_slugs": [
+        "redis",
+        "valkey",
+        "cube"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "real-time-analytics-serving",
+      "rating": "strong",
+      "statement": "Sub-second serving is the product, so replicated OLAP engines run active-active behind load balancers across zones; uptime is a hard requirement and the architecture is built around never dropping the serving path."
+    },
+    {
+      "blueprint_slug": "embedded-analytics",
+      "rating": "strong",
+      "statement": "Charts live inside a customer-facing product, so any downtime is visible to end users; replicated query engines, caching, and managed serving keep the analytics tier as available as the app itself."
+    },
+    {
+      "blueprint_slug": "multi-tenant-saas-analytics",
+      "rating": "strong",
+      "statement": "Analytics is embedded in the SaaS product across many tenants, so the serving tier is engineered for high availability with replicas and caching — an outage would hit every customer at once."
+    },
+    {
+      "blueprint_slug": "customer-360-cdp",
+      "rating": "strong",
+      "statement": "Profiles are activated in real time into live channels, so the profile store and lookup APIs run replicated and highly available; downtime would stall personalization across every downstream touchpoint."
+    },
+    {
+      "blueprint_slug": "event-driven-architecture",
+      "rating": "strong",
+      "statement": "The replicated event backbone is designed to stay up through broker loss; producers and consumers reconnect to healthy brokers, keeping the inter-service contract continuously available."
+    },
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "strong",
+      "statement": "The cloud warehouse is a managed, multi-AZ service with a high uptime SLA, so the query layer is reliably available even though the transform jobs that feed it run on a schedule."
+    },
+    {
+      "blueprint_slug": "rag-pipeline",
+      "rating": "moderate",
+      "statement": "The vector store and app tier can be made highly available, but overall availability is capped by the LLM endpoint's SLA and rate limits, which the pipeline does not control."
+    },
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "moderate",
+      "statement": "Object storage backing the tables is extremely available, but the compute engines that serve queries are often ephemeral clusters, so serving availability depends on keeping a warm engine running."
+    },
+    {
+      "blueprint_slug": "open-iceberg-lakehouse",
+      "rating": "moderate",
+      "statement": "The storage and catalog stay available, but query availability depends on whichever engine you point at it; a shared catalog outage or a cold engine can interrupt serving even though the data is intact."
+    },
+    {
+      "blueprint_slug": "kimball-data-warehouse",
+      "rating": "moderate",
+      "statement": "Dimensional marts on a managed warehouse are available during business hours, but nightly load windows and single-region deployments mean availability is adequate for reporting, not built for 24/7 serving."
+    },
+    {
+      "blueprint_slug": "classic-batch-etl",
+      "rating": "moderate",
+      "statement": "The target is available for querying most of the time, but during the batch load window tables may be locked or partially loaded, so availability is tied to the batch schedule rather than continuous."
+    },
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "moderate",
+      "statement": "The streaming layer runs continuously and reconnects to healthy brokers, but serving availability depends on the downstream materialized store staying warm; a full pipeline restart can leave serving briefly stale."
+    },
+    {
+      "blueprint_slug": "classic-raw-data-lake",
+      "rating": "limited",
+      "statement": "The lake is a landing zone read by ad-hoc jobs, not a live serving tier; there is no availability SLA on query results, and reads depend on spinning up compute that may not be running."
+    },
+    {
+      "blueprint_slug": "small-data-duckdb-stack",
+      "rating": "limited",
+      "statement": "A single-process, single-node stack has no failover; availability is bounded by that one machine's uptime, and any restart or crash makes analytics unavailable until it comes back."
+    },
+    {
+      "blueprint_slug": "hybrid-onprem-cloud-sync",
+      "rating": "trade-off",
+      "statement": "Availability is deliberately traded against the reality of a cross-boundary link — the whole flow depends on the on-prem gateway and network path staying up, so the design accepts periodic unavailability during link disruptions."
+    },
+    {
+      "blueprint_slug": "query-federation",
+      "rating": "trade-off",
+      "statement": "Federation trades a copy for freshness, so its availability is the product of every source's availability — if any one system is down the query fails, making it structurally less available than a materialized store."
+    },
+    {
+      "blueprint_slug": "reverse-etl-activation-loop",
+      "rating": "limited",
+      "statement": "The activation loop runs on a schedule against external SaaS APIs; its usefulness depends on those third-party endpoints being up and within rate limits, an availability ceiling it cannot raise."
+    },
+    {
+      "blueprint_slug": "data-sharing-clean-room",
+      "rating": "moderate",
+      "statement": "Share-in-place inherits the provider's platform uptime, so partners get solid availability without operating anything, but access is bounded by the single provider's SLA and governance gateway."
+    }
+  ],
+  "related_technology_slugs": [
+    "snowflake",
+    "clickhouse",
+    "kubernetes",
+    "redis",
+    "amazon-s3",
+    "apache-pinot"
+  ],
+  "related_quality_slugs": [
+    "fault-tolerance",
+    "latency",
+    "resilience"
+  ],
+  "position": 30,
+  "tradeoffs": [
+    {
+      "title": "Consistency",
+      "note": "Under the CAP trade-off, staying available during network partitions forces you to serve possibly stale replicas, so high availability comes at the cost of strong, immediate consistency.",
+      "quality_slug": "consistency"
+    },
+    {
+      "title": "Cost efficiency",
+      "note": "Continuous uptime requires multi-AZ or multi-region replicas, redundant load balancers, and standby capacity, so the always-ready footprint is expensive to keep running.",
+      "quality_slug": "cost-efficiency"
+    },
+    {
+      "title": "Operational complexity",
+      "note": "High-availability topologies with failover, health checking, and quorum management demand careful runbooks and testing, making the system markedly harder to operate correctly.",
+      "quality_slug": "maintainability"
+    }
+  ]
+}

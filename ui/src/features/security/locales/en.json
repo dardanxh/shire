@@ -1,0 +1,88 @@
+{
+  "security": {
+    "list": {
+      "title": "Security & Privacy",
+      "subtitle": "Data regulations, policies, and the safety practices that satisfy them.",
+      "search_regulations_placeholder": "Search regulations...",
+      "search_practices_placeholder": "Search practices...",
+      "all_categories": "All categories",
+      "all_regions": "All regions",
+      "all_complexities": "All complexity",
+      "clear_filters": "Clear",
+      "regulation_count_one": "{{count}} regulation",
+      "regulation_count_other": "{{count}} regulations",
+      "practice_count_one": "{{count}} practice",
+      "practice_count_other": "{{count}} practices",
+      "empty_regulations": "No regulations match these filters.",
+      "empty_practices": "No practices match these filters.",
+      "error": "Failed to load the catalog."
+    },
+    "tab": {
+      "regulations": "Regulations & Policies",
+      "practices": "Data Safety"
+    },
+    "card": {
+      "articles_one": "{{count}} provision",
+      "articles_other": "{{count}} provisions",
+      "effective": "Effective {{date}}",
+      "satisfies_summary": "Satisfies {{articles}} provisions across {{regulations}} regulations",
+      "steps_one": "{{count}} step",
+      "steps_other": "{{count}} steps"
+    },
+    "regulation": {
+      "crumb": "Regulation",
+      "official_text": "Official text",
+      "who_is_impacted": "Who is impacted",
+      "penalties": "Penalties",
+      "effective": "Effective",
+      "jurisdiction": "Jurisdiction",
+      "related_practices": "Safety practices that help comply",
+      "contents": "Contents",
+      "provisions": "Provisions",
+      "key_badge": "Key",
+      "key_requirements": "Key requirements",
+      "paragraphs": "Paragraphs",
+      "error": "Failed to load the regulation."
+    },
+    "practice": {
+      "crumb": "Practice",
+      "objective": "Objective",
+      "implementation_steps": "Implementation steps",
+      "satisfies": "Satisfies",
+      "related_practices": "Related practices",
+      "error": "Failed to load the practice."
+    },
+    "category": {
+      "privacy": "Privacy",
+      "healthcare": "Healthcare",
+      "payments": "Payments",
+      "financial": "Financial",
+      "ai": "AI",
+      "resilience": "Resilience"
+    },
+    "region": {
+      "eu": "EU",
+      "us": "US",
+      "canada": "Canada",
+      "brazil": "Brazil",
+      "india": "India",
+      "global": "Global"
+    },
+    "status": {
+      "in_force": "In force",
+      "phasing_in": "Phasing in"
+    },
+    "practice_category": {
+      "encryption-keys": "Encryption & keys",
+      "deidentification": "De-identification",
+      "access-control": "Access control",
+      "data-lifecycle": "Data lifecycle",
+      "monitoring-response": "Monitoring & response"
+    },
+    "complexity": {
+      "low": "Low complexity",
+      "medium": "Medium complexity",
+      "high": "High complexity"
+    }
+  }
+}

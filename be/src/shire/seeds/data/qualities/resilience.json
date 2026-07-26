@@ -1,0 +1,181 @@
+{
+  "slug": "resilience",
+  "name": "Resilience",
+  "category": "reliability",
+  "summary": "The system recovers to a healthy state after disruption — it self-heals, degrades gracefully, and reprocesses affected data rather than staying broken.",
+  "description": "Where fault tolerance is about surviving a failure in the moment, resilience is about the recovery afterward: returning to a correct, healthy state once the disruption passes. In data architectures this means replaying from a durable log, reprocessing idempotently so retries don't double-count, and degrading gracefully — serving stale-but-available results — while a component heals. Resilient designs favor patterns that make recovery routine and self-service: savepoints, circuit breakers, blue-green rollouts, and reruns.",
+  "mechanisms": [
+    {
+      "name": "Replay from log",
+      "note": "Rewinding a durable, ordered log to reprocess any window of history after a bug fix, outage, or schema change.",
+      "related_technology_slugs": [
+        "apache-kafka",
+        "apache-pulsar",
+        "amazon-kinesis"
+      ]
+    },
+    {
+      "name": "Idempotent reprocessing",
+      "note": "Designing writes so reprocessing the same records converges to the same result, making recovery safe to repeat.",
+      "related_technology_slugs": [
+        "apache-iceberg",
+        "delta-lake",
+        "dbt"
+      ]
+    },
+    {
+      "name": "Checkpoints and savepoints",
+      "note": "Restoring streaming operators from a saved consistent snapshot so recovery resumes mid-stream instead of from scratch.",
+      "related_technology_slugs": [
+        "apache-flink",
+        "spark-structured-streaming",
+        "risingwave"
+      ]
+    },
+    {
+      "name": "Circuit breakers and graceful degradation",
+      "note": "Shedding load or serving cached/stale results when a dependency is unhealthy, keeping the system partially useful.",
+      "related_technology_slugs": [
+        "redis",
+        "valkey",
+        "grafana"
+      ]
+    },
+    {
+      "name": "Blue-green and canary rollouts",
+      "note": "Shifting traffic gradually to a new version so a bad deploy is rolled back before it degrades the whole platform.",
+      "related_technology_slugs": [
+        "kubernetes",
+        "terraform",
+        "helm"
+      ]
+    },
+    {
+      "name": "Orchestrated reruns and backfills",
+      "note": "Re-executing failed or corrected tasks from a known-good boundary so pipelines self-heal on the next scheduled run.",
+      "related_technology_slugs": [
+        "apache-airflow",
+        "dagster",
+        "prefect"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "strong",
+      "statement": "Because everything is a stream over a retained log, recovery is a first-class operation: rewind offsets, restore from a savepoint, and reprocess — a bad transform is fixed by replaying history, not by restoring backups."
+    },
+    {
+      "blueprint_slug": "event-driven-architecture",
+      "rating": "strong",
+      "statement": "Consumers rebuild their state by replaying the retained event log, and idempotent handlers make reprocessing safe, so a downstream service recovers simply by re-reading from a chosen offset."
+    },
+    {
+      "blueprint_slug": "streaming-lakehouse",
+      "rating": "strong",
+      "statement": "Continuous commits plus a replayable source log let operators recover from savepoints and re-derive tables; time-travel snapshots make it easy to roll a table back to a healthy state after a bad batch."
+    },
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "strong",
+      "statement": "Immutable bronze retains raw inputs, so silver and gold can be rebuilt idempotently after any downstream bug; table snapshots and time-travel let a corrupted layer be rolled back and reprocessed."
+    },
+    {
+      "blueprint_slug": "lambda-batch-speed",
+      "rating": "strong",
+      "statement": "The batch layer periodically recomputes the authoritative view from scratch, self-healing any drift or corruption introduced by the speed layer — recovery is baked into the recomputation cadence."
+    },
+    {
+      "blueprint_slug": "open-iceberg-lakehouse",
+      "rating": "strong",
+      "statement": "Snapshot isolation and rollback let a bad commit be reverted atomically, and any engine can reprocess from an earlier snapshot, so recovery is a catalog operation rather than a restore."
+    },
+    {
+      "blueprint_slug": "classic-batch-etl",
+      "rating": "moderate",
+      "statement": "Recovery is straightforward — rerun the job for the affected window — but reprocessing large windows is slow and may require careful cleanup if transforms weren't written idempotently."
+    },
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "moderate",
+      "statement": "dbt models rebuild deterministically from warehouse tables, so recovery is a rerun; incremental models, however, may need a full-refresh to heal cleanly after a defect, which can be expensive."
+    },
+    {
+      "blueprint_slug": "layered-warehouse-dbt",
+      "rating": "moderate",
+      "statement": "The raw/staging/marts split makes it clear where to rerun after a defect, and marts rebuild from staging; recovery still hinges on raw being retained and transforms being idempotent."
+    },
+    {
+      "blueprint_slug": "iot-telemetry-platform",
+      "rating": "moderate",
+      "statement": "Buffered ingest and replayable logs help the platform catch up after connectivity gaps, but recovering device-side gaps depends on how long devices and the ingest tier retain unsent data."
+    },
+    {
+      "blueprint_slug": "real-time-analytics-serving",
+      "rating": "moderate",
+      "statement": "Serving replicas recover by rebuilding from the source stream, but rebuilding large in-memory indexes takes time, so the system serves degraded freshness during recovery rather than instantly healing."
+    },
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "moderate",
+      "statement": "Replication resumes from the checkpointed log position after an outage; if the source log has rotated past that point, recovery requires a full re-snapshot rather than a graceful catch-up."
+    },
+    {
+      "blueprint_slug": "data-vault-warehouse",
+      "rating": "moderate",
+      "statement": "Insert-only satellites and hubs mean history is never overwritten, so recovering a bad load is a matter of reloading; the sprawling model, however, makes tracing and correcting the affected records laborious."
+    },
+    {
+      "blueprint_slug": "reverse-etl-activation-loop",
+      "rating": "limited",
+      "statement": "Recovery is constrained by downstream SaaS tools: replaying a sync can double-apply changes on non-idempotent endpoints, so healing a bad activation often needs manual reconciliation in each target."
+    },
+    {
+      "blueprint_slug": "query-federation",
+      "rating": "limited",
+      "statement": "With no materialized copy, there is nothing to reprocess or roll back — recovery is entirely a function of the underlying sources coming back healthy, which the federation layer cannot drive."
+    },
+    {
+      "blueprint_slug": "small-data-duckdb-stack",
+      "rating": "limited",
+      "statement": "Recovery means re-running the single-process job by hand; there's no savepoint, replay log, or graceful degradation, so a disruption is resolved manually rather than by the system self-healing."
+    },
+    {
+      "blueprint_slug": "hybrid-onprem-cloud-sync",
+      "rating": "limited",
+      "statement": "Once the on-prem link is restored the sync resumes, but there is often no automated catch-up or reconciliation, so operators must manually verify that no windows were skipped during the outage."
+    }
+  ],
+  "related_technology_slugs": [
+    "apache-kafka",
+    "apache-flink",
+    "apache-iceberg",
+    "delta-lake",
+    "dagster",
+    "kubernetes"
+  ],
+  "related_quality_slugs": [
+    "fault-tolerance",
+    "restartability",
+    "replayability"
+  ],
+  "position": 20,
+  "tradeoffs": [
+    {
+      "title": "Cost efficiency",
+      "note": "Resilience relies on spare capacity, redundant network paths, and multi-region standbys that sit idle in normal operation yet must be paid for continuously.",
+      "quality_slug": "cost-efficiency"
+    },
+    {
+      "title": "Latency",
+      "note": "Retries, exponential backoff, and circuit-breakers protect the system under stress but add extra round-trips and waiting that slow the happy path even when nothing is failing.",
+      "quality_slug": "latency"
+    },
+    {
+      "title": "Operational complexity",
+      "note": "Self-healing controllers, savepoints, health probes, and chaos testing are demanding to design, validate, and keep working, adding significant engineering and operational burden.",
+      "quality_slug": "maintainability"
+    }
+  ]
+}

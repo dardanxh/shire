@@ -1,0 +1,213 @@
+{
+  "slug": "consistency",
+  "name": "Consistency",
+  "category": "data-integrity",
+  "summary": "Readers see coherent, correct data under a well-defined consistency model — from strong ACID guarantees to intentionally eventual views.",
+  "description": "Consistency is whether readers observe data that agrees with itself and with the writes that produced it, under a stated model. Strongly consistent designs use ACID transactions, single sources of truth, and isolation so every reader sees a coherent snapshot. Eventually consistent designs trade immediate agreement for speed and availability, accepting that different readers may briefly disagree. The right level is a deliberate choice, not an accident.",
+  "mechanisms": [
+    {
+      "name": "ACID table transactions",
+      "note": "Open table formats commit atomic snapshots with isolation, so readers never see partial writes and concurrent writers do not corrupt state.",
+      "related_technology_slugs": [
+        "apache-iceberg",
+        "delta-lake",
+        "apache-hudi",
+        "snowflake"
+      ]
+    },
+    {
+      "name": "Single source of truth",
+      "note": "Routing all writes through one authoritative store or golden record removes conflicting copies that would otherwise drift apart.",
+      "related_technology_slugs": [
+        "snowflake",
+        "bigquery",
+        "databricks-sql"
+      ]
+    },
+    {
+      "name": "Exactly-once processing",
+      "note": "Transactional stream processing with checkpointing ensures each event affects results once, preventing duplicate-driven inconsistency.",
+      "related_technology_slugs": [
+        "apache-flink",
+        "spark-structured-streaming",
+        "kafka-streams"
+      ]
+    },
+    {
+      "name": "Referential integrity and constraints",
+      "note": "Enforcing keys, uniqueness, and relationships at load time keeps dimensions and facts coherent so joins never dangle.",
+      "related_technology_slugs": [
+        "dbt",
+        "sqlmesh",
+        "great-expectations"
+      ]
+    },
+    {
+      "name": "Snapshot isolation for readers",
+      "note": "Serving queries from committed snapshots means long-running reads see a stable, self-consistent view even as writers append.",
+      "related_technology_slugs": [
+        "apache-iceberg",
+        "delta-lake",
+        "bigquery"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "kimball-data-warehouse",
+      "rating": "strong",
+      "statement": "Transactional loads into conformed dimensions and facts give every reporting query a single, referentially coherent view of the business."
+    },
+    {
+      "blueprint_slug": "inmon-cif-edw",
+      "rating": "strong",
+      "statement": "A normalized 3NF core enforced with keys and constraints is the single source of truth, so dependent marts stay mutually consistent by construction."
+    },
+    {
+      "blueprint_slug": "open-iceberg-lakehouse",
+      "rating": "strong",
+      "statement": "Atomic Iceberg snapshot commits with snapshot isolation mean many engines all read one coherent, self-consistent copy of the data."
+    },
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "strong",
+      "statement": "ACID commits on the table format let silver and gold present consistent snapshots even while bronze is continuously appended."
+    },
+    {
+      "blueprint_slug": "mdm-hub",
+      "rating": "strong",
+      "statement": "Golden-record resolution collapses conflicting source copies into one authoritative version, which is the entire point of the hub."
+    },
+    {
+      "blueprint_slug": "layered-warehouse-dbt",
+      "rating": "strong",
+      "statement": "Deterministic SQL transforms with tested keys and one warehouse of record keep staging and marts internally coherent."
+    },
+    {
+      "blueprint_slug": "data-vault-warehouse",
+      "rating": "strong",
+      "statement": "Hash-keyed hubs and links plus load-once satellites preserve a consistent, fully auditable integrated view across many sources."
+    },
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "moderate",
+      "statement": "Warehouse transactions keep transformed models coherent, but freshness lag between load and transform means readers can briefly see stale-but-consistent data."
+    },
+    {
+      "blueprint_slug": "small-data-duckdb-stack",
+      "rating": "moderate",
+      "statement": "Single-node in-process execution gives simple transactional coherence, though it is one process, not a concurrency-hardened multi-writer store."
+    },
+    {
+      "blueprint_slug": "streaming-lakehouse",
+      "rating": "moderate",
+      "statement": "Frequent atomic commits keep each table snapshot consistent, but readers between commits see minutes-fresh views rather than the very latest events."
+    },
+    {
+      "blueprint_slug": "real-time-analytics-serving",
+      "rating": "moderate",
+      "statement": "OLAP serving stays internally consistent per query, but replication lag and async ingestion mean fresh rows may arrive out of order across replicas."
+    },
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "trade-off",
+      "statement": "The mirror is eventually consistent by design: warehouse rows converge on source state only after change events are merged, so brief divergence is expected."
+    },
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "trade-off",
+      "statement": "Everything-is-a-stream favors low latency over immediate agreement, so downstream views are eventually consistent as events flow and reprocess."
+    },
+    {
+      "blueprint_slug": "event-driven-architecture",
+      "rating": "trade-off",
+      "statement": "Independent consumers apply events on their own timelines, so cross-service state is eventually consistent — a deliberate exchange for decoupling and speed."
+    },
+    {
+      "blueprint_slug": "lambda-batch-speed",
+      "rating": "trade-off",
+      "statement": "The speed layer serves approximate fresh results while the batch layer corrects them, so readers accept temporary inconsistency until reconciliation."
+    },
+    {
+      "blueprint_slug": "customer-360-cdp",
+      "rating": "moderate",
+      "statement": "Unified profiles are coherent once resolved, but identity stitching across async sources means a profile can lag or briefly reflect conflicting inputs."
+    },
+    {
+      "blueprint_slug": "query-federation",
+      "rating": "limited",
+      "statement": "A federated query stitches independent sources with no shared transaction, so legs read at different moments and results can be internally inconsistent."
+    },
+    {
+      "blueprint_slug": "classic-raw-data-lake",
+      "rating": "limited",
+      "statement": "Loose files with no atomic commits or constraints let partial writes and duplicate landings coexist, so coherence is not guaranteed to readers."
+    },
+    {
+      "blueprint_slug": "reverse-etl-activation-loop",
+      "rating": "limited",
+      "statement": "Pushed records converge on downstream SaaS state only after each sync, and per-tool APIs apply updates independently, so activation is eventually consistent at best."
+    },
+    {
+      "blueprint_slug": "data-sharing-clean-room",
+      "rating": "moderate",
+      "statement": "Because partners read one shared copy rather than exchanging extracts, everyone sees the same source of truth, though governed join outputs are point-in-time rather than transactionally live."
+    },
+    {
+      "blueprint_slug": "pii-safe-analytics-zone",
+      "rating": "moderate",
+      "statement": "The underlying data stays coherent, but masking, tokenization, and row-level policies mean different roles see deliberately different — yet internally consistent — projections of the same records."
+    },
+    {
+      "blueprint_slug": "semantic-metrics-layer",
+      "rating": "strong",
+      "statement": "A single governed definition per metric is compiled into every query, so revenue or churn resolves to the same number in every dashboard, notebook, and API by construction."
+    },
+    {
+      "blueprint_slug": "multi-tenant-saas-analytics",
+      "rating": "moderate",
+      "statement": "Per-tenant isolation keeps each customer's view coherent within its boundary, though shared pipelines and async ingestion mean freshness can lag across tenants."
+    },
+    {
+      "blueprint_slug": "self-serve-data-platform-mesh",
+      "rating": "moderate",
+      "statement": "Data contracts keep each domain's published product internally coherent, but there is no global transaction across products, so cross-domain joins are only eventually aligned."
+    }
+  ],
+  "related_technology_slugs": [
+    "apache-iceberg",
+    "delta-lake",
+    "snowflake",
+    "apache-flink",
+    "dbt",
+    "bigquery"
+  ],
+  "related_quality_slugs": [
+    "durability",
+    "idempotency",
+    "latency"
+  ],
+  "position": 10,
+  "tradeoffs": [
+    {
+      "title": "Latency",
+      "note": "Coordination protocols, locking, and quorum acknowledgements add round-trips and waiting before a write is confirmed, directly increasing response latency.",
+      "quality_slug": "latency"
+    },
+    {
+      "title": "Availability",
+      "note": "Under the CAP theorem, choosing strong consistency means the system must reject or block operations during network partitions rather than serve possibly-stale data.",
+      "quality_slug": "availability"
+    },
+    {
+      "title": "Throughput",
+      "note": "Serializable isolation and global ordering serialize conflicting operations, limiting the parallelism a system can exploit and capping sustainable throughput.",
+      "quality_slug": "throughput"
+    },
+    {
+      "title": "Cost efficiency",
+      "note": "Transactional ACID guarantees require extra bookkeeping, replication acknowledgements, and often over-provisioned coordinators, raising the compute cost per operation.",
+      "quality_slug": "cost-efficiency"
+    }
+  ]
+}

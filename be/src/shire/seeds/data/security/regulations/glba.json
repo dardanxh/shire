@@ -1,0 +1,223 @@
+{
+  "slug": "glba",
+  "name": "GLBA",
+  "full_name": "Gramm-Leach-Bliley Act — Safeguards Rule and Privacy Rule (16 CFR Parts 314, 313)",
+  "category": "financial",
+  "region": "us",
+  "jurisdiction": "United States (financial institutions)",
+  "status": "in_force",
+  "effective_year": 1999,
+  "effective_date": "12 November 1999 (revised Safeguards Rule 9 June 2023)",
+  "description": "The Gramm-Leach-Bliley Act requires financial institutions to protect the security and confidentiality of customers' nonpublic personal information (NPI). Its Privacy Rule governs when NPI may be shared with nonaffiliated third parties and requires privacy notices with opt-out rights; its Safeguards Rule requires a written, risk-based information security program. The FTC's 2021 revision of the Safeguards Rule (fully effective June 2023) turned the once-general requirements into prescriptive controls: encryption of NPI at rest and in transit, multi-factor authentication, access reviews, logging and monitoring, a qualified individual accountable for the program, and a written incident response plan.",
+  "who_is_impacted": [
+    "Traditional financial institutions — banks, credit unions, securities firms, and insurers — are covered, with enforcement split among the federal banking agencies, SEC, state insurance authorities, and the FTC depending on charter.",
+    "The FTC's definition of \"financial institution\" sweeps in a long tail of non-bank businesses significantly engaged in financial activities: mortgage brokers and lenders, payday lenders, auto dealers that finance or lease, tax preparers, debt collectors, check cashers, and courier services for financial documents.",
+    "Higher-education institutions are covered because processing federal student aid (FAFSA/Title IV) makes them financial institutions under the FTC rule.",
+    "Finders — companies that connect buyers and sellers of financial products, including some fintech marketplaces and data aggregators — were explicitly added by the 2021 Safeguards Rule revision.",
+    "Service providers that receive NPI from financial institutions must be selected for adequate safeguards, bound by contract to maintain them, and periodically assessed.",
+    "Institutions maintaining information on fewer than 5,000 consumers are exempt from a handful of formal Safeguards Rule elements (written risk assessment, continuous monitoring/pen testing, written incident response plan, annual board reporting) but not from the core program requirements."
+  ],
+  "penalties": "FTC/agency enforcement; civil penalties up to $100,000 per violation for institutions and $10,000 for officers/directors; up to 5 years imprisonment under related provisions",
+  "official_url": "https://www.ftc.gov/business-guidance/privacy-security/gramm-leach-bliley-act",
+  "unit_label": "section",
+  "triggering_data_classes": ["financial_records", "personal_data"],
+  "articles": [
+    {
+      "number": "314.1",
+      "title": "Purpose and Scope (Safeguards Rule)",
+      "chapter": "Safeguards Rule (16 CFR 314)"
+    },
+    {
+      "number": "314.2",
+      "title": "Definitions (Including Financial Institution and Customer Information)",
+      "chapter": "Safeguards Rule (16 CFR 314)"
+    },
+    {
+      "number": "314.3",
+      "title": "Standards for Safeguarding Customer Information",
+      "chapter": "Safeguards Rule (16 CFR 314)",
+      "is_key": true,
+      "summary": "The umbrella standard of the Safeguards Rule: every covered institution must develop, implement, and maintain a comprehensive written information security program with administrative, technical, and physical safeguards appropriate to its size, complexity, the nature of its activities, and the sensitivity of the customer information at issue. The program must pursue three statutory objectives drawn from section 6801(b): security and confidentiality of customer information, protection against anticipated threats, and protection against unauthorized access that could result in substantial harm or inconvenience to any customer.",
+      "key_requirements": [
+        "Maintain a comprehensive, written information security program with administrative, technical, and physical safeguards.",
+        "Scale the program to the institution's size and complexity, the nature and scope of its activities, and the sensitivity of customer information.",
+        "Ensure the security and confidentiality of customer information.",
+        "Protect against anticipated threats or hazards to the security or integrity of that information.",
+        "Protect against unauthorized access to or use of customer information that could result in substantial harm or inconvenience to any customer."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)",
+          "text": "You shall develop, implement, and maintain a comprehensive information security program that is written in one or more readily accessible parts and contains administrative, technical, and physical safeguards appropriate to your size and complexity, the nature and scope of your activities, and the sensitivity of any customer information at issue."
+        },
+        {
+          "ref": "(b)",
+          "text": "The information security program shall be designed to: (1) insure the security and confidentiality of customer information; (2) protect against any anticipated threats or hazards to the security or integrity of such information; and (3) protect against unauthorized access to or use of such information that could result in substantial harm or inconvenience to any customer."
+        }
+      ]
+    },
+    {
+      "number": "314.4",
+      "title": "Elements of the Information Security Program",
+      "chapter": "Safeguards Rule (16 CFR 314)",
+      "is_key": true,
+      "summary": "The prescriptive heart of the revised Safeguards Rule — it enumerates exactly what the written program must contain. Institutions must designate a qualified individual accountable for the program, perform a written risk assessment, and then implement specific controls: access controls and least privilege, data inventory, encryption of customer information at rest and in transit, secure development practices, multi-factor authentication for anyone accessing customer information systems, secure disposal, change management, and logging/monitoring of authorized user activity. The program must also include continuous monitoring or annual penetration testing plus vulnerability assessments, workforce training, service provider oversight, a written incident response plan, and at least annual reporting to the board.",
+      "key_requirements": [
+        "Designate a qualified individual responsible for overseeing, implementing, and enforcing the information security program, with at least annual written reports to the board or senior officer.",
+        "Base safeguards on a written risk assessment that identifies reasonably foreseeable internal and external risks to customer information.",
+        "Implement and periodically review access controls that limit access to customer information to authorized users and to the minimum needed (least privilege).",
+        "Encrypt all customer information at rest and in transit over external networks, or use compensating controls approved in writing by the qualified individual.",
+        "Require multi-factor authentication for any individual accessing any information system holding customer information, absent a documented equivalent approved by the qualified individual.",
+        "Log and monitor authorized user activity, detect unauthorized access, adopt secure disposal and change management procedures, oversee service providers, and maintain and test a written incident response plan."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(c)(1)",
+          "text": "Implement and periodically review access controls, including technical and, as appropriate, physical controls to authenticate and permit access to customer information only to authorized users, and to limit authorized users' access to only the customer information they need to perform their duties and functions."
+        },
+        {
+          "ref": "(c)(3)",
+          "text": "Protect by encryption all customer information held or transmitted by you both in transit over external networks and at rest; to the extent encryption is infeasible, you may secure the information using effective alternative compensating controls reviewed and approved by your qualified individual."
+        },
+        {
+          "ref": "(c)(5)",
+          "text": "Implement multi-factor authentication for any individual accessing any information system that contains customer information, unless your qualified individual has approved in writing the use of reasonably equivalent or more secure access controls."
+        },
+        {
+          "ref": "(c)(8)",
+          "text": "Implement policies, procedures, and controls designed to monitor and log the activity of authorized users and detect unauthorized access to or use of, or tampering with, customer information by such users."
+        },
+        {
+          "ref": "(h)",
+          "text": "Establish a written incident response plan designed to promptly respond to and recover from any security event materially affecting the confidentiality, integrity, or availability of customer information in your control, addressing goals, internal response processes, roles and decision-making authority, communications, remediation of systems and controls, documentation and reporting, and post-event evaluation and revision of the plan."
+        }
+      ]
+    },
+    {
+      "number": "314.5",
+      "title": "Effective Date (Compliance Deadlines for Program Elements)",
+      "chapter": "Safeguards Rule (16 CFR 314)"
+    },
+    {
+      "number": "314.6",
+      "title": "Exceptions (Institutions Maintaining Information on Fewer Than 5,000 Consumers)",
+      "chapter": "Safeguards Rule (16 CFR 314)"
+    },
+    {
+      "number": "313.1",
+      "title": "Purpose and Scope (Privacy of Consumer Financial Information)",
+      "chapter": "Privacy Rule (16 CFR 313 / Reg P)"
+    },
+    {
+      "number": "313.4",
+      "title": "Initial Privacy Notice to Consumers",
+      "chapter": "Privacy Rule (16 CFR 313 / Reg P)",
+      "is_key": true,
+      "summary": "Financial institutions must give a clear and conspicuous notice of their privacy policies and practices to every customer no later than when the customer relationship is established, and to other consumers before disclosing their nonpublic personal information to nonaffiliated third parties. The notice must accurately reflect what is collected, what is disclosed, and to whom. Delivery timing can shift only in narrow cases (e.g., the customer agrees, or establishing the relationship isn't at the customer's election), and the notice must be provided so the recipient can reasonably be expected to receive actual notice.",
+      "key_requirements": [
+        "Provide a clear and conspicuous initial privacy notice to each customer not later than when the customer relationship is established.",
+        "Provide the notice to any consumer (non-customer) before disclosing their NPI to a nonaffiliated third party outside the exceptions.",
+        "Ensure the notice accurately describes the categories of NPI collected and disclosed and the categories of recipients.",
+        "Deliver the notice so the consumer can reasonably be expected to receive actual notice, in writing or (with consent) electronically.",
+        "Skip the consumer-notice only when disclosures fall entirely within the processing, servicing, or legal-compliance exceptions of 313.14 and 313.15."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)",
+          "text": "You must provide a clear and conspicuous notice that accurately reflects your privacy policies and practices: to a customer, not later than when you establish a customer relationship; and to a consumer, before you disclose any nonpublic personal information about the consumer to any nonaffiliated third party, unless an exception in sections 313.14 or 313.15 applies."
+        },
+        {
+          "ref": "(c)-(e)",
+          "text": "A customer relationship is established when a continuing relationship arises (opening an account, obtaining a loan, entering an agreement for services); notice may exceptionally be provided within a reasonable time after establishment where the customer agrees or where establishment is not at the customer's election, and delivery must be by a means whereby the recipient can reasonably be expected to receive actual notice."
+        }
+      ]
+    },
+    {
+      "number": "313.5",
+      "title": "Annual Privacy Notice to Customers",
+      "chapter": "Privacy Rule (16 CFR 313 / Reg P)"
+    },
+    {
+      "number": "313.7",
+      "title": "Form of Opt Out Notice to Consumers; Opt Out Methods",
+      "chapter": "Privacy Rule (16 CFR 313 / Reg P)"
+    },
+    {
+      "number": "313.10",
+      "title": "Limits on Disclosure of Nonpublic Personal Information to Nonaffiliated Third Parties",
+      "chapter": "Privacy Rule (16 CFR 313 / Reg P)",
+      "is_key": true,
+      "summary": "The operative prohibition of the Privacy Rule. A financial institution may not disclose NPI about a consumer to a nonaffiliated third party unless it has first given the consumer an initial notice, a clear opt-out notice explaining the right to block the disclosure, a reasonable opportunity to opt out, and the consumer has not opted out. Opt-outs can be exercised at any time and remain effective until revoked. Institutions receiving NPI downstream face reuse and redisclosure limits, and account numbers may essentially never be shared with third parties for marketing.",
+      "key_requirements": [
+        "Do not disclose NPI to nonaffiliated third parties unless the consumer received the initial notice, an opt-out notice, and a reasonable opportunity to opt out, and did not opt out.",
+        "Honor opt-out directions promptly, apply them to all NPI collected during the relationship, and treat them as effective until revoked by the consumer.",
+        "Apply partial opt-outs where offered (e.g., allowing certain sharing while blocking the rest).",
+        "For joint accounts, allow any account holder's opt-out to cover the account as specified in the rule.",
+        "Track the exceptions that bypass opt-out (service providers under 313.13, processing/servicing under 313.14, legal and fraud purposes under 313.15) and the flat ban on sharing account numbers for third-party marketing (313.12)."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)(1)",
+          "text": "You may not, directly or through any affiliate, disclose any nonpublic personal information about a consumer to a nonaffiliated third party unless: you have provided the consumer an initial notice; you have provided an opt-out notice; you have given the consumer a reasonable opportunity, before disclosure, to opt out; and the consumer does not opt out."
+        },
+        {
+          "ref": "(a)(2)-(3)",
+          "text": "Opt-out means a direction by the consumer that you not disclose NPI to a nonaffiliated third party, other than as permitted by the exceptions; the consumer may exercise the opt-out right at any time, and you must comply with the direction as soon as reasonably practicable, with the opt-out remaining effective until revoked in writing (or electronically, if agreed)."
+        },
+        {
+          "ref": "(b)-(c)",
+          "text": "Application of the opt-out extends to all NPI collected during the relationship, and for joint relationships any party may exercise the opt-out; these limits operate alongside section 313.12's prohibition on disclosing account numbers to nonaffiliated third parties for telemarketing, direct mail, or electronic mail marketing."
+        }
+      ]
+    },
+    {
+      "number": "313.13",
+      "title": "Exception to Opt Out Requirements for Service Providers and Joint Marketing",
+      "chapter": "Privacy Rule (16 CFR 313 / Reg P)"
+    },
+    {
+      "number": "6801",
+      "title": "Protection of Nonpublic Personal Information (15 U.S.C. § 6801)",
+      "chapter": "Statutory Provisions (15 U.S.C.)",
+      "is_key": true,
+      "summary": "The statutory root of both rules. Congress declared it the policy of the United States that every financial institution has an affirmative and continuing obligation to respect the privacy of its customers and to protect the security and confidentiality of their nonpublic personal information. Subsection (b) directs the regulators to establish safeguards standards with three objectives — security and confidentiality of customer records, protection against anticipated threats, and protection against unauthorized access causing substantial harm — which the Safeguards Rule implements.",
+      "key_requirements": [
+        "Treat protection of customer NPI as an affirmative and continuing obligation, not a one-time project.",
+        "Insure the security and confidentiality of customer records and information.",
+        "Protect against anticipated threats or hazards to the security or integrity of customer records.",
+        "Protect against unauthorized access to or use of records that could result in substantial harm or inconvenience to any customer.",
+        "Map internal controls to the agency rules implementing this section (FTC Safeguards Rule, banking agencies' Interagency Guidelines, SEC Regulation S-P)."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)",
+          "text": "It is the policy of the Congress that each financial institution has an affirmative and continuing obligation to respect the privacy of its customers and to protect the security and confidentiality of those customers' nonpublic personal information."
+        },
+        {
+          "ref": "(b)",
+          "text": "The regulatory agencies shall establish appropriate standards for the financial institutions subject to their jurisdiction relating to administrative, technical, and physical safeguards: to insure the security and confidentiality of customer records and information; to protect against any anticipated threats or hazards to the security or integrity of such records; and to protect against unauthorized access to or use of such records or information which could result in substantial harm or inconvenience to any customer."
+        }
+      ]
+    },
+    {
+      "number": "6802",
+      "title": "Obligations with Respect to Disclosures of Personal Information (15 U.S.C. § 6802)",
+      "chapter": "Statutory Provisions (15 U.S.C.)"
+    },
+    {
+      "number": "6805",
+      "title": "Enforcement (15 U.S.C. § 6805)",
+      "chapter": "Statutory Provisions (15 U.S.C.)"
+    }
+  ],
+  "related_practice_slugs": [
+    "encryption-at-rest",
+    "encryption-in-transit",
+    "access-control-rbac-abac",
+    "least-privilege-reviews",
+    "audit-logging",
+    "data-loss-prevention"
+  ],
+  "related_technology_slugs": ["aws-kms", "bigid"],
+  "position": 60
+}

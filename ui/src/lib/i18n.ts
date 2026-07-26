@@ -1,5 +1,7 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import archetypes from "@/features/archetypes/locales/en.json";
+import architectures from "@/features/architectures/locales/en.json";
 import briefing from "@/features/briefing/locales/en.json";
 import connectors from "@/features/connectors/locales/en.json";
 import council from "@/features/council/locales/en.json";
@@ -8,10 +10,15 @@ import home from "@/features/home/locales/en.json";
 import jobs from "@/features/jobs/locales/en.json";
 import members from "@/features/members/locales/en.json";
 import mergeReviews from "@/features/merge-reviews/locales/en.json";
+import modelling from "@/features/modelling/locales/en.json";
 import news from "@/features/news/locales/en.json";
 import principles from "@/features/principles/locales/en.json";
+import qualities from "@/features/qualities/locales/en.json";
 import repositories from "@/features/repositories/locales/en.json";
 import roadmaps from "@/features/roadmaps/locales/en.json";
+import security from "@/features/security/locales/en.json";
+import sizing from "@/features/sizing/locales/en.json";
+import technologies from "@/features/technologies/locales/en.json";
 import tools from "@/features/tools/locales/en.json";
 import common from "@/locales/common/en.json";
 
@@ -35,6 +42,13 @@ const en = {
   ...news,
   ...roadmaps,
   ...council,
+  ...architectures,
+  ...archetypes,
+  ...technologies,
+  ...modelling,
+  ...security,
+  ...qualities,
+  ...sizing,
 };
 
 i18n.use(initReactI18next).init({

@@ -1,0 +1,161 @@
+{
+  "slug": "customer-360-cdp",
+  "name": "Customer 360 / CDP",
+  "use_case": "Unified customer profiles, activated everywhere",
+  "description": "A customer 360 stitches every trace of a customer — product events, CRM records, transactions, support tickets — into one profile: event collection lands the raw signals, identity resolution matches them across systems (deterministic keys first, probabilistic matching for the rest), and a profile store maintains golden records with computed traits. Segmentation builds audiences on those profiles and activation syncs them to ad platforms, email, and the product itself. The modern build is the composable CDP: profiles live in your warehouse with resolution and activation as tools on top, rather than in a vendor's black box. Consent enforcement is not a feature here — it is the architecture's license to operate.",
+  "when_to_use": [
+    "Customer data is fragmented across product, CRM, billing, and support, and nobody can answer 'what happened with this customer?'",
+    "Marketing and product teams need segments built on complete profiles, synced automatically to every destination.",
+    "Personalization requires knowing the same person across anonymous web visits, logged-in product use, and offline purchases.",
+    "You already have a warehouse and want a composable CDP on it rather than shipping customer data into another vendor silo."
+  ],
+  "when_not_to_use": [
+    "One system already holds effectively all customer data — resolution machinery without fragmentation is pure cost.",
+    "The need is governed master data for operations and compliance rather than marketing activation — that is the MDM hub (17).",
+    "Consent and privacy operations are immature — activating unified profiles without enforceable consent is a regulatory incident in waiting.",
+    "Only aggregate analytics is needed — a warehouse with BI (2) answers 'how many customers' without per-person profiles."
+  ],
+  "use_cases": [
+    "activation",
+    "operational",
+    "ml",
+    "compliance"
+  ],
+  "hot_spots": [
+    {
+      "title": "Identity overreach",
+      "detail": "Aggressive probabilistic matching merges two real people into one profile — and the wrong person gets the email, the price, or the data export."
+    },
+    {
+      "title": "Consent drift",
+      "detail": "Audiences activate faster than consent flags propagate; a suppressed customer receiving one campaign is a reportable incident in many regimes."
+    },
+    {
+      "title": "Stale traits",
+      "detail": "Batch-computed traits activate yesterday's behavior — churn campaigns fire at customers who already renewed."
+    },
+    {
+      "title": "Destination divergence",
+      "detail": "Each ad and email platform re-interprets audience definitions slightly differently, so 'the same segment' differs per channel."
+    }
+  ],
+  "complexity": "high",
+  "evolution": [
+    {
+      "to_slug": "mdm-hub",
+      "reason": "Graduate customer identity into governed master data when operations and compliance need it beyond marketing."
+    }
+  ],
+  "family_tags": [
+    "transformation-modelling",
+    "analytics-serving"
+  ],
+  "archetype_slugs": [
+    "entity-resolution-deduplication",
+    "reverse-etl-data-activation",
+    "master-data-management"
+  ],
+  "position": 31,
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|events, CRM, transactions| COL[Event Collection]:::process\n  COL -->|raw identities| IDR[Identity Resolution]:::process\n  IDR -->|golden customer records| PROF[Unified Profile Store]:::store\n  PROF -->|traits + audiences| SEG[Segmentation + Activation]:::process\n  SEG -->|synced audiences| DEST[Ads · Email · Product]:::serve\n  PROF -->|customer analytics| AN[Analytics + ML]:::serve\n  GOV[Consent + Privacy]:::govern -. purpose + opt-outs .-> SEG"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  W[Web + App Events]:::source -->|SDK streams| COL[Collection Pipeline]:::process\n  CRM[CRM + Billing + Support]:::source -->|ELT| COL\n  COL -->|land raw| LAKE[(raw identity data)]:::store\n  LAKE -->|deterministic + probabilistic match| IDR[Identity Graph]:::process\n  IDR -->|persistent person IDs| PROF[(profile tables + traits)]:::store\n  PROF -->|SQL-defined audiences| SEG[Segment Builder]:::process\n  SEG -->|reverse ETL sync| ACT[Activation Connectors]:::process\n  ACT --> DEST[Ad · Email · Product APIs]:::serve\n  CONSENT[Consent Store]:::govern -. suppression lists .-> SEG\n  PROF --> ML[Churn + LTV Models]:::serve"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([events + records]):::source -->|collect| B([raw identities]):::store\n  B -->|match + merge| C([identity graph]):::process\n  C -->|golden records| D([unified profiles]):::store\n  D -->|segment| E([audiences]):::store\n  E -->|consent-checked sync| F([ads, email, product]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant S as Sources\n  participant I as Identity Resolution\n  participant P as Profile Store\n  participant G as Consent Store\n  participant A as Activation\n  participant D as Destinations\n  S->>I: events + records (raw IDs)\n  I->>I: deterministic match, then probabilistic\n  I->>P: upsert golden record + traits\n  A->>P: build audience query\n  A->>G: check consent + suppressions\n  G-->>A: eligible members only\n  A->>D: sync audience\n  Note over G,A: consent gate sits before<br/>every activation, not after"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|events, CRM, transactions| COL[\"Kinesis · AppFlow<br/><i>Event Collection</i>\"]:::process\n  COL -->|raw identities| IDR[\"EMR Spark + Zingg<br/><i>Identity Resolution</i>\"]:::process\n  IDR -->|golden customer records| PROF[\"Redshift profiles<br/><i>Unified Profile Store</i>\"]:::store\n  PROF -->|traits + audiences| SEG[\"Hightouch · Amazon Personalize<br/><i>Segmentation + Activation</i>\"]:::process\n  SEG -->|synced audiences| DEST[Ads · Email · Product]:::serve\n  PROF -->|customer analytics| AN[Analytics + ML]:::serve\n  GOV[\"DynamoDB consent + Lake Formation<br/><i>Consent + Privacy</i>\"]:::govern -. purpose + opt-outs .-> SEG"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|events, CRM, transactions| COL[\"Event Hubs · Data Factory<br/><i>Event Collection</i>\"]:::process\n  COL -->|raw identities| IDR[\"Synapse Spark + Zingg<br/><i>Identity Resolution</i>\"]:::process\n  IDR -->|golden customer records| PROF[\"Fabric profiles<br/><i>Unified Profile Store</i>\"]:::store\n  PROF -->|traits + audiences| SEG[\"Hightouch · Dynamics 365<br/><i>Segmentation + Activation</i>\"]:::process\n  SEG -->|synced audiences| DEST[Ads · Email · Product]:::serve\n  PROF -->|customer analytics| AN[Analytics + ML]:::serve\n  GOV[\"Purview + consent tables<br/><i>Consent + Privacy</i>\"]:::govern -. purpose + opt-outs .-> SEG"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|events, CRM, transactions| COL[\"Pub/Sub · Datastream<br/><i>Event Collection</i>\"]:::process\n  COL -->|raw identities| IDR[\"Dataflow + Zingg<br/><i>Identity Resolution</i>\"]:::process\n  IDR -->|golden customer records| PROF[\"BigQuery profiles<br/><i>Unified Profile Store</i>\"]:::store\n  PROF -->|traits + audiences| SEG[\"Hightouch · Google Ads sync<br/><i>Segmentation + Activation</i>\"]:::process\n  SEG -->|synced audiences| DEST[Ads · Email · Product]:::serve\n  PROF -->|customer analytics| AN[Analytics + ML]:::serve\n  GOV[\"Dataplex + consent tables<br/><i>Consent + Privacy</i>\"]:::govern -. purpose + opt-outs .-> SEG"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|events, CRM, transactions| COL[\"RudderStack · Kafka<br/><i>Event Collection</i>\"]:::process\n  COL -->|raw identities| IDR[\"Spark + Zingg<br/><i>Identity Resolution</i>\"]:::process\n  IDR -->|golden customer records| PROF[\"PostgreSQL · ClickHouse profiles<br/><i>Unified Profile Store</i>\"]:::store\n  PROF -->|traits + audiences| SEG[\"RudderStack reverse ETL · Grouparoo lineage<br/><i>Segmentation + Activation</i>\"]:::process\n  SEG -->|synced audiences| DEST[Ads · Email · Product]:::serve\n  PROF -->|customer analytics| AN[Analytics + ML]:::serve\n  GOV[\"OpenMetadata + consent service<br/><i>Consent + Privacy</i>\"]:::govern -. purpose + opt-outs .-> SEG"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|events, CRM, transactions| COL[\"Segment · Snowpipe<br/><i>Event Collection</i>\"]:::process\n  COL -->|raw identities| IDR[\"Snowflake + Zingg on Snowpark<br/><i>Identity Resolution</i>\"]:::process\n  IDR -->|golden customer records| PROF[\"Snowflake profiles<br/><i>Unified Profile Store</i>\"]:::store\n  PROF -->|traits + audiences| SEG[\"Hightouch · Census<br/><i>Segmentation + Activation</i>\"]:::process\n  SEG -->|synced audiences| DEST[Ads · Email · Product]:::serve\n  PROF -->|customer analytics| AN[Analytics + ML]:::serve\n  GOV[\"Horizon + consent tables<br/><i>Consent + Privacy</i>\"]:::govern -. purpose + opt-outs .-> SEG"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Data Sources]:::source -->|events, CRM, transactions| COL[\"RudderStack · Lakeflow<br/><i>Event Collection</i>\"]:::process\n  COL -->|raw identities| IDR[\"Databricks ML + Zingg<br/><i>Identity Resolution</i>\"]:::process\n  IDR -->|golden customer records| PROF[\"Delta profiles<br/><i>Unified Profile Store</i>\"]:::store\n  PROF -->|traits + audiences| SEG[\"Hightouch · Census<br/><i>Segmentation + Activation</i>\"]:::process\n  SEG -->|synced audiences| DEST[Ads · Email · Product]:::serve\n  PROF -->|customer analytics| AN[Analytics + ML]:::serve\n  GOV[\"Unity Catalog + consent tables<br/><i>Consent + Privacy</i>\"]:::govern -. purpose + opt-outs .-> SEG"
+    }
+  ],
+  "stages": [
+    {
+      "position": 0,
+      "name": "Event collection",
+      "role": "SDKs and pipelines landing behavioral and system data with identifiers intact",
+      "recommended_technology_slug": "segment",
+      "alternative_technology_slugs": [
+        "rudderstack",
+        "mparticle",
+        "apache-kafka"
+      ],
+      "rationale": "Segment defined the collection-SDK category; RudderStack is the warehouse-native open alternative that keeps raw events in your own store."
+    },
+    {
+      "position": 1,
+      "name": "Identity resolution",
+      "role": "Matching identities across systems into a persistent person graph",
+      "recommended_technology_slug": "zingg",
+      "alternative_technology_slugs": [
+        "informatica-mdm",
+        "mparticle"
+      ],
+      "rationale": "Zingg runs ML-based matching on Spark inside your own platform; suite CDPs and MDM tools bundle resolution when you buy rather than build."
+    },
+    {
+      "position": 2,
+      "name": "Profile store",
+      "role": "Golden customer records and computed traits, queryable at scale",
+      "recommended_technology_slug": "snowflake",
+      "alternative_technology_slugs": [
+        "bigquery",
+        "databricks-sql",
+        "postgresql",
+        "redis"
+      ],
+      "rationale": "The composable pattern keeps profiles in the warehouse you already govern; Redis fronts it only when the product needs sub-millisecond profile lookups."
+    },
+    {
+      "position": 3,
+      "name": "Segmentation + activation",
+      "role": "Audience definitions synced continuously to ads, email, and product",
+      "recommended_technology_slug": "hightouch",
+      "alternative_technology_slugs": [
+        "census",
+        "rudderstack"
+      ],
+      "rationale": "Reverse-ETL tools turn warehouse audiences into destination syncs with per-destination field mapping — the activation half of a composable CDP."
+    },
+    {
+      "position": 4,
+      "name": "Consent + privacy",
+      "role": "Purpose, opt-out, and suppression enforcement on every activation path",
+      "recommended_technology_slug": "bigid",
+      "alternative_technology_slugs": [
+        "microsoft-purview",
+        "immuta"
+      ],
+      "rationale": "Consent must gate activation structurally — a privacy platform managing purposes and suppressions is what makes the CDP legally operable."
+    }
+  ]
+}

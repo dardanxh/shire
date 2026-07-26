@@ -1,0 +1,659 @@
+{
+  "slug": "dora",
+  "name": "DORA",
+  "full_name": "Regulation (EU) 2022/2554 on digital operational resilience for the financial sector",
+  "category": "resilience",
+  "region": "eu",
+  "jurisdiction": "European Union (financial sector)",
+  "status": "in_force",
+  "effective_year": 2025,
+  "effective_date": "17 January 2025",
+  "description": "DORA is the EU's digital operational resilience framework for the financial sector. It requires financial entities to manage ICT risk end to end: govern it at board level, protect and monitor systems, handle and report ICT incidents, test resilience regularly, and control the risk introduced by ICT third-party providers. It applies directly in all member states from 17 January 2025 and brings critical ICT vendors such as cloud providers under a dedicated EU oversight framework.",
+  "who_is_impacted": [
+    "Almost the entire regulated EU financial sector is in scope, including banks, payment and e-money institutions, investment firms, and crypto-asset service providers.",
+    "Insurance and reinsurance undertakings, insurance intermediaries, and institutions for occupational retirement provision must comply, with proportionality for smaller players.",
+    "Market infrastructure such as trading venues, central counterparties, central securities depositories, and trade repositories fall within scope.",
+    "Fund managers (AIFMs and UCITS management companies), credit rating agencies, and crowdfunding service providers are also covered.",
+    "ICT third-party service providers, including cloud platforms, are indirectly bound through mandatory contractual provisions, and those designated as critical are placed under direct oversight by an EU Lead Overseer.",
+    "Certain small entities are exempt or benefit from a simplified regime, for example microenterprises and small non-interconnected investment firms apply a lighter ICT risk framework under Article 16."
+  ],
+  "penalties": "No fixed EU-level fines; competent authorities impose administrative penalties and periodic penalty payments (for critical ICT third-party providers up to 1% of average daily worldwide turnover)",
+  "official_url": "https://eur-lex.europa.eu/eli/reg/2022/2554/oj",
+  "unit_label": "article",
+  "triggering_data_classes": ["financial_records", "critical_infrastructure_ops"],
+  "articles": [
+    {
+      "number": "1",
+      "title": "Subject matter",
+      "chapter": "Chapter I — General Provisions"
+    },
+    {
+      "number": "2",
+      "title": "Scope",
+      "chapter": "Chapter I — General Provisions"
+    },
+    {
+      "number": "3",
+      "title": "Definitions",
+      "chapter": "Chapter I — General Provisions"
+    },
+    {
+      "number": "4",
+      "title": "Proportionality principle",
+      "chapter": "Chapter I — General Provisions"
+    },
+    {
+      "number": "5",
+      "title": "Governance and organisation",
+      "chapter": "Chapter II — ICT Risk Management",
+      "is_key": true,
+      "summary": "Makes the management body of a financial entity personally responsible for ICT risk. The board must define, approve and oversee the ICT risk management framework, allocate an appropriate budget, and keep its own ICT risk knowledge up to date. ICT risk becomes a standing governance topic rather than a delegated IT concern.",
+      "key_requirements": [
+        "Establish an internal governance and control framework that ensures effective and prudent management of ICT risk.",
+        "The management body defines, approves, oversees and is accountable for implementing the ICT risk management framework.",
+        "Assign clear roles and responsibilities for all ICT-related functions and set an appropriate ICT budget, including for resilience training.",
+        "Set and periodically review the digital operational resilience strategy and risk tolerance for ICT risk.",
+        "Members of the management body must maintain sufficient knowledge of ICT risk, including through regular training."
+      ],
+      "paragraphs": [
+        {
+          "ref": "5(1)",
+          "text": "Financial entities shall have an internal governance and control framework ensuring effective and prudent management of ICT risk, to achieve a high level of digital operational resilience."
+        },
+        {
+          "ref": "5(2)",
+          "text": "The management body defines, approves, oversees and is accountable for the ICT risk management framework, including setting roles and responsibilities, approving the digital operational resilience strategy and business continuity policy, and allocating appropriate budget."
+        },
+        {
+          "ref": "5(4)",
+          "text": "Members of the management body shall actively keep their knowledge and skills on ICT risk up to date, including by regularly following specific training commensurate with the ICT risk being managed."
+        }
+      ]
+    },
+    {
+      "number": "6",
+      "title": "ICT risk management framework",
+      "chapter": "Chapter II — ICT Risk Management",
+      "is_key": true,
+      "summary": "Requires a sound, comprehensive and well-documented ICT risk management framework covering strategies, policies, procedures, protocols and tools to protect all information and ICT assets. The framework must be reviewed at least yearly and after major incidents, be independently audited, and include a documented digital operational resilience strategy explaining how ICT risk is addressed.",
+      "key_requirements": [
+        "Maintain a documented ICT risk management framework covering strategies, policies, procedures, ICT protocols and tools that protect information assets and ICT assets.",
+        "Minimise the impact of ICT risk through appropriate strategies, policies, procedures and tools that address security and resilience comprehensively.",
+        "Review the framework at least once a year (periodically for microenterprises) and after major ICT-related incidents, supervisory findings or resilience test results.",
+        "Subject the framework to regular internal audit by auditors with sufficient ICT risk knowledge, with a follow-up process for critical findings.",
+        "Adopt a digital operational resilience strategy setting risk tolerance, security objectives and how the framework is implemented."
+      ],
+      "paragraphs": [
+        {
+          "ref": "6(1)",
+          "text": "Financial entities shall have a sound, comprehensive and well-documented ICT risk management framework, as part of their overall risk management system, enabling them to address ICT risk quickly, efficiently and comprehensively."
+        },
+        {
+          "ref": "6(2)",
+          "text": "The framework shall include at least strategies, policies, procedures, ICT protocols and tools necessary to duly and adequately protect all information assets and ICT assets, including hardware and infrastructure."
+        },
+        {
+          "ref": "6(5)",
+          "text": "The framework shall be documented and reviewed at least once a year, as well as upon the occurrence of major ICT-related incidents and following supervisory instructions or conclusions from resilience testing or audits, and shall be continuously improved."
+        },
+        {
+          "ref": "6(8)",
+          "text": "The framework shall include a digital operational resilience strategy setting out how it is implemented, including risk tolerance levels, information security objectives, and mechanisms to detect, protect against and recover from ICT-related incidents."
+        }
+      ]
+    },
+    {
+      "number": "7",
+      "title": "ICT systems, protocols and tools",
+      "chapter": "Chapter II — ICT Risk Management"
+    },
+    {
+      "number": "8",
+      "title": "Identification",
+      "chapter": "Chapter II — ICT Risk Management"
+    },
+    {
+      "number": "9",
+      "title": "Protection and prevention",
+      "chapter": "Chapter II — ICT Risk Management",
+      "is_key": true,
+      "summary": "Sets the preventive security baseline. Financial entities must continuously monitor and control the security and functioning of ICT systems and deploy policies and tools that keep data available, authentic, whole and confidential — whether at rest, in use or in transit. It explicitly calls for network security management, protection against data corruption or loss, and strong authentication backed by protected cryptographic keys.",
+      "key_requirements": [
+        "Continuously monitor and control the security and functioning of ICT systems and tools, and minimise ICT risk through appropriate security tools, policies and procedures.",
+        "Preserve the availability, authenticity, integrity and confidentiality of data at rest, in use and in transit.",
+        "Implement policies limiting access to ICT assets to what is legitimately required, with strong authentication mechanisms and protection of cryptographic keys based on approved data classification and risk processes.",
+        "Manage networks securely, including network connection safeguards and protection of data during transfer.",
+        "Protect against risks of data corruption or loss, unauthorised access and technical flaws, and prevent information leakage.",
+        "Use ICT solutions and processes that are appropriate, reliable, resilient and technologically up to date."
+      ],
+      "paragraphs": [
+        {
+          "ref": "9(1)",
+          "text": "Financial entities shall continuously monitor and control the security and functioning of ICT systems and tools and shall minimise the impact of ICT risk through appropriate ICT security tools, policies and procedures."
+        },
+        {
+          "ref": "9(2)",
+          "text": "Financial entities shall design, procure and implement ICT security policies, procedures, protocols and tools that aim to ensure the resilience, continuity and availability of ICT systems, in particular those supporting critical or important functions, and to maintain high standards of availability, authenticity, integrity and confidentiality of data, whether at rest, in use or in transit."
+        },
+        {
+          "ref": "9(3)",
+          "text": "Financial entities shall use ICT solutions and processes that ensure the security of the means of transfer of data, minimise the risk of corruption or loss of data, unauthorised access and technical flaws, prevent the lack of availability and information leakage, and keep data protected from poor administration or processing-related risks."
+        },
+        {
+          "ref": "9(4)(c-d)",
+          "text": "As part of the ICT risk management framework, entities shall implement policies limiting physical and logical access to ICT assets to what is required for legitimate functions, and shall implement strong authentication mechanisms based on relevant standards and protection measures for cryptographic keys whereby data is encrypted based on approved data classification and ICT risk assessment processes."
+        }
+      ]
+    },
+    {
+      "number": "10",
+      "title": "Detection",
+      "chapter": "Chapter II — ICT Risk Management",
+      "is_key": true,
+      "summary": "Requires mechanisms to promptly detect anomalous activities, ICT performance issues and ICT-related incidents, and to identify potential single points of failure. Detection must operate through multiple layers of control with defined alert thresholds that trigger incident response, including automatic alerting for staff in charge of response.",
+      "key_requirements": [
+        "Have mechanisms to promptly detect anomalous activities, including ICT network performance issues and ICT-related incidents, and to identify potential material single points of failure.",
+        "Test detection mechanisms regularly, including the mechanisms required for reporting under Article 17.",
+        "Enable multiple layers of control, with alert thresholds and criteria that trigger and initiate incident response processes, including automatic alerts for relevant staff.",
+        "Devote sufficient resources and capabilities to monitor user activity, ICT anomalies and ICT-related incidents, in particular cyber-attacks."
+      ],
+      "paragraphs": [
+        {
+          "ref": "10(1)",
+          "text": "Financial entities shall have in place mechanisms to promptly detect anomalous activities, including ICT network performance issues and ICT-related incidents, and to identify potential material single points of failure."
+        },
+        {
+          "ref": "10(2)",
+          "text": "Detection mechanisms shall enable multiple layers of control, define alert thresholds and criteria to trigger and initiate ICT-related incident response processes, and put automatic alert mechanisms in place for staff in charge of response."
+        },
+        {
+          "ref": "10(3)",
+          "text": "Financial entities shall devote sufficient resources and capabilities to monitor user activity, the occurrence of ICT anomalies and ICT-related incidents, in particular cyber-attacks."
+        }
+      ]
+    },
+    {
+      "number": "11",
+      "title": "Response and recovery",
+      "chapter": "Chapter II — ICT Risk Management",
+      "is_key": true,
+      "summary": "Requires a comprehensive ICT business continuity policy with dedicated response and recovery plans. Entities must be able to keep critical functions running during disruptions, contain damage, activate dedicated plans, estimate impacts through business impact analyses, and test continuity and recovery arrangements at least yearly. A crisis management function and internal/external crisis communication plans are mandatory.",
+      "key_requirements": [
+        "Put in place a comprehensive ICT business continuity policy, implemented through dedicated, documented arrangements, plans, procedures and mechanisms.",
+        "Ensure the continuity of critical or important functions, respond to and resolve all ICT-related incidents to limit damage, and activate containment and recovery plans.",
+        "Implement associated ICT response and recovery plans, subject to independent internal audit review where applicable.",
+        "Test ICT business continuity plans and response and recovery plans at least yearly, covering scenarios of cyber-attacks and switchovers between primary and backup infrastructure.",
+        "Conduct business impact analyses of exposure to severe business disruptions and maintain a crisis management function with clear escalation and communication procedures.",
+        "Keep records of activities before and during disruption events and make them available to competent authorities on request."
+      ],
+      "paragraphs": [
+        {
+          "ref": "11(1)",
+          "text": "As part of the ICT risk management framework, financial entities shall put in place a comprehensive ICT business continuity policy, which may be adopted as a dedicated policy forming an integral part of the entity's broader business continuity policy."
+        },
+        {
+          "ref": "11(2)",
+          "text": "The policy shall be implemented through dedicated arrangements, plans, procedures and mechanisms aiming to ensure the continuity of critical or important functions, to quickly and effectively respond to and resolve ICT-related incidents in a way that limits damage, and to activate dedicated plans enabling containment, response and recovery."
+        },
+        {
+          "ref": "11(4)",
+          "text": "Financial entities shall put in place, maintain and periodically test appropriate ICT business continuity plans, notably with regard to critical or important functions outsourced or contracted to ICT third-party service providers."
+        },
+        {
+          "ref": "11(6)",
+          "text": "Financial entities shall test the ICT business continuity plans and the ICT response and recovery plans at least yearly, and after substantive changes to ICT systems supporting critical or important functions, including scenarios of cyber-attacks and switchovers between primary ICT infrastructure and redundant capacity."
+        }
+      ]
+    },
+    {
+      "number": "12",
+      "title": "Backup policies and procedures, restoration and recovery procedures and methods",
+      "chapter": "Chapter II — ICT Risk Management",
+      "is_key": true,
+      "summary": "Mandates documented backup policies specifying what data is backed up and how often, based on criticality, plus restoration and recovery procedures. Backup and restoration systems must be logically and physically segregated from the source system so activating a backup cannot jeopardise it, and redundant ICT capacity must exist to sustain business needs. Restoration must be tested periodically.",
+      "key_requirements": [
+        "Develop and document backup policies and procedures specifying the scope of data subject to backup and the minimum frequency, based on criticality or confidentiality.",
+        "Establish restoration and recovery procedures and methods, and use backup systems that can be activated without jeopardising the security of systems or the availability, authenticity, integrity or confidentiality of data.",
+        "When restoring backup data, use ICT systems that are physically and logically segregated from the source ICT system.",
+        "Maintain redundant ICT capacities with resources, capabilities and functions adequate to ensure business needs.",
+        "Periodically test backup procedures and restoration and recovery procedures and methods.",
+        "Central securities depositories must maintain at least one secondary processing site with adequate resources and immediate access for staff to ensure continuity of critical functions."
+      ],
+      "paragraphs": [
+        {
+          "ref": "12(1)",
+          "text": "For the purpose of ensuring the restoration of ICT systems and data with minimum downtime, limited disruption and loss, financial entities shall develop and document backup policies and procedures specifying the scope of the data subject to backup and the minimum frequency of backup based on the criticality of the information or the confidentiality level of the data, together with restoration and recovery procedures and methods."
+        },
+        {
+          "ref": "12(2)",
+          "text": "Backup systems shall be set up in accordance with the backup policies; their activation shall not jeopardise the security of network and information systems or the availability, authenticity, integrity or confidentiality of data, and backup and restoration procedures shall be tested periodically."
+        },
+        {
+          "ref": "12(3)",
+          "text": "When restoring backup data using own systems, financial entities shall use ICT systems that are physically and logically segregated from the source ICT system, securely protected from unauthorised access or ICT corruption."
+        },
+        {
+          "ref": "12(4)",
+          "text": "Financial entities shall maintain redundant ICT capacities equipped with resources, capabilities and functions that are adequate to ensure business needs."
+        }
+      ]
+    },
+    {
+      "number": "13",
+      "title": "Learning and evolving",
+      "chapter": "Chapter II — ICT Risk Management"
+    },
+    {
+      "number": "14",
+      "title": "Communication",
+      "chapter": "Chapter II — ICT Risk Management"
+    },
+    {
+      "number": "15",
+      "title": "Further harmonisation of ICT risk management tools, methods, processes and policies",
+      "chapter": "Chapter II — ICT Risk Management"
+    },
+    {
+      "number": "16",
+      "title": "Simplified ICT risk management framework",
+      "chapter": "Chapter II — ICT Risk Management"
+    },
+    {
+      "number": "17",
+      "title": "ICT-related incident management process",
+      "chapter": "Chapter III — ICT-Related Incident Management, Classification and Reporting",
+      "is_key": true,
+      "summary": "Requires a defined incident management process to detect, manage and notify ICT-related incidents. Entities must record all ICT-related incidents and significant cyber threats, put early-warning indicators in place, assign roles for each incident type, and follow documented procedures for identification, tracking, escalation, root-cause analysis and communication — including informing senior management and the management body of major incidents.",
+      "key_requirements": [
+        "Define, establish and implement an ICT-related incident management process to detect, manage and notify ICT-related incidents.",
+        "Record all ICT-related incidents and significant cyber threats.",
+        "Put in place early warning indicators and procedures to identify, track, log, categorise and classify incidents according to priority, severity and criticality of services impacted.",
+        "Assign roles and responsibilities that need to be activated for different incident types and scenarios.",
+        "Set out communication plans towards staff, external stakeholders, clients, and internal escalation paths including ICT-related customer complaints.",
+        "Ensure major ICT-related incidents are reported to relevant senior management and that the management body is informed of their impact, response and additional controls."
+      ],
+      "paragraphs": [
+        {
+          "ref": "17(1)",
+          "text": "Financial entities shall define, establish and implement an ICT-related incident management process to detect, manage and notify ICT-related incidents."
+        },
+        {
+          "ref": "17(2)",
+          "text": "Financial entities shall record all ICT-related incidents and significant cyber threats, and shall establish appropriate procedures and processes to ensure consistent and integrated monitoring, handling and follow-up of ICT-related incidents, so that root causes are identified, documented and addressed to prevent recurrence."
+        },
+        {
+          "ref": "17(3)",
+          "text": "The process shall put early warning indicators in place, establish procedures to identify, track, log, categorise and classify incidents according to priority and severity, assign roles for different incident types, set out plans for communication and escalation, and ensure reporting of major incidents to senior management and the management body."
+        }
+      ]
+    },
+    {
+      "number": "18",
+      "title": "Classification of ICT-related incidents and cyber threats",
+      "chapter": "Chapter III — ICT-Related Incident Management, Classification and Reporting"
+    },
+    {
+      "number": "19",
+      "title": "Reporting of major ICT-related incidents and voluntary notification of significant cyber threats",
+      "chapter": "Chapter III — ICT-Related Incident Management, Classification and Reporting",
+      "is_key": true,
+      "summary": "Obliges financial entities to report major ICT-related incidents to their competent authority using a three-stage flow: an initial notification, an intermediate report when status changes materially, and a final report once root-cause analysis is complete (deadlines are set in technical standards). Significant cyber threats may be notified voluntarily. Clients must be informed without undue delay when a major incident affects their financial interests.",
+      "key_requirements": [
+        "Report major ICT-related incidents to the relevant competent authority.",
+        "Submit an initial notification, an intermediate report when the status has changed significantly or handling has materially changed, and a final report when the root cause analysis is complete, within the time limits laid down in regulatory technical standards.",
+        "Inform clients without undue delay when a major ICT-related incident has an impact on their financial interests, including measures taken to mitigate adverse effects.",
+        "For significant cyber threats, inform potentially affected clients of appropriate protection measures; notification of such threats to authorities is voluntary.",
+        "Where applicable, competent authorities forward incident details to other authorities such as the ECB, EBA, ESMA, EIOPA and CSIRTs."
+      ],
+      "paragraphs": [
+        {
+          "ref": "19(1)",
+          "text": "Financial entities shall report major ICT-related incidents to the relevant competent authority, using the harmonised reporting templates, and may on a voluntary basis notify significant cyber threats deemed of relevance to the financial system, service users or clients."
+        },
+        {
+          "ref": "19(3)",
+          "text": "Where a major ICT-related incident has an impact on the financial interests of clients, financial entities shall, without undue delay, inform their clients about the incident and about the measures taken to mitigate its adverse effects; in the case of a significant cyber threat, entities shall inform potentially affected clients of appropriate protection measures."
+        },
+        {
+          "ref": "19(4)",
+          "text": "Financial entities shall submit an initial notification, an intermediate report as soon as the status of the original incident has changed significantly or its handling has changed based on new information, followed as appropriate by updated notifications, and a final report when the root cause analysis has been completed and actual impact figures are available."
+        }
+      ]
+    },
+    {
+      "number": "20",
+      "title": "Harmonisation of reporting content and templates",
+      "chapter": "Chapter III — ICT-Related Incident Management, Classification and Reporting"
+    },
+    {
+      "number": "21",
+      "title": "Centralisation of reporting of major ICT-related incidents",
+      "chapter": "Chapter III — ICT-Related Incident Management, Classification and Reporting"
+    },
+    {
+      "number": "22",
+      "title": "Supervisory feedback",
+      "chapter": "Chapter III — ICT-Related Incident Management, Classification and Reporting"
+    },
+    {
+      "number": "23",
+      "title": "Operational or security payment-related incidents concerning credit institutions, payment institutions, account information service providers and electronic money institutions",
+      "chapter": "Chapter III — ICT-Related Incident Management, Classification and Reporting"
+    },
+    {
+      "number": "24",
+      "title": "General requirements for the performance of digital operational resilience testing",
+      "chapter": "Chapter IV — Digital Operational Resilience Testing",
+      "is_key": true,
+      "summary": "Requires a sound, risk-based digital operational resilience testing programme as an integral part of the ICT risk management framework. Testing must assess preparedness, identify weaknesses and gaps, and drive corrective measures. Tests are carried out by independent parties (internal or external), all critical ICT systems and applications must be tested at least yearly, and issues found must be fully addressed through documented follow-up.",
+      "key_requirements": [
+        "Establish, maintain and review a sound and comprehensive digital operational resilience testing programme as an integral part of the ICT risk management framework.",
+        "Use the programme to assess preparedness for ICT-related incidents, identify weaknesses, deficiencies and gaps, and promptly implement corrective measures.",
+        "Follow a risk-based approach that accounts for the evolving ICT risk landscape, criticality of information assets and services, and any other relevant factor.",
+        "Ensure tests are undertaken by independent parties, internal or external, with conflicts of interest managed for internal testers.",
+        "Establish procedures to prioritise, classify and remedy all issues revealed by tests, with full validation that weaknesses are addressed.",
+        "Test all ICT systems and applications supporting critical or important functions at least yearly."
+      ],
+      "paragraphs": [
+        {
+          "ref": "24(1)",
+          "text": "For the purpose of assessing preparedness for handling ICT-related incidents, of identifying weaknesses, deficiencies and gaps in digital operational resilience, and of promptly implementing corrective measures, financial entities shall establish, maintain and review a sound and comprehensive digital operational resilience testing programme as an integral part of the ICT risk management framework."
+        },
+        {
+          "ref": "24(2)",
+          "text": "The testing programme shall include a range of assessments, tests, methodologies, practices and tools to be applied in accordance with Articles 25 and 26."
+        },
+        {
+          "ref": "24(6)",
+          "text": "Financial entities, other than microenterprises, shall ensure, at least yearly, that appropriate tests are conducted on all ICT systems and applications supporting critical or important functions."
+        }
+      ]
+    },
+    {
+      "number": "25",
+      "title": "Testing of ICT tools and systems",
+      "chapter": "Chapter IV — Digital Operational Resilience Testing"
+    },
+    {
+      "number": "26",
+      "title": "Advanced testing of ICT tools, systems and processes based on TLPT",
+      "chapter": "Chapter IV — Digital Operational Resilience Testing",
+      "is_key": true,
+      "summary": "Requires significant financial entities to carry out advanced threat-led penetration testing (TLPT) at least every three years. TLPT must cover several or all critical or important functions, be performed on live production systems, and follow the TIBER-EU-aligned framework. Where ICT third-party providers support the tested functions they must be included, and entities must obtain an attestation from authorities to enable mutual recognition of tests.",
+      "key_requirements": [
+        "Financial entities identified for advanced testing must carry out threat-led penetration testing at least every three years, or at a frequency adjusted by the competent authority.",
+        "Each TLPT must cover several or all critical or important functions and be performed on live production systems supporting them.",
+        "Include ICT third-party service providers underpinning the tested functions in the TLPT, with contractual safeguards, or rely on pooled testing arranged by the provider.",
+        "Apply effective risk management controls to mitigate potential impact on data, assets and services during testing.",
+        "Use testers meeting the requirements of Article 27; significant credit institutions must use external testers.",
+        "Obtain an attestation summary from the authority after test closure to allow mutual recognition of TLPT across authorities."
+      ],
+      "paragraphs": [
+        {
+          "ref": "26(1)",
+          "text": "Financial entities identified in accordance with paragraph 8, other than microenterprises, shall carry out at least every three years advanced testing by means of threat-led penetration testing; based on the entity's risk profile and operational circumstances the competent authority may reduce or increase this frequency."
+        },
+        {
+          "ref": "26(2)",
+          "text": "Each threat-led penetration test shall cover several or all critical or important functions of a financial entity, and shall be performed on live production systems supporting such functions."
+        },
+        {
+          "ref": "26(3)",
+          "text": "Where ICT third-party service providers are included in the scope of TLPT, the financial entity shall take the necessary measures and safeguards to ensure their participation, and shall retain at all times full responsibility for compliance with this Regulation."
+        }
+      ]
+    },
+    {
+      "number": "27",
+      "title": "Requirements for testers for the carrying out of TLPT",
+      "chapter": "Chapter IV — Digital Operational Resilience Testing"
+    },
+    {
+      "number": "28",
+      "title": "General principles",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk",
+      "is_key": true,
+      "summary": "Makes ICT third-party risk an integral component of ICT risk management. Financial entities stay fully responsible for compliance regardless of outsourcing, must adopt a strategy on ICT third-party risk, keep a register of information on all contractual arrangements with ICT providers, perform due diligence before contracting, and only contract with providers meeting appropriate security standards. Exit strategies are required for services supporting critical or important functions.",
+      "key_requirements": [
+        "Manage ICT third-party risk as an integral component of ICT risk within the ICT risk management framework, in line with the principle of proportionality.",
+        "Remain fully responsible at all times for compliance with DORA, regardless of any use of ICT third-party service providers.",
+        "Adopt and regularly review a strategy on ICT third-party risk, including a policy on the use of ICT services supporting critical or important functions provided by third parties.",
+        "Maintain and update a register of information on all contractual arrangements with ICT third-party providers, distinguishing those covering critical or important functions, and report to authorities on new arrangements.",
+        "Before contracting, assess whether the arrangement covers a critical or important function, assess supervisory conditions, identify conflicts of interest, and perform due diligence on the provider's suitability including information security standards.",
+        "Put exit strategies in place for ICT services supporting critical or important functions, with transition plans that avoid disruption and ensure continuity."
+      ],
+      "paragraphs": [
+        {
+          "ref": "28(1)",
+          "text": "Financial entities shall manage ICT third-party risk as an integral component of ICT risk within their ICT risk management framework, and financial entities that have contractual arrangements for the use of ICT services shall at all times remain fully responsible for compliance with, and the discharge of, all obligations under this Regulation and applicable financial services law."
+        },
+        {
+          "ref": "28(2)",
+          "text": "As part of their ICT risk management framework, financial entities shall adopt and regularly review a strategy on ICT third-party risk, taking into account a multi-vendor strategy where applicable, including a policy on the use of ICT services supporting critical or important functions provided by ICT third-party service providers."
+        },
+        {
+          "ref": "28(3)",
+          "text": "Financial entities shall maintain and update at entity, sub-consolidated and consolidated levels a register of information in relation to all contractual arrangements on the use of ICT services provided by ICT third-party service providers, distinguishing those that cover critical or important functions, and shall report at least yearly to competent authorities on new arrangements."
+        },
+        {
+          "ref": "28(8)",
+          "text": "For ICT services supporting critical or important functions, financial entities shall put in place exit strategies that take into account risks of failure or deterioration of the provider, and shall identify alternative solutions and develop transition plans enabling removal of contracted services and data from the provider without disrupting business activities or compromising service continuity."
+        }
+      ]
+    },
+    {
+      "number": "29",
+      "title": "Preliminary assessment of ICT concentration risk at entity level",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk"
+    },
+    {
+      "number": "30",
+      "title": "Key contractual provisions",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk",
+      "is_key": true,
+      "summary": "Prescribes the minimum content of contracts with ICT third-party service providers. All contracts must describe the services, data locations, data protection provisions, access and recovery of data on exit, service levels, and incident assistance. Contracts supporting critical or important functions must additionally include full service level descriptions, notice obligations, unrestricted audit and inspection rights, exit transition periods, and TLPT participation.",
+      "key_requirements": [
+        "Set out the rights and obligations of both parties in a written contract that includes the full contractual documentation.",
+        "Include for all ICT services: a clear description of functions and services, locations where data is processed, provisions on availability, authenticity, integrity and confidentiality of data, and guaranteed access, recovery and return of data on insolvency or contract termination.",
+        "Include service level descriptions, incident assistance obligations, cooperation with competent authorities, and termination rights with minimum notice periods.",
+        "For critical or important functions: full service level agreements with precise quantitative and qualitative performance targets and monitoring rights.",
+        "For critical or important functions: notice periods and reporting obligations, participation in TLPT where applicable, unrestricted rights of access, inspection and audit, and mandatory adequate transition periods on exit."
+      ],
+      "paragraphs": [
+        {
+          "ref": "30(1)",
+          "text": "The rights and obligations of the financial entity and of the ICT third-party service provider shall be clearly allocated and set out in writing; the full contract shall include the service level agreements and be documented in one written document available on paper or in a downloadable, durable and accessible format."
+        },
+        {
+          "ref": "30(2)",
+          "text": "Contractual arrangements on the use of ICT services shall include at least: a clear and complete description of all functions and services; the locations where functions are provided and data is processed, with notice of changes; provisions on availability, authenticity, integrity and confidentiality of data including personal data; provisions on access, recovery and return of data in the event of insolvency, resolution or termination; service level descriptions; assistance in case of ICT incidents; cooperation with competent authorities; and termination rights."
+        },
+        {
+          "ref": "30(3)",
+          "text": "For ICT services supporting critical or important functions, contracts shall additionally include full service level descriptions with precise performance targets, notice periods and reporting obligations, requirements to implement and test business contingency plans and ICT security measures, participation in the entity's TLPT, unrestricted rights of access, inspection and audit by the financial entity or an appointed third party and the competent authority, and exit strategies with an adequate mandatory transition period."
+        }
+      ]
+    },
+    {
+      "number": "31",
+      "title": "Designation of critical ICT third-party service providers",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk"
+    },
+    {
+      "number": "32",
+      "title": "Structure of the Oversight Framework",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk"
+    },
+    {
+      "number": "33",
+      "title": "Tasks of the Lead Overseer",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk"
+    },
+    {
+      "number": "34",
+      "title": "Operational coordination between Lead Overseers",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk"
+    },
+    {
+      "number": "35",
+      "title": "Powers of the Lead Overseer",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk"
+    },
+    {
+      "number": "36",
+      "title": "Exercise of the powers of the Lead Overseer outside the Union",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk"
+    },
+    {
+      "number": "37",
+      "title": "Request for information",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk"
+    },
+    {
+      "number": "38",
+      "title": "General investigations",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk"
+    },
+    {
+      "number": "39",
+      "title": "Inspections",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk"
+    },
+    {
+      "number": "40",
+      "title": "Ongoing oversight",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk"
+    },
+    {
+      "number": "41",
+      "title": "Harmonisation of conditions enabling the conduct of the oversight activities",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk"
+    },
+    {
+      "number": "42",
+      "title": "Follow-up by competent authorities",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk"
+    },
+    {
+      "number": "43",
+      "title": "Oversight fees",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk"
+    },
+    {
+      "number": "44",
+      "title": "International cooperation",
+      "chapter": "Chapter V — Managing of ICT Third-Party Risk"
+    },
+    {
+      "number": "45",
+      "title": "Information-sharing arrangements on cyber threat information and intelligence",
+      "chapter": "Chapter VI — Information-Sharing Arrangements"
+    },
+    {
+      "number": "46",
+      "title": "Competent authorities",
+      "chapter": "Chapter VII — Competent Authorities"
+    },
+    {
+      "number": "47",
+      "title": "Cooperation with structures and authorities established by Directive (EU) 2022/2555",
+      "chapter": "Chapter VII — Competent Authorities"
+    },
+    {
+      "number": "48",
+      "title": "Cooperation between authorities",
+      "chapter": "Chapter VII — Competent Authorities"
+    },
+    {
+      "number": "49",
+      "title": "Financial cross-sector exercises, communication and cooperation",
+      "chapter": "Chapter VII — Competent Authorities"
+    },
+    {
+      "number": "50",
+      "title": "Administrative penalties and remedial measures",
+      "chapter": "Chapter VII — Competent Authorities"
+    },
+    {
+      "number": "51",
+      "title": "Exercise of the power to impose administrative penalties and remedial measures",
+      "chapter": "Chapter VII — Competent Authorities"
+    },
+    {
+      "number": "52",
+      "title": "Criminal penalties",
+      "chapter": "Chapter VII — Competent Authorities"
+    },
+    {
+      "number": "53",
+      "title": "Notification duties",
+      "chapter": "Chapter VII — Competent Authorities"
+    },
+    {
+      "number": "54",
+      "title": "Publication of administrative penalties",
+      "chapter": "Chapter VII — Competent Authorities"
+    },
+    {
+      "number": "55",
+      "title": "Professional secrecy",
+      "chapter": "Chapter VII — Competent Authorities"
+    },
+    {
+      "number": "56",
+      "title": "Data protection",
+      "chapter": "Chapter VII — Competent Authorities"
+    },
+    {
+      "number": "57",
+      "title": "Exercise of the delegation",
+      "chapter": "Chapter VIII — Delegated Acts"
+    },
+    {
+      "number": "58",
+      "title": "Review clause",
+      "chapter": "Chapter IX — Transitional and Final Provisions"
+    },
+    {
+      "number": "59",
+      "title": "Amendments to Regulation (EC) No 1060/2009",
+      "chapter": "Chapter IX — Transitional and Final Provisions"
+    },
+    {
+      "number": "60",
+      "title": "Amendments to Regulation (EU) No 648/2012",
+      "chapter": "Chapter IX — Transitional and Final Provisions"
+    },
+    {
+      "number": "61",
+      "title": "Amendments to Regulation (EU) No 600/2014",
+      "chapter": "Chapter IX — Transitional and Final Provisions"
+    },
+    {
+      "number": "62",
+      "title": "Amendments to Regulation (EU) No 909/2014",
+      "chapter": "Chapter IX — Transitional and Final Provisions"
+    },
+    {
+      "number": "63",
+      "title": "Amendment to Regulation (EU) 2016/1011",
+      "chapter": "Chapter IX — Transitional and Final Provisions"
+    },
+    {
+      "number": "64",
+      "title": "Entry into force and application",
+      "chapter": "Chapter IX — Transitional and Final Provisions"
+    }
+  ],
+  "related_practice_slugs": [
+    "encryption-at-rest",
+    "key-management",
+    "backup-recovery",
+    "audit-logging"
+  ],
+  "related_technology_slugs": [
+    "hashicorp-vault",
+    "aws-kms"
+  ],
+  "position": 120
+}

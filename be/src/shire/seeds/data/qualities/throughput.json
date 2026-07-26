@@ -1,0 +1,169 @@
+{
+  "slug": "throughput",
+  "name": "Throughput",
+  "category": "performance",
+  "summary": "The volume of data an architecture can process per unit of time — records per second or gigabytes per hour — regardless of any single item's latency.",
+  "description": "Throughput measures raw processing capacity: how much data moves through the pipeline in a window. It is maximized by batching, wide parallelism across partitions, columnar formats, and vectorized execution that amortize per-record overhead. Throughput often trades against latency — larger batches and buffering raise throughput but delay individual results — so high-throughput designs favor bulk work over fast single-item response.",
+  "mechanisms": [
+    {
+      "name": "Batching and micro-batching",
+      "note": "Grouping records amortizes fixed per-operation cost, dramatically raising records processed per second.",
+      "related_technology_slugs": [
+        "apache-spark",
+        "spark-structured-streaming",
+        "google-cloud-dataflow"
+      ]
+    },
+    {
+      "name": "Partition-level parallelism",
+      "note": "More partitions mean more independent workers processing in parallel, scaling aggregate throughput.",
+      "related_technology_slugs": [
+        "apache-kafka",
+        "apache-flink",
+        "dask",
+        "ray"
+      ]
+    },
+    {
+      "name": "Columnar storage formats",
+      "note": "Column-oriented files let scans read only needed columns with high compression, cutting IO per row processed.",
+      "related_technology_slugs": [
+        "parquet",
+        "apache-iceberg",
+        "delta-lake",
+        "clickhouse"
+      ]
+    },
+    {
+      "name": "Vectorized query execution",
+      "note": "Processing batches of values through SIMD-optimized operators moves far more rows per CPU cycle than row-at-a-time.",
+      "related_technology_slugs": [
+        "duckdb",
+        "clickhouse",
+        "polars",
+        "starrocks"
+      ]
+    },
+    {
+      "name": "Backpressure handling",
+      "note": "Flow control lets fast producers and slow consumers coexist without loss, sustaining maximum stable throughput.",
+      "related_technology_slugs": [
+        "apache-flink",
+        "apache-pulsar",
+        "redpanda"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "classic-batch-etl",
+      "rating": "strong",
+      "statement": "Large scheduled batches maximize records-per-run by amortizing setup cost, making bulk throughput the whole point of the pattern."
+    },
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "strong",
+      "statement": "Distributed Spark jobs over columnar Parquet-backed tables sustain very high GB/hr as bronze data is transformed in wide parallel passes."
+    },
+    {
+      "blueprint_slug": "log-clickstream-analytics",
+      "rating": "strong",
+      "statement": "Partitioned ingest and columnar OLAP storage absorb enormous event volumes per hour, prioritizing bulk ingestion over per-event latency."
+    },
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "strong",
+      "statement": "Partition parallelism and backpressure let stream operators sustain high steady-state event throughput across a scaled-out cluster."
+    },
+    {
+      "blueprint_slug": "iot-telemetry-platform",
+      "rating": "strong",
+      "statement": "Fleets emit continuous high-volume telemetry, and partitioned ingest with batched writes keeps aggregate ingestion throughput high."
+    },
+    {
+      "blueprint_slug": "open-iceberg-lakehouse",
+      "rating": "strong",
+      "statement": "Columnar Iceberg files scanned in parallel by MPP engines deliver high analytical throughput over one shared copy of the data."
+    },
+    {
+      "blueprint_slug": "small-data-duckdb-stack",
+      "rating": "moderate",
+      "statement": "Vectorized single-node execution gives excellent per-core throughput on modest data, but it cannot fan out beyond one machine's limits."
+    },
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "strong",
+      "statement": "Set-based SQL transformations on MPP warehouses process large tables in bulk, giving high transformation throughput per run."
+    },
+    {
+      "blueprint_slug": "data-vault-warehouse",
+      "rating": "moderate",
+      "statement": "Pattern-based parallel loads ingest many sources with good throughput, but the many-join read path caps analytical throughput without marts."
+    },
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "moderate",
+      "statement": "Change streams keep steady per-change throughput, but merge/upsert into the target and high-churn tables can throttle sustained volume."
+    },
+    {
+      "blueprint_slug": "real-time-analytics-serving",
+      "rating": "trade-off",
+      "statement": "The engine deliberately favors sub-second point queries and small writes over bulk throughput, so heavy backfills strain the serving tier."
+    },
+    {
+      "blueprint_slug": "streaming-lakehouse",
+      "rating": "moderate",
+      "statement": "Continuous small commits keep tables fresh but produce many small files, trading some bulk throughput and requiring compaction to recover it."
+    },
+    {
+      "blueprint_slug": "query-federation",
+      "rating": "limited",
+      "statement": "Aggregate throughput is gated by the weakest source and by cross-source data movement, so it rarely matches a co-located warehouse."
+    },
+    {
+      "blueprint_slug": "reverse-etl-activation-loop",
+      "rating": "limited",
+      "statement": "Destination SaaS API rate limits cap how many records can be pushed per hour, making downstream throughput the binding constraint."
+    },
+    {
+      "blueprint_slug": "rag-pipeline",
+      "rating": "moderate",
+      "statement": "Bulk embedding of a corpus parallelizes for high indexing throughput, but per-query LLM generation is inherently low-throughput at serving time."
+    },
+    {
+      "blueprint_slug": "lambda-batch-speed",
+      "rating": "strong",
+      "statement": "The batch layer maximizes historical reprocessing throughput while the speed layer handles freshness, letting each optimize its own dimension."
+    }
+  ],
+  "related_technology_slugs": [
+    "apache-spark",
+    "apache-kafka",
+    "clickhouse",
+    "parquet",
+    "apache-flink",
+    "duckdb"
+  ],
+  "related_quality_slugs": [
+    "latency",
+    "scalability"
+  ],
+  "position": 30,
+  "tradeoffs": [
+    {
+      "title": "Latency",
+      "note": "Maximizing throughput favors batching and buffering work for efficiency, which raises per-item and end-to-end latency because records wait to be processed in bulk.",
+      "quality_slug": "latency"
+    },
+    {
+      "title": "Cost efficiency",
+      "note": "Sustaining very high throughput requires large, often always-on clusters sized for peak volume, so aggregate spend rises even as cost per record falls.",
+      "quality_slug": "cost-efficiency"
+    },
+    {
+      "title": "Consistency",
+      "note": "Pushing volume through heavy parallelism relaxes ordering and exactly-once guarantees, so achieving strict consistency across many concurrent workers caps how much throughput you can extract.",
+      "quality_slug": "consistency"
+    }
+  ]
+}

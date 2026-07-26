@@ -1,0 +1,185 @@
+{
+  "slug": "replayability",
+  "name": "Replayability",
+  "category": "recovery",
+  "summary": "The ability to reprocess historical data or events deterministically to rebuild state or fix a bug.",
+  "description": "Replayability is the capacity to re-run past inputs through the pipeline and arrive at the same — or a corrected — result. It underpins bug fixes (rerun after fixing transform logic), disaster recovery (rebuild a corrupted downstream from source), and reprocessing (adopt a new schema retroactively). It depends on retaining an immutable, replayable source of truth (a durable event log or immutable raw/bronze layer) and on transforms being deterministic. It weakens sharply when the source is mutated in place, logs have short retention, or transforms depend on non-reproducible external state.",
+  "mechanisms": [
+    {
+      "name": "Event log retention",
+      "note": "Retaining the raw event log (or compacted tiers) long enough lets consumers rewind to any offset and replay history through updated logic.",
+      "related_technology_slugs": [
+        "apache-kafka",
+        "apache-pulsar",
+        "warpstream",
+        "azure-event-hubs"
+      ]
+    },
+    {
+      "name": "Immutable raw / bronze layer",
+      "note": "Landing source data append-only and never mutating it in place preserves a faithful record that any downstream layer can be rebuilt from.",
+      "related_technology_slugs": [
+        "amazon-s3",
+        "google-cloud-storage",
+        "delta-lake",
+        "apache-iceberg"
+      ]
+    },
+    {
+      "name": "Time-travel snapshots",
+      "note": "Table formats keep prior snapshots/versions so a replay can read the data exactly as it was at a point in time rather than as it is now.",
+      "related_technology_slugs": [
+        "apache-iceberg",
+        "delta-lake",
+        "apache-hudi",
+        "snowflake"
+      ]
+    },
+    {
+      "name": "Deterministic transforms",
+      "note": "Pure, side-effect-free transformations that depend only on their inputs guarantee that replaying the same source yields the same output.",
+      "related_technology_slugs": [
+        "apache-flink",
+        "spark-structured-streaming",
+        "dbt",
+        "sqlmesh"
+      ]
+    },
+    {
+      "name": "Reprocessing from source",
+      "note": "Reset consumer offsets or re-read raw partitions to feed history through a new pipeline version, materializing a fresh corrected state.",
+      "related_technology_slugs": [
+        "apache-flink",
+        "kafka-streams",
+        "apache-spark",
+        "bytewax"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "strong",
+      "statement": "Replay is the defining idea: retain the log, reset offsets to zero, and re-run the (new) stream job to rebuild all derived state from history — no separate batch path needed."
+    },
+    {
+      "blueprint_slug": "event-driven-architecture",
+      "rating": "strong",
+      "statement": "A durable, retained event log lets any consumer rewind and reprocess past events through updated handlers, making it natural to rebuild a projection or onboard a new service against full history."
+    },
+    {
+      "blueprint_slug": "streaming-lakehouse",
+      "rating": "strong",
+      "statement": "The immutable log plus versioned table snapshots means history can be replayed into corrected tables, and time-travel lets consumers verify against the state as it stood at any commit."
+    },
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "strong",
+      "statement": "Bronze is retained immutable raw, so silver and gold can be fully recomputed from history after a logic fix; time-travel on the table format supports point-in-time replays."
+    },
+    {
+      "blueprint_slug": "log-clickstream-analytics",
+      "rating": "strong",
+      "statement": "Raw events are kept append-only at volume, so aggregations and sessionization can be replayed from source whenever the enrichment or attribution logic changes."
+    },
+    {
+      "blueprint_slug": "open-iceberg-lakehouse",
+      "rating": "strong",
+      "statement": "Snapshot history and time-travel make it straightforward to replay transforms against the data as it existed at a prior snapshot and rebuild downstream tables deterministically."
+    },
+    {
+      "blueprint_slug": "lambda-batch-speed",
+      "rating": "strong",
+      "statement": "The batch layer exists precisely to recompute authoritative views from immutable master data, so replaying corrected logic over full history is a first-class, designed-for operation."
+    },
+    {
+      "blueprint_slug": "iot-telemetry-platform",
+      "rating": "moderate",
+      "statement": "Telemetry retained in the log and raw store can be replayed to rebuild aggregates, though extreme fleet volumes often force shorter log retention, capping how far back a full replay can reach."
+    },
+    {
+      "blueprint_slug": "classic-raw-data-lake",
+      "rating": "moderate",
+      "statement": "Everything lands immutable schema-on-read, so raw is always available to reprocess; replay determinism is only as good as the ad-hoc jobs reading it, which are not always reproducible."
+    },
+    {
+      "blueprint_slug": "elt-modern-data-stack",
+      "rating": "moderate",
+      "statement": "If raw loads are retained, dbt models replay deterministically via full-refresh; replay is bounded by how much raw history the ingestion tool kept rather than by the transforms."
+    },
+    {
+      "blueprint_slug": "layered-warehouse-dbt",
+      "rating": "moderate",
+      "statement": "Staging preserves source-shaped data so marts can be rebuilt on demand, but if staging itself is incrementally overwritten, replaying beyond retained history is not possible."
+    },
+    {
+      "blueprint_slug": "data-vault-warehouse",
+      "rating": "moderate",
+      "statement": "Insert-only satellites keep full history so information marts can be recomputed from the vault, giving strong within-warehouse replay; replaying the ingestion of a source itself still depends on that source's retention."
+    },
+    {
+      "blueprint_slug": "ml-feature-pipeline",
+      "rating": "moderate",
+      "statement": "Point-in-time-correct offline stores let feature logic be replayed over history to regenerate training sets, but reproducing the exact online serving state at a past instant is harder and often approximate."
+    },
+    {
+      "blueprint_slug": "classic-batch-etl",
+      "rating": "trade-off",
+      "statement": "Transform-before-load often discards or overwrites source detail in the governed target, so replaying corrected logic is only possible if raw extracts were separately retained — frequently they were not."
+    },
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "trade-off",
+      "statement": "CDC upserts mutate the target to mirror current source state, so unless change events are archived, past states are overwritten and cannot be replayed — you see now, not as-of."
+    },
+    {
+      "blueprint_slug": "kimball-data-warehouse",
+      "rating": "trade-off",
+      "statement": "Type-1 dimensions overwrite prior attribute values in place, sacrificing the ability to replay history for those attributes; only Type-2 tracked columns and retained staging support a faithful replay."
+    },
+    {
+      "blueprint_slug": "reverse-etl-activation-loop",
+      "rating": "limited",
+      "statement": "Replaying means re-pushing history into SaaS destinations, which mutate live business state (emails, records); it is rarely safe to replay for correctness and there is no source-of-truth log to rewind."
+    },
+    {
+      "blueprint_slug": "query-federation",
+      "rating": "limited",
+      "statement": "Federation reads remote sources live and stores nothing, so there is no retained history under its control to replay; you can only re-query whatever the underlying systems currently hold."
+    }
+  ],
+  "related_technology_slugs": [
+    "apache-kafka",
+    "apache-flink",
+    "delta-lake",
+    "apache-iceberg",
+    "amazon-s3",
+    "dbt"
+  ],
+  "related_quality_slugs": [
+    "restartability",
+    "backfill-capability"
+  ],
+  "position": 20,
+  "tradeoffs": [
+    {
+      "title": "Cost efficiency",
+      "note": "Replay requires retaining raw events or the immutable event log for long windows, and that extended storage footprint drives up ongoing storage bills.",
+      "quality_slug": "cost-efficiency"
+    },
+    {
+      "title": "Throughput",
+      "note": "Reprocessing historical data competes with live workloads for the same compute and I/O, so replay runs throttle or slow current ingestion unless capacity is over-provisioned.",
+      "quality_slug": "throughput"
+    },
+    {
+      "title": "Maintainability",
+      "note": "Every transform must remain deterministic and version-pinned so a replay reproduces identical results, adding discipline around versioning code, config, and reference data.",
+      "quality_slug": "maintainability"
+    },
+    {
+      "title": "Operational complexity",
+      "note": "Coordinating replays without corrupting downstream state requires careful sequencing, watermark handling, and isolation from live outputs."
+    }
+  ]
+}

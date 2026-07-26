@@ -1,0 +1,225 @@
+{
+  "slug": "sox",
+  "name": "SOX",
+  "full_name": "Sarbanes-Oxley Act of 2002",
+  "category": "financial",
+  "region": "us",
+  "jurisdiction": "United States (SEC-registered companies)",
+  "status": "in_force",
+  "effective_year": 2002,
+  "effective_date": "30 July 2002",
+  "description": "The Sarbanes-Oxley Act was enacted after the Enron and WorldCom accounting scandals to restore trust in public-company financial reporting. It created the PCAOB to oversee auditors, requires CEOs and CFOs to personally certify financial reports, and mandates management assessment (and auditor attestation) of internal control over financial reporting. For data teams, SOX translates into strict access control, change management, audit trails, and retention over any system that feeds the financial statements — the so-called ITGC (IT general controls) layer. Destruction or falsification of records to obstruct investigations carries criminal penalties.",
+  "who_is_impacted": [
+    "US public companies registered with the SEC, including their boards, audit committees, and executive officers who must certify filings under sections 302 and 906.",
+    "Foreign private issuers listed on US exchanges are covered, making SOX effectively extraterritorial for any company tapping US capital markets.",
+    "Registered public accounting firms that audit public companies fall under PCAOB registration, inspection, and auditor-independence rules.",
+    "IT, data engineering, and platform teams operating systems in scope for financial reporting (ERP, billing, revenue pipelines, data warehouses feeding financial close) carry the ITGC burden: access provisioning, segregation of duties, change management, and audit logging.",
+    "Smaller reporting companies and emerging growth companies get relief from the section 404(b) auditor attestation, but management's own 404(a) assessment and the certification requirements still apply.",
+    "Private companies are largely out of scope, but the criminal provisions on document destruction (section 802) and whistleblower retaliation apply to anyone obstructing a federal investigation, and pre-IPO companies typically remediate toward SOX readiness."
+  ],
+  "penalties": "Criminal penalties up to $5M and 20 years imprisonment for certifying false financials (§ 906); up to 20 years for records destruction (§ 802); SEC civil enforcement",
+  "official_url": "https://www.govinfo.gov/content/pkg/PLAW-107publ204/pdf/PLAW-107publ204.pdf",
+  "unit_label": "section",
+  "triggering_data_classes": ["financial_records"],
+  "articles": [
+    {
+      "number": "101",
+      "title": "Establishment of the Public Company Accounting Oversight Board",
+      "chapter": "Title I — Public Company Accounting Oversight Board"
+    },
+    {
+      "number": "104",
+      "title": "Inspections of Registered Public Accounting Firms",
+      "chapter": "Title I — Public Company Accounting Oversight Board"
+    },
+    {
+      "number": "201",
+      "title": "Services Outside the Scope of Practice of Auditors (Prohibited Non-Audit Services)",
+      "chapter": "Title II — Auditor Independence"
+    },
+    {
+      "number": "203",
+      "title": "Audit Partner Rotation",
+      "chapter": "Title II — Auditor Independence"
+    },
+    {
+      "number": "301",
+      "title": "Public Company Audit Committees",
+      "chapter": "Title III — Corporate Responsibility"
+    },
+    {
+      "number": "302",
+      "title": "Corporate Responsibility for Financial Reports",
+      "chapter": "Title III — Corporate Responsibility",
+      "is_key": true,
+      "summary": "The personal-accountability core of SOX: the CEO and CFO must certify each annual and quarterly report. They certify that they reviewed the report, that it contains no material misstatements or omissions, and that the financial statements fairly present the company's condition. Crucially for data and IT teams, they also certify that they are responsible for establishing and maintaining disclosure controls and procedures, have evaluated their effectiveness within 90 days of the report, and have disclosed to auditors and the audit committee all significant control deficiencies, material weaknesses, and any fraud involving personnel with a control role.",
+      "key_requirements": [
+        "CEO and CFO personally certify each annual and quarterly SEC report's accuracy and completeness.",
+        "Certify responsibility for designing and maintaining disclosure controls and procedures, and evaluate their effectiveness within 90 days prior to the report.",
+        "Disclose to the auditors and audit committee all significant deficiencies and material weaknesses in internal controls.",
+        "Disclose any fraud, material or not, involving management or employees with a significant role in internal controls.",
+        "Report significant changes in internal controls, including corrective actions, made after the evaluation date — which pulls system and pipeline changes into quarterly sub-certification processes."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)(1)-(3)",
+          "text": "The principal executive and principal financial officers must certify in each annual or quarterly report that they have reviewed the report, that based on their knowledge it does not contain any untrue statement of a material fact or omit a material fact needed to make the statements not misleading, and that the financial statements and other financial information fairly present, in all material respects, the financial condition and results of operations of the issuer."
+        },
+        {
+          "ref": "(a)(4)",
+          "text": "The signing officers certify that they are responsible for establishing and maintaining internal controls, have designed those controls to ensure material information about the issuer and its consolidated subsidiaries is made known to them, have evaluated the controls' effectiveness within 90 days prior to the report, and have presented their conclusions about that effectiveness in the report."
+        },
+        {
+          "ref": "(a)(5)-(6)",
+          "text": "The officers certify that they have disclosed to the auditors and the audit committee all significant deficiencies in the design or operation of internal controls that could adversely affect the ability to record, process, summarize, and report financial data, any material weaknesses, and any fraud involving management or other employees with a significant role in internal controls; and that they have indicated in the report whether there were significant changes in internal controls, or factors that could significantly affect them, subsequent to the evaluation, including corrective actions."
+        }
+      ]
+    },
+    {
+      "number": "303",
+      "title": "Improper Influence on Conduct of Audits",
+      "chapter": "Title III — Corporate Responsibility"
+    },
+    {
+      "number": "304",
+      "title": "Forfeiture of Certain Bonuses and Profits (Clawback After Restatement)",
+      "chapter": "Title III — Corporate Responsibility"
+    },
+    {
+      "number": "401",
+      "title": "Disclosures in Periodic Reports (Off-Balance-Sheet Transactions; Pro Forma Figures)",
+      "chapter": "Title IV — Enhanced Financial Disclosures"
+    },
+    {
+      "number": "404",
+      "title": "Management Assessment of Internal Controls",
+      "chapter": "Title IV — Enhanced Financial Disclosures",
+      "is_key": true,
+      "summary": "The section that drives most SOX compliance work. Each annual report must contain an internal control report in which management states its responsibility for establishing and maintaining adequate internal control over financial reporting (ICFR) and assesses its effectiveness as of year-end; the external auditor must attest to that assessment (404(b), waived for smaller filers). Because financial data lives in databases, warehouses, and pipelines, the practical data relevance is IT general controls: who can access and change financial data and systems, how changes are approved and deployed, segregation of duties between development and production, and audit trails proving all of it.",
+      "key_requirements": [
+        "Include an annual internal control report stating management's responsibility for adequate internal control over financial reporting.",
+        "Assess ICFR effectiveness annually against a recognized framework (in practice COSO), documenting scope, controls, and testing.",
+        "Obtain the registered auditor's attestation on ICFR (404(b)) unless exempt as a non-accelerated or emerging growth filer.",
+        "Enforce IT general controls over in-scope systems: access provisioning and deprovisioning, periodic access reviews, and segregation of duties over financial data.",
+        "Apply controlled change management to financial systems and data pipelines — approvals, testing, deployment separation, and audit trails for schema, code, and configuration changes.",
+        "Remediate and disclose material weaknesses; a single unmitigated material weakness means ICFR is not effective."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)",
+          "text": "The SEC shall prescribe rules requiring each annual report to contain an internal control report which states the responsibility of management for establishing and maintaining an adequate internal control structure and procedures for financial reporting, and contains an assessment, as of the end of the most recent fiscal year, of the effectiveness of that internal control structure and those procedures."
+        },
+        {
+          "ref": "(b)",
+          "text": "With respect to the internal control assessment, each registered public accounting firm that prepares or issues the audit report for the issuer shall attest to, and report on, the assessment made by management, in accordance with standards for attestation engagements issued or adopted by the PCAOB; the attestation shall not be the subject of a separate engagement. (Non-accelerated filers and emerging growth companies are exempt from this auditor attestation.)"
+        },
+        {
+          "ref": "ITGC practice",
+          "text": "In implementation, management's assessment extends to the IT general controls beneath the financial statements: logical access controls and periodic user access reviews on ERPs, databases, and data warehouses in scope; segregation of duties so no one person can both make and approve changes to financial data or code; change management with documented approval, testing, and deployment records; and job scheduling, interfaces, and backup controls ensuring completeness and accuracy of financial data flows."
+        }
+      ]
+    },
+    {
+      "number": "406",
+      "title": "Code of Ethics for Senior Financial Officers",
+      "chapter": "Title IV — Enhanced Financial Disclosures"
+    },
+    {
+      "number": "407",
+      "title": "Disclosure of Audit Committee Financial Expert",
+      "chapter": "Title IV — Enhanced Financial Disclosures"
+    },
+    {
+      "number": "409",
+      "title": "Real Time Issuer Disclosures",
+      "chapter": "Title IV — Enhanced Financial Disclosures",
+      "is_key": true,
+      "summary": "Issuers must disclose material changes in their financial condition or operations to the public on a rapid and current basis, in plain English, potentially including trend and qualitative information and graphics. The SEC implements this mainly through Form 8-K, whose triggering events generally demand filing within four business days. For data organizations, section 409 is the reason financial reporting pipelines need to be near-real-time and reliable: the company must be able to detect a material event in its data and report it in days, not at quarter close.",
+      "key_requirements": [
+        "Disclose material changes in financial condition or operations on a rapid and current basis (Form 8-K, generally within four business days of the triggering event).",
+        "Present disclosures in plain English, including trend, qualitative, and graphic presentations where useful to investors.",
+        "Maintain monitoring and escalation processes so material events — including major system outages, cyber incidents, or data losses that affect operations — are identified quickly enough to meet the deadline.",
+        "Keep financial data pipelines timely and trustworthy so a material change is visible in the data when it happens, not weeks later."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(l)",
+          "text": "Each issuer reporting under section 13(a) or 15(d) of the Exchange Act shall disclose to the public on a rapid and current basis such additional information concerning material changes in the financial condition or operations of the issuer, in plain English, which may include trend and qualitative information and graphic presentations, as the Commission determines by rule is necessary or useful for the protection of investors and in the public interest."
+        },
+        {
+          "ref": "Implementation",
+          "text": "The SEC operationalized the mandate by expanding Form 8-K: enumerated events — entry into or termination of material agreements, financial obligations, impairments, delisting notices, non-reliance on previously issued financial statements, changes in control or officers, and (since 2023) material cybersecurity incidents — must generally be reported within four business days, which requires internal detection, evaluation, and disclosure processes that run continuously."
+        }
+      ]
+    },
+    {
+      "number": "802",
+      "title": "Criminal Penalties for Altering Documents (Records Destruction; Audit Record Retention)",
+      "chapter": "Title VIII — Corporate and Criminal Fraud Accountability",
+      "is_key": true,
+      "summary": "Makes destroying or falsifying records to obstruct a federal investigation a felony punishable by up to 20 years, and separately requires accountants who audit public companies to retain audit workpapers for five years (SEC rules extend the practical period to seven), with violation itself punishable by up to 10 years. This is the statutory backbone of legal hold and records-retention programs: deletion pipelines, log rotation, and data lifecycle automation must all be suspendable when an investigation or audit is foreseeable, and audit-relevant records must be immutable for the retention window.",
+      "key_requirements": [
+        "Never alter, destroy, conceal, or falsify records or documents with intent to impede or influence a federal investigation or bankruptcy matter — penalties reach 20 years' imprisonment.",
+        "Retain audit and review workpapers for public-company audits for at least five years from the end of the fiscal period (seven years under implementing SEC Rule 2-06).",
+        "Implement legal hold mechanisms that can suspend automated deletion, retention expiry, and log rotation across data stores when litigation or investigation is reasonably anticipated.",
+        "Keep financial records, emails, and audit-relevant electronic communications in tamper-evident, retrievable storage for the required period."
+      ],
+      "paragraphs": [
+        {
+          "ref": "1519",
+          "text": "Whoever knowingly alters, destroys, mutilates, conceals, covers up, falsifies, or makes a false entry in any record, document, or tangible object with the intent to impede, obstruct, or influence the investigation or proper administration of any matter within the jurisdiction of any department or agency of the United States, or any bankruptcy case, or in relation to or contemplation of any such matter, shall be fined, imprisoned not more than 20 years, or both."
+        },
+        {
+          "ref": "1520(a)",
+          "text": "Any accountant who conducts an audit of an issuer of securities shall maintain all audit or review workpapers for a period of 5 years from the end of the fiscal period in which the audit or review was concluded; the SEC is directed to promulgate rules on the retention of relevant records — including electronic records — that form the basis of the audit or review (Rule 2-06 sets seven years)."
+        },
+        {
+          "ref": "1520(b)",
+          "text": "Whoever knowingly and willfully violates the workpaper-retention requirement or the SEC's implementing rules shall be fined, imprisoned not more than 10 years, or both; the section does not relieve any person of any other duty to maintain records under other law."
+        }
+      ]
+    },
+    {
+      "number": "806",
+      "title": "Protection for Employees of Publicly Traded Companies Who Provide Evidence of Fraud (Whistleblower Protection)",
+      "chapter": "Title VIII — Corporate and Criminal Fraud Accountability"
+    },
+    {
+      "number": "906",
+      "title": "Corporate Responsibility for Financial Reports (Criminal CEO/CFO Certification)",
+      "chapter": "Title IX — White-Collar Crime Penalty Enhancements",
+      "is_key": true,
+      "summary": "The criminal counterpart to section 302. Every periodic report containing financial statements must be accompanied by a written CEO and CFO certification that the report fully complies with the Exchange Act's reporting requirements and fairly presents, in all material respects, the issuer's financial condition and results. Certifying while knowing the report does not comply is punishable by up to $1 million and 10 years; willfully certifying a known-false report raises that to $5 million and 20 years. It is the sharpest personal incentive executives have to demand provably accurate data and controls beneath their financial statements.",
+      "key_requirements": [
+        "Accompany each periodic report containing financial statements with a written section 906 certification signed by the CEO and CFO.",
+        "Certify that the report fully complies with section 13(a) or 15(d) of the Securities Exchange Act of 1934.",
+        "Certify that the information fairly presents, in all material respects, the financial condition and results of operations of the issuer.",
+        "Support the certification with a defensible chain of evidence — sub-certifications, control testing, and reliable data lineage from source systems to reported figures."
+      ],
+      "paragraphs": [
+        {
+          "ref": "(a)-(b)",
+          "text": "Each periodic report containing financial statements filed with the SEC under section 13(a) or 15(d) of the Exchange Act shall be accompanied by a written statement of the chief executive officer and chief financial officer certifying that the report fully complies with those reporting requirements and that the information contained in the report fairly presents, in all material respects, the financial condition and results of operations of the issuer."
+        },
+        {
+          "ref": "(c)",
+          "text": "Whoever certifies the statement knowing that the report does not comport with all the requirements shall be fined not more than $1,000,000 or imprisoned not more than 10 years, or both; whoever willfully certifies the statement knowing the report does not comport shall be fined not more than $5,000,000 or imprisoned not more than 20 years, or both."
+        }
+      ]
+    },
+    {
+      "number": "1102",
+      "title": "Tampering with a Record or Otherwise Impeding an Official Proceeding",
+      "chapter": "Title XI — Corporate Fraud Accountability"
+    }
+  ],
+  "related_practice_slugs": [
+    "access-control-rbac-abac",
+    "least-privilege-reviews",
+    "audit-logging",
+    "data-retention-deletion",
+    "backup-recovery"
+  ],
+  "related_technology_slugs": ["immuta", "apache-ranger"],
+  "position": 50
+}

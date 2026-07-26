@@ -1,0 +1,163 @@
+{
+  "slug": "rag-pipeline",
+  "name": "RAG pipeline",
+  "use_case": "LLM apps over private corpus",
+  "description": "Retrieval-augmented generation grounds an LLM in your private corpus: documents are ingested and chunked, embedded into vectors by a batch pipeline, indexed in a vector store, retrieved at query time by a service that assembles context for the LLM, and continuously evaluated so retrieval quality is measured rather than vibed. The unglamorous truth this blueprint encodes: RAG quality is decided in the data engineering, not the model. Chunking strategy, metadata extraction, embedding freshness, and retrieval tuning (hybrid search, reranking, filters) dominate outcomes — teams that treat RAG as a data pipeline with an LLM at the end outperform teams that treat it as an LLM app with a database attached.\n\nTwo design decisions deserve the most scrutiny. First, chunking: naive fixed-size splitting is the baseline, but structure-aware chunking (headings, tables, code blocks preserved), chunk overlap, and rich metadata (source, section, permissions, recency) are where retrieval precision is won — and permissions metadata is non-negotiable if the corpus has access controls, because the vector store must filter at query time or the RAG app becomes a data-leak oracle. Second, the eval loop: without a golden question set and retrieval metrics (hit rate, MRR, faithfulness), every chunking or embedding change is a blind bet, and the pipeline will silently regress as the corpus grows.\n\nOperationally this is a living pipeline, not a one-shot index: documents change, so ingestion must detect updates and re-embed incrementally; embedding-model upgrades force full re-indexing (version your embeddings); and cost lives in the embedding batch and LLM calls, both of which caching tames. The retrieval API is a thin, testable service boundary — keep the framework inside it, not smeared through the application.",
+  "when_to_use": [
+    "Choose this when an LLM application must answer from private, changing knowledge — internal docs, support knowledge bases, contracts, codebases — where fine-tuning is the wrong tool (knowledge churns, sources must be cited, access control matters).",
+    "It fits as soon as corpus size or freshness rules out stuffing everything into context, and the team can commit to evaluation as a practice.",
+    "Users ask questions your documents can answer but keyword search cannot."
+  ],
+  "when_not_to_use": [
+    "Skip RAG when the corpus is small and stable enough for long-context prompting — retrieval infrastructure for a hundred pages is overengineering.",
+    "It does not fix reasoning or style problems (that is prompting/fine-tuning territory), and it cannot compensate for a corpus that is wrong or contradictory — garbage retrieved is garbage generated.",
+    "If answers must be exact database facts, text-to-SQL over governed marts beats semantic search over prose."
+  ],
+  "use_cases": [
+    "ai"
+  ],
+  "hot_spots": [
+    {
+      "title": "Chunking quality",
+      "detail": "Bad chunk boundaries retrieve fragments that make answers confidently wrong."
+    },
+    {
+      "title": "Index freshness",
+      "detail": "Stale embeddings answer from documents that no longer exist."
+    },
+    {
+      "title": "Retrieval relevance",
+      "detail": "Top-k misses bury the right context and hallucinations fill the gap."
+    },
+    {
+      "title": "Evaluation blind spots",
+      "detail": "Without golden question sets, quality regressions ship unnoticed."
+    }
+  ],
+  "complexity": "medium",
+  "evolution": [],
+  "diagrams": [
+    {
+      "kind": "conceptual",
+      "mermaid": "flowchart LR\n  SRC[Document Sources]:::source -->|documents| DL[Document Landing Store]:::store\n  DL -->|raw corpus| CHK[Ingestion + Chunking]:::process\n  CHK -->|passages| EMB[Embedding]:::process\n  EMB -->|vectors + metadata| VS[Vector Store]:::store\n  VS -->|relevant context| RET[Retrieval]:::process\n  RET -->|grounded prompts| APP[Assistant Application]:::serve\n  APP -->|answers| USR[Users]:::serve\n  EVAL[Answer Evaluation]:::govern -. quality feedback .-> RET"
+    },
+    {
+      "kind": "logical",
+      "mermaid": "flowchart LR\n  DOC[Docs + Wikis + Tickets]:::source -->|crawled documents| DLL[Document Object Store]:::store\n  DLL -->|raw corpus| CH[Chunking Service]:::process\n  CH -->|passages| EM[Embedding Model Service]:::process\n  EM -->|vector upserts| VDB[Vector Database]:::store\n  VDB -->|top-k search| RA[Retrieval API]:::process\n  RA -->|context window| LLM[LLM Application]:::serve\n  EH[Eval Harness]:::govern -. scored answer sets .-> RA"
+    },
+    {
+      "kind": "data_flow",
+      "mermaid": "flowchart LR\n  A([source documents]):::source -->|snapshot| DL2([landed raw documents]):::store\n  DL2 -->|chunk| B([passages]):::process\n  B -->|embed| C([vectors + metadata]):::store\n  C -->|index| E([searchable corpus]):::store\n  E -->|retrieve top-k| F([relevant context]):::process\n  F -->|generate| G([grounded answers]):::serve"
+    },
+    {
+      "kind": "sequence",
+      "mermaid": "sequenceDiagram\n  participant C as Crawler\n  participant K as Chunker\n  participant D as Document Landing\n  participant E as Embedder\n  participant V as Vector Store\n  participant U as User\n  participant A as Assistant\n  C->>D: snapshot raw documents\n  K->>D: read raw corpus\n  K->>E: passages\n  E->>V: upsert vectors\n  U->>A: question\n  A->>V: retrieve top-k context\n  A->>A: prompt LLM with context\n  A-->>U: grounded answer with citations"
+    },
+    {
+      "kind": "stack_aws",
+      "mermaid": "flowchart LR\n  SRC[Document Sources]:::source -->|documents| DL[\"Amazon S3 documents<br/><i>Document Landing Store</i>\"]:::store\n  DL -->|raw corpus| CHK[\"AWS Bedrock Knowledge Bases ingestion<br/><i>Ingestion + Chunking</i>\"]:::process\n  CHK -->|passages| EMB[\"Amazon Bedrock embeddings<br/><i>Embedding</i>\"]:::process\n  EMB -->|vectors + metadata| VS[\"Amazon OpenSearch vector engine<br/><i>Vector Store</i>\"]:::store\n  VS -->|relevant context| RET[\"Bedrock Knowledge Bases retrieval<br/><i>Retrieval</i>\"]:::process\n  RET -->|grounded prompts| APP[\"Amazon Bedrock agents<br/><i>Assistant Application</i>\"]:::serve\n  APP -->|answers| USR[Users]:::serve\n  EVAL[\"Bedrock evaluations<br/><i>Answer Evaluation</i>\"]:::govern -. quality feedback .-> RET"
+    },
+    {
+      "kind": "stack_azure",
+      "mermaid": "flowchart LR\n  SRC[Document Sources]:::source -->|documents| DL[\"Azure Blob documents<br/><i>Document Landing Store</i>\"]:::store\n  DL -->|raw corpus| CHK[\"Azure AI Search indexers<br/><i>Ingestion + Chunking</i>\"]:::process\n  CHK -->|passages| EMB[\"Azure OpenAI embeddings<br/><i>Embedding</i>\"]:::process\n  EMB -->|vectors + metadata| VS[\"Azure AI Search<br/><i>Vector Store</i>\"]:::store\n  VS -->|relevant context| RET[\"Azure AI Search retrieval<br/><i>Retrieval</i>\"]:::process\n  RET -->|grounded prompts| APP[\"Azure OpenAI app<br/><i>Assistant Application</i>\"]:::serve\n  APP -->|answers| USR[Users]:::serve\n  EVAL[\"Azure AI evaluation<br/><i>Answer Evaluation</i>\"]:::govern -. quality feedback .-> RET"
+    },
+    {
+      "kind": "stack_gcp",
+      "mermaid": "flowchart LR\n  SRC[Document Sources]:::source -->|documents| DL[\"GCS documents<br/><i>Document Landing Store</i>\"]:::store\n  DL -->|raw corpus| CHK[\"Vertex AI RAG ingestion<br/><i>Ingestion + Chunking</i>\"]:::process\n  CHK -->|passages| EMB[\"Vertex AI embeddings<br/><i>Embedding</i>\"]:::process\n  EMB -->|vectors + metadata| VS[\"Vertex AI Vector Search<br/><i>Vector Store</i>\"]:::store\n  VS -->|relevant context| RET[\"Vertex AI RAG retrieval<br/><i>Retrieval</i>\"]:::process\n  RET -->|grounded prompts| APP[\"Google Gemini app<br/><i>Assistant Application</i>\"]:::serve\n  APP -->|answers| USR[Users]:::serve\n  EVAL[\"Vertex AI evaluation<br/><i>Answer Evaluation</i>\"]:::govern -. quality feedback .-> RET"
+    },
+    {
+      "kind": "stack_open_source",
+      "mermaid": "flowchart LR\n  SRC[Document Sources]:::source -->|documents| DL[\"MinIO documents<br/><i>Document Landing Store</i>\"]:::store\n  DL -->|raw corpus| CHK[\"LangChain · LlamaIndex<br/><i>Ingestion + Chunking</i>\"]:::process\n  CHK -->|passages| EMB[\"Sentence-Transformers<br/><i>Embedding</i>\"]:::process\n  EMB -->|vectors + metadata| VS[\"Qdrant · Weaviate · pgvector<br/><i>Vector Store</i>\"]:::store\n  VS -->|relevant context| RET[\"LangChain retrievers<br/><i>Retrieval</i>\"]:::process\n  RET -->|grounded prompts| APP[\"Ollama · vLLM app<br/><i>Assistant Application</i>\"]:::serve\n  APP -->|answers| USR[Users]:::serve\n  EVAL[\"Ragas · promptfoo<br/><i>Answer Evaluation</i>\"]:::govern -. quality feedback .-> RET"
+    },
+    {
+      "kind": "stack_snowflake",
+      "mermaid": "flowchart LR\n  SRC[Document Sources]:::source -->|documents| DL[\"Snowflake stage documents<br/><i>Document Landing Store</i>\"]:::store\n  DL -->|raw corpus| CHK[\"Snowflake Cortex Search ingestion<br/><i>Ingestion + Chunking</i>\"]:::process\n  CHK -->|passages| EMB[\"Snowflake Cortex embeddings<br/><i>Embedding</i>\"]:::process\n  EMB -->|vectors + metadata| VS[\"Snowflake Cortex Search<br/><i>Vector Store</i>\"]:::store\n  VS -->|relevant context| RET[\"Cortex Search retrieval<br/><i>Retrieval</i>\"]:::process\n  RET -->|grounded prompts| APP[\"Snowflake Cortex Analyst<br/><i>Assistant Application</i>\"]:::serve\n  APP -->|answers| USR[Users]:::serve\n  EVAL[\"Cortex eval harness<br/><i>Answer Evaluation</i>\"]:::govern -. quality feedback .-> RET"
+    },
+    {
+      "kind": "stack_databricks",
+      "mermaid": "flowchart LR\n  SRC[Document Sources]:::source -->|documents| DL[\"Unity Catalog volumes<br/><i>Document Landing Store</i>\"]:::store\n  DL -->|raw corpus| CHK[\"Databricks Vector Search ingestion<br/><i>Ingestion + Chunking</i>\"]:::process\n  CHK -->|passages| EMB[\"Databricks Foundation Model embeddings<br/><i>Embedding</i>\"]:::process\n  EMB -->|vectors + metadata| VS[\"Databricks Vector Search<br/><i>Vector Store</i>\"]:::store\n  VS -->|relevant context| RET[\"Vector Search retrieval API<br/><i>Retrieval</i>\"]:::process\n  RET -->|grounded prompts| APP[\"Databricks Mosaic AI agents<br/><i>Assistant Application</i>\"]:::serve\n  APP -->|answers| USR[Users]:::serve\n  EVAL[\"MLflow LLM evaluate<br/><i>Answer Evaluation</i>\"]:::govern -. quality feedback .-> RET"
+    }
+  ],
+  "family_tags": [
+    "ml-ai-infrastructure"
+  ],
+  "archetype_slugs": [
+    "vector-database-rag-pipeline",
+    "embedding-pipeline",
+    "llm-corpus-preparation"
+  ],
+  "position": 16,
+  "stages": [
+    {
+      "name": "Document landing",
+      "role": "Raw document snapshots — re-chunk and re-embed without re-crawling sources",
+      "recommended_technology_slug": "amazon-s3",
+      "alternative_technology_slugs": [
+        "azure-blob-storage",
+        "google-cloud-storage",
+        "minio"
+      ],
+      "rationale": "Cheap immutable object storage as the landing layer decouples ingestion from processing: replays, backfills, and audits read the raw dump instead of re-extracting from sources."
+    },
+    {
+      "position": 0,
+      "name": "Ingest/chunk",
+      "role": "Parse heterogeneous documents, split into retrieval-sized chunks with structure and metadata preserved — the doc's 'custom+LlamaIndex': expect real custom code around the framework",
+      "recommended_technology_slug": "llamaindex",
+      "alternative_technology_slugs": [
+        "langchain",
+        "haystack"
+      ],
+      "rationale": "LlamaIndex is the most retrieval-focused of the frameworks — its document loaders, structure-aware node parsers, and metadata extractors cover the 80% of ingestion that is standard, which is why it edges out LangChain (broader agent/orchestration scope, heavier abstraction) for this stage specifically; Haystack is the production-lean third option with clean pipeline semantics. But the doc says 'custom' first for a reason: real corpora have proprietary formats, tables, permission models, and update-detection needs no framework handles out of the box — plan for the framework to be scaffolding around your own parsing and chunking logic, not a turnkey ingester. Preserve document structure and attach permissions/source/recency metadata at this stage; nothing downstream can add what chunking threw away."
+    },
+    {
+      "position": 1,
+      "name": "Embed",
+      "role": "Batch pipeline computing embeddings for new and changed chunks — an orchestrated job calling an embedding model, not a corpus product itself",
+      "recommended_technology_slug": "dagster",
+      "alternative_technology_slugs": [
+        "apache-airflow",
+        "ray",
+        "apache-spark"
+      ],
+      "rationale": "The doc's 'batch pipeline' is an orchestration problem: detect changed chunks, batch them against an embedding model API (or self-hosted model), handle rate limits and retries, write vectors with version tags — Dagster's asset model fits this incremental-materialization shape naturally, and Airflow does the same job if it is already your orchestrator. Ray earns the slot when embedding self-hosted models at scale, parallelizing GPU inference across a corpus; Spark when embedding rides along an existing large-scale document-processing pipeline. Two disciplines matter more than the tool: incremental re-embedding keyed on content hashes (full re-runs get expensive fast), and embedding-model versioning — vectors from different models are incomparable, so an upgrade means a full, planned re-index."
+    },
+    {
+      "position": 2,
+      "name": "Vector store",
+      "role": "Index embeddings for low-latency similarity search with metadata filtering and hybrid retrieval",
+      "recommended_technology_slug": "qdrant",
+      "alternative_technology_slugs": [
+        "pgvector",
+        "weaviate",
+        "milvus",
+        "pinecone"
+      ],
+      "rationale": "Qdrant hits the sweet spot: strong filtered-search performance (critical, since permission and metadata filters run on every real query), hybrid dense+sparse retrieval, quantization for cost control, and simple single-binary operations with a managed cloud available. pgvector is the deliberately boring alternative that wins more often than vendors admit — if corpus size is under a few million chunks and Postgres is already in the stack, one less system beats better ANN benchmarks. Weaviate brings built-in hybrid search and a module ecosystem; Milvus scales furthest for billion-vector estates at real operational cost; Pinecone is the zero-ops managed pick at a premium. Benchmark with your filters applied — filtered ANN performance varies wildly and unfiltered benchmarks are marketing."
+    },
+    {
+      "position": 3,
+      "name": "Retrieval API",
+      "role": "Query-time service: embed the query, retrieve and rerank chunks, enforce permissions, assemble LLM context — a thin service you build; no corpus product owns this seat",
+      "recommended_technology_slug": null,
+      "alternative_technology_slugs": [
+        "llamaindex",
+        "langchain",
+        "haystack"
+      ],
+      "rationale": "This is your own service (FastAPI-style, matching the rest of your stack) and keeping it a thin, explicit boundary is the architectural point: query embedding, hybrid retrieval, reranking, permission filtering, and context assembly behind one testable interface — so the vector store, embedding model, or framework can each be swapped without touching the application. LlamaIndex/LangChain/Haystack are useful inside the service for retriever and reranker plumbing, but resist letting a framework's abstractions become the API surface; framework churn is high and your contract should outlive it. Reranking (a cross-encoder over the top-k) is the single highest-leverage addition once basic retrieval works — cheap, and routinely worth more than embedding-model upgrades."
+    },
+    {
+      "position": 4,
+      "name": "Eval loop",
+      "role": "Continuously measure retrieval and answer quality against golden sets; gate pipeline changes — dedicated RAG-eval tools (Ragas, LangSmith, Braintrust) have no corpus entry, so the nearest real slug is the experiment tracker",
+      "recommended_technology_slug": "mlflow",
+      "alternative_technology_slugs": [
+        "weights-and-biases",
+        "langchain",
+        "dspy"
+      ],
+      "rationale": "The eval loop is what separates a RAG system from a RAG demo: a golden set of question-answer-source triples, retrieval metrics (hit rate, MRR, precision@k) and generation metrics (faithfulness, relevance — typically LLM-judged), run in CI so chunking and model changes are gated on evidence. The category leaders (Ragas for metrics, LangSmith/Braintrust for tracing and eval platforms) lack corpus entries; MLflow is the closest real slug — its evaluation and tracing features track eval runs and artifacts credibly, and W&B plays the same role. DSPy reframes the loop as optimization, tuning prompts and retrieval against your metric automatically. Whatever the tooling, build the golden set in week one and grow it from real user queries — it is the most valuable artifact this pipeline produces."
+    }
+  ]
+}

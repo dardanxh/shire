@@ -1,0 +1,198 @@
+{
+  "slug": "latency",
+  "name": "Latency",
+  "category": "performance",
+  "summary": "End-to-end freshness — the time between an event occurring and a result being available to query — where lower is better and batch cadence is the enemy.",
+  "description": "Latency is how stale the data is when someone reads it, and how fast a single query returns. It is driven down by streaming and CDC that process events as they arrive, incremental computation, materialized views, in-memory serving, and pre-aggregation. Batch architectures deliberately accept high latency in exchange for simplicity and throughput, while real-time designs invest heavily to reach sub-second freshness. Latency frequently trades against throughput and cost.",
+  "mechanisms": [
+    {
+      "name": "Streaming and change data capture",
+      "note": "Processing events the moment they arrive, instead of on a batch schedule, collapses freshness delay to seconds or less.",
+      "related_technology_slugs": [
+        "apache-flink",
+        "debezium",
+        "materialize",
+        "risingwave"
+      ]
+    },
+    {
+      "name": "Incremental processing",
+      "note": "Recomputing only changed rows rather than full rebuilds shortens each cycle and keeps outputs continuously current.",
+      "related_technology_slugs": [
+        "dbt",
+        "sqlmesh",
+        "spark-structured-streaming"
+      ]
+    },
+    {
+      "name": "Materialized views",
+      "note": "Maintaining query results incrementally as data changes serves fresh answers without recomputing on read.",
+      "related_technology_slugs": [
+        "materialize",
+        "risingwave",
+        "ksqldb"
+      ]
+    },
+    {
+      "name": "In-memory low-latency serving",
+      "note": "Keeping hot data resident in memory-optimized stores answers point lookups and dashboards in single-digit milliseconds.",
+      "related_technology_slugs": [
+        "redis",
+        "apache-pinot",
+        "apache-druid",
+        "clickhouse"
+      ]
+    },
+    {
+      "name": "Pre-aggregation and rollups",
+      "note": "Precomputing rollups turns expensive scans into fast reads, cutting query latency at the cost of extra write work.",
+      "related_technology_slugs": [
+        "apache-druid",
+        "starrocks",
+        "cube"
+      ]
+    }
+  ],
+  "manifestations": [
+    {
+      "blueprint_slug": "real-time-analytics-serving",
+      "rating": "strong",
+      "statement": "Fresh events stream into a memory-optimized OLAP engine with pre-aggregation, delivering sub-second dashboards and APIs on near-live data."
+    },
+    {
+      "blueprint_slug": "kappa-streaming-pipeline",
+      "rating": "strong",
+      "statement": "Every record is processed as it flows through the log, so derived views stay seconds-fresh with no batch cadence in the path."
+    },
+    {
+      "blueprint_slug": "cdc-replication-to-warehouse",
+      "rating": "strong",
+      "statement": "Capturing commit-log changes as they happen gives the analytics mirror low-latency freshness far ahead of nightly extracts."
+    },
+    {
+      "blueprint_slug": "event-driven-architecture",
+      "rating": "strong",
+      "statement": "Contract-first events propagate the instant they are published, so downstream services react with minimal end-to-end delay."
+    },
+    {
+      "blueprint_slug": "streaming-lakehouse",
+      "rating": "strong",
+      "statement": "Continuous small commits keep open tables minutes-fresh, giving lakehouse economics with far lower latency than batch loads."
+    },
+    {
+      "blueprint_slug": "embedded-analytics",
+      "rating": "moderate",
+      "statement": "Pre-aggregated tenant models answer in-product queries fast, but data freshness still depends on the upstream load cadence."
+    },
+    {
+      "blueprint_slug": "lambda-batch-speed",
+      "rating": "moderate",
+      "statement": "The speed layer serves fresh approximate results with low latency while the batch layer trails behind, so freshness is mixed by design."
+    },
+    {
+      "blueprint_slug": "ml-feature-pipeline",
+      "rating": "moderate",
+      "statement": "An online store serves features at low latency for inference, while the offline path remains batch and lags for training data."
+    },
+    {
+      "blueprint_slug": "iot-telemetry-platform",
+      "rating": "moderate",
+      "statement": "Telemetry streams in with low ingest latency, but end-to-end freshness depends on whether analytics reads the stream or a batched store."
+    },
+    {
+      "blueprint_slug": "classic-batch-etl",
+      "rating": "trade-off",
+      "statement": "Data is only as fresh as the last scheduled run, so nightly or hourly batches deliberately accept high latency for simplicity and throughput."
+    },
+    {
+      "blueprint_slug": "kimball-data-warehouse",
+      "rating": "limited",
+      "statement": "Dimensional loads run on batch windows, so reports reflect the previous load and cannot serve truly live data without added streaming."
+    },
+    {
+      "blueprint_slug": "inmon-cif-edw",
+      "rating": "limited",
+      "statement": "The normalized enterprise core is built by periodic integration loads, prioritizing consistency over freshness and yielding high latency."
+    },
+    {
+      "blueprint_slug": "medallion-lakehouse",
+      "rating": "trade-off",
+      "statement": "Batch bronze-to-gold promotion favors throughput and cost, so gold tables lag by the batch interval unless a streaming path is added."
+    },
+    {
+      "blueprint_slug": "reverse-etl-activation-loop",
+      "rating": "limited",
+      "statement": "Activation runs on sync schedules after warehouse loads complete, so insights reach SaaS tools well after the underlying events occurred."
+    },
+    {
+      "blueprint_slug": "query-federation",
+      "rating": "trade-off",
+      "statement": "Avoiding copies means each query pays cross-source network and pushdown cost at read time, trading freshness convenience for higher per-query latency."
+    },
+    {
+      "blueprint_slug": "rag-pipeline",
+      "rating": "trade-off",
+      "statement": "Retrieval is fast, but LLM generation dominates end-to-end response time, so answer latency is bounded by the model rather than the data path."
+    },
+    {
+      "blueprint_slug": "data-vault-warehouse",
+      "rating": "limited",
+      "statement": "Audit-oriented batch loads and the many-join read path make both freshness and query response slow without downstream marts."
+    },
+    {
+      "blueprint_slug": "data-sharing-clean-room",
+      "rating": "trade-off",
+      "statement": "Governed, policy-enforced access through a sharing gateway adds authorization and query-mediation overhead, so collaborative queries are slower than reading a local private copy."
+    },
+    {
+      "blueprint_slug": "pii-safe-analytics-zone",
+      "rating": "trade-off",
+      "statement": "Dynamic masking, tokenization lookups, and row-level security filters are evaluated per query, adding a governance tax that lengthens response times on sensitive data."
+    },
+    {
+      "blueprint_slug": "semantic-metrics-layer",
+      "rating": "moderate",
+      "statement": "Definitions compile down to warehouse SQL so latency largely tracks the engine, though the abstraction can emit heavier joins than hand-tuned queries."
+    },
+    {
+      "blueprint_slug": "multi-tenant-saas-analytics",
+      "rating": "moderate",
+      "statement": "Pre-aggregation and tenant-scoped serving keep customer-facing dashboards fast, but strict isolation and per-tenant filtering add predicate overhead versus a single pooled query."
+    }
+  ],
+  "related_technology_slugs": [
+    "apache-flink",
+    "materialize",
+    "debezium",
+    "apache-pinot",
+    "redis",
+    "clickhouse"
+  ],
+  "related_quality_slugs": [
+    "throughput",
+    "availability"
+  ],
+  "position": 40,
+  "tradeoffs": [
+    {
+      "title": "Throughput",
+      "note": "Serving the freshest data means processing each event individually rather than in large batches, which lowers bulk efficiency and the total volume the system can push through.",
+      "quality_slug": "throughput"
+    },
+    {
+      "title": "Cost efficiency",
+      "note": "Low latency needs always-on streaming pipelines and in-memory serving layers running 24/7, so you pay for standing capacity even during quiet periods.",
+      "quality_slug": "cost-efficiency"
+    },
+    {
+      "title": "Consistency",
+      "note": "Racing to serve the newest data forces reads before all replicas or aggregations settle, so ultra-low latency often means accepting eventual or partial reads.",
+      "quality_slug": "consistency"
+    },
+    {
+      "title": "Operational complexity",
+      "note": "Streaming and CDC stacks with stateful operators, watermarks, and exactly-once tuning are operationally complex to build, monitor, and recover compared with periodic batch jobs.",
+      "quality_slug": "maintainability"
+    }
+  ]
+}
