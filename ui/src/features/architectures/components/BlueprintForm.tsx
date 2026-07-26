@@ -23,9 +23,9 @@ import {
 import { MermaidDiagram } from "@/components/shared/MermaidDiagram";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { FAMILIES, useArchetypesQuery } from "@/features/archetypes";
 import { useTechnologyCorpusQuery } from "@/features/technologies";
 import type { Blueprint, CreateBlueprint, UpdateBlueprint } from "../api";
+import { FAMILIES } from "../families";
 import {
   type BlueprintFormValues,
   buildBlueprintFormSchema,
@@ -54,7 +54,6 @@ export const EMPTY_BLUEPRINT_FORM: BlueprintFormValues = {
   diagram_stack_snowflake: "",
   diagram_stack_databricks: "",
   family_tags: [],
-  archetype_slugs: [],
   stages: [],
 };
 
@@ -141,7 +140,6 @@ export function blueprintFormToCreatePayload(
     evolution: [],
     diagrams: diagramsToPayload(values),
     family_tags: values.family_tags,
-    archetype_slugs: values.archetype_slugs,
     position: 0,
     stages: stagesToPayload(values.stages),
   };
@@ -161,7 +159,6 @@ export function blueprintFormToUpdatePayload(
     hot_spots: hotSpotsFromLines(values.hot_spots),
     diagrams: diagramsToPayload(values),
     family_tags: values.family_tags,
-    archetype_slugs: values.archetype_slugs,
     stages: stagesToPayload(values.stages),
   };
 }
@@ -194,7 +191,6 @@ export function blueprintToFormValues(
     diagram_stack_snowflake: diagramOf(blueprint, "stack_snowflake"),
     diagram_stack_databricks: diagramOf(blueprint, "stack_databricks"),
     family_tags: blueprint.family_tags,
-    archetype_slugs: blueprint.archetype_slugs,
     stages: blueprint.stages.map((stage) => ({
       name: stage.name,
       role: stage.role,
@@ -339,19 +335,14 @@ export function BlueprintForm({
 }: BlueprintFormProps) {
   const { t } = useTranslation();
   const { data: corpus } = useTechnologyCorpusQuery();
-  const { data: archetypesPage } = useArchetypesQuery({ page: 1, size: 100 });
 
   const technologyOptions = (corpus ?? []).map((tech) => ({
     value: tech.id,
     label: tech.name,
   }));
-  const archetypeOptions = (archetypesPage?.items ?? []).map((archetype) => ({
-    value: archetype.slug,
-    label: archetype.name,
-  }));
   const familyOptions = FAMILIES.map((family) => ({
     value: family as string,
-    label: t(`archetypes.family.${family}`),
+    label: t(`blueprints.family.${family}`),
   }));
   const useCaseOptions = USE_CASE_SLUGS.map((slug) => ({
     value: slug as string,
@@ -445,17 +436,6 @@ export function BlueprintForm({
               "blueprints.form.family_tags_search_placeholder",
             )}
             emptyText={t("blueprints.form.family_tags_empty")}
-          />
-          <ComboboxField<BlueprintFormValues>
-            name="archetype_slugs"
-            multiple
-            label={t("blueprints.form.archetypes_label")}
-            options={archetypeOptions}
-            placeholder={t("blueprints.form.archetypes_placeholder")}
-            searchPlaceholder={t(
-              "blueprints.form.archetypes_search_placeholder",
-            )}
-            emptyText={t("blueprints.form.archetypes_empty")}
           />
         </div>
 

@@ -11,7 +11,6 @@ from collections.abc import Callable
 from sqlalchemy.orm import Session
 
 from shire.core.db import unit_of_work
-from shire.seeds.archetype import seed_archetypes
 from shire.seeds.blueprint import seed_blueprints
 from shire.seeds.modelling import seed_modelling_strategies
 from shire.seeds.qualities import seed_qualities
@@ -24,7 +23,6 @@ SEEDERS: dict[str, Callable[[Session], dict[str, int]]] = {
     "technology": seed_technology,
     "modelling": seed_modelling_strategies,
     "security": seed_security,
-    "archetype": seed_archetypes,
     "blueprint": seed_blueprints,
     "qualities": seed_qualities,
 }

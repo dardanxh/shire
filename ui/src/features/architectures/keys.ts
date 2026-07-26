@@ -3,7 +3,6 @@ export const LIST_SEARCH = { tab: "blueprints" } as const;
 
 export interface BlueprintListParams {
   family_tag?: string;
-  archetype?: string;
   q?: string;
   /** Use-case tag slug filter (reporting | realtime | ...). */
   use_case?: string;

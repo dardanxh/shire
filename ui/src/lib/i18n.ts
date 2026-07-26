@@ -1,6 +1,5 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import archetypes from "@/features/archetypes/locales/en.json";
 import architectures from "@/features/architectures/locales/en.json";
 import briefing from "@/features/briefing/locales/en.json";
 import compliance from "@/features/compliance/locales/en.json";
@@ -45,7 +44,6 @@ const en = {
   ...roadmaps,
   ...council,
   ...architectures,
-  ...archetypes,
   ...technologies,
   ...modelling,
   ...security,

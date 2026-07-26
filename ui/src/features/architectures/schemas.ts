@@ -40,7 +40,6 @@ export function buildBlueprintFormSchema(
     diagram_stack_snowflake: z.string(),
     diagram_stack_databricks: z.string(),
     family_tags: z.array(z.string()),
-    archetype_slugs: z.array(z.string()),
     stages: z.array(
       z.object({
         name: z.string().min(1, t("blueprints.form.stage_name_required")),

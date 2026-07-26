@@ -47,7 +47,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FAMILIES, FAMILY_COLORS } from "@/features/archetypes";
 import { cn } from "@/lib/utils";
 import {
   type Blueprint,
@@ -55,6 +54,7 @@ import {
   useBlueprintsQuery,
   useDeleteBlueprintMutation,
 } from "../api";
+import { FAMILIES, FAMILY_COLORS } from "../families";
 import { USE_CASE_SLUGS } from "../use-cases";
 
 const route = getRouteApi("/architectures/");
@@ -202,7 +202,7 @@ export function BlueprintsListPage() {
     { value: null, label: t("blueprints.list.family_all") },
     ...FAMILIES.map((family) => ({
       value: family as string,
-      label: t(`archetypes.family.${family}`),
+      label: t(`blueprints.family.${family}`),
     })),
   ];
 
@@ -214,7 +214,7 @@ export function BlueprintsListPage() {
   if (search.family_tag)
     activeFilters.push({
       key: "family_tag",
-      label: t(`archetypes.family.${search.family_tag}`),
+      label: t(`blueprints.family.${search.family_tag}`),
     });
   if (search.use_case)
     activeFilters.push({

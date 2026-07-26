@@ -15,13 +15,19 @@ import { DataTablePagination } from "@/components/shared/DataTablePagination";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   extractErrorMessage,
   JOB_STATUSES,
   type JobOut,
   type JobStatus,
 } from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
-import { cn } from "@/lib/utils";
 import {
   useCancelJobMutation,
   useJobsQuery,
@@ -182,23 +188,31 @@ export function JobsListPage({
     [t, cancelJob, retryJob],
   );
 
+  const statusItems: { value: JobStatus | null; label: string }[] = [
+    { value: null, label: t("jobs.filter.all") },
+    ...JOB_STATUSES.map((s) => ({ value: s, label: t(`jobs.status.${s}`) })),
+  ];
+
   return (
     <div className="space-y-4">
-      {/* Status filter chips: undefined = all. */}
-      <div className="flex flex-wrap gap-1.5">
-        <FilterChip
-          label={t("jobs.filter.all")}
-          active={status === undefined}
-          onClick={() => onStatusChange(undefined)}
-        />
-        {JOB_STATUSES.map((s) => (
-          <FilterChip
-            key={s}
-            label={t(`jobs.status.${s}`)}
-            active={status === s}
-            onClick={() => onStatusChange(s)}
-          />
-        ))}
+      {/* Status filter: one dropdown, "All" by default (null = no filter). */}
+      <div className="flex">
+        <Select<JobStatus | null>
+          items={statusItems}
+          value={status ?? null}
+          onValueChange={(value) => onStatusChange(value ?? undefined)}
+        >
+          <SelectTrigger className="w-40 bg-background">
+            <SelectValue placeholder={t("jobs.filter.all")} />
+          </SelectTrigger>
+          <SelectContent>
+            {statusItems.map((item) => (
+              <SelectItem key={item.label} value={item.value}>
+                {item.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <Card className="overflow-hidden p-0">
@@ -242,30 +256,5 @@ export function JobsListPage({
         ) : null}
       </Card>
     </div>
-  );
-}
-
-function FilterChip({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-        active
-          ? "border-primary/40 bg-primary/10 text-primary"
-          : "border-border text-muted-foreground hover:bg-muted/60 hover:text-foreground",
-      )}
-    >
-      {label}
-    </button>
   );
 }

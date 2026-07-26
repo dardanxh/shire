@@ -17,7 +17,6 @@ from fastapi_pagination import add_pagination
 
 from shire.core.exceptions import register_exception_handlers
 from shire.core.settings import get_settings
-from shire.domain.archetype.routes import router as archetypes_router
 from shire.domain.blueprint.routes import router as blueprints_router
 from shire.domain.briefing.routes import router as briefing_router
 from shire.domain.capacity.routes import router as capacity_router
@@ -113,7 +112,6 @@ app.include_router(roadmaps_router, prefix=API_V1_PREFIX)
 app.include_router(repo_roadmaps_router, prefix=API_V1_PREFIX)
 app.include_router(council_router, prefix=API_V1_PREFIX)
 app.include_router(home_router, prefix=API_V1_PREFIX)
-app.include_router(archetypes_router, prefix=API_V1_PREFIX)
 app.include_router(blueprints_router, prefix=API_V1_PREFIX)
 app.include_router(tech_categories_router, prefix=API_V1_PREFIX)
 app.include_router(technologies_router, prefix=API_V1_PREFIX)

@@ -20,7 +20,6 @@ class SqlBlueprintRepository:
     def search(
         self,
         family_tag: str | None = None,
-        archetype_slug: str | None = None,
         technology_id: uuid.UUID | None = None,
         q: str | None = None,
         source: str | None = None,
@@ -37,10 +36,6 @@ class SqlBlueprintRepository:
             query = query.where(ArchitectureBlueprintRow.use_cases.contains([use_case]))
         if family_tag:
             query = query.where(ArchitectureBlueprintRow.family_tags.contains([family_tag]))
-        if archetype_slug:
-            query = query.where(
-                ArchitectureBlueprintRow.archetype_slugs.contains([archetype_slug])
-            )
         if technology_id is not None:
             stage_match = (
                 select(BlueprintStageRow.id)

@@ -49,8 +49,6 @@ class ArchitectureBlueprintRow(Base):
     # conceptual | logical | data_flow | sequence (conceptual first/default).
     diagrams: Mapped[list[dict]] = mapped_column(JSONB, default=list)
     family_tags: Mapped[list[str]] = mapped_column(JSONB, default=list)
-    # Soft references to archetype slugs — drives "suggested blueprints" on projects.
-    archetype_slugs: Mapped[list[str]] = mapped_column(JSONB, default=list)
     # Interactive-canvas visual layer (separate from the manual diagram_mermaid string).
     # flows: [{id, source_stage_id, target_stage_id, label, kind, ...}] — data-flow
     # edges between stages (by stage id).

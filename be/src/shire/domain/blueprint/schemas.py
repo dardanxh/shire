@@ -81,7 +81,6 @@ class CreateBlueprint(BaseModel):
     evolution: list[BlueprintEvolution] = Field(default_factory=list)
     diagrams: list[BlueprintDiagram] = Field(default_factory=list)
     family_tags: list[str] = Field(default_factory=list)
-    archetype_slugs: list[str] = Field(default_factory=list)
     flows: list[BlueprintFlow] = Field(default_factory=list)
     position: int = 0
     stages: list[CreateBlueprintStage] = Field(default_factory=list)
@@ -102,7 +101,6 @@ class UpdateBlueprint(BaseModel):
     evolution: list[BlueprintEvolution] | None = None
     diagrams: list[BlueprintDiagram] | None = None
     family_tags: list[str] | None = None
-    archetype_slugs: list[str] | None = None
     flows: list[BlueprintFlow] | None = None
     position: int | None = None
     stages: list[CreateBlueprintStage] | None = None
@@ -144,7 +142,6 @@ class BlueprintResult(BaseModel):
     evolution: list[BlueprintEvolution]
     diagrams: list[BlueprintDiagram]
     family_tags: list[str]
-    archetype_slugs: list[str]
     flows: list[BlueprintFlow]
     source: Source
     position: int

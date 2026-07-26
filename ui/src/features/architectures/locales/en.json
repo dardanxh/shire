@@ -81,10 +81,6 @@
       "family_tags_placeholder": "Select families",
       "family_tags_search_placeholder": "Search families…",
       "family_tags_empty": "No families match.",
-      "archetypes_label": "Archetypes",
-      "archetypes_placeholder": "Select archetypes",
-      "archetypes_search_placeholder": "Search archetypes…",
-      "archetypes_empty": "No archetypes match.",
       "stages_label": "Stages",
       "stage_label": "Stage {{position}}",
       "stage_name_label": "Name",
@@ -228,6 +224,18 @@
       "see_results": "See recommendations",
       "start_over": "Start over",
       "answered_label": "{{answered}} of {{total}} answered"
+    },
+    "family": {
+      "acquisition-ingestion": "Acquisition & ingestion",
+      "movement-migration": "Movement & migration",
+      "transformation-modelling": "Transformation & modelling",
+      "storage-platform": "Storage & platform",
+      "streaming-realtime": "Streaming & real-time",
+      "orchestration-dataops": "Orchestration & DataOps",
+      "governance-security-compliance": "Governance, security & compliance",
+      "analytics-serving": "Analytics & serving",
+      "ml-ai-infrastructure": "ML & AI infrastructure",
+      "discovery-strategy": "Discovery & strategy"
     }
   }
 }

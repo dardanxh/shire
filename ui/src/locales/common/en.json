@@ -6,9 +6,7 @@
     },
     "settings": {
       "title": "Settings",
-      "theme": "Theme",
-      "archetypes_title": "Archetypes",
-      "archetypes_description": "Manage the catalog of project archetypes."
+      "theme": "Theme"
     },
     "theme": {
       "light": "Light",

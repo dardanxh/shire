@@ -31,7 +31,6 @@ class BlueprintService:
     def list_blueprints(
         self,
         family_tag: str | None = None,
-        archetype_slug: str | None = None,
         technology_id: uuid.UUID | None = None,
         q: str | None = None,
         source: str | None = None,
@@ -39,7 +38,6 @@ class BlueprintService:
     ) -> list[BlueprintResult]:
         rows = self._blueprints.search(
             family_tag=family_tag,
-            archetype_slug=archetype_slug,
             technology_id=technology_id,
             q=q,
             source=source,
@@ -98,7 +96,6 @@ class BlueprintService:
             evolution=[dict(edge) for edge in source.evolution],
             diagrams=[dict(diagram) for diagram in source.diagrams],
             family_tags=list(source.family_tags),
-            archetype_slugs=list(source.archetype_slugs),
             flows=flows,
             position=source.position,
             source="user",

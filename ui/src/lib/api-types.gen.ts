@@ -2260,49 +2260,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/archetypes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Archetypes
-         * @description Paginated catalog. Archived archetypes are hidden unless `include_archived`.
-         */
-        get: operations["list_archetypes_api_v1_archetypes_get"];
-        put?: never;
-        /** Create Archetype */
-        post: operations["create_archetype_api_v1_archetypes_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/archetypes/{archetype_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Archetype */
-        get: operations["get_archetype_api_v1_archetypes__archetype_id__get"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete Archetype
-         * @description Deletes the archetype.
-         */
-        delete: operations["delete_archetype_api_v1_archetypes__archetype_id__delete"];
-        options?: never;
-        head?: never;
-        /** Update Archetype */
-        patch: operations["update_archetype_api_v1_archetypes__archetype_id__patch"];
-        trace?: never;
-    };
     "/api/v1/blueprints": {
         parameters: {
             query?: never;
@@ -2855,58 +2812,6 @@ export interface components {
             /** Suggestion Ids */
             suggestion_ids: string[];
         };
-        /** ArchetypeResult */
-        ArchetypeResult: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Slug */
-            slug: string;
-            /** Name */
-            name: string;
-            /**
-             * Family
-             * @enum {string}
-             */
-            family: "acquisition-ingestion" | "movement-migration" | "transformation-modelling" | "storage-platform" | "streaming-realtime" | "orchestration-dataops" | "governance-security-compliance" | "analytics-serving" | "ml-ai-infrastructure" | "discovery-strategy";
-            /** Summary */
-            summary: string;
-            /** Description */
-            description: string;
-            /** Supports Greenfield */
-            supports_greenfield: boolean;
-            /** Supports Brownfield */
-            supports_brownfield: boolean;
-            /** Is Initiative */
-            is_initiative: boolean;
-            /** Typical Category Slugs */
-            typical_category_slugs: string[];
-            /** Default Blueprint Slugs */
-            default_blueprint_slugs: string[];
-            /** Seed Tier */
-            seed_tier: number;
-            /** Position */
-            position: number;
-            /** Archived */
-            archived: boolean;
-            /**
-             * Source
-             * @enum {string}
-             */
-            source: "seed" | "user";
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             */
-            updated_at: string;
-        };
         /**
          * ArchitectureDiagram
          * @description One diagram in the catalog. Always present; `mermaid` is filled once generated.
@@ -3197,8 +3102,6 @@ export interface components {
             diagrams: components["schemas"]["BlueprintDiagram"][];
             /** Family Tags */
             family_tags: string[];
-            /** Archetype Slugs */
-            archetype_slugs: string[];
             /** Flows */
             flows: components["schemas"]["BlueprintFlow"][];
             /**
@@ -4086,57 +3989,6 @@ export interface components {
              */
             tool_available: boolean;
         };
-        /** CreateArchetype */
-        CreateArchetype: {
-            /** Slug */
-            slug: string;
-            /** Name */
-            name: string;
-            /**
-             * Family
-             * @enum {string}
-             */
-            family: "acquisition-ingestion" | "movement-migration" | "transformation-modelling" | "storage-platform" | "streaming-realtime" | "orchestration-dataops" | "governance-security-compliance" | "analytics-serving" | "ml-ai-infrastructure" | "discovery-strategy";
-            /**
-             * Summary
-             * @default
-             */
-            summary: string;
-            /**
-             * Description
-             * @default
-             */
-            description: string;
-            /**
-             * Supports Greenfield
-             * @default true
-             */
-            supports_greenfield: boolean;
-            /**
-             * Supports Brownfield
-             * @default true
-             */
-            supports_brownfield: boolean;
-            /**
-             * Is Initiative
-             * @default false
-             */
-            is_initiative: boolean;
-            /** Typical Category Slugs */
-            typical_category_slugs?: string[];
-            /** Default Blueprint Slugs */
-            default_blueprint_slugs?: string[];
-            /**
-             * Seed Tier
-             * @default 2
-             */
-            seed_tier: number;
-            /**
-             * Position
-             * @default 0
-             */
-            position: number;
-        };
         /** CreateBlueprint */
         CreateBlueprint: {
             /** Slug */
@@ -4172,8 +4024,6 @@ export interface components {
             diagrams?: components["schemas"]["BlueprintDiagram"][];
             /** Family Tags */
             family_tags?: string[];
-            /** Archetype Slugs */
-            archetype_slugs?: string[];
             /** Flows */
             flows?: components["schemas"]["BlueprintFlow"][];
             /**
@@ -6070,19 +5920,6 @@ export interface components {
             /** First Repository Id */
             first_repository_id: string | null;
         };
-        /** Page[ArchetypeResult] */
-        Page_ArchetypeResult_: {
-            /** Items */
-            items: components["schemas"]["ArchetypeResult"][];
-            /** Total */
-            total: number;
-            /** Page */
-            page: number;
-            /** Size */
-            size: number;
-            /** Pages */
-            pages: number;
-        };
         /** Page[ArchitectureQualityResult] */
         Page_ArchitectureQualityResult_: {
             /** Items */
@@ -7449,35 +7286,6 @@ export interface components {
             /** Body */
             body: string;
         };
-        /** UpdateArchetype */
-        UpdateArchetype: {
-            /** Slug */
-            slug?: string | null;
-            /** Name */
-            name?: string | null;
-            /** Family */
-            family?: ("acquisition-ingestion" | "movement-migration" | "transformation-modelling" | "storage-platform" | "streaming-realtime" | "orchestration-dataops" | "governance-security-compliance" | "analytics-serving" | "ml-ai-infrastructure" | "discovery-strategy") | null;
-            /** Summary */
-            summary?: string | null;
-            /** Description */
-            description?: string | null;
-            /** Supports Greenfield */
-            supports_greenfield?: boolean | null;
-            /** Supports Brownfield */
-            supports_brownfield?: boolean | null;
-            /** Is Initiative */
-            is_initiative?: boolean | null;
-            /** Typical Category Slugs */
-            typical_category_slugs?: string[] | null;
-            /** Default Blueprint Slugs */
-            default_blueprint_slugs?: string[] | null;
-            /** Seed Tier */
-            seed_tier?: number | null;
-            /** Position */
-            position?: number | null;
-            /** Archived */
-            archived?: boolean | null;
-        };
         /**
          * UpdateBlueprint
          * @description `stages`, when provided, is upserted by id (existing ids keep their identity).
@@ -7507,8 +7315,6 @@ export interface components {
             diagrams?: components["schemas"]["BlueprintDiagram"][] | null;
             /** Family Tags */
             family_tags?: string[] | null;
-            /** Archetype Slugs */
-            archetype_slugs?: string[] | null;
             /** Flows */
             flows?: components["schemas"]["BlueprintFlow"][] | null;
             /** Position */
@@ -12241,176 +12047,10 @@ export interface operations {
             };
         };
     };
-    list_archetypes_api_v1_archetypes_get: {
-        parameters: {
-            query?: {
-                family?: ("acquisition-ingestion" | "movement-migration" | "transformation-modelling" | "storage-platform" | "streaming-realtime" | "orchestration-dataops" | "governance-security-compliance" | "analytics-serving" | "ml-ai-infrastructure" | "discovery-strategy") | null;
-                kind?: ("greenfield" | "brownfield") | null;
-                is_initiative?: boolean | null;
-                q?: string | null;
-                include_archived?: boolean;
-                page?: number;
-                size?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Page_ArchetypeResult_"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_archetype_api_v1_archetypes_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateArchetype"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ArchetypeResult"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_archetype_api_v1_archetypes__archetype_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                archetype_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ArchetypeResult"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_archetype_api_v1_archetypes__archetype_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                archetype_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_archetype_api_v1_archetypes__archetype_id__patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                archetype_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateArchetype"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ArchetypeResult"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     list_blueprints_api_v1_blueprints_get: {
         parameters: {
             query?: {
                 family_tag?: string | null;
-                archetype?: string | null;
                 technology_id?: string | null;
                 q?: string | null;
                 source?: string | null;

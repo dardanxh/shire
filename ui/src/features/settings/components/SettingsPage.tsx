@@ -1,7 +1,5 @@
-import { Link } from "@tanstack/react-router";
 import {
   CheckIcon,
-  LayersIcon,
   type LucideIcon,
   MonitorIcon,
   MoonIcon,
@@ -10,14 +8,7 @@ import {
 import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { LIST_SEARCH } from "@/features/archetypes";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 const THEME_OPTIONS: { value: string; icon: LucideIcon }[] = [
@@ -68,20 +59,6 @@ export function SettingsPage() {
           </div>
         </CardContent>
       </Card>
-
-      <Link to="/settings/archetypes" search={LIST_SEARCH} className="block">
-        <Card className="transition-colors hover:bg-muted/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <LayersIcon className="size-4 text-muted-foreground" />
-              {t("common.settings.archetypes_title")}
-            </CardTitle>
-            <CardDescription>
-              {t("common.settings.archetypes_description")}
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </Link>
     </div>
   );
 }

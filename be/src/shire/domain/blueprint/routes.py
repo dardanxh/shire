@@ -22,7 +22,6 @@ router = APIRouter(prefix="/blueprints", tags=["blueprints"])
 @router.get("", response_model=list[BlueprintResult])
 def list_blueprints(
     family_tag: str | None = None,
-    archetype: str | None = None,
     technology_id: uuid.UUID | None = None,
     q: str | None = None,
     source: str | None = None,
@@ -33,7 +32,6 @@ def list_blueprints(
     `source` splits seed blueprints from user architectures."""
     return BlueprintService(session).list_blueprints(
         family_tag=family_tag,
-        archetype_slug=archetype,
         technology_id=technology_id,
         q=q,
         source=source,

@@ -30,7 +30,6 @@ BLUEPRINT_FIELDS = (
     "evolution",
     "diagrams",
     "family_tags",
-    "archetype_slugs",
     "position",
 )
 

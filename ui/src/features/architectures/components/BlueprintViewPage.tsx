@@ -206,7 +206,7 @@ function AboutCard({ blueprint }: { blueprint: Blueprint }) {
             </Badge>
             {blueprint.family_tags.map((tag) => (
               <Badge key={tag} variant="outline">
-                {t(`archetypes.family.${tag}`)}
+                {t(`blueprints.family.${tag}`)}
               </Badge>
             ))}
           </div>

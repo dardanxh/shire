@@ -43,7 +43,6 @@ import { Route as CouncilIndexRouteImport } from './routes/council.index'
 import { Route as ArchitecturesIndexRouteImport } from './routes/architectures/index'
 import { Route as TechnologiesNewRouteImport } from './routes/technologies/new'
 import { Route as TechnologiesCompareRouteImport } from './routes/technologies/compare'
-import { Route as SettingsArchetypesRouteImport } from './routes/settings/archetypes'
 import { Route as RoadmapsNewRouteImport } from './routes/roadmaps.new'
 import { Route as RoadmapsIdRouteImport } from './routes/roadmaps.$id'
 import { Route as RepositoriesIdRouteImport } from './routes/repositories.$id'
@@ -59,18 +58,15 @@ import { Route as ArchitecturesNewRouteImport } from './routes/architectures/new
 import { Route as ArchitecturesCompareRouteImport } from './routes/architectures/compare'
 import { Route as ArchitecturesAdvisorRouteImport } from './routes/architectures/advisor'
 import { Route as TechnologiesIdIndexRouteImport } from './routes/technologies/$id/index'
-import { Route as SettingsArchetypesIndexRouteImport } from './routes/settings/archetypes/index'
 import { Route as DataIdIndexRouteImport } from './routes/data/$id/index'
 import { Route as ArchitecturesIdIndexRouteImport } from './routes/architectures/$id/index'
 import { Route as TechnologiesIdEditRouteImport } from './routes/technologies/$id/edit'
-import { Route as SettingsArchetypesNewRouteImport } from './routes/settings/archetypes/new'
 import { Route as SecurityRegulationsIdRouteImport } from './routes/security/regulations/$id'
 import { Route as SecurityPracticesIdRouteImport } from './routes/security/practices/$id'
 import { Route as DiagramRepoIdKindRouteImport } from './routes/diagram.$repoId.$kind'
 import { Route as DataIdEditRouteImport } from './routes/data/$id/edit'
 import { Route as ArchitecturesIdEditRouteImport } from './routes/architectures/$id/edit'
 import { Route as ArchitecturesIdDiagramRouteImport } from './routes/architectures/$id/diagram'
-import { Route as SettingsArchetypesIdEditRouteImport } from './routes/settings/archetypes/$id/edit'
 
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
@@ -242,11 +238,6 @@ const TechnologiesCompareRoute = TechnologiesCompareRouteImport.update({
   path: '/compare',
   getParentRoute: () => TechnologiesRoute,
 } as any)
-const SettingsArchetypesRoute = SettingsArchetypesRouteImport.update({
-  id: '/archetypes',
-  path: '/archetypes',
-  getParentRoute: () => SettingsRoute,
-} as any)
 const RoadmapsNewRoute = RoadmapsNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -322,11 +313,6 @@ const TechnologiesIdIndexRoute = TechnologiesIdIndexRouteImport.update({
   path: '/$id/',
   getParentRoute: () => TechnologiesRoute,
 } as any)
-const SettingsArchetypesIndexRoute = SettingsArchetypesIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => SettingsArchetypesRoute,
-} as any)
 const DataIdIndexRoute = DataIdIndexRouteImport.update({
   id: '/$id/',
   path: '/$id/',
@@ -341,11 +327,6 @@ const TechnologiesIdEditRoute = TechnologiesIdEditRouteImport.update({
   id: '/$id/edit',
   path: '/$id/edit',
   getParentRoute: () => TechnologiesRoute,
-} as any)
-const SettingsArchetypesNewRoute = SettingsArchetypesNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => SettingsArchetypesRoute,
 } as any)
 const SecurityRegulationsIdRoute = SecurityRegulationsIdRouteImport.update({
   id: '/regulations/$id',
@@ -377,12 +358,6 @@ const ArchitecturesIdDiagramRoute = ArchitecturesIdDiagramRouteImport.update({
   path: '/$id/diagram',
   getParentRoute: () => ArchitecturesRoute,
 } as any)
-const SettingsArchetypesIdEditRoute =
-  SettingsArchetypesIdEditRouteImport.update({
-    id: '/$id/edit',
-    path: '/$id/edit',
-    getParentRoute: () => SettingsArchetypesRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -420,7 +395,6 @@ export interface FileRoutesByFullPath {
   '/repositories/$id': typeof RepositoriesIdRoute
   '/roadmaps/$id': typeof RoadmapsIdRoute
   '/roadmaps/new': typeof RoadmapsNewRoute
-  '/settings/archetypes': typeof SettingsArchetypesRouteWithChildren
   '/technologies/compare': typeof TechnologiesCompareRoute
   '/technologies/new': typeof TechnologiesNewRoute
   '/architectures/': typeof ArchitecturesIndexRoute
@@ -440,13 +414,10 @@ export interface FileRoutesByFullPath {
   '/diagram/$repoId/$kind': typeof DiagramRepoIdKindRoute
   '/security/practices/$id': typeof SecurityPracticesIdRoute
   '/security/regulations/$id': typeof SecurityRegulationsIdRoute
-  '/settings/archetypes/new': typeof SettingsArchetypesNewRoute
   '/technologies/$id/edit': typeof TechnologiesIdEditRoute
   '/architectures/$id/': typeof ArchitecturesIdIndexRoute
   '/data/$id/': typeof DataIdIndexRoute
-  '/settings/archetypes/': typeof SettingsArchetypesIndexRoute
   '/technologies/$id/': typeof TechnologiesIdIndexRoute
-  '/settings/archetypes/$id/edit': typeof SettingsArchetypesIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -492,13 +463,10 @@ export interface FileRoutesByTo {
   '/diagram/$repoId/$kind': typeof DiagramRepoIdKindRoute
   '/security/practices/$id': typeof SecurityPracticesIdRoute
   '/security/regulations/$id': typeof SecurityRegulationsIdRoute
-  '/settings/archetypes/new': typeof SettingsArchetypesNewRoute
   '/technologies/$id/edit': typeof TechnologiesIdEditRoute
   '/architectures/$id': typeof ArchitecturesIdIndexRoute
   '/data/$id': typeof DataIdIndexRoute
-  '/settings/archetypes': typeof SettingsArchetypesIndexRoute
   '/technologies/$id': typeof TechnologiesIdIndexRoute
-  '/settings/archetypes/$id/edit': typeof SettingsArchetypesIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -537,7 +505,6 @@ export interface FileRoutesById {
   '/repositories/$id': typeof RepositoriesIdRoute
   '/roadmaps/$id': typeof RoadmapsIdRoute
   '/roadmaps/new': typeof RoadmapsNewRoute
-  '/settings/archetypes': typeof SettingsArchetypesRouteWithChildren
   '/technologies/compare': typeof TechnologiesCompareRoute
   '/technologies/new': typeof TechnologiesNewRoute
   '/architectures/': typeof ArchitecturesIndexRoute
@@ -557,13 +524,10 @@ export interface FileRoutesById {
   '/diagram/$repoId/$kind': typeof DiagramRepoIdKindRoute
   '/security/practices/$id': typeof SecurityPracticesIdRoute
   '/security/regulations/$id': typeof SecurityRegulationsIdRoute
-  '/settings/archetypes/new': typeof SettingsArchetypesNewRoute
   '/technologies/$id/edit': typeof TechnologiesIdEditRoute
   '/architectures/$id/': typeof ArchitecturesIdIndexRoute
   '/data/$id/': typeof DataIdIndexRoute
-  '/settings/archetypes/': typeof SettingsArchetypesIndexRoute
   '/technologies/$id/': typeof TechnologiesIdIndexRoute
-  '/settings/archetypes/$id/edit': typeof SettingsArchetypesIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -603,7 +567,6 @@ export interface FileRouteTypes {
     | '/repositories/$id'
     | '/roadmaps/$id'
     | '/roadmaps/new'
-    | '/settings/archetypes'
     | '/technologies/compare'
     | '/technologies/new'
     | '/architectures/'
@@ -623,13 +586,10 @@ export interface FileRouteTypes {
     | '/diagram/$repoId/$kind'
     | '/security/practices/$id'
     | '/security/regulations/$id'
-    | '/settings/archetypes/new'
     | '/technologies/$id/edit'
     | '/architectures/$id/'
     | '/data/$id/'
-    | '/settings/archetypes/'
     | '/technologies/$id/'
-    | '/settings/archetypes/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -675,13 +635,10 @@ export interface FileRouteTypes {
     | '/diagram/$repoId/$kind'
     | '/security/practices/$id'
     | '/security/regulations/$id'
-    | '/settings/archetypes/new'
     | '/technologies/$id/edit'
     | '/architectures/$id'
     | '/data/$id'
-    | '/settings/archetypes'
     | '/technologies/$id'
-    | '/settings/archetypes/$id/edit'
   id:
     | '__root__'
     | '/'
@@ -719,7 +676,6 @@ export interface FileRouteTypes {
     | '/repositories/$id'
     | '/roadmaps/$id'
     | '/roadmaps/new'
-    | '/settings/archetypes'
     | '/technologies/compare'
     | '/technologies/new'
     | '/architectures/'
@@ -739,13 +695,10 @@ export interface FileRouteTypes {
     | '/diagram/$repoId/$kind'
     | '/security/practices/$id'
     | '/security/regulations/$id'
-    | '/settings/archetypes/new'
     | '/technologies/$id/edit'
     | '/architectures/$id/'
     | '/data/$id/'
-    | '/settings/archetypes/'
     | '/technologies/$id/'
-    | '/settings/archetypes/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1013,13 +966,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TechnologiesCompareRouteImport
       parentRoute: typeof TechnologiesRoute
     }
-    '/settings/archetypes': {
-      id: '/settings/archetypes'
-      path: '/archetypes'
-      fullPath: '/settings/archetypes'
-      preLoaderRoute: typeof SettingsArchetypesRouteImport
-      parentRoute: typeof SettingsRoute
-    }
     '/roadmaps/new': {
       id: '/roadmaps/new'
       path: '/new'
@@ -1125,13 +1071,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TechnologiesIdIndexRouteImport
       parentRoute: typeof TechnologiesRoute
     }
-    '/settings/archetypes/': {
-      id: '/settings/archetypes/'
-      path: '/'
-      fullPath: '/settings/archetypes/'
-      preLoaderRoute: typeof SettingsArchetypesIndexRouteImport
-      parentRoute: typeof SettingsArchetypesRoute
-    }
     '/data/$id/': {
       id: '/data/$id/'
       path: '/$id'
@@ -1152,13 +1091,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/technologies/$id/edit'
       preLoaderRoute: typeof TechnologiesIdEditRouteImport
       parentRoute: typeof TechnologiesRoute
-    }
-    '/settings/archetypes/new': {
-      id: '/settings/archetypes/new'
-      path: '/new'
-      fullPath: '/settings/archetypes/new'
-      preLoaderRoute: typeof SettingsArchetypesNewRouteImport
-      parentRoute: typeof SettingsArchetypesRoute
     }
     '/security/regulations/$id': {
       id: '/security/regulations/$id'
@@ -1201,13 +1133,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/architectures/$id/diagram'
       preLoaderRoute: typeof ArchitecturesIdDiagramRouteImport
       parentRoute: typeof ArchitecturesRoute
-    }
-    '/settings/archetypes/$id/edit': {
-      id: '/settings/archetypes/$id/edit'
-      path: '/$id/edit'
-      fullPath: '/settings/archetypes/$id/edit'
-      preLoaderRoute: typeof SettingsArchetypesIdEditRouteImport
-      parentRoute: typeof SettingsArchetypesRoute
     }
   }
 }
@@ -1366,28 +1291,11 @@ const SecurityRouteWithChildren = SecurityRoute._addFileChildren(
   SecurityRouteChildren,
 )
 
-interface SettingsArchetypesRouteChildren {
-  SettingsArchetypesNewRoute: typeof SettingsArchetypesNewRoute
-  SettingsArchetypesIndexRoute: typeof SettingsArchetypesIndexRoute
-  SettingsArchetypesIdEditRoute: typeof SettingsArchetypesIdEditRoute
-}
-
-const SettingsArchetypesRouteChildren: SettingsArchetypesRouteChildren = {
-  SettingsArchetypesNewRoute: SettingsArchetypesNewRoute,
-  SettingsArchetypesIndexRoute: SettingsArchetypesIndexRoute,
-  SettingsArchetypesIdEditRoute: SettingsArchetypesIdEditRoute,
-}
-
-const SettingsArchetypesRouteWithChildren =
-  SettingsArchetypesRoute._addFileChildren(SettingsArchetypesRouteChildren)
-
 interface SettingsRouteChildren {
-  SettingsArchetypesRoute: typeof SettingsArchetypesRouteWithChildren
   SettingsIndexRoute: typeof SettingsIndexRoute
 }
 
 const SettingsRouteChildren: SettingsRouteChildren = {
-  SettingsArchetypesRoute: SettingsArchetypesRouteWithChildren,
   SettingsIndexRoute: SettingsIndexRoute,
 }
 
