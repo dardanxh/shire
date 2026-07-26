@@ -16,6 +16,7 @@ import {
   PlugIcon,
   ScaleIcon,
   SettingsIcon,
+  ShieldCheckIcon,
   ShieldIcon,
   UsersIcon,
   WrenchIcon,
@@ -46,13 +47,18 @@ type NavItem = {
   match: (pathname: string) => boolean;
 };
 
-const ITEMS: NavItem[] = [
+/** Ungrouped landing entry, rendered above the labeled groups. */
+const HOME_ITEMS: NavItem[] = [
   {
     to: "/",
     labelKey: "common.nav.home",
     icon: HomeIcon,
     match: (p) => p === "/",
   },
+];
+
+/** The objects you manage. */
+const WORKSPACE_ITEMS: NavItem[] = [
   {
     to: "/repositories",
     labelKey: "common.nav.repositories",
@@ -64,16 +70,20 @@ const ITEMS: NavItem[] = [
       p.startsWith("/repositories") || p.startsWith("/merge-reviews"),
   },
   {
+    to: "/members",
+    labelKey: "common.nav.members",
+    icon: UsersIcon,
+    match: (p) => p === "/members" || p.startsWith("/members/"),
+  },
+];
+
+/** AI-driven analysis modules. */
+const INTELLIGENCE_ITEMS: NavItem[] = [
+  {
     to: "/hobits",
     labelKey: "common.nav.hobits",
     icon: BookOpenIcon,
     match: (p) => p === "/hobits" || p.startsWith("/hobits/"),
-  },
-  {
-    to: "/news",
-    labelKey: "common.nav.news",
-    icon: GlobeIcon,
-    match: (p) => p === "/news" || p.startsWith("/news/"),
   },
   {
     to: "/roadmaps",
@@ -89,17 +99,21 @@ const ITEMS: NavItem[] = [
     match: (p) => p === "/council" || p.startsWith("/council/"),
   },
   {
-    to: "/members",
-    labelKey: "common.nav.members",
-    icon: UsersIcon,
-    match: (p) => p === "/members" || p.startsWith("/members/"),
-  },
-  {
     to: "/principles",
     labelKey: "common.nav.principles",
     icon: ScaleIcon,
     match: (p) => p === "/principles" || p.startsWith("/principles/"),
   },
+  {
+    to: "/news",
+    labelKey: "common.nav.news",
+    icon: GlobeIcon,
+    match: (p) => p === "/news" || p.startsWith("/news/"),
+  },
+];
+
+/** Infrastructure: queue, analysis tooling, provider credentials. */
+const PLATFORM_ITEMS: NavItem[] = [
   {
     to: "/jobs",
     labelKey: "common.nav.jobs",
@@ -162,11 +176,19 @@ const KNOWLEDGE_ITEMS: NavItem[] = [
 /** Interactive tools, grouped under an "Apps" label. */
 const APPS_ITEMS: NavItem[] = [
   {
-    to: "/sizing",
-    labelKey: "common.nav.sizing",
+    to: "/capacity-planner",
+    labelKey: "common.nav.capacity_planner",
     icon: CalculatorIcon,
     search: {},
-    match: (p) => p === "/sizing" || p.startsWith("/sizing/"),
+    match: (p) =>
+      p === "/capacity-planner" || p.startsWith("/capacity-planner/"),
+  },
+  {
+    to: "/compliance",
+    labelKey: "common.nav.compliance",
+    icon: ShieldCheckIcon,
+    search: {},
+    match: (p) => p === "/compliance" || p.startsWith("/compliance/"),
   },
 ];
 
@@ -230,7 +252,31 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <NavItemsMenu items={ITEMS} pathname={pathname} />
+            <NavItemsMenu items={HOME_ITEMS} pathname={pathname} />
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>
+            {t("common.nav.group_workspace")}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <NavItemsMenu items={WORKSPACE_ITEMS} pathname={pathname} />
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>
+            {t("common.nav.group_intelligence")}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <NavItemsMenu items={INTELLIGENCE_ITEMS} pathname={pathname} />
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>
+            {t("common.nav.group_platform")}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <NavItemsMenu items={PLATFORM_ITEMS} pathname={pathname} />
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>

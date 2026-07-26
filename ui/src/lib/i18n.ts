@@ -3,6 +3,7 @@ import { initReactI18next } from "react-i18next";
 import archetypes from "@/features/archetypes/locales/en.json";
 import architectures from "@/features/architectures/locales/en.json";
 import briefing from "@/features/briefing/locales/en.json";
+import compliance from "@/features/compliance/locales/en.json";
 import connectors from "@/features/connectors/locales/en.json";
 import council from "@/features/council/locales/en.json";
 import hobits from "@/features/hobits/locales/en.json";
@@ -49,6 +50,7 @@ const en = {
   ...security,
   ...qualities,
   ...sizing,
+  ...compliance,
 };
 
 i18n.use(initReactI18next).init({

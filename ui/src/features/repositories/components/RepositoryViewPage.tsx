@@ -11,6 +11,7 @@ import {
   GitCommitHorizontalIcon,
   GitPullRequestIcon,
   KeyRoundIcon,
+  Layers2Icon,
   ListChecksIcon,
   MapIcon,
   MessageCircleQuestionIcon,
@@ -63,6 +64,7 @@ import { IntegrationsPanel } from "./integrations/IntegrationsPanel";
 import { LanguageBars } from "./LanguageBars";
 import { RatingBadge } from "./RatingBadge";
 import { RepositoryActions } from "./RepositoryActions";
+import { TechStackPanel } from "./TechStackPanel";
 import { VulnerabilitiesTable } from "./VulnerabilitiesTable";
 
 export function RepositoryViewPage({
@@ -175,6 +177,10 @@ export function RepositoryViewPage({
                 <NetworkIcon />
                 {t("repositories.view.tabs.architecture")}
               </TabsTrigger>
+              <TabsTrigger value="tech-stack">
+                <Layers2Icon />
+                {t("repositories.view.tabs.tech_stack")}
+              </TabsTrigger>
               <TabsTrigger value="activity">
                 <ActivityIcon />
                 {t("repositories.view.tabs.activity")}
@@ -223,6 +229,10 @@ export function RepositoryViewPage({
 
             <TabsContent value="ask">
               <AskPanel repoId={repo.id} />
+            </TabsContent>
+
+            <TabsContent value="tech-stack">
+              <TechStackPanel repoId={repo.id} />
             </TabsContent>
 
             <TabsContent value="principles">

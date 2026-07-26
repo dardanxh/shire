@@ -3,6 +3,7 @@ import {
   PlusIcon,
   ScaleIcon,
   SearchIcon,
+  SlidersHorizontalIcon,
   SparklesIcon,
   Trash2Icon,
   XIcon,
@@ -22,6 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -31,6 +33,12 @@ import {
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -198,6 +206,22 @@ export function BlueprintsListPage() {
     })),
   ];
 
+  // Active select-filters as removable chips (q stays visible in the search box).
+  type FilterKey = "family_tag" | "use_case";
+  const dropFilter = (key: FilterKey) =>
+    navigate({ search: (prev) => ({ ...prev, [key]: undefined }) });
+  const activeFilters: { key: FilterKey; label: string }[] = [];
+  if (search.family_tag)
+    activeFilters.push({
+      key: "family_tag",
+      label: t(`archetypes.family.${search.family_tag}`),
+    });
+  if (search.use_case)
+    activeFilters.push({
+      key: "use_case",
+      label: t(`blueprints.use_case_tags.${search.use_case}`),
+    });
+
   return (
     <div className="flex flex-col gap-6">
       {/* Tabs left, page actions right — one header row. */}
@@ -286,52 +310,71 @@ export function BlueprintsListPage() {
             className="bg-background pl-8"
           />
         </div>
-        <Select
-          items={familyItems}
-          value={search.family_tag ?? null}
-          onValueChange={(value) =>
-            navigate({
-              search: (prev) => ({ ...prev, family_tag: value ?? undefined }),
-            })
-          }
-        >
-          <SelectTrigger className="min-w-44 bg-background">
-            <SelectValue placeholder={t("blueprints.list.family_all")} />
-          </SelectTrigger>
-          <SelectContent>
-            {familyItems.map((item) => (
-              <SelectItem key={item.label} value={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          items={useCaseItems}
-          value={search.use_case ?? null}
-          onValueChange={(value) =>
-            navigate({
-              search: (prev) => ({ ...prev, use_case: value ?? undefined }),
-            })
-          }
-        >
-          <SelectTrigger className="min-w-44 bg-background">
-            <SelectValue placeholder={t("blueprints.list.use_case_all")} />
-          </SelectTrigger>
-          <SelectContent>
-            {useCaseItems.map((item) => (
-              <SelectItem key={item.label} value={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {hasFilters && (
-          <Button variant="ghost" size="sm" onClick={clearFilters}>
-            <XIcon />
-            {t("common.actions.clear_filters")}
-          </Button>
-        )}
+        <Popover>
+          <PopoverTrigger
+            render={<Button variant="outline" className="bg-background" />}
+          >
+            <SlidersHorizontalIcon />
+            {t("blueprints.list.filters")}
+            {activeFilters.length > 0 && (
+              <Badge variant="accent">{activeFilters.length}</Badge>
+            )}
+          </PopoverTrigger>
+          <PopoverContent align="start" className="gap-3 p-3">
+            <FilterField label={t("blueprints.list.filter_family")}>
+              <Select
+                items={familyItems}
+                value={search.family_tag ?? null}
+                onValueChange={(value) =>
+                  navigate({
+                    search: (prev) => ({
+                      ...prev,
+                      family_tag: value ?? undefined,
+                    }),
+                  })
+                }
+              >
+                <SelectTrigger className="w-full bg-background">
+                  <SelectValue placeholder={t("blueprints.list.family_all")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {familyItems.map((item) => (
+                    <SelectItem key={item.label} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FilterField>
+            <FilterField label={t("blueprints.list.filter_use_case")}>
+              <Select
+                items={useCaseItems}
+                value={search.use_case ?? null}
+                onValueChange={(value) =>
+                  navigate({
+                    search: (prev) => ({
+                      ...prev,
+                      use_case: value ?? undefined,
+                    }),
+                  })
+                }
+              >
+                <SelectTrigger className="w-full bg-background">
+                  <SelectValue
+                    placeholder={t("blueprints.list.use_case_all")}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {useCaseItems.map((item) => (
+                    <SelectItem key={item.label} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FilterField>
+          </PopoverContent>
+        </Popover>
         {blueprints !== undefined && (
           <p className="ml-auto text-xs text-muted-foreground">
             {t("blueprints.list.count", {
@@ -341,6 +384,35 @@ export function BlueprintsListPage() {
           </p>
         )}
       </div>
+
+      {/* Active filters as removable chips, tucked under the toolbar. */}
+      {hasFilters && (
+        <div className="-mt-3 flex flex-wrap items-center gap-1.5">
+          {activeFilters.map((filter) => (
+            <Badge key={filter.key} variant="accent" className="gap-0.5 pr-1">
+              {filter.label}
+              <button
+                type="button"
+                onClick={() => dropFilter(filter.key)}
+                aria-label={t("blueprints.list.remove_filter", {
+                  name: filter.label,
+                })}
+                className="rounded-full p-0.5 text-accent-foreground/50 transition-colors hover:bg-accent-foreground/10 hover:text-accent-foreground"
+              >
+                <XIcon className="size-3" />
+              </button>
+            </Badge>
+          ))}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearFilters}
+            className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+          >
+            {t("common.actions.clear_filters")}
+          </Button>
+        </div>
+      )}
 
       {isPending ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -432,6 +504,22 @@ export function BlueprintsListPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </div>
+  );
+}
+
+/** One labeled control row inside the Filters popover. */
+function FilterField({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label className="text-xs text-muted-foreground">{label}</Label>
+      {children}
     </div>
   );
 }

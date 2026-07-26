@@ -279,7 +279,9 @@
     "description": "The industry-standard distributed event log: durable, replayable, massively scalable, with the deepest ecosystem (Connect, Streams, Flink, every SaaS integration). The default backbone for event-driven architectures — you pick something else only when Kafka's operational weight isn't justified.",
     "homepage_url": "https://kafka.apache.org",
     "aliases": [
-      "Kafka"
+      "Kafka",
+      "Amazon MSK",
+      "AWS MSK"
     ],
     "deployment_models": [
       "on_prem",

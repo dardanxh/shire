@@ -286,7 +286,8 @@
         "ask": "Ask",
         "jobs": "Jobs",
         "principles": "Principles",
-        "roadmaps": "Roadmaps"
+        "roadmaps": "Roadmaps",
+        "tech_stack": "Tech stack"
       },
       "overview": {
         "title": "Codebase Overview for Humans",
@@ -341,6 +342,21 @@
         "zoom_reset": "Reset zoom",
         "toast_done": "Diagram generated.",
         "toast_failed": "Diagram generation failed."
+      },
+      "tech_stack": {
+        "title": "Technology Stack",
+        "generate": "Detect tech stack",
+        "regenerate": "Re-detect",
+        "generating": "Detecting…",
+        "toast": "Tech-stack detection queued",
+        "toast_done": "Tech stack detected",
+        "toast_failed": "Tech-stack detection failed",
+        "empty": "No tech stack detected yet. Run detection to inspect manifests, docker-compose, CI and infrastructure files.",
+        "unavailable": "The Claude agent is not available on this host, so detection cannot run.",
+        "none_detected": "The agent found no recognizable technologies in this repository.",
+        "not_in_catalog": "Not in catalog",
+        "other_category": "Other",
+        "generated_at": "Detected {{when}}"
       }
     },
     "integrations": {

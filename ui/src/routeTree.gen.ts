@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as TechnologiesRouteImport } from './routes/technologies'
-import { Route as SizingRouteImport } from './routes/sizing'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as RoadmapsRouteImport } from './routes/roadmaps'
@@ -26,6 +25,8 @@ import { Route as HobitsRouteImport } from './routes/hobits'
 import { Route as DataRouteImport } from './routes/data'
 import { Route as CouncilRouteImport } from './routes/council'
 import { Route as ConnectorsRouteImport } from './routes/connectors'
+import { Route as ComplianceRouteImport } from './routes/compliance'
+import { Route as CapacityPlannerRouteImport } from './routes/capacity-planner'
 import { Route as ArchitecturesRouteImport } from './routes/architectures'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TechnologiesIndexRouteImport } from './routes/technologies/index'
@@ -78,11 +79,6 @@ const ToolsRoute = ToolsRouteImport.update({
 const TechnologiesRoute = TechnologiesRouteImport.update({
   id: '/technologies',
   path: '/technologies',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SizingRoute = SizingRouteImport.update({
-  id: '/sizing',
-  path: '/sizing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -153,6 +149,16 @@ const CouncilRoute = CouncilRouteImport.update({
 const ConnectorsRoute = ConnectorsRouteImport.update({
   id: '/connectors',
   path: '/connectors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComplianceRoute = ComplianceRouteImport.update({
+  id: '/compliance',
+  path: '/compliance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CapacityPlannerRoute = CapacityPlannerRouteImport.update({
+  id: '/capacity-planner',
+  path: '/capacity-planner',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArchitecturesRoute = ArchitecturesRouteImport.update({
@@ -375,6 +381,8 @@ const SettingsArchetypesIdEditRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/architectures': typeof ArchitecturesRouteWithChildren
+  '/capacity-planner': typeof CapacityPlannerRoute
+  '/compliance': typeof ComplianceRoute
   '/connectors': typeof ConnectorsRoute
   '/council': typeof CouncilRouteWithChildren
   '/data': typeof DataRouteWithChildren
@@ -389,7 +397,6 @@ export interface FileRoutesByFullPath {
   '/roadmaps': typeof RoadmapsRouteWithChildren
   '/security': typeof SecurityRouteWithChildren
   '/settings': typeof SettingsRouteWithChildren
-  '/sizing': typeof SizingRoute
   '/technologies': typeof TechnologiesRouteWithChildren
   '/tools': typeof ToolsRoute
   '/architectures/advisor': typeof ArchitecturesAdvisorRoute
@@ -436,12 +443,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/capacity-planner': typeof CapacityPlannerRoute
+  '/compliance': typeof ComplianceRoute
   '/connectors': typeof ConnectorsRoute
   '/members': typeof MembersRoute
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
-  '/sizing': typeof SizingRoute
   '/tools': typeof ToolsRoute
   '/architectures/advisor': typeof ArchitecturesAdvisorRoute
   '/architectures/compare': typeof ArchitecturesCompareRoute
@@ -488,6 +496,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/architectures': typeof ArchitecturesRouteWithChildren
+  '/capacity-planner': typeof CapacityPlannerRoute
+  '/compliance': typeof ComplianceRoute
   '/connectors': typeof ConnectorsRoute
   '/council': typeof CouncilRouteWithChildren
   '/data': typeof DataRouteWithChildren
@@ -502,7 +512,6 @@ export interface FileRoutesById {
   '/roadmaps': typeof RoadmapsRouteWithChildren
   '/security': typeof SecurityRouteWithChildren
   '/settings': typeof SettingsRouteWithChildren
-  '/sizing': typeof SizingRoute
   '/technologies': typeof TechnologiesRouteWithChildren
   '/tools': typeof ToolsRoute
   '/architectures/advisor': typeof ArchitecturesAdvisorRoute
@@ -552,6 +561,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/architectures'
+    | '/capacity-planner'
+    | '/compliance'
     | '/connectors'
     | '/council'
     | '/data'
@@ -566,7 +577,6 @@ export interface FileRouteTypes {
     | '/roadmaps'
     | '/security'
     | '/settings'
-    | '/sizing'
     | '/technologies'
     | '/tools'
     | '/architectures/advisor'
@@ -613,12 +623,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/capacity-planner'
+    | '/compliance'
     | '/connectors'
     | '/members'
     | '/merge-reviews'
     | '/news'
     | '/principles'
-    | '/sizing'
     | '/tools'
     | '/architectures/advisor'
     | '/architectures/compare'
@@ -664,6 +675,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/architectures'
+    | '/capacity-planner'
+    | '/compliance'
     | '/connectors'
     | '/council'
     | '/data'
@@ -678,7 +691,6 @@ export interface FileRouteTypes {
     | '/roadmaps'
     | '/security'
     | '/settings'
-    | '/sizing'
     | '/technologies'
     | '/tools'
     | '/architectures/advisor'
@@ -727,6 +739,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ArchitecturesRoute: typeof ArchitecturesRouteWithChildren
+  CapacityPlannerRoute: typeof CapacityPlannerRoute
+  ComplianceRoute: typeof ComplianceRoute
   ConnectorsRoute: typeof ConnectorsRoute
   CouncilRoute: typeof CouncilRouteWithChildren
   DataRoute: typeof DataRouteWithChildren
@@ -741,7 +755,6 @@ export interface RootRouteChildren {
   RoadmapsRoute: typeof RoadmapsRouteWithChildren
   SecurityRoute: typeof SecurityRouteWithChildren
   SettingsRoute: typeof SettingsRouteWithChildren
-  SizingRoute: typeof SizingRoute
   TechnologiesRoute: typeof TechnologiesRouteWithChildren
   ToolsRoute: typeof ToolsRoute
   DiagramRepoIdKindRoute: typeof DiagramRepoIdKindRoute
@@ -761,13 +774,6 @@ declare module '@tanstack/react-router' {
       path: '/technologies'
       fullPath: '/technologies'
       preLoaderRoute: typeof TechnologiesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sizing': {
-      id: '/sizing'
-      path: '/sizing'
-      fullPath: '/sizing'
-      preLoaderRoute: typeof SizingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -866,6 +872,20 @@ declare module '@tanstack/react-router' {
       path: '/connectors'
       fullPath: '/connectors'
       preLoaderRoute: typeof ConnectorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compliance': {
+      id: '/compliance'
+      path: '/compliance'
+      fullPath: '/compliance'
+      preLoaderRoute: typeof ComplianceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/capacity-planner': {
+      id: '/capacity-planner'
+      path: '/capacity-planner'
+      fullPath: '/capacity-planner'
+      preLoaderRoute: typeof CapacityPlannerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/architectures': {
@@ -1378,6 +1398,8 @@ const TechnologiesRouteWithChildren = TechnologiesRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ArchitecturesRoute: ArchitecturesRouteWithChildren,
+  CapacityPlannerRoute: CapacityPlannerRoute,
+  ComplianceRoute: ComplianceRoute,
   ConnectorsRoute: ConnectorsRoute,
   CouncilRoute: CouncilRouteWithChildren,
   DataRoute: DataRouteWithChildren,
@@ -1392,7 +1414,6 @@ const rootRouteChildren: RootRouteChildren = {
   RoadmapsRoute: RoadmapsRouteWithChildren,
   SecurityRoute: SecurityRouteWithChildren,
   SettingsRoute: SettingsRouteWithChildren,
-  SizingRoute: SizingRoute,
   TechnologiesRoute: TechnologiesRouteWithChildren,
   ToolsRoute: ToolsRoute,
   DiagramRepoIdKindRoute: DiagramRepoIdKindRoute,

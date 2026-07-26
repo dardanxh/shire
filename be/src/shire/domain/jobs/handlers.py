@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
+from shire.domain.compliance.jobs import handle_compliance_check
 from shire.domain.council.jobs import (
     handle_council_chair,
     handle_council_roster,
@@ -33,6 +34,7 @@ from shire.domain.substrate.jobs import (
     handle_architecture,
     handle_codebase_overview,
     handle_dependency_gains,
+    handle_tech_stack,
 )
 
 
@@ -49,6 +51,8 @@ HANDLERS: dict[str, Callable[[JobRow], None]] = {
     kinds.SUBSTRATE_ARCHITECTURE: handle_architecture,
     kinds.SUBSTRATE_CODEBASE_OVERVIEW: handle_codebase_overview,
     kinds.SUBSTRATE_DEPENDENCY_GAINS: handle_dependency_gains,
+    kinds.SUBSTRATE_TECH_STACK: handle_tech_stack,
+    kinds.COMPLIANCE_CHECK: handle_compliance_check,
     kinds.HOBIT_RUN: handle_hobit_run,
     kinds.HOBIT_FEEDBACK_DISTILL: handle_feedback_distill,
     kinds.COUNCIL_ROSTER: handle_council_roster,

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import uuid
 from pathlib import Path
 
@@ -22,6 +23,7 @@ from shire.domain.substrate.services import (
     _extract_mermaid_block,
     _parse_overview,
     parse_gains,
+    parse_tech_stack,
 )
 
 logger = logging.getLogger(__name__)
@@ -69,6 +71,65 @@ def handle_codebase_overview(job: JobRow) -> None:
     out_dir = _artifact_dir("codebase-overview", job.payload["repository_id"])
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "overview.json").write_text(json.dumps(overview))
+
+
+def _normalize_tech_name(name: str) -> str:
+    """Lowercase and strip non-alphanumerics so "Apache Kafka" == "apache-kafka". Exact
+    normalized matching only — no fuzzy matching, so catalog links are never guessed."""
+    return "".join(ch for ch in name.lower() if ch.isalnum())
+
+
+def _tech_slug_lookup() -> dict[str, str]:
+    """Normalized name/alias/slug → catalog slug, over the whole technology corpus."""
+    from sqlalchemy import select
+
+    from shire.domain.technology.models import TechnologyRow
+
+    lookup: dict[str, str] = {}
+    with unit_of_work() as session:
+        rows = session.execute(
+            select(TechnologyRow.slug, TechnologyRow.name, TechnologyRow.aliases)
+        ).all()
+        for slug, name, aliases in rows:
+            for candidate in (slug, name, *(aliases or [])):
+                key = _normalize_tech_name(str(candidate))
+                if key:
+                    # First writer wins; the corpus has no meaningful collisions.
+                    lookup.setdefault(key, slug)
+    return lookup
+
+
+def handle_tech_stack(job: JobRow) -> None:
+    if not _branch_still_active(job):
+        _mark_failed(job.id, "The repository's active branch changed since this job was queued.")
+        return
+    if job.status != "succeeded":
+        return
+    items = parse_tech_stack(job.result or "")
+    if items is None:
+        _mark_failed(job.id, "The agent did not return a usable technology list.")
+        return
+    lookup = _tech_slug_lookup()
+    for item in items:
+        name = item["detected_name"]
+        # The agent sometimes annotates names with a parenthetical in either direction
+        # ("Apache Kafka (AWS MSK)" / "Amazon MSK (Apache Kafka)") — try the full name,
+        # the name with the parenthetical stripped, then the parenthetical content itself.
+        candidates = [name, re.sub(r"\s*\(.*?\)", "", name)]
+        candidates.extend(re.findall(r"\(([^)]+)\)", name))
+        item["slug"] = next(
+            (
+                slug
+                for candidate in candidates
+                if (slug := lookup.get(_normalize_tech_name(candidate)))
+            ),
+            None,
+        )
+    out_dir = _artifact_dir("tech-stack", job.payload["repository_id"])
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "tech-stack.json").write_text(
+        json.dumps({"branch": job.payload.get("branch"), "items": items})
+    )
 
 
 def handle_dependency_gains(job: JobRow) -> None:

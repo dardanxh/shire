@@ -88,6 +88,25 @@ export const sizingSearchSchema = z.object({
 
 export type SizingSearch = z.infer<typeof sizingSearchSchema>;
 
+export const CAPACITY_PLANNER_TABS = ["calculator", "history"] as const;
+export type CapacityPlannerTab = (typeof CAPACITY_PLANNER_TABS)[number];
+
+/** Full /capacity-planner search: every calculator input plus the active tab. */
+export const capacityPlannerSearchSchema = sizingSearchSchema.extend({
+  tab: z.enum(CAPACITY_PLANNER_TABS).catch("calculator"),
+});
+
+export type CapacityPlannerSearch = z.infer<typeof capacityPlannerSearchSchema>;
+
+/**
+ * Parse a saved calculation's `inputs` JSON back into `SizingInputs`. Every
+ * field `.catch`es its default, so partially-saved / stale shapes degrade to
+ * defaults instead of throwing.
+ */
+export function parseSavedInputs(saved: Record<string, unknown>): SizingInputs {
+  return searchToInputs(sizingSearchSchema.parse(saved));
+}
+
 /** Pull just the calculator inputs out of the full search object. */
 export function searchToInputs(search: SizingSearch): SizingInputs {
   const inputs = { ingest_mode: search.ingest_mode } as SizingInputs;

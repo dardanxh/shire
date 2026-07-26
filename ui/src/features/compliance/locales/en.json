@@ -1,0 +1,37 @@
+{
+  "compliance": {
+    "crumb": "Compliance",
+    "title": "Compliance",
+    "tabs": {
+      "checker": "Checker",
+      "results": "Results"
+    },
+    "checker": {
+      "repositories_title": "Repositories",
+      "repositories_empty": "No repositories yet — ingest one first.",
+      "standards_title": "Standards",
+      "standards_empty": "No standards available.",
+      "select_hint": "Select at least one repository and one standard, then run the checks.",
+      "run_button": "Run checks",
+      "run_queued_one": "{{count}} check queued.",
+      "run_queued_other": "{{count}} checks queued."
+    },
+    "results": {
+      "empty": "No compliance checks yet — run one from the Checker tab.",
+      "status": {
+        "queued": "Running",
+        "failed": "Failed"
+      },
+      "verdict": {
+        "compliant": "Compliant",
+        "partial": "Partially compliant",
+        "non_compliant": "Non-compliant",
+        "not_applicable": "Not applicable"
+      },
+      "findings_show": "Show findings",
+      "findings_hide": "Hide findings",
+      "delete": "Delete check",
+      "deleted": "Check deleted."
+    }
+  }
+}

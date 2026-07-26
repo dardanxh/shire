@@ -35,9 +35,13 @@
       "modelling": "Data",
       "security": "Security",
       "qualities": "Qualities",
-      "sizing": "Sizing",
+      "capacity_planner": "Capacity Planner",
+      "compliance": "Compliance",
       "group_knowledge": "Knowledge",
-      "group_apps": "Apps"
+      "group_apps": "Apps",
+      "group_workspace": "Workspace",
+      "group_intelligence": "Intelligence",
+      "group_platform": "Platform"
     },
     "actions": {
       "add": "Add",

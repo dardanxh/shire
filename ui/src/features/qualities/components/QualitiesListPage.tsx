@@ -1,10 +1,17 @@
 import { getRouteApi } from "@tanstack/react-router";
-import { SearchIcon, XIcon } from "lucide-react";
+import { SearchIcon, SlidersHorizontalIcon, XIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -68,6 +75,16 @@ export function QualitiesListPage() {
     })),
   ];
 
+  // Active select-filters as removable chips (q stays visible in the search box).
+  const dropCategory = () =>
+    navigate({ search: (prev) => ({ ...prev, category: undefined }) });
+  const activeFilters: { key: "category"; label: string }[] = [];
+  if (search.category)
+    activeFilters.push({
+      key: "category",
+      label: t(`qualities.category.${search.category}`),
+    });
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-2 border-b">
@@ -107,38 +124,85 @@ export function QualitiesListPage() {
                 className="bg-background pl-8"
               />
             </div>
-            <Select
-              items={categoryItems}
-              value={search.category ?? null}
-              onValueChange={(value) =>
-                navigate({
-                  search: (prev) => ({ ...prev, category: value ?? undefined }),
-                })
-              }
-            >
-              <SelectTrigger className="min-w-44 bg-background">
-                <SelectValue placeholder={t("qualities.list.all_categories")} />
-              </SelectTrigger>
-              <SelectContent>
-                {categoryItems.map((item) => (
-                  <SelectItem key={item.label} value={item.value}>
-                    {item.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {hasFilters && (
-              <Button variant="ghost" size="sm" onClick={clearFilters}>
-                <XIcon />
-                {t("qualities.list.clear_filters")}
-              </Button>
-            )}
+            <Popover>
+              <PopoverTrigger
+                render={<Button variant="outline" className="bg-background" />}
+              >
+                <SlidersHorizontalIcon />
+                {t("qualities.list.filters")}
+                {activeFilters.length > 0 && (
+                  <Badge variant="accent">{activeFilters.length}</Badge>
+                )}
+              </PopoverTrigger>
+              <PopoverContent align="start" className="gap-3 p-3">
+                <FilterField label={t("qualities.list.filter_category")}>
+                  <Select
+                    items={categoryItems}
+                    value={search.category ?? null}
+                    onValueChange={(value) =>
+                      navigate({
+                        search: (prev) => ({
+                          ...prev,
+                          category: value ?? undefined,
+                        }),
+                      })
+                    }
+                  >
+                    <SelectTrigger className="w-full bg-background">
+                      <SelectValue
+                        placeholder={t("qualities.list.all_categories")}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categoryItems.map((item) => (
+                        <SelectItem key={item.label} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FilterField>
+              </PopoverContent>
+            </Popover>
             {data && (
               <p className="ml-auto text-xs text-muted-foreground">
                 {t("qualities.list.count", { count: data.total })}
               </p>
             )}
           </div>
+
+          {/* Active filters as removable chips, tucked under the toolbar. */}
+          {hasFilters && (
+            <div className="-mt-3 flex flex-wrap items-center gap-1.5">
+              {activeFilters.map((filter) => (
+                <Badge
+                  key={filter.key}
+                  variant="accent"
+                  className="gap-0.5 pr-1"
+                >
+                  {filter.label}
+                  <button
+                    type="button"
+                    onClick={dropCategory}
+                    aria-label={t("qualities.list.remove_filter", {
+                      name: filter.label,
+                    })}
+                    className="rounded-full p-0.5 text-accent-foreground/50 transition-colors hover:bg-accent-foreground/10 hover:text-accent-foreground"
+                  >
+                    <XIcon className="size-3" />
+                  </button>
+                </Badge>
+              ))}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+              >
+                {t("common.actions.clear_filters")}
+              </Button>
+            </div>
+          )}
 
           {isError ? (
             <div className="grid min-h-[30vh] place-items-center">
@@ -174,6 +238,22 @@ export function QualitiesListPage() {
           )}
         </>
       )}
+    </div>
+  );
+}
+
+/** One labeled control row inside the Filters popover. */
+function FilterField({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label className="text-xs text-muted-foreground">{label}</Label>
+      {children}
     </div>
   );
 }

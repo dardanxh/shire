@@ -55,6 +55,8 @@ from shire.domain.substrate.schemas import (
     DependencyUsageResult,
     GraphResult,
     RepositoryContributorsResult,
+    TechStackItem,
+    TechStackResult,
     ToolLogResult,
 )
 from shire.integrations import pypi
@@ -621,6 +623,56 @@ class AnalysisService:
         )
         return JobResult.of(job)
 
+    # --- tech stack (catalog-resolved detection via claude -p) ----------------
+    def tech_stack_status(self, repository_id: uuid.UUID) -> TechStackResult:
+        """The cached tech-stack detection, if one has been generated."""
+        cache = self._artifact_dir("tech-stack", repository_id) / "tech-stack.json"
+        if not cache.is_file():
+            return TechStackResult(
+                repository_id=repository_id,
+                generated=False,
+                agent_available=_new_agent().available(),
+            )
+        try:
+            data = json.loads(cache.read_text())
+        except (OSError, json.JSONDecodeError, ValueError):
+            data = {}
+        items = []
+        for raw in data.get("items") or []:
+            try:
+                items.append(TechStackItem(**raw))
+            except (TypeError, ValueError):
+                continue
+        return TechStackResult(
+            repository_id=repository_id,
+            generated=True,
+            generated_at=_mtime(cache),
+            branch=data.get("branch"),
+            agent_available=True,
+            items=items,
+        )
+
+    def enqueue_tech_stack(self, repository_id: uuid.UUID) -> JobResult:
+        """Enqueue tech-stack detection for the engine service (non-blocking). The completion
+        handler resolves detected names against the technology catalog before caching."""
+        repo = self._require_cloned_repo(repository_id)
+        jobs = JobService(self._session)
+        model, timeout_seconds = jobs.engine_defaults()
+        job = jobs.enqueue(
+            kind=job_kinds.SUBSTRATE_TECH_STACK,
+            title=f"Tech stack — {repo.coordinates.slug}",
+            prompt=_TECH_STACK_PROMPT.format(repo=repo.coordinates.slug),
+            payload={
+                "cwd": repo.clone_path,
+                "model": model,
+                "timeout_seconds": timeout_seconds,
+                "repository_id": str(repository_id),
+                "branch": repo.current_branch or repo.default_branch,
+            },
+            repository_id=repository_id,
+        )
+        return JobResult.of(job)
+
     # --- code city (CodeCharta) -----------------------------------------------
     def code_map_status(self, repository_id: uuid.UUID) -> CodeMapResult:
         adapter = CodeChartaAdapter()
@@ -738,6 +790,63 @@ Return ONLY a single fenced json object as the very last thing, nothing else:
   "audience": "who uses it"
 }}
 ```"""
+
+
+_TECH_STACK_PROMPT = """\
+You are identifying the technology stack of the repository **{repo}**. Explore the real code \
+with your Read, Grep and Glob tools before you conclude anything: dependency manifests and \
+lockfiles (package.json, pyproject.toml, go.mod, pom.xml, ...), docker-compose files and \
+Dockerfiles, CI configs (.github/workflows, .gitlab-ci.yml), infrastructure-as-code (Terraform, \
+Helm, k8s manifests), configuration files and the README.
+
+List the INFRASTRUCTURE-LEVEL technologies this repository actually uses: databases, queues and \
+streaming platforms, orchestrators, warehouses, processing engines, BI/analytics tools, ML \
+platforms, storage systems, transformation frameworks, protocols and notable frameworks. Name \
+the PRODUCT with its plain canonical name — "PostgreSQL", not "psycopg2"; "Apache Kafka", not \
+"kafka-python"; "Redis", not "ioredis". No parentheses or hosted-variant annotations in the \
+name (put those in `evidence`): "Apache Kafka", not "Apache Kafka (AWS MSK)". Skip ordinary \
+language libraries (utility packages, linters, test frameworks) unless they ARE the point of \
+the repo. Only include technologies you found concrete evidence for.
+
+Return ONLY a single fenced json object as the very last thing, nothing else:
+```json
+{{
+  "technologies": [
+    {{
+      "name": "PostgreSQL",
+      "evidence": "docker-compose.yml service `db`; SQLAlchemy DSN in be/.env.example",
+      "role": "database"
+    }}
+  ]
+}}
+```"""
+
+
+def parse_tech_stack(text: str) -> list[dict] | None:
+    """Parse the tech-stack job's fenced json into clean item dicts, or None if unusable.
+    Invalid entries are skipped rather than failing the whole result."""
+    block = _extract_json_object(text)
+    if block is None:
+        return None
+    try:
+        data = json.loads(block)
+    except (json.JSONDecodeError, ValueError):
+        return None
+    raw_items = data.get("technologies") if isinstance(data, dict) else None
+    if not isinstance(raw_items, list):
+        return None
+    items: list[dict] = []
+    for raw in raw_items:
+        if not isinstance(raw, dict) or not raw.get("name"):
+            continue
+        items.append(
+            {
+                "detected_name": str(raw["name"]),
+                "evidence": str(raw["evidence"]) if raw.get("evidence") else None,
+                "role": str(raw["role"]) if raw.get("role") else None,
+            }
+        )
+    return items
 
 
 def _parse_overview(text: str) -> dict | None:

@@ -1,5 +1,5 @@
 import { getRouteApi } from "@tanstack/react-router";
-import { RotateCcwIcon } from "lucide-react";
+import { RotateCcwIcon, SaveIcon } from "lucide-react";
 import { useId, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -26,8 +26,9 @@ import {
   searchToInputs,
 } from "../schemas";
 import { ResultsPanel } from "./ResultsPanel";
+import { SaveCalculationDialog } from "./SaveCalculationDialog";
 
-const route = getRouteApi("/sizing");
+const route = getRouteApi("/capacity-planner");
 
 export function CalculatorPage() {
   const { t } = useTranslation();
@@ -49,6 +50,7 @@ export function CalculatorPage() {
   }
 
   const results = useMemo(() => computeSizing(draft), [draft]);
+  const [saveOpen, setSaveOpen] = useState(false);
 
   const urlTimer = useRef<number | undefined>(undefined);
   const setField = (key: keyof SizingInputs, value: number | string) => {
@@ -88,8 +90,18 @@ export function CalculatorPage() {
             <RotateCcwIcon />
             {t("sizing.actions.reset")}
           </Button>
+          <Button variant="outline" size="sm" onClick={() => setSaveOpen(true)}>
+            <SaveIcon />
+            {t("sizing.actions.save")}
+          </Button>
         </div>
       </div>
+
+      <SaveCalculationDialog
+        open={saveOpen}
+        onOpenChange={setSaveOpen}
+        inputs={draft}
+      />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
         {/* Inputs */}

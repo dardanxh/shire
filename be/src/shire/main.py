@@ -20,6 +20,8 @@ from shire.core.settings import get_settings
 from shire.domain.archetype.routes import router as archetypes_router
 from shire.domain.blueprint.routes import router as blueprints_router
 from shire.domain.briefing.routes import router as briefing_router
+from shire.domain.capacity.routes import router as capacity_router
+from shire.domain.compliance.routes import router as compliance_router
 from shire.domain.connections.routes import router as connections_router
 from shire.domain.context.routes import router as context_router
 from shire.domain.council.routes import router as council_router
@@ -118,6 +120,8 @@ app.include_router(modelling_router, prefix=API_V1_PREFIX)
 app.include_router(regulations_router, prefix=API_V1_PREFIX)
 app.include_router(practices_router, prefix=API_V1_PREFIX)
 app.include_router(qualities_router, prefix=API_V1_PREFIX)
+app.include_router(compliance_router, prefix=API_V1_PREFIX)
+app.include_router(capacity_router, prefix=API_V1_PREFIX)
 
 # fastapi-pagination wires its Params/Page plumbing for the catalog routers above.
 add_pagination(app)

@@ -511,6 +511,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/repositories/{repository_id}/tech-stack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tech Stack
+         * @description The cached tech-stack detection, resolved against the technology catalog.
+         */
+        get: operations["tech_stack_api_v1_repositories__repository_id__tech_stack_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/tech-stack/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate Tech Stack
+         * @description Enqueue tech-stack detection (non-blocking — track the job).
+         */
+        post: operations["generate_tech_stack_api_v1_repositories__repository_id__tech_stack_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/repositories/{repository_id}/code-map": {
         parameters: {
             query?: never;
@@ -2574,6 +2614,101 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/compliance-checks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Checks
+         * @description Every run, newest first — the Results tab is a history.
+         */
+        get: operations["list_checks_api_v1_compliance_checks_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/compliance-checks/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Checks
+         * @description Fan out one engine job per (repository, regulation) pair (non-blocking).
+         */
+        post: operations["run_checks_api_v1_compliance_checks_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/compliance-checks/{check_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Check */
+        delete: operations["delete_check_api_v1_compliance_checks__check_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/capacity-calculations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Calculations
+         * @description Saved calculations, newest first (small list — unpaginated).
+         */
+        get: operations["list_calculations_api_v1_capacity_calculations_get"];
+        put?: never;
+        /** Create Calculation */
+        post: operations["create_calculation_api_v1_capacity_calculations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/capacity-calculations/{calculation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Calculation */
+        delete: operations["delete_calculation_api_v1_capacity_calculations__calculation_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -3147,6 +3282,25 @@ export interface components {
             /** Series */
             series: components["schemas"]["BurnupPoint"][];
         };
+        /** CapacityCalculationResult */
+        CapacityCalculationResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Inputs */
+            inputs: {
+                [key: string]: unknown;
+            };
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** CiCdConfig */
         CiCdConfig: {
             system: components["schemas"]["CiCdSystem"];
@@ -3297,6 +3451,58 @@ export interface components {
          * @enum {string}
          */
         CommentSeverity: "info" | "minor" | "major" | "critical";
+        /** ComplianceCheckResult */
+        ComplianceCheckResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Repository Slug */
+            repository_slug: string;
+            /** Regulation Slug */
+            regulation_slug: string;
+            /** Regulation Name */
+            regulation_name: string;
+            /** Status */
+            status: string;
+            /** Verdict */
+            verdict: string | null;
+            /** Summary */
+            summary: string;
+            /** Findings */
+            findings: components["schemas"]["ComplianceFinding"][];
+            /** Error */
+            error: string | null;
+            /** Job Id */
+            job_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /** ComplianceFinding */
+        ComplianceFinding: {
+            /** Title */
+            title: string;
+            /** Status */
+            status: string;
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+            /** Article Ref */
+            article_ref?: string | null;
+        };
         /**
          * ConnectionResult
          * @description Result schema — never carries the secret, only a redacted hint.
@@ -3917,6 +4123,25 @@ export interface components {
              * @default
              */
             owner_email: string;
+        };
+        /** CreateCapacityCalculation */
+        CreateCapacityCalculation: {
+            /** Name */
+            name: string;
+            /** Inputs */
+            inputs?: {
+                [key: string]: unknown;
+            };
+        };
+        /**
+         * CreateComplianceRun
+         * @description One run request fans out to a check per (repository, regulation) pair.
+         */
+        CreateComplianceRun: {
+            /** Repository Ids */
+            repository_ids: string[];
+            /** Regulation Ids */
+            regulation_ids: string[];
         };
         /**
          * CreateConnection
@@ -5762,6 +5987,19 @@ export interface components {
             /** Pages */
             pages: number;
         };
+        /** Page[ComplianceCheckResult] */
+        Page_ComplianceCheckResult_: {
+            /** Items */
+            items: components["schemas"]["ComplianceCheckResult"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+            /** Pages */
+            pages: number;
+        };
         /** Page[ConnectionResult] */
         Page_ConnectionResult_: {
             /** Items */
@@ -6729,6 +6967,48 @@ export interface components {
             technology_count: number;
             /** Children */
             children?: components["schemas"]["TechCategoryTreeResult"][];
+        };
+        /**
+         * TechStackItem
+         * @description One technology the agent detected in the repository. `slug` is set only when the
+         *     detection resolved to a row in the technology catalog (making it linkable in the UI).
+         */
+        TechStackItem: {
+            /** Detected Name */
+            detected_name: string;
+            /** Evidence */
+            evidence?: string | null;
+            /** Role */
+            role?: string | null;
+            /** Slug */
+            slug?: string | null;
+        };
+        /**
+         * TechStackResult
+         * @description The detected technology stack of a repository, resolved against the catalog.
+         */
+        TechStackResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Generated */
+            generated: boolean;
+            /** Generated At */
+            generated_at?: string | null;
+            /** Branch */
+            branch?: string | null;
+            /**
+             * Agent Available
+             * @default true
+             */
+            agent_available: boolean;
+            /**
+             * Items
+             * @default []
+             */
+            items: components["schemas"]["TechStackItem"][];
         };
         /**
          * TechnologyBlueprintRef
@@ -8236,6 +8516,68 @@ export interface operations {
         };
     };
     generate_codebase_overview_api_v1_repositories__repository_id__codebase_overview_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tech_stack_api_v1_repositories__repository_id__tech_stack_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TechStackResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_tech_stack_api_v1_repositories__repository_id__tech_stack_run_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -12704,6 +13046,182 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ArchitectureQualityResult"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_checks_api_v1_compliance_checks_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ComplianceCheckResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_checks_api_v1_compliance_checks_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateComplianceRun"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ComplianceCheckResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_check_api_v1_compliance_checks__check_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                check_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_calculations_api_v1_capacity_calculations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CapacityCalculationResult"][];
+                };
+            };
+        };
+    };
+    create_calculation_api_v1_capacity_calculations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCapacityCalculation"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CapacityCalculationResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_calculation_api_v1_capacity_calculations__calculation_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                calculation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

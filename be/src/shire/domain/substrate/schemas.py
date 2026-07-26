@@ -172,6 +172,27 @@ class CodebaseOverviewResult(BaseModel):
     audience: str | None = None  # who it is for
 
 
+class TechStackItem(BaseModel):
+    """One technology the agent detected in the repository. `slug` is set only when the
+    detection resolved to a row in the technology catalog (making it linkable in the UI)."""
+
+    detected_name: str
+    evidence: str | None = None  # file path or one-liner the detection is based on
+    role: str | None = None  # short role: database | queue | orchestrator | ...
+    slug: str | None = None  # technology catalog slug when matched
+
+
+class TechStackResult(BaseModel):
+    """The detected technology stack of a repository, resolved against the catalog."""
+
+    repository_id: uuid.UUID
+    generated: bool
+    generated_at: datetime | None = None
+    branch: str | None = None
+    agent_available: bool = True
+    items: list[TechStackItem] = []
+
+
 class GraphResult(BaseModel):
     """State of a repository's codebase graph (emerge) artifact.
 

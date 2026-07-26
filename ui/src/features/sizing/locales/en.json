@@ -1,9 +1,13 @@
 {
   "sizing": {
-    "title": "Back-of-the-envelope calculator",
+    "title": "Capacity Planner",
     "subtitle": "Enter your data's physical properties and get rough system sizing — storage, throughput, compute, and cost.",
     "disclaimer": "Rough order-of-magnitude estimates, not capacity guarantees.",
-    "crumb": "Back-of-the-envelope",
+    "crumb": "Capacity Planner",
+    "tabs": {
+      "calculator": "Calculator",
+      "history": "History"
+    },
     "inputs_title": "Inputs",
     "results_title": "System details",
     "section": {
@@ -81,7 +85,25 @@
       "hide": "Hide assumptions"
     },
     "actions": {
-      "reset": "Reset"
+      "reset": "Reset",
+      "save": "Save"
+    },
+    "save_dialog": {
+      "title": "Save calculation",
+      "description": "Name this set of inputs to reload it later from the History tab.",
+      "name_label": "Name",
+      "name_placeholder": "e.g. Clickstream 2026",
+      "submit": "Save",
+      "success": "Calculation saved."
+    },
+    "history": {
+      "empty": "No saved calculations yet — tune the calculator and hit Save.",
+      "stored": "Stored",
+      "monthly_cost": "Monthly cost",
+      "total_nodes": "Total nodes",
+      "load": "Load",
+      "delete": "Delete calculation",
+      "deleted": "Calculation deleted."
     }
   }
 }

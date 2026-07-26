@@ -1,10 +1,23 @@
 import { getRouteApi, Link } from "@tanstack/react-router";
-import { PlusIcon, ScaleIcon, SearchIcon, XIcon } from "lucide-react";
+import {
+  PlusIcon,
+  ScaleIcon,
+  SearchIcon,
+  SlidersHorizontalIcon,
+  XIcon,
+} from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -95,6 +108,22 @@ export function ModellingStrategiesListPage() {
     })),
   ];
 
+  // Active select-filters as removable chips (q stays visible in the search box).
+  type FilterKey = "family" | "complexity";
+  const dropFilter = (key: FilterKey) =>
+    navigate({ search: (prev) => ({ ...prev, [key]: undefined }) });
+  const activeFilters: { key: FilterKey; label: string }[] = [];
+  if (family)
+    activeFilters.push({
+      key: "family",
+      label: t(`modelling.family.${family}`),
+    });
+  if (search.complexity)
+    activeFilters.push({
+      key: "complexity",
+      label: t(`modelling.complexity.${search.complexity}`),
+    });
+
   // One flat grid in the declared FAMILIES_BY_TOPIC order (server sorts by
   // family alphabetically) — the family select covers per-category browsing.
   const ordered = tabFamilies.flatMap((f) =>
@@ -158,52 +187,68 @@ export function ModellingStrategiesListPage() {
             className="bg-background pl-8"
           />
         </div>
-        <Select
-          items={familyItems}
-          value={family ?? null}
-          onValueChange={(value) =>
-            navigate({
-              search: (prev) => ({ ...prev, family: value ?? undefined }),
-            })
-          }
-        >
-          <SelectTrigger className="min-w-44 bg-background">
-            <SelectValue placeholder={t("modelling.list.family_all")} />
-          </SelectTrigger>
-          <SelectContent>
-            {familyItems.map((item) => (
-              <SelectItem key={item.label} value={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          items={complexityItems}
-          value={search.complexity ?? null}
-          onValueChange={(value) =>
-            navigate({
-              search: (prev) => ({ ...prev, complexity: value ?? undefined }),
-            })
-          }
-        >
-          <SelectTrigger className="min-w-40 bg-background">
-            <SelectValue placeholder={t("modelling.list.complexity_all")} />
-          </SelectTrigger>
-          <SelectContent>
-            {complexityItems.map((item) => (
-              <SelectItem key={item.label} value={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {hasFilters && (
-          <Button variant="ghost" size="sm" onClick={clearFilters}>
-            <XIcon />
-            {t("modelling.list.clear_filters")}
-          </Button>
-        )}
+        <Popover>
+          <PopoverTrigger
+            render={<Button variant="outline" className="bg-background" />}
+          >
+            <SlidersHorizontalIcon />
+            {t("modelling.list.filters")}
+            {activeFilters.length > 0 && (
+              <Badge variant="accent">{activeFilters.length}</Badge>
+            )}
+          </PopoverTrigger>
+          <PopoverContent align="start" className="gap-3 p-3">
+            <FilterField label={t("modelling.list.filter_family")}>
+              <Select
+                items={familyItems}
+                value={family ?? null}
+                onValueChange={(value) =>
+                  navigate({
+                    search: (prev) => ({ ...prev, family: value ?? undefined }),
+                  })
+                }
+              >
+                <SelectTrigger className="w-full bg-background">
+                  <SelectValue placeholder={t("modelling.list.family_all")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {familyItems.map((item) => (
+                    <SelectItem key={item.label} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FilterField>
+            <FilterField label={t("modelling.list.filter_complexity")}>
+              <Select
+                items={complexityItems}
+                value={search.complexity ?? null}
+                onValueChange={(value) =>
+                  navigate({
+                    search: (prev) => ({
+                      ...prev,
+                      complexity: value ?? undefined,
+                    }),
+                  })
+                }
+              >
+                <SelectTrigger className="w-full bg-background">
+                  <SelectValue
+                    placeholder={t("modelling.list.complexity_all")}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {complexityItems.map((item) => (
+                    <SelectItem key={item.label} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FilterField>
+          </PopoverContent>
+        </Popover>
         {data && (
           <p className="ml-auto text-xs text-muted-foreground">
             {t("modelling.list.count", {
@@ -213,6 +258,35 @@ export function ModellingStrategiesListPage() {
           </p>
         )}
       </div>
+
+      {/* Active filters as removable chips, tucked under the toolbar. */}
+      {hasFilters && (
+        <div className="-mt-3 flex flex-wrap items-center gap-1.5">
+          {activeFilters.map((filter) => (
+            <Badge key={filter.key} variant="accent" className="gap-0.5 pr-1">
+              {filter.label}
+              <button
+                type="button"
+                onClick={() => dropFilter(filter.key)}
+                aria-label={t("modelling.list.remove_filter", {
+                  name: filter.label,
+                })}
+                className="rounded-full p-0.5 text-accent-foreground/50 transition-colors hover:bg-accent-foreground/10 hover:text-accent-foreground"
+              >
+                <XIcon className="size-3" />
+              </button>
+            </Badge>
+          ))}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearFilters}
+            className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+          >
+            {t("common.actions.clear_filters")}
+          </Button>
+        </div>
+      )}
 
       {isError ? (
         <div className="grid min-h-[30vh] place-items-center">
@@ -254,6 +328,22 @@ export function ModellingStrategiesListPage() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+/** One labeled control row inside the Filters popover. */
+function FilterField({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label className="text-xs text-muted-foreground">{label}</Label>
+      {children}
     </div>
   );
 }

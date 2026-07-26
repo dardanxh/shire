@@ -19,6 +19,7 @@ import {
   type JobOut,
   type QuestionOut,
   type RepositoryOut,
+  type TechStackOut,
   type ToolLogOut,
   type ToolName,
 } from "@/lib/api";
@@ -670,6 +671,37 @@ export function useGenerateCodebaseOverviewMutation(id: string) {
     mutationFn: async (): Promise<JobOut> => {
       const { data, error } = await api.POST(
         "/api/v1/repositories/{repository_id}/codebase-overview/run",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+/** Cached tech-stack detection, resolved against the technology catalog. */
+export function useTechStackQuery(id: string) {
+  return useQuery<TechStackOut>({
+    queryKey: repositoryKeys.techStack(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/tech-stack",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+  });
+}
+
+/** Enqueue tech-stack detection. Returns the job — the caller tracks it and invalidates
+ * the tech-stack query when it settles. */
+export function useGenerateTechStackMutation(id: string) {
+  return useMutation({
+    mutationFn: async (): Promise<JobOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/tech-stack/run",
         { params: { path: { repository_id: id } } },
       );
       if (error) throw error;

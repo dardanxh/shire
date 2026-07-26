@@ -19,6 +19,7 @@ from shire.domain.substrate.schemas import (
     DependencyFreshnessResult,
     DependencyUsageResult,
     GraphResult,
+    TechStackResult,
     ToolLogResult,
 )
 from shire.domain.substrate.services import AnalysisService
@@ -188,6 +189,26 @@ def generate_codebase_overview(
 ) -> JobResult:
     """Enqueue the big-picture overview generation (non-blocking — track the job)."""
     return AnalysisService(session).enqueue_codebase_overview(repository_id)
+
+
+@router.get("/repositories/{repository_id}/tech-stack", response_model=TechStackResult)
+def tech_stack(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> TechStackResult:
+    """The cached tech-stack detection, resolved against the technology catalog."""
+    return AnalysisService(session).tech_stack_status(repository_id)
+
+
+@router.post(
+    "/repositories/{repository_id}/tech-stack/run",
+    response_model=JobResult,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+def generate_tech_stack(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> JobResult:
+    """Enqueue tech-stack detection (non-blocking — track the job)."""
+    return AnalysisService(session).enqueue_tech_stack(repository_id)
 
 
 @router.get("/repositories/{repository_id}/code-map", response_model=CodeMapResult)
