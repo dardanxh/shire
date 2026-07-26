@@ -28,6 +28,7 @@ import { Route as ConnectorsRouteImport } from './routes/connectors'
 import { Route as ComplianceRouteImport } from './routes/compliance'
 import { Route as CapacityPlannerRouteImport } from './routes/capacity-planner'
 import { Route as ArchitecturesRouteImport } from './routes/architectures'
+import { Route as AiReadinessRouteImport } from './routes/ai-readiness'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TechnologiesIndexRouteImport } from './routes/technologies/index'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
@@ -164,6 +165,11 @@ const CapacityPlannerRoute = CapacityPlannerRouteImport.update({
 const ArchitecturesRoute = ArchitecturesRouteImport.update({
   id: '/architectures',
   path: '/architectures',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiReadinessRoute = AiReadinessRouteImport.update({
+  id: '/ai-readiness',
+  path: '/ai-readiness',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -380,6 +386,7 @@ const SettingsArchetypesIdEditRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-readiness': typeof AiReadinessRoute
   '/architectures': typeof ArchitecturesRouteWithChildren
   '/capacity-planner': typeof CapacityPlannerRoute
   '/compliance': typeof ComplianceRoute
@@ -443,6 +450,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-readiness': typeof AiReadinessRoute
   '/capacity-planner': typeof CapacityPlannerRoute
   '/compliance': typeof ComplianceRoute
   '/connectors': typeof ConnectorsRoute
@@ -495,6 +503,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-readiness': typeof AiReadinessRoute
   '/architectures': typeof ArchitecturesRouteWithChildren
   '/capacity-planner': typeof CapacityPlannerRoute
   '/compliance': typeof ComplianceRoute
@@ -560,6 +569,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ai-readiness'
     | '/architectures'
     | '/capacity-planner'
     | '/compliance'
@@ -623,6 +633,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ai-readiness'
     | '/capacity-planner'
     | '/compliance'
     | '/connectors'
@@ -674,6 +685,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/ai-readiness'
     | '/architectures'
     | '/capacity-planner'
     | '/compliance'
@@ -738,6 +750,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiReadinessRoute: typeof AiReadinessRoute
   ArchitecturesRoute: typeof ArchitecturesRouteWithChildren
   CapacityPlannerRoute: typeof CapacityPlannerRoute
   ComplianceRoute: typeof ComplianceRoute
@@ -893,6 +906,13 @@ declare module '@tanstack/react-router' {
       path: '/architectures'
       fullPath: '/architectures'
       preLoaderRoute: typeof ArchitecturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-readiness': {
+      id: '/ai-readiness'
+      path: '/ai-readiness'
+      fullPath: '/ai-readiness'
+      preLoaderRoute: typeof AiReadinessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -1397,6 +1417,7 @@ const TechnologiesRouteWithChildren = TechnologiesRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiReadinessRoute: AiReadinessRoute,
   ArchitecturesRoute: ArchitecturesRouteWithChildren,
   CapacityPlannerRoute: CapacityPlannerRoute,
   ComplianceRoute: ComplianceRoute,

@@ -2709,6 +2709,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ai-readiness/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Readiness Overview
+         * @description Assistant-config readiness across every cloned repository.
+         */
+        get: operations["readiness_overview_api_v1_ai_readiness_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/ai-readiness": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Readiness Status
+         * @description Instant artifact scan + persisted suggestions and make-ai-ready runs.
+         */
+        get: operations["readiness_status_api_v1_repositories__repository_id__ai_readiness_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/ai-readiness/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Suggest Readiness
+         * @description Enqueue the AI suggestion run (non-blocking — track the job).
+         */
+        post: operations["suggest_readiness_api_v1_repositories__repository_id__ai_readiness_suggest_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/ai-readiness/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Apply Readiness
+         * @description Implement the selected suggestions on a fresh local `ai-ready/*` branch.
+         */
+        post: operations["apply_readiness_api_v1_repositories__repository_id__ai_readiness_apply_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -2769,6 +2849,11 @@ export interface components {
             health_checks: components["schemas"]["HealthCheck"][];
             /** Tool Runs */
             tool_runs: components["schemas"]["ToolRun"][];
+        };
+        /** ApplySuggestions */
+        ApplySuggestions: {
+            /** Suggestion Ids */
+            suggestion_ids: string[];
         };
         /** ArchetypeResult */
         ArchetypeResult: {
@@ -2916,6 +3001,19 @@ export interface components {
              */
             agent_available: boolean;
         };
+        /** ArtifactState */
+        ArtifactState: {
+            /** Key */
+            key: string;
+            /** Path */
+            path: string;
+            /** Kind */
+            kind: string;
+            /** Role */
+            role: string;
+            /** Present */
+            present: boolean;
+        };
         /**
          * AskQuestionRequest
          * @description Ask a free-form question about this repository (answered by an engine job).
@@ -2923,6 +3021,17 @@ export interface components {
         AskQuestionRequest: {
             /** Question */
             question: string;
+        };
+        /** AssistantState */
+        AssistantState: {
+            /** Key */
+            key: string;
+            /** Name */
+            name: string;
+            /** Detected */
+            detected: boolean;
+            /** Artifacts */
+            artifacts: components["schemas"]["ArtifactState"][];
         };
         /**
          * AttentionResult
@@ -6362,6 +6471,122 @@ export interface components {
             security: components["schemas"]["Rating"];
             /** @default NA */
             health: components["schemas"]["Rating"];
+        };
+        /** ReadinessExecutionResult */
+        ReadinessExecutionResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Status */
+            status: string;
+            /** Branch */
+            branch: string;
+            /** Base Sha */
+            base_sha: string;
+            /** Commit Sha */
+            commit_sha: string | null;
+            /** Agent Summary */
+            agent_summary: string;
+            /** Suggestion Ids */
+            suggestion_ids: string[];
+            /** Error */
+            error: string | null;
+            /** Job Id */
+            job_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /** ReadinessOverviewItem */
+        ReadinessOverviewItem: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Slug */
+            slug: string;
+            /** Detected */
+            detected: string[];
+            /** Present Count */
+            present_count: number;
+            /** Expected Count */
+            expected_count: number;
+            /** Proposed Count */
+            proposed_count: number;
+        };
+        /** ReadinessStatusResult */
+        ReadinessStatusResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Scanned */
+            scanned: boolean;
+            /**
+             * Assistants
+             * @default []
+             */
+            assistants: components["schemas"]["AssistantState"][];
+            /**
+             * Suggestions
+             * @default []
+             */
+            suggestions: components["schemas"]["ReadinessSuggestionResult"][];
+            /**
+             * Executions
+             * @default []
+             */
+            executions: components["schemas"]["ReadinessExecutionResult"][];
+            /**
+             * Agent Available
+             * @default true
+             */
+            agent_available: boolean;
+        };
+        /** ReadinessSuggestionResult */
+        ReadinessSuggestionResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Assistant */
+            assistant: string;
+            /** Action */
+            action: string;
+            /** Path */
+            path: string;
+            /** Title */
+            title: string;
+            /** Detail */
+            detail: string;
+            /** Status */
+            status: string;
+            /** Execution Id */
+            execution_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /**
          * RefreshPrsResult
@@ -13222,6 +13447,123 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readiness_overview_api_v1_ai_readiness_overview_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadinessOverviewItem"][];
+                };
+            };
+        };
+    };
+    readiness_status_api_v1_repositories__repository_id__ai_readiness_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadinessStatusResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    suggest_readiness_api_v1_repositories__repository_id__ai_readiness_suggest_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    apply_readiness_api_v1_repositories__repository_id__ai_readiness_apply_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplySuggestions"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadinessExecutionResult"];
+                };
             };
             /** @description Validation Error */
             422: {

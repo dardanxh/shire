@@ -25,6 +25,10 @@ from shire.domain.merge_review.jobs import (
 )
 from shire.domain.news.jobs import handle_news_poll, handle_news_recommend
 from shire.domain.principles.jobs import handle_principle_audit
+from shire.domain.readiness.jobs import (
+    handle_readiness_apply,
+    handle_readiness_suggest,
+)
 from shire.domain.roadmap.jobs import (
     handle_roadmap_drift,
     handle_roadmap_execute,
@@ -53,6 +57,8 @@ HANDLERS: dict[str, Callable[[JobRow], None]] = {
     kinds.SUBSTRATE_DEPENDENCY_GAINS: handle_dependency_gains,
     kinds.SUBSTRATE_TECH_STACK: handle_tech_stack,
     kinds.COMPLIANCE_CHECK: handle_compliance_check,
+    kinds.READINESS_SUGGEST: handle_readiness_suggest,
+    kinds.READINESS_APPLY: handle_readiness_apply,
     kinds.HOBIT_RUN: handle_hobit_run,
     kinds.HOBIT_FEEDBACK_DISTILL: handle_feedback_distill,
     kinds.COUNCIL_ROSTER: handle_council_roster,

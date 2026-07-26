@@ -18,6 +18,8 @@ import {
   type HobitRunOut,
   type JobOut,
   type QuestionOut,
+  type ReadinessExecutionOut,
+  type ReadinessStatusOut,
   type RepositoryOut,
   type TechStackOut,
   type ToolLogOut,
@@ -453,6 +455,24 @@ export function useRefreshRepositoryMutation(id: string) {
   });
 }
 
+/** Id-per-call refresh variant for bulk actions on the repositories list. */
+export function useRefreshRepositoriesMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string): Promise<RepositoryOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/refresh",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.all });
+    },
+  });
+}
+
 /** Delete a repository and everything derived from it (analysis, artifacts, hobit runs, briefing
  * items, and the clone). A local repo's own files are left untouched. */
 export function useDeleteRepositoryMutation() {
@@ -706,6 +726,71 @@ export function useGenerateTechStackMutation(id: string) {
       );
       if (error) throw error;
       return data;
+    },
+  });
+}
+
+/**
+ * AI-assistant readiness: instant artifact scan plus persisted suggestions and
+ * make-ai-ready executions. Polls while an execution is pending so an in-flight
+ * run's branch/summary (and flipped suggestion statuses) land on their own.
+ */
+export function useAiReadinessQuery(id: string) {
+  return useQuery<ReadinessStatusOut>({
+    queryKey: repositoryKeys.aiReadiness(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/ai-readiness",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+    refetchInterval: (query) =>
+      query.state.data?.executions?.some((e) => e.status === "pending")
+        ? 4000
+        : false,
+  });
+}
+
+/** Enqueue the AI readiness-suggestion run. Returns the job — the caller tracks it
+ * (via `useTrackedJob`) and invalidates the readiness query when it settles. */
+export function useSuggestReadinessMutation(id: string) {
+  return useMutation({
+    mutationFn: async (): Promise<JobOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/ai-readiness/suggest",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+/** Implement the selected suggestions on a fresh `ai-ready/*` branch (non-blocking —
+ * the readiness query polls while the new execution is pending). */
+export function useApplyReadinessMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (
+      suggestionIds: string[],
+    ): Promise<ReadinessExecutionOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/ai-readiness/apply",
+        {
+          params: { path: { repository_id: id } },
+          body: { suggestion_ids: suggestionIds },
+        },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: repositoryKeys.aiReadiness(id),
+      });
     },
   });
 }

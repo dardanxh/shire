@@ -8,6 +8,7 @@ from datetime import date, datetime
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     JSON,
+    BigInteger,
     Boolean,
     Date,
     DateTime,
@@ -188,7 +189,8 @@ class HotspotRow(Base):
     path: Mapped[str] = mapped_column(String(1024))
     churn: Mapped[int] = mapped_column(Integer)
     size: Mapped[int] = mapped_column(Integer)
-    score: Mapped[int] = mapped_column(Integer)
+    # churn * size — overflows int32 on big, hot files (e.g. fastapi's release notes).
+    score: Mapped[int] = mapped_column(BigInteger)
 
 
 class VulnerabilityRow(Base):

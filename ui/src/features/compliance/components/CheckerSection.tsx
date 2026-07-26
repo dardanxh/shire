@@ -26,6 +26,7 @@ function toggled(set: ReadonlySet<string>, value: string): Set<string> {
 export function CheckerSection() {
   const { t } = useTranslation();
   const navigate = route.useNavigate();
+  const search = route.useSearch();
 
   const { data: repositoriesPage } = useRepositoriesQuery({
     page: 1,
@@ -33,9 +34,10 @@ export function CheckerSection() {
   });
   const { data: regulationsPage } = useDataRegulationsQuery();
 
+  // Seeded from the URL so the repositories list can deep-link a preselection.
   const [selectedRepositoryIds, setSelectedRepositoryIds] = useState<
     Set<string>
-  >(new Set());
+  >(() => new Set(search.repos ?? []));
   const [selectedRegulationIds, setSelectedRegulationIds] = useState<
     Set<string>
   >(new Set());
@@ -59,7 +61,12 @@ export function CheckerSection() {
           setSelectedRepositoryIds(new Set());
           setSelectedRegulationIds(new Set());
           navigate({
-            search: (prev) => ({ ...prev, tab: "results", page: 1 }),
+            search: (prev) => ({
+              ...prev,
+              tab: "results",
+              page: 1,
+              repos: undefined,
+            }),
           });
         },
       },

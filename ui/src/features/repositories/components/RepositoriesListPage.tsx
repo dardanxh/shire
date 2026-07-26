@@ -1,16 +1,39 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ChevronRightIcon, GitBranchIcon } from "lucide-react";
-import { useMemo } from "react";
+import {
+  ChevronRightIcon,
+  GitBranchIcon,
+  RefreshCwIcon,
+  ShieldCheckIcon,
+  Trash2Icon,
+} from "lucide-react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import { DataTable } from "@/components/shared/DataTable";
 import { DataTablePagination } from "@/components/shared/DataTablePagination";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { RepositoryOut } from "@/lib/api";
 import { extractErrorMessage } from "@/lib/api";
 import { formatDate, formatTimeAgo } from "@/lib/format";
-import { useRepositoriesQuery } from "../api";
+import {
+  useDeleteRepositoryMutation,
+  useRefreshRepositoriesMutation,
+  useRepositoriesQuery,
+} from "../api";
 import { IngestRepositoryDialog } from "./IngestRepositoryDialog";
 import { StatusBadge } from "./StatusBadge";
 
@@ -39,8 +62,83 @@ export function RepositoriesListPage({
   const pageRows = data?.items ?? [];
   const total = data?.total ?? 0;
 
+  // Ticked repositories for the bulk actions — transient UI state.
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const toggleSelect = (id: string) =>
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  const pageIds = pageRows.map((repo) => repo.id);
+  const allPageSelected =
+    pageIds.length > 0 && pageIds.every((id) => selectedIds.includes(id));
+  const toggleSelectAll = () => setSelectedIds(allPageSelected ? [] : pageIds);
+
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const { mutateAsync: deleteRepository, isPending: isDeleting } =
+    useDeleteRepositoryMutation();
+  const { mutateAsync: refreshRepository, isPending: isRefreshing } =
+    useRefreshRepositoriesMutation();
+
+  const handleBulkDelete = async () => {
+    try {
+      for (const id of selectedIds) await deleteRepository(id);
+      toast.success(
+        t("repositories.list.delete_selected_success", {
+          count: selectedIds.length,
+        }),
+      );
+      setSelectedIds([]);
+      setConfirmDeleteOpen(false);
+    } catch {
+      // Failures toast via the global mutation handler; already-deleted rows
+      // drop out on invalidation, the rest stay selected for retry.
+    }
+  };
+
+  const handleBulkRefresh = async () => {
+    try {
+      for (const id of selectedIds) await refreshRepository(id);
+      toast.success(
+        t("repositories.list.refresh_selected_success", {
+          count: selectedIds.length,
+        }),
+      );
+      setSelectedIds([]);
+    } catch {
+      // Global handler toasts the failure; refreshed rows update on invalidation.
+    }
+  };
+
+  const handleRunCompliance = () =>
+    navigate({
+      to: "/compliance",
+      search: { tab: "checker", page: 1, size: 20, repos: selectedIds },
+    });
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: toggle helpers are recreated per render; the memo keys on the state they close over
   const columns = useMemo<ColumnDef<RepositoryOut>[]>(
     () => [
+      {
+        id: "select",
+        enableSorting: false,
+        meta: { isAction: true, className: "w-10" },
+        header: () => (
+          <Checkbox
+            checked={allPageSelected}
+            onCheckedChange={toggleSelectAll}
+            aria-label={t("repositories.list.select_all")}
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={selectedIds.includes(row.original.id)}
+            onCheckedChange={() => toggleSelect(row.original.id)}
+            aria-label={t("repositories.list.select_row", {
+              name: row.original.slug,
+            })}
+          />
+        ),
+      },
       {
         accessorKey: "slug",
         header: t("repositories.list.col_repository"),
@@ -101,13 +199,46 @@ export function RepositoriesListPage({
         ),
       },
     ],
-    [t],
+    // pageRows matters: toggleSelectAll closes over the current page's ids.
+    [t, selectedIds, allPageSelected, pageRows],
   );
 
   return (
     <div className="space-y-6">
-      {/* The hub's tab strip is the title — only the action lives here. */}
-      <div className="flex justify-end">
+      {/* The hub's tab strip is the title — bulk actions appear once rows are ticked. */}
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        {selectedIds.length > 0 ? (
+          <>
+            <span className="mr-auto text-sm text-muted-foreground">
+              {t("repositories.list.selected_count", {
+                count: selectedIds.length,
+              })}
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={isRefreshing}
+              onClick={handleBulkRefresh}
+            >
+              <RefreshCwIcon
+                className={isRefreshing ? "animate-spin" : undefined}
+              />
+              {t("repositories.list.refresh_selected")}
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleRunCompliance}>
+              <ShieldCheckIcon />
+              {t("repositories.list.run_compliance")}
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => setConfirmDeleteOpen(true)}
+            >
+              <Trash2Icon />
+              {t("repositories.list.delete_selected")}
+            </Button>
+          </>
+        ) : null}
         <IngestRepositoryDialog
           open={wizardOpen}
           onOpenChange={onWizardOpenChange}
@@ -160,6 +291,33 @@ export function RepositoriesListPage({
           </div>
         ) : null}
       </Card>
+
+      <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("repositories.list.delete_selected_title")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("repositories.list.delete_selected_description", {
+                count: selectedIds.length,
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>
+              {t("common.actions.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={isDeleting}
+              onClick={handleBulkDelete}
+            >
+              {t("repositories.list.delete_selected_confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

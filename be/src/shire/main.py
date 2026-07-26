@@ -34,6 +34,7 @@ from shire.domain.modelling.routes import router as modelling_router
 from shire.domain.news.routes import router as news_router
 from shire.domain.principles.routes import router as principles_router
 from shire.domain.qualities.routes import router as qualities_router
+from shire.domain.readiness.routes import router as readiness_router
 from shire.domain.repository.routes import router as repositories_router
 from shire.domain.roadmap.routes import repo_router as repo_roadmaps_router
 from shire.domain.roadmap.routes import router as roadmaps_router
@@ -122,6 +123,7 @@ app.include_router(practices_router, prefix=API_V1_PREFIX)
 app.include_router(qualities_router, prefix=API_V1_PREFIX)
 app.include_router(compliance_router, prefix=API_V1_PREFIX)
 app.include_router(capacity_router, prefix=API_V1_PREFIX)
+app.include_router(readiness_router, prefix=API_V1_PREFIX)
 
 # fastapi-pagination wires its Params/Page plumbing for the catalog routers above.
 add_pagination(app)

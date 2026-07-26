@@ -43,6 +43,15 @@ export type CodebaseOverviewOut =
   components["schemas"]["CodebaseOverviewResult"];
 export type TechStackOut = components["schemas"]["TechStackResult"];
 export type TechStackItemOut = components["schemas"]["TechStackItem"];
+export type ReadinessStatusOut = components["schemas"]["ReadinessStatusResult"];
+export type ReadinessAssistantOut = components["schemas"]["AssistantState"];
+export type ReadinessArtifactOut = components["schemas"]["ArtifactState"];
+export type ReadinessSuggestionOut =
+  components["schemas"]["ReadinessSuggestionResult"];
+export type ReadinessExecutionOut =
+  components["schemas"]["ReadinessExecutionResult"];
+export type ReadinessOverviewItemOut =
+  components["schemas"]["ReadinessOverviewItem"];
 export type CodeMapOut = components["schemas"]["CodeMapResult"];
 export type ToolStatusOut = components["schemas"]["ToolStatusResult"];
 export type ToolLogOut = components["schemas"]["ToolLogResult"];

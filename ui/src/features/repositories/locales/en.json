@@ -9,7 +9,22 @@
       "col_provider": "Provider",
       "col_status": "Status",
       "col_branch": "Branch",
-      "col_last_polled": "Last polled"
+      "col_last_polled": "Last polled",
+      "select_all": "Select all on this page",
+      "select_row": "Select {{name}}",
+      "selected_count_one": "{{count}} repository selected",
+      "selected_count_other": "{{count}} repositories selected",
+      "refresh_selected": "Pull latest",
+      "refresh_selected_success_one": "{{count}} repository refreshed",
+      "refresh_selected_success_other": "{{count}} repositories refreshed",
+      "run_compliance": "Run compliance",
+      "delete_selected": "Delete",
+      "delete_selected_title": "Delete selected repositories?",
+      "delete_selected_description_one": "This permanently removes {{count}} repository and everything derived from it (analysis, artifacts, runs). Local files are left untouched.",
+      "delete_selected_description_other": "This permanently removes {{count}} repositories and everything derived from them (analysis, artifacts, runs). Local files are left untouched.",
+      "delete_selected_confirm": "Delete",
+      "delete_selected_success_one": "{{count}} repository deleted",
+      "delete_selected_success_other": "{{count}} repositories deleted"
     },
     "ingest": {
       "trigger": "Add repository",
@@ -287,7 +302,8 @@
         "jobs": "Jobs",
         "principles": "Principles",
         "roadmaps": "Roadmaps",
-        "tech_stack": "Tech stack"
+        "tech_stack": "Tech stack",
+        "ai_readiness": "AI readiness"
       },
       "overview": {
         "title": "Codebase Overview for Humans",
@@ -342,6 +358,30 @@
         "zoom_reset": "Reset zoom",
         "toast_done": "Diagram generated.",
         "toast_failed": "Diagram generation failed."
+      },
+      "ai_readiness": {
+        "current_state": "Current state",
+        "not_scanned": "No clone available yet — pull the repository to scan its assistant configs.",
+        "detected": "Detected",
+        "suggestions": "Suggestions",
+        "suggest_button": "Suggest improvements",
+        "resuggest_button": "Re-suggest",
+        "suggesting": "Suggesting…",
+        "toast_queued": "Readiness suggestions queued — track it in Jobs.",
+        "toast_done": "Readiness suggestions are ready.",
+        "toast_failed": "Readiness suggestion run failed.",
+        "empty": "No suggestions yet. Ask the agent to review this repository's assistant configs.",
+        "unavailable": "The Claude agent is not available on this host, so suggestions cannot be generated.",
+        "select_all": "Select all suggestions",
+        "select_suggestion": "Select {{title}}",
+        "action_add": "add",
+        "action_edit": "edit",
+        "applied": "Applied",
+        "make_ready": "Make AI-ready ({{count}})",
+        "apply_queued": "Make-AI-ready run queued — the agent is implementing the selected suggestions.",
+        "runs": "Runs",
+        "running": "Implementing suggestions on a fresh branch…",
+        "run_failed": "Run failed."
       },
       "tech_stack": {
         "title": "Technology Stack",

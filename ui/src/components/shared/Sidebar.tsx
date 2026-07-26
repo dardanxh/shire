@@ -18,6 +18,7 @@ import {
   SettingsIcon,
   ShieldCheckIcon,
   ShieldIcon,
+  SparklesIcon,
   UsersIcon,
   WrenchIcon,
 } from "lucide-react";
@@ -175,6 +176,13 @@ const KNOWLEDGE_ITEMS: NavItem[] = [
 
 /** Interactive tools, grouped under an "Apps" label. */
 const APPS_ITEMS: NavItem[] = [
+  {
+    to: "/ai-readiness",
+    labelKey: "common.nav.ai_readiness",
+    icon: SparklesIcon,
+    search: {},
+    match: (p) => p === "/ai-readiness" || p.startsWith("/ai-readiness/"),
+  },
   {
     to: "/capacity-planner",
     labelKey: "common.nav.capacity_planner",

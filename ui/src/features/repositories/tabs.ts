@@ -13,6 +13,7 @@ export const REPOSITORY_TAB_VALUES = [
   "code",
   "architecture",
   "tech-stack",
+  "ai-readiness",
   "activity",
   "branches",
   "mrs",

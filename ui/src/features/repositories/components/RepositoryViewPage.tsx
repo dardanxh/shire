@@ -21,6 +21,7 @@ import {
   ScaleIcon,
   ShieldCheckIcon,
   ShieldIcon,
+  SparklesIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -49,6 +50,7 @@ import {
 } from "@/lib/format";
 import { useAnalysisQuery, useRepositoryQuery } from "../api";
 import type { RepositoryTab } from "../tabs";
+import { AiReadinessPanel } from "./AiReadinessPanel";
 import { ArchitecturePanel } from "./ArchitecturePanel";
 import { AskPanel } from "./AskPanel";
 import { BranchesPanel } from "./BranchesPanel";
@@ -181,6 +183,10 @@ export function RepositoryViewPage({
                 <Layers2Icon />
                 {t("repositories.view.tabs.tech_stack")}
               </TabsTrigger>
+              <TabsTrigger value="ai-readiness">
+                <SparklesIcon />
+                {t("repositories.view.tabs.ai_readiness")}
+              </TabsTrigger>
               <TabsTrigger value="activity">
                 <ActivityIcon />
                 {t("repositories.view.tabs.activity")}
@@ -233,6 +239,10 @@ export function RepositoryViewPage({
 
             <TabsContent value="tech-stack">
               <TechStackPanel repoId={repo.id} />
+            </TabsContent>
+
+            <TabsContent value="ai-readiness">
+              <AiReadinessPanel repoId={repo.id} />
             </TabsContent>
 
             <TabsContent value="principles">
