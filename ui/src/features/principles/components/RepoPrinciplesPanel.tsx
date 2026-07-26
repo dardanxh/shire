@@ -13,7 +13,7 @@ import { Card } from "@/components/ui/card";
 import type { RepoPrincipleStatusOut } from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
 import { useAuditRepositoryMutation, useRepoPrinciplesQuery } from "../api";
-import { SeverityBadge, VerdictBadge } from "./badges";
+import { SeverityDot, VerdictIcon } from "./badges";
 
 /** Violation shape written by the audit handler (stored as JSONB, typed loosely by openapi). */
 interface Violation {
@@ -104,11 +104,13 @@ function StatusCard({ status }: { status: RepoPrincipleStatusOut }) {
           ) : (
             <ChevronRightIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
           )}
-          <span className="font-medium">{status.principle.name}</span>
+          <span className="inline-flex min-w-0 items-center gap-2">
+            <SeverityDot severity={status.principle.severity} />
+            <span className="font-medium">{status.principle.name}</span>
+          </span>
         </span>
         <span className="flex shrink-0 items-center gap-2">
-          <SeverityBadge severity={status.principle.severity} />
-          <VerdictBadge status={verdict} />
+          <VerdictIcon status={verdict} />
         </span>
       </button>
 

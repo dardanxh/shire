@@ -18,6 +18,7 @@ from shire.domain.jobs.services import JobService
 from shire.domain.principles.jobs import build_audit_prompt
 from shire.domain.principles.models import (
     PRINCIPLE_SEVERITIES,
+    PRINCIPLE_TECHS,
     PrincipleCheckRow,
     PrincipleRow,
 )
@@ -33,6 +34,7 @@ from shire.domain.principles.schemas import (
     UpdatePrinciple,
 )
 from shire.domain.repository.repositories import SqlRepositoryRepository
+from shire.integrations.scanners._common import walk_files
 
 
 class PrincipleService:
@@ -52,6 +54,7 @@ class PrincipleService:
             name=data.name.strip(),
             statement=data.statement.strip(),
             severity=data.severity,
+            tech=data.tech,
             repository_id=data.repository_id,
             enabled=data.enabled,
             created_at=now,
@@ -66,8 +69,12 @@ class PrincipleService:
         row.name = data.name.strip()
         row.statement = data.statement.strip()
         row.severity = data.severity
+        row.tech = data.tech
         row.repository_id = data.repository_id
         row.enabled = data.enabled
+        # Any edit — including just disabling — makes it the user's: the seeder must
+        # never clobber a principle the user has customized or opted out of.
+        row.source = "user"
         row.updated_at = datetime.now(UTC)
         return self._to_result(row)
 
@@ -84,8 +91,10 @@ class PrincipleService:
     # --- per-repo standing + audits ----------------------------------------------
     def repo_status(self, repository_id: uuid.UUID) -> list[RepoPrincipleStatusResult]:
         """Every principle applicable to this repo with its newest verdict (the repo tab)."""
-        if self._repos.get(repository_id) is None:
+        repo = self._repos.get(repository_id)
+        if repo is None:
             raise NotFoundError("Repository not found")
+        techs = self._repo_techs(repo.clone_path)
         latest = self._checks.latest_for_repository(repository_id)
         return [
             RepoPrincipleStatusResult(
@@ -95,6 +104,7 @@ class PrincipleService:
                 ),
             )
             for row in self._principles.list_for_repository(repository_id)
+            if row.tech in techs
         ]
 
     def audit_repository(self, repository_id: uuid.UUID) -> list[RepoPrincipleStatusResult]:
@@ -106,7 +116,12 @@ class PrincipleService:
         if not repo.clone_path or not Path(repo.clone_path).is_dir():
             raise ConflictError("Repository has not been cloned yet")
 
-        applicable = self._principles.list_for_repository(repository_id, enabled_only=True)
+        techs = self._repo_techs(repo.clone_path)
+        applicable = [
+            row
+            for row in self._principles.list_for_repository(repository_id, enabled_only=True)
+            if row.tech in techs
+        ]
         if not applicable:
             raise ConflictError("No enabled principles apply to this repository.")
 
@@ -149,6 +164,36 @@ class PrincipleService:
         return self.repo_status(repository_id)
 
     # --- internals ----------------------------------------------------------------
+
+    @staticmethod
+    def _repo_techs(clone_path: str | None) -> set[str]:
+        """Which principle techs this repo warrants: general always; python/sql only when
+        the clone shows matching code — a dbt rule has no business auditing a FastAPI repo."""
+        techs = {"general"}
+        if not clone_path:
+            return techs
+        root = Path(clone_path)
+        if not root.is_dir():
+            return techs
+        if (
+            (root / "pyproject.toml").is_file()
+            or (root / "setup.py").is_file()
+            or (root / "dbt_project.yml").is_file()
+        ):
+            if (root / "dbt_project.yml").is_file():
+                techs.add("sql")
+            if (root / "pyproject.toml").is_file() or (root / "setup.py").is_file():
+                techs.add("python")
+        for path in walk_files(root):
+            if "python" in techs and "sql" in techs:
+                break
+            suffix = path.suffix.lower()
+            if suffix == ".py":
+                techs.add("python")
+            elif suffix == ".sql":
+                techs.add("sql")
+        return techs
+
     def _require(self, principle_id: uuid.UUID) -> PrincipleRow:
         row = self._principles.get(principle_id)
         if row is None:
@@ -158,6 +203,8 @@ class PrincipleService:
     def _validate(self, data: CreatePrinciple) -> None:
         if data.severity not in PRINCIPLE_SEVERITIES:
             raise ValidationError(f"Unknown severity: {data.severity}")
+        if data.tech not in PRINCIPLE_TECHS:
+            raise ValidationError(f"Unknown tech: {data.tech}")
         if data.repository_id is not None and self._repos.get(data.repository_id) is None:
             raise NotFoundError("Repository not found")
 

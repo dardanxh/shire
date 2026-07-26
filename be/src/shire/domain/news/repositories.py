@@ -137,7 +137,9 @@ class SqlNewsItemRepository:
             .where(NewsItemRow.read_at.is_(None))
             .group_by(NewsItemRow.topic_id)
         )
-        return dict(self._session.execute(stmt).tuples())
+        # NOT dict(result): Result has .keys(), so dict() treats it as a mapping and
+        # subscripts it (TypeError). Materialize with .all() first — a plain list.
+        return dict(self._session.execute(stmt).all())
 
     def mark_all_read(self, topic_id: uuid.UUID | None) -> None:
         stmt = (

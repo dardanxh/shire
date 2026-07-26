@@ -1,0 +1,162 @@
+[
+  {
+    "slug": "no-secrets-in-repo",
+    "name": "No secrets in the repository",
+    "severity": "critical",
+    "enabled": true,
+    "statement": "No credentials in tracked files — no API tokens, passwords, private keys, or connection strings with secrets; config comes from the environment, and .env.example documents shape without real values. Any live-looking secret in source, config, docker-compose, or CI files is a violation.",
+    "tech": "general"
+  },
+  {
+    "slug": "errors-never-swallowed",
+    "name": "Errors are handled, never swallowed",
+    "severity": "critical",
+    "enabled": true,
+    "statement": "Every catch/except block must handle, log with context, or re-raise. Bare `except:`, `except Exception: pass`, and empty catch blocks are violations; broad catches at process boundaries must log the stack trace.",
+    "tech": "general"
+  },
+  {
+    "slug": "tests-cover-core-logic",
+    "name": "Tests exist and cover the core logic",
+    "severity": "warning",
+    "enabled": true,
+    "statement": "A real test suite exercises the core business logic with behavioral assertions, runnable via a documented command. No tests, trivial-only tests, or untested core modules are violations.",
+    "tech": "general"
+  },
+  {
+    "slug": "dependencies-pinned",
+    "name": "Dependencies are pinned and locked",
+    "severity": "warning",
+    "enabled": true,
+    "statement": "A lockfile is committed (uv.lock, package-lock.json, go.sum, ...) and the manifest declares direct dependencies with version constraints. Unpinned requirements without a lockfile, or declared-but-unused dependencies, are violations.",
+    "tech": "general"
+  },
+  {
+    "slug": "readme-gets-you-running",
+    "name": "A README that gets you running",
+    "severity": "info",
+    "enabled": true,
+    "statement": "The README says what the project is and gives build, run, and test instructions that match the repo's actual layout and tooling. Missing, title-only, or contradicting-reality READMEs are violations.",
+    "tech": "general"
+  },
+  {
+    "slug": "no-dead-code",
+    "name": "No dead code",
+    "severity": "info",
+    "enabled": true,
+    "statement": "No large commented-out blocks, never-imported modules, uncalled functions, or unreachable branches — git history is the archive. Cite concrete dead regions; a library's unused-by-itself public API doesn't count.",
+    "tech": "general"
+  },
+  {
+    "slug": "python-ruff-clean",
+    "name": "Python code is ruff-formatted and lint-clean",
+    "severity": "warning",
+    "enabled": true,
+    "statement": "Python code conforms to a configured formatter+linter (ruff or equivalent), ideally enforced in CI. No config at all, inconsistent formatting, or code visibly violating the config (unused/wildcard imports) are violations. (Python repos only; report upheld if none.)",
+    "tech": "python"
+  },
+  {
+    "slug": "python-type-hints",
+    "name": "Python is statically typed",
+    "severity": "warning",
+    "enabled": true,
+    "statement": "Public functions and methods carry parameter and return type hints precise enough for mypy/pyright. Mostly-untyped core modules or pervasive `Any` escapes are violations; scripts and tests may be looser. (Python repos only; report upheld if none.)",
+    "tech": "python"
+  },
+  {
+    "slug": "python-no-circular-imports",
+    "name": "No circular imports",
+    "severity": "warning",
+    "enabled": true,
+    "statement": "The module import graph is acyclic — cite any cycle. Function-local imports used to dodge a cycle count as violations unless a comment documents a deliberate layering seam. (Python repos only; report upheld if none.)",
+    "tech": "python"
+  },
+  {
+    "slug": "python-no-mutable-defaults",
+    "name": "No mutable default arguments",
+    "severity": "warning",
+    "enabled": true,
+    "statement": "No mutable default argument values — `def f(x=[])`, `={}`, `=set()`, or mutable dataclass defaults without a factory. Use a `None` sentinel or `default_factory`; cite each offending signature. (Python repos only; report upheld if none.)",
+    "tech": "python"
+  },
+  {
+    "slug": "python-logging-not-print",
+    "name": "Logging, not print",
+    "severity": "info",
+    "enabled": true,
+    "statement": "Library and service code uses the `logging` module, not `print()`. Prints are fine only in CLI entry points whose job is stdout; leftover debug prints elsewhere are violations. (Python repos only; report upheld if none.)",
+    "tech": "python"
+  },
+  {
+    "slug": "python-modern-idioms",
+    "name": "Modern Python idioms",
+    "severity": "info",
+    "enabled": true,
+    "statement": "Prefer f-strings, `with` context managers, pathlib, dataclasses/pydantic for data shapes, and comprehensions where clearer. Flag files where outdated patterns are systematic, not isolated instances. (Python repos only; report upheld if none.)",
+    "tech": "python"
+  },
+  {
+    "slug": "sql-no-select-star",
+    "name": "SELECT * never ships",
+    "severity": "critical",
+    "enabled": true,
+    "statement": "No `SELECT *` in persisted models, views, CTAS, or dbt models — column lists are explicit so upstream schema drift can't silently propagate. A final `select * from` a same-model CTE is fine; star-expanding an upstream table into a materialized model is the violation. (SQL/dbt repos only; report upheld if none.)",
+    "tech": "sql"
+  },
+  {
+    "slug": "sql-use-refs-not-hardcoded",
+    "name": "dbt models reference via ref()/source() only",
+    "severity": "critical",
+    "enabled": true,
+    "statement": "dbt models must reference other tables through `ref()`/`source()`, never hardcoded `database.schema.table` names — hardcoding breaks lineage, environment switching, and the DAG. Any literal cross-table reference inside a dbt model is a violation. (dbt repos only; report upheld if none.)",
+    "tech": "sql"
+  },
+  {
+    "slug": "sql-keys-declared-and-tested",
+    "name": "Every model declares and tests its grain",
+    "severity": "critical",
+    "enabled": true,
+    "statement": "Each dbt model's primary/unique key must carry `unique` and `not_null` tests (or equivalent assertions) — an untested grain silently fans out duplicates downstream. Models with no declared, tested key are violations. (dbt repos only; report upheld if none.)",
+    "tech": "sql"
+  },
+  {
+    "slug": "sql-incremental-unique-key",
+    "name": "Incremental models define a unique_key",
+    "severity": "critical",
+    "enabled": true,
+    "statement": "Every `materialized='incremental'` dbt model must define a `unique_key` (or document an explicit append-only strategy) — without one, reruns duplicate rows. Cite each incremental model missing it. (dbt repos only; report upheld if none.)",
+    "tech": "sql"
+  },
+  {
+    "slug": "sql-no-unbounded-destructive",
+    "name": "No unbounded destructive statements",
+    "severity": "critical",
+    "enabled": true,
+    "statement": "No `DELETE` or `UPDATE` without a `WHERE`, and no `DROP`/`TRUNCATE` outside clearly-marked migration or reset scripts — in tracked SQL, ops scripts, or application code. Cite each unbounded statement. (SQL repos only; report upheld if none.)",
+    "tech": "sql"
+  },
+  {
+    "slug": "python-no-injection",
+    "name": "No injection-prone constructs",
+    "severity": "critical",
+    "enabled": true,
+    "statement": "SQL is built with parameterized queries, never f-strings/%/concat with runtime values; `subprocess` never uses `shell=True` with interpolated input — use argument lists. Cite each query or command built from unescaped runtime data. (Python repos only; report upheld if none.)",
+    "tech": "python"
+  },
+  {
+    "slug": "python-no-unsafe-eval",
+    "name": "No unsafe eval or deserialization",
+    "severity": "critical",
+    "enabled": true,
+    "statement": "No `eval`/`exec` on external data, no `pickle.loads` on untrusted input, and `yaml.load` only with `SafeLoader`. Each is one-line remote code execution; cite every occurrence fed by anything outside the process. (Python repos only; report upheld if none.)",
+    "tech": "python"
+  },
+  {
+    "slug": "python-network-timeouts",
+    "name": "Network calls always have timeouts",
+    "severity": "critical",
+    "enabled": true,
+    "statement": "Every outbound network call — requests/httpx, DB connects, queue clients, sockets — sets an explicit timeout; a hung remote must not hang the worker forever. `requests.get(url)` with no `timeout=` is the canonical violation; cite each call. (Python repos only; report upheld if none.)",
+    "tech": "python"
+  }
+]

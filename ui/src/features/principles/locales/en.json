@@ -8,8 +8,11 @@
       "edit": "Edit",
       "delete": "Delete",
       "deleted": "Principle deleted.",
-      "standing": "{{upheld}} upheld · {{violated}} violated (latest audits)",
-      "never_audited": "Not audited yet"
+      "never_audited": "Not audited yet",
+      "upheld_count_one": "{{count}} repo passing",
+      "upheld_count_other": "{{count}} repos passing",
+      "violated_count_one": "{{count}} repo failing",
+      "violated_count_other": "{{count}} repos failing"
     },
     "form": {
       "title": "New principle",
@@ -24,16 +27,24 @@
         "desc": "Plain language. Be concrete about what counts as a violation — the auditor enforces exactly what you write.",
         "required": "Write the principle."
       },
-      "severity": { "label": "Severity" },
+      "severity": {
+        "label": "Severity"
+      },
       "scope": {
         "label": "Applies to",
         "desc": "Global principles are checked on every repository.",
         "all": "All repositories"
       },
-      "enabled": { "label": "Enabled" },
+      "enabled": {
+        "label": "Enabled"
+      },
       "save": "Save principle",
       "created": "Principle created.",
-      "saved": "Principle saved."
+      "saved": "Principle saved.",
+      "tech": {
+        "label": "Tech",
+        "desc": "Which stack this principle speaks to — used for filtering."
+      }
     },
     "severity": {
       "info": "Info",
@@ -57,6 +68,19 @@
       "checking": "The engine is checking the code against this principle…",
       "error": "The audit failed.",
       "checked_at": "Checked {{when}}"
+    },
+    "filter": {
+      "severity_all": "All severities",
+      "tech_all": "All techs",
+      "button": "Filters",
+      "severity_label": "Severity",
+      "tech_label": "Tech",
+      "remove": "Remove {{name}} filter"
+    },
+    "tech": {
+      "general": "General",
+      "python": "Python",
+      "sql": "SQL / dbt"
     }
   }
 }

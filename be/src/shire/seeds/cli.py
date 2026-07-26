@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from shire.core.db import unit_of_work
 from shire.seeds.blueprint import seed_blueprints
 from shire.seeds.modelling import seed_modelling_strategies
+from shire.seeds.principles import seed_principles
 from shire.seeds.qualities import seed_qualities
 from shire.seeds.security import seed_security
 from shire.seeds.technology import seed_technology
@@ -25,6 +26,7 @@ SEEDERS: dict[str, Callable[[Session], dict[str, int]]] = {
     "security": seed_security,
     "blueprint": seed_blueprints,
     "qualities": seed_qualities,
+    "principles": seed_principles,
 }
 
 

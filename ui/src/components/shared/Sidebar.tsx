@@ -2,6 +2,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import {
   BookOpenIcon,
   CalculatorIcon,
+  ChevronDownIcon,
   CpuIcon,
   DatabaseIcon,
   FolderGitIcon,
@@ -18,12 +19,19 @@ import {
   SettingsIcon,
   ShieldCheckIcon,
   ShieldIcon,
+  SlidersHorizontalIcon,
   SparklesIcon,
   UsersIcon,
   WrenchIcon,
 } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import {
+  Collapsible,
+  CollapsiblePanel,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
@@ -37,6 +45,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
 type NavItem = {
   to: string;
@@ -192,6 +201,13 @@ const APPS_ITEMS: NavItem[] = [
       p === "/capacity-planner" || p.startsWith("/capacity-planner/"),
   },
   {
+    to: "/tech-chooser",
+    labelKey: "common.nav.tech_chooser",
+    icon: SlidersHorizontalIcon,
+    search: {},
+    match: (p) => p === "/tech-chooser" || p.startsWith("/tech-chooser/"),
+  },
+  {
     to: "/compliance",
     labelKey: "common.nav.compliance",
     icon: ShieldCheckIcon,
@@ -199,6 +215,53 @@ const APPS_ITEMS: NavItem[] = [
     match: (p) => p === "/compliance" || p.startsWith("/compliance/"),
   },
 ];
+
+/** A labeled nav group whose label toggles its items; open state survives reloads. */
+function CollapsibleNavGroup({
+  id,
+  labelKey,
+  items,
+  pathname,
+}: {
+  id: string;
+  labelKey: string;
+  items: NavItem[];
+  pathname: string;
+}) {
+  const { t } = useTranslation();
+  const storageKey = `sidebar-group-${id}`;
+  const [open, setOpen] = useState<boolean>(
+    () => localStorage.getItem(storageKey) !== "0",
+  );
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    localStorage.setItem(storageKey, next ? "1" : "0");
+  };
+
+  return (
+    <Collapsible open={open} onOpenChange={handleOpenChange}>
+      <SidebarGroup>
+        <SidebarGroupLabel
+          render={<CollapsibleTrigger />}
+          className="w-full cursor-pointer justify-between transition-colors hover:text-sidebar-foreground"
+        >
+          {t(labelKey)}
+          <ChevronDownIcon
+            className={cn(
+              "size-3.5 transition-transform",
+              !open && "-rotate-90",
+            )}
+          />
+        </SidebarGroupLabel>
+        <CollapsiblePanel>
+          <SidebarGroupContent>
+            <NavItemsMenu items={items} pathname={pathname} />
+          </SidebarGroupContent>
+        </CollapsiblePanel>
+      </SidebarGroup>
+    </Collapsible>
+  );
+}
 
 function NavItemsMenu({
   items,
@@ -263,44 +326,36 @@ export function AppSidebar() {
             <NavItemsMenu items={HOME_ITEMS} pathname={pathname} />
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>
-            {t("common.nav.group_workspace")}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <NavItemsMenu items={WORKSPACE_ITEMS} pathname={pathname} />
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>
-            {t("common.nav.group_intelligence")}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <NavItemsMenu items={INTELLIGENCE_ITEMS} pathname={pathname} />
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>
-            {t("common.nav.group_platform")}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <NavItemsMenu items={PLATFORM_ITEMS} pathname={pathname} />
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>
-            {t("common.nav.group_knowledge")}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <NavItemsMenu items={KNOWLEDGE_ITEMS} pathname={pathname} />
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>{t("common.nav.group_apps")}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <NavItemsMenu items={APPS_ITEMS} pathname={pathname} />
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <CollapsibleNavGroup
+          id="workspace"
+          labelKey="common.nav.group_workspace"
+          items={WORKSPACE_ITEMS}
+          pathname={pathname}
+        />
+        <CollapsibleNavGroup
+          id="intelligence"
+          labelKey="common.nav.group_intelligence"
+          items={INTELLIGENCE_ITEMS}
+          pathname={pathname}
+        />
+        <CollapsibleNavGroup
+          id="platform"
+          labelKey="common.nav.group_platform"
+          items={PLATFORM_ITEMS}
+          pathname={pathname}
+        />
+        <CollapsibleNavGroup
+          id="knowledge"
+          labelKey="common.nav.group_knowledge"
+          items={KNOWLEDGE_ITEMS}
+          pathname={pathname}
+        />
+        <CollapsibleNavGroup
+          id="apps"
+          labelKey="common.nav.group_apps"
+          items={APPS_ITEMS}
+          pathname={pathname}
+        />
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>

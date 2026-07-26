@@ -1,0 +1,69 @@
+{
+  "techchoice": {
+    "title": "Tech Chooser",
+    "subtitle": "Pick a category, weigh what matters, and get a ranked shortlist from the corpus.",
+    "crumb": "Tech Chooser",
+    "tabs": {
+      "chooser": "Chooser",
+      "history": "History"
+    },
+    "category_label": "Choose within",
+    "category_placeholder": "Pick a category…",
+    "priorities_title": "Priorities",
+    "priorities_subtitle": "How much does each factor matter?",
+    "constraints_title": "Hard constraints",
+    "constraints_subtitle": "Rule out anything that doesn't fit.",
+    "results_title": "Ranked shortlist",
+    "axis": {
+      "maturity": "Maturity",
+      "cost": "Low cost",
+      "learning_curve": "Easy to learn",
+      "time_to_win": "Fast to value",
+      "oss": "Open source"
+    },
+    "weight_level": {
+      "0": "Ignore",
+      "1": "Nice",
+      "2": "Important",
+      "3": "Critical"
+    },
+    "constraint": {
+      "deployment": "Deployment target",
+      "deployment_any": "Any deployment",
+      "oss_only": "Open-source only",
+      "max_cost_tier": "Max cost tier",
+      "max_cost_tier_any": "Any cost",
+      "min_maturity": "Min maturity",
+      "min_maturity_any": "Any maturity"
+    },
+    "results": {
+      "match": "match",
+      "top_pick": "Top pick",
+      "excluded_one": "{{count}} excluded by constraints",
+      "excluded_other": "{{count}} excluded by constraints",
+      "empty_category": "Pick a category to see candidates.",
+      "empty_results": "No technologies match these constraints — loosen them to see options."
+    },
+    "actions": {
+      "save": "Save",
+      "reset": "Reset"
+    },
+    "save_dialog": {
+      "title": "Save decision",
+      "description": "Name this chooser configuration to reload it later from the History tab.",
+      "name_label": "Name",
+      "name_placeholder": "e.g. Warehouse selection",
+      "submit": "Save",
+      "success": "Decision saved."
+    },
+    "history": {
+      "empty": "No saved decisions yet — tune the chooser and hit Save.",
+      "category": "Category",
+      "constraints": "Constraints",
+      "top_match": "Top match",
+      "load": "Load",
+      "delete": "Delete decision",
+      "deleted": "Decision deleted."
+    }
+  }
+}

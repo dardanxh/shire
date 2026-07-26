@@ -2746,6 +2746,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tech-decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Decisions
+         * @description Saved decisions, newest first (small list — unpaginated).
+         */
+        get: operations["list_decisions_api_v1_tech_decisions_get"];
+        put?: never;
+        /** Create Decision */
+        post: operations["create_decision_api_v1_tech_decisions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tech-decisions/{decision_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Decision */
+        delete: operations["delete_decision_api_v1_tech_decisions__decision_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -4299,6 +4337,11 @@ export interface components {
              * @default warning
              */
             severity: string;
+            /**
+             * Tech
+             * @default general
+             */
+            tech: string;
             /** Repository Id */
             repository_id?: string | null;
             /**
@@ -4329,6 +4372,15 @@ export interface components {
              * @default 0
              */
             position: number;
+        };
+        /** CreateTechDecision */
+        CreateTechDecision: {
+            /** Name */
+            name: string;
+            /** Inputs */
+            inputs?: {
+                [key: string]: unknown;
+            };
         };
         /** CreateTechnology */
         CreateTechnology: {
@@ -6181,6 +6233,8 @@ export interface components {
             statement: string;
             /** Severity */
             severity: string;
+            /** Tech */
+            tech: string;
             /** Repository Id */
             repository_id: string | null;
             /** Enabled */
@@ -7030,6 +7084,25 @@ export interface components {
             /** Children */
             children?: components["schemas"]["TechCategoryTreeResult"][];
         };
+        /** TechDecisionResult */
+        TechDecisionResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Inputs */
+            inputs: {
+                [key: string]: unknown;
+            };
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /**
          * TechStackItem
          * @description One technology the agent detected in the repository. `slug` is set only when the
@@ -7481,6 +7554,11 @@ export interface components {
              * @default warning
              */
             severity: string;
+            /**
+             * Tech
+             * @default general
+             */
+            tech: string;
             /** Repository Id */
             repository_id?: string | null;
             /**
@@ -13204,6 +13282,88 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ReadinessExecutionResult"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_decisions_api_v1_tech_decisions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TechDecisionResult"][];
+                };
+            };
+        };
+    };
+    create_decision_api_v1_tech_decisions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTechDecision"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TechDecisionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_decision_api_v1_tech_decisions__decision_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                decision_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

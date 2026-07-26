@@ -19,6 +19,7 @@ import repositories from "@/features/repositories/locales/en.json";
 import roadmaps from "@/features/roadmaps/locales/en.json";
 import security from "@/features/security/locales/en.json";
 import sizing from "@/features/sizing/locales/en.json";
+import techchoice from "@/features/techchoice/locales/en.json";
 import technologies from "@/features/technologies/locales/en.json";
 import tools from "@/features/tools/locales/en.json";
 import common from "@/locales/common/en.json";
@@ -50,6 +51,7 @@ const en = {
   ...qualities,
   ...readiness,
   ...sizing,
+  ...techchoice,
   ...compliance,
 };
 

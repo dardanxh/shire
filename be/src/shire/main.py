@@ -45,6 +45,7 @@ from shire.domain.substrate.services import (
     CC_VIEWER_PATH,
     GRAPH_ARTIFACTS_PATH,
 )
+from shire.domain.techchoice.routes import router as techchoice_router
 from shire.domain.technology.routes import categories_router as tech_categories_router
 from shire.domain.technology.routes import technologies_router as technologies_router
 from shire.domain.tools.routes import router as tools_router
@@ -122,6 +123,7 @@ app.include_router(qualities_router, prefix=API_V1_PREFIX)
 app.include_router(compliance_router, prefix=API_V1_PREFIX)
 app.include_router(capacity_router, prefix=API_V1_PREFIX)
 app.include_router(readiness_router, prefix=API_V1_PREFIX)
+app.include_router(techchoice_router, prefix=API_V1_PREFIX)
 
 # fastapi-pagination wires its Params/Page plumbing for the catalog routers above.
 add_pagination(app)

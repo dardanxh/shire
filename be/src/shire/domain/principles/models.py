@@ -12,7 +12,17 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Index, String, Text, Uuid
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    String,
+    Text,
+    Uuid,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -20,18 +30,30 @@ from shire.core.db import Base
 
 PRINCIPLE_SEVERITIES = ("info", "warning", "critical")
 
+# Which stack a principle speaks to — drives list filtering; audits run regardless.
+PRINCIPLE_TECHS = ("general", "python", "sql")
+
 # Check lifecycle: pending (job queued/running) → upheld | violated | error.
 CHECK_STATUSES = ("pending", "upheld", "violated", "error")
 
 
 class PrincipleRow(Base):
     __tablename__ = "principles"
+    __table_args__ = (
+        CheckConstraint("source IN ('seed', 'user')", name="ck_principles_source"),
+        CheckConstraint("tech IN ('general', 'python', 'sql')", name="ck_principles_tech"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    # Stable key for seed upserts; user-created principles keep NULL (unique allows it).
+    slug: Mapped[str | None] = mapped_column(String(160), unique=True, nullable=True)
+    # seed = golden principle refreshed by shire-seed; user = authored or edited by the user.
+    source: Mapped[str] = mapped_column(String(10), default="user", server_default="user")
     name: Mapped[str] = mapped_column(String(120))
     # The rule itself, in plain language — this is what the auditor enforces.
     statement: Mapped[str] = mapped_column(Text)
     severity: Mapped[str] = mapped_column(String(16), default="warning", server_default="warning")
+    tech: Mapped[str] = mapped_column(String(20), default="general", server_default="general")
     # NULL = applies to every repository; set = scoped to one repository.
     repository_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("repositories.id", ondelete="CASCADE"), nullable=True, index=True

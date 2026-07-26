@@ -24,7 +24,11 @@ import {
 import { Form } from "@/components/ui/form";
 import { SelectItem } from "@/components/ui/select";
 import { useRepositoriesQuery } from "@/features/repositories/api";
-import { PRINCIPLE_SEVERITIES, type PrincipleOut } from "@/lib/api";
+import {
+  PRINCIPLE_SEVERITIES,
+  PRINCIPLE_TECHS,
+  type PrincipleOut,
+} from "@/lib/api";
 import { useCreatePrincipleMutation, useUpdatePrincipleMutation } from "../api";
 
 const ALL_REPOS = "__all__";
@@ -37,6 +41,7 @@ function makeSchema(t: TFunction) {
       .trim()
       .min(1, t("principles.form.statement.required")),
     severity: z.string(),
+    tech: z.string(),
     repository_id: z.string(),
     enabled: z.boolean(),
   });
@@ -86,6 +91,7 @@ function PrincipleForm({
       name: principle?.name ?? "",
       statement: principle?.statement ?? "",
       severity: principle?.severity ?? "warning",
+      tech: principle?.tech ?? "general",
       repository_id: principle?.repository_id ?? ALL_REPOS,
       enabled: principle?.enabled ?? true,
     },
@@ -96,6 +102,7 @@ function PrincipleForm({
       name: values.name,
       statement: values.statement,
       severity: values.severity,
+      tech: values.tech,
       repository_id:
         values.repository_id === ALL_REPOS ? null : values.repository_id,
       enabled: values.enabled,
@@ -142,6 +149,18 @@ function PrincipleForm({
             {PRINCIPLE_SEVERITIES.map((s) => (
               <SelectItem key={s} value={s} className="capitalize">
                 {t(`principles.severity.${s}`)}
+              </SelectItem>
+            ))}
+          </SelectField>
+          <SelectField<FormValues>
+            name="tech"
+            label={t("principles.form.tech.label")}
+            description={t("principles.form.tech.desc")}
+            disabled={isPending}
+          >
+            {PRINCIPLE_TECHS.map((tech) => (
+              <SelectItem key={tech} value={tech}>
+                {t(`principles.tech.${tech}`)}
               </SelectItem>
             ))}
           </SelectField>

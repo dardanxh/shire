@@ -162,6 +162,7 @@ export type RoadmapQuadrant = (typeof ROADMAP_QUADRANTS)[number];
 
 /** Principle severities (backend types the column as a bare string). */
 export const PRINCIPLE_SEVERITIES = ["info", "warning", "critical"] as const;
+export const PRINCIPLE_TECHS = ["general", "python", "sql"] as const;
 
 /** Job lifecycle statuses (backend types the column as a bare string). */
 export const JOB_STATUSES = [

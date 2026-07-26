@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as TechnologiesRouteImport } from './routes/technologies'
+import { Route as TechChooserRouteImport } from './routes/tech-chooser'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as RoadmapsRouteImport } from './routes/roadmaps'
@@ -76,6 +77,11 @@ const ToolsRoute = ToolsRouteImport.update({
 const TechnologiesRoute = TechnologiesRouteImport.update({
   id: '/technologies',
   path: '/technologies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TechChooserRoute = TechChooserRouteImport.update({
+  id: '/tech-chooser',
+  path: '/tech-chooser',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -379,6 +385,7 @@ export interface FileRoutesByFullPath {
   '/roadmaps': typeof RoadmapsRouteWithChildren
   '/security': typeof SecurityRouteWithChildren
   '/settings': typeof SettingsRouteWithChildren
+  '/tech-chooser': typeof TechChooserRoute
   '/technologies': typeof TechnologiesRouteWithChildren
   '/tools': typeof ToolsRoute
   '/architectures/advisor': typeof ArchitecturesAdvisorRoute
@@ -429,6 +436,7 @@ export interface FileRoutesByTo {
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
+  '/tech-chooser': typeof TechChooserRoute
   '/tools': typeof ToolsRoute
   '/architectures/advisor': typeof ArchitecturesAdvisorRoute
   '/architectures/compare': typeof ArchitecturesCompareRoute
@@ -489,6 +497,7 @@ export interface FileRoutesById {
   '/roadmaps': typeof RoadmapsRouteWithChildren
   '/security': typeof SecurityRouteWithChildren
   '/settings': typeof SettingsRouteWithChildren
+  '/tech-chooser': typeof TechChooserRoute
   '/technologies': typeof TechnologiesRouteWithChildren
   '/tools': typeof ToolsRoute
   '/architectures/advisor': typeof ArchitecturesAdvisorRoute
@@ -551,6 +560,7 @@ export interface FileRouteTypes {
     | '/roadmaps'
     | '/security'
     | '/settings'
+    | '/tech-chooser'
     | '/technologies'
     | '/tools'
     | '/architectures/advisor'
@@ -601,6 +611,7 @@ export interface FileRouteTypes {
     | '/merge-reviews'
     | '/news'
     | '/principles'
+    | '/tech-chooser'
     | '/tools'
     | '/architectures/advisor'
     | '/architectures/compare'
@@ -660,6 +671,7 @@ export interface FileRouteTypes {
     | '/roadmaps'
     | '/security'
     | '/settings'
+    | '/tech-chooser'
     | '/technologies'
     | '/tools'
     | '/architectures/advisor'
@@ -721,6 +733,7 @@ export interface RootRouteChildren {
   RoadmapsRoute: typeof RoadmapsRouteWithChildren
   SecurityRoute: typeof SecurityRouteWithChildren
   SettingsRoute: typeof SettingsRouteWithChildren
+  TechChooserRoute: typeof TechChooserRoute
   TechnologiesRoute: typeof TechnologiesRouteWithChildren
   ToolsRoute: typeof ToolsRoute
   DiagramRepoIdKindRoute: typeof DiagramRepoIdKindRoute
@@ -740,6 +753,13 @@ declare module '@tanstack/react-router' {
       path: '/technologies'
       fullPath: '/technologies'
       preLoaderRoute: typeof TechnologiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tech-chooser': {
+      id: '/tech-chooser'
+      path: '/tech-chooser'
+      fullPath: '/tech-chooser'
+      preLoaderRoute: typeof TechChooserRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -1343,6 +1363,7 @@ const rootRouteChildren: RootRouteChildren = {
   RoadmapsRoute: RoadmapsRouteWithChildren,
   SecurityRoute: SecurityRouteWithChildren,
   SettingsRoute: SettingsRouteWithChildren,
+  TechChooserRoute: TechChooserRoute,
   TechnologiesRoute: TechnologiesRouteWithChildren,
   ToolsRoute: ToolsRoute,
   DiagramRepoIdKindRoute: DiagramRepoIdKindRoute,

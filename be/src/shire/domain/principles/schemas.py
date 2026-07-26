@@ -15,6 +15,7 @@ class CreatePrinciple(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     statement: str = Field(min_length=1)
     severity: str = "warning"
+    tech: str = "general"
     # None = applies to every repository.
     repository_id: uuid.UUID | None = None
     enabled: bool = True
@@ -65,6 +66,7 @@ class PrincipleResult(BaseModel):
     name: str
     statement: str
     severity: str
+    tech: str
     repository_id: uuid.UUID | None
     enabled: bool
     created_at: datetime
@@ -82,6 +84,7 @@ class PrincipleResult(BaseModel):
             name=row.name,
             statement=row.statement,
             severity=row.severity,
+            tech=row.tech,
             repository_id=row.repository_id,
             enabled=row.enabled,
             created_at=row.created_at,
