@@ -34,7 +34,8 @@ import {
 import { useCreateMergeReviewMutation } from "../api";
 
 const STEPS = ["repository", "branches", "hobits", "confirm"] as const;
-const MR_REVIEWER_CATEGORY = "MR Reviewer";
+// Diff-scoped reviewer hobits carry this roster tag; they float to the top of the picker.
+const MR_REVIEWER_TAG = "mr review";
 
 function toggle(set: Set<string>, value: string): Set<string> {
   const next = new Set(set);
@@ -80,30 +81,26 @@ export function CreateMergeReviewDialog({
   );
 
   // MR-reviewer hobits float to the top; everything else stays selectable.
-  const hobitOptions = useMemo(
-    () =>
-      (hobitCatalog ?? [])
-        .filter((h) => h.category !== "Foundational")
-        .sort((a, b) =>
-          a.category === b.category
-            ? a.name.localeCompare(b.name)
-            : a.category === MR_REVIEWER_CATEGORY
-              ? -1
-              : b.category === MR_REVIEWER_CATEGORY
-                ? 1
-                : 0,
-        )
-        .map((h) => ({
-          slug: h.slug,
-          name:
-            h.category === MR_REVIEWER_CATEGORY
-              ? `${h.name} — ${t("merge_reviews.create.mr_reviewer_badge")}`
-              : h.name,
-          category: h.category,
-          tags: h.tags,
-        })),
-    [hobitCatalog, t],
-  );
+  const hobitOptions = useMemo(() => {
+    const isReviewer = (h: { tags: string[] }) =>
+      h.tags.includes(MR_REVIEWER_TAG);
+    return (hobitCatalog ?? [])
+      .filter((h) => h.slug !== "repo-onboarding")
+      .sort((a, b) =>
+        isReviewer(a) === isReviewer(b)
+          ? a.name.localeCompare(b.name)
+          : isReviewer(a)
+            ? -1
+            : 1,
+      )
+      .map((h) => ({
+        slug: h.slug,
+        name: isReviewer(h)
+          ? `${h.name} — ${t("merge_reviews.create.mr_reviewer_badge")}`
+          : h.name,
+        tags: h.tags,
+      }));
+  }, [hobitCatalog, t]);
 
   // The target defaults to the repo's default branch without an effect: an
   // explicit pick wins, otherwise the loaded default applies.

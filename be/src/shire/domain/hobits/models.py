@@ -6,7 +6,6 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import (
-    Boolean,
     CheckConstraint,
     DateTime,
     Float,
@@ -30,15 +29,23 @@ class CustomHobitRow(Base):
     slug: Mapped[str] = mapped_column(String(64), primary_key=True)
     name: Mapped[str] = mapped_column(String(120))
     description: Mapped[str] = mapped_column(Text)
-    category: Mapped[str] = mapped_column(String(64))
     charter: Mapped[str] = mapped_column(Text)
     instructions: Mapped[str] = mapped_column(Text)
     model: Mapped[str] = mapped_column(String(64))
     timeout_seconds: Mapped[float] = mapped_column(Float)
     tags: Mapped[str] = mapped_column(Text, default="", server_default="")
-    enabled: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class RemovedHobitRow(Base):
+    """A built-in hobit the user deleted. The code roster is a seed — this row hides its spec
+    everywhere (listing, runs, assignment) until the row is deleted again."""
+
+    __tablename__ = "removed_hobits"
+
+    slug: Mapped[str] = mapped_column(String(64), primary_key=True)
+    removed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
 class HobitConfigRow(Base):
@@ -49,7 +56,6 @@ class HobitConfigRow(Base):
     slug: Mapped[str] = mapped_column(String(64), primary_key=True)
     # Display-name override. NULL = use the spec's name.
     name: Mapped[str | None] = mapped_column(String(120), nullable=True)
-    enabled: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
     model: Mapped[str | None] = mapped_column(String(64), nullable=True)
     charter: Mapped[str | None] = mapped_column(Text, nullable=True)
     instructions: Mapped[str | None] = mapped_column(Text, nullable=True)

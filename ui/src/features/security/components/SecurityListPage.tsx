@@ -2,7 +2,11 @@ import { getRouteApi } from "@tanstack/react-router";
 import { SearchIcon, SlidersHorizontalIcon, XIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
+import {
+  CardColumnsSelect,
+  useCardColumns,
+} from "@/components/shared/CardColumns";
+import { SortMenu } from "@/components/shared/SortMenu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,8 +41,19 @@ import { RegulationCard } from "./RegulationCard";
 
 const route = getRouteApi("/security/");
 
+function sortByName<T extends { name: string }>(
+  items: T[],
+  sortBy: string,
+): T[] {
+  return sortBy === "name"
+    ? [...items].sort((a, b) => a.name.localeCompare(b.name))
+    : items;
+}
+
 export function SecurityListPage() {
   const { t } = useTranslation();
+  const [gridClass, columns, setColumns] = useCardColumns();
+  const [sortBy, setSortBy] = useState<string>("default");
   const navigate = route.useNavigate();
   const search = route.useSearch();
 
@@ -196,6 +211,21 @@ export function SecurityListPage() {
             className="bg-background pl-8"
           />
         </div>
+        <CardColumnsSelect
+          columns={columns}
+          onChange={setColumns}
+          label={t("common.cards.per_row")}
+          autoLabel={t("common.cards.auto")}
+        />
+        <SortMenu
+          label={t("common.sort.label")}
+          value={sortBy}
+          onChange={setSortBy}
+          options={[
+            { value: "default", label: t("common.sort.default") },
+            { value: "name", label: t("common.sort.name") },
+          ]}
+        />
         <Popover>
           <PopoverTrigger
             render={<Button variant="outline" className="bg-background" />}
@@ -354,7 +384,7 @@ export function SecurityListPage() {
           </div>
         </div>
       ) : active.isPending ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className={gridClass}>
           {Array.from({ length: 6 }, (_, index) => (
             <Skeleton key={`sk-${index}`} className="h-48 rounded-xl" />
           ))}
@@ -368,16 +398,20 @@ export function SecurityListPage() {
           </p>
         </div>
       ) : search.tab === "regulations" ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {(regulationsQuery.data?.items ?? []).map((regulation) => (
-            <RegulationCard key={regulation.id} regulation={regulation} />
-          ))}
+        <div className={gridClass}>
+          {sortByName(regulationsQuery.data?.items ?? [], sortBy).map(
+            (regulation) => (
+              <RegulationCard key={regulation.id} regulation={regulation} />
+            ),
+          )}
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {(practicesQuery.data?.items ?? []).map((practice) => (
-            <PracticeCard key={practice.id} practice={practice} />
-          ))}
+        <div className={gridClass}>
+          {sortByName(practicesQuery.data?.items ?? [], sortBy).map(
+            (practice) => (
+              <PracticeCard key={practice.id} practice={practice} />
+            ),
+          )}
         </div>
       )}
     </div>

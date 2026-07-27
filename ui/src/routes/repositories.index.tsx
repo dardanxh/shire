@@ -4,7 +4,10 @@ import { z } from "zod";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MergeReviewsListPage } from "@/features/merge-reviews";
-import { RepositoriesListPage } from "@/features/repositories";
+import {
+  IngestRepositoryDialog,
+  RepositoriesListPage,
+} from "@/features/repositories";
 
 const VIEW_VALUES = ["repositories", "mrs"] as const;
 type HubView = (typeof VIEW_VALUES)[number];
@@ -38,32 +41,42 @@ function RouteComponent() {
 
   return (
     <div className="space-y-6">
-      <Tabs
-        value={view}
-        onValueChange={(next) =>
-          navigate({
-            search: (prev) => ({ ...prev, view: next as HubView, page: 1 }),
-          })
-        }
-      >
-        <TabsList>
-          <TabsTrigger value="repositories">
-            {t("common.nav.repositories")}
-          </TabsTrigger>
-          <TabsTrigger value="mrs">{t("common.nav.merge_reviews")}</TabsTrigger>
-        </TabsList>
-      </Tabs>
-
-      {view === "repositories" ? (
-        <RepositoriesListPage
-          {...listProps}
-          wizardOpen={wizard === true}
-          onWizardOpenChange={(open) =>
+      {/* One row: tabs left, page action right. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Tabs
+          value={view}
+          onValueChange={(next) =>
             navigate({
-              search: (prev) => ({ ...prev, wizard: open ? true : undefined }),
+              search: (prev) => ({ ...prev, view: next as HubView, page: 1 }),
             })
           }
-        />
+        >
+          <TabsList>
+            <TabsTrigger value="repositories">
+              {t("common.nav.repositories")}
+            </TabsTrigger>
+            <TabsTrigger value="mrs">
+              {t("common.nav.merge_reviews")}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+        {view === "repositories" ? (
+          <IngestRepositoryDialog
+            open={wizard === true}
+            onOpenChange={(open) =>
+              navigate({
+                search: (prev) => ({
+                  ...prev,
+                  wizard: open ? true : undefined,
+                }),
+              })
+            }
+          />
+        ) : null}
+      </div>
+
+      {view === "repositories" ? (
+        <RepositoriesListPage {...listProps} />
       ) : (
         <MergeReviewsListPage {...listProps} />
       )}

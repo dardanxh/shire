@@ -7,12 +7,7 @@
       "disabled": "Disabled",
       "edit": "Edit",
       "delete": "Delete",
-      "deleted": "Principle deleted.",
-      "never_audited": "Not audited yet",
-      "upheld_count_one": "{{count}} repo passing",
-      "upheld_count_other": "{{count}} repos passing",
-      "violated_count_one": "{{count}} repo failing",
-      "violated_count_other": "{{count}} repos failing"
+      "deleted": "Principle deleted."
     },
     "form": {
       "title": "New principle",

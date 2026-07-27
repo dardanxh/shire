@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import {
   FormFooter,
   SelectField,
-  SwitchField,
   TextareaField,
   TextField,
 } from "@/components/shared/form-fields";
@@ -33,17 +32,10 @@ import {
   makeHobitSchema,
 } from "../schemas";
 
-const CATEGORY_OPTIONS = [
-  "Custom",
-  "Theoretician",
-  "Technology Expert",
-] as const;
-
 function toInput(values: HobitFormValues): HobitInput {
   return {
     name: values.name,
     description: values.description,
-    category: values.category,
     model: values.model,
     charter: values.charter,
     instructions: values.instructions,
@@ -52,7 +44,6 @@ function toInput(values: HobitFormValues): HobitInput {
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean),
-    enabled: values.enabled,
   };
 }
 
@@ -80,13 +71,11 @@ export function HobitFormDialog({
     defaultValues: {
       name: hobit?.name ?? "",
       description: hobit?.description ?? "",
-      category: hobit?.category ?? "Custom",
       model: hobit?.model ?? "sonnet",
       charter: hobit?.charter ?? "",
       instructions: hobit?.instructions ?? "",
       timeout_seconds: String(hobit?.timeout_seconds ?? 180),
       tags: hobit?.tags.join(", ") ?? "",
-      enabled: hobit?.enabled ?? true,
     },
   });
 
@@ -141,17 +130,6 @@ export function HobitFormDialog({
               disabled={isPending}
             />
             <SelectField<HobitFormValues>
-              name="category"
-              label={t("hobits.form.category.label")}
-              disabled={isPending}
-            >
-              {CATEGORY_OPTIONS.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
-                </SelectItem>
-              ))}
-            </SelectField>
-            <SelectField<HobitFormValues>
               name="model"
               label={t("hobits.form.model.label")}
               disabled={isPending}
@@ -189,12 +167,6 @@ export function HobitFormDialog({
               label={t("hobits.form.tags.label")}
               description={t("hobits.form.tags.desc")}
               placeholder="performance, latency"
-              disabled={isPending}
-            />
-            <SwitchField<HobitFormValues>
-              name="enabled"
-              label={t("hobits.form.enabled.label")}
-              info={t("hobits.form.enabled.desc")}
               disabled={isPending}
             />
             <FormFooter

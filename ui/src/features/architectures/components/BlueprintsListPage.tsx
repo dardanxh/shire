@@ -11,7 +11,11 @@ import {
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
+import {
+  CardColumnsSelect,
+  useCardColumns,
+} from "@/components/shared/CardColumns";
+import { SortMenu } from "@/components/shared/SortMenu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +26,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -117,8 +120,27 @@ function BlueprintCard({
 
 const TABS = ["blueprints", "mine"] as const;
 
+const COMPLEXITY_RANK: Record<string, number> = { low: 0, medium: 1, high: 2 };
+
+function sortBlueprints<T extends { name: string; complexity: string }>(
+  items: T[],
+  sortBy: string,
+): T[] {
+  if (sortBy === "name")
+    return [...items].sort((a, b) => a.name.localeCompare(b.name));
+  if (sortBy === "complexity")
+    return [...items].sort(
+      (a, b) =>
+        (COMPLEXITY_RANK[a.complexity.toLowerCase()] ?? 3) -
+        (COMPLEXITY_RANK[b.complexity.toLowerCase()] ?? 3),
+    );
+  return items;
+}
+
 export function BlueprintsListPage() {
   const { t } = useTranslation();
+  const [gridClass, columns, setColumns] = useCardColumns();
+  const [sortBy, setSortBy] = useState<string>("default");
   const navigate = route.useNavigate();
   const search = route.useSearch();
   const source = search.tab === "mine" ? "user" : "seed";
@@ -310,6 +332,22 @@ export function BlueprintsListPage() {
             className="bg-background pl-8"
           />
         </div>
+        <CardColumnsSelect
+          columns={columns}
+          onChange={setColumns}
+          label={t("common.cards.per_row")}
+          autoLabel={t("common.cards.auto")}
+        />
+        <SortMenu
+          label={t("common.sort.label")}
+          value={sortBy}
+          onChange={setSortBy}
+          options={[
+            { value: "default", label: t("common.sort.default") },
+            { value: "name", label: t("common.sort.name") },
+            { value: "complexity", label: t("common.sort.complexity") },
+          ]}
+        />
         <Popover>
           <PopoverTrigger
             render={<Button variant="outline" className="bg-background" />}
@@ -415,7 +453,7 @@ export function BlueprintsListPage() {
       )}
 
       {isPending ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className={gridClass}>
           {[0, 1, 2, 3, 4, 5].map((index) => (
             <Skeleton key={index} className="h-36 rounded-xl" />
           ))}
@@ -432,8 +470,8 @@ export function BlueprintsListPage() {
           </div>
         </div>
       ) : blueprints && blueprints.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {blueprints.map((blueprint) => (
+        <div className={gridClass}>
+          {sortBlueprints(blueprints, sortBy).map((blueprint) => (
             <BlueprintCard
               key={blueprint.id}
               blueprint={blueprint}

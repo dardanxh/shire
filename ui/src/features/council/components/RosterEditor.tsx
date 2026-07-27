@@ -62,14 +62,11 @@ export function RosterEditor({ topic }: { topic: CouncilTopicDetailOut }) {
         ) : null}
         <fieldset disabled={isPending}>
           <HobitMultiSelect
-            hobits={(hobits ?? [])
-              .filter((h) => h.enabled)
-              .map((h) => ({
-                slug: h.slug,
-                name: h.name,
-                category: h.category,
-                tags: h.tags,
-              }))}
+            hobits={(hobits ?? []).map((h) => ({
+              slug: h.slug,
+              name: h.name,
+              tags: h.tags,
+            }))}
             selected={selected}
             onToggle={toggle}
             emptyLabel={t("council.roster.no_hobits")}

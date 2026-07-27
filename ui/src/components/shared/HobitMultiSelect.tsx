@@ -2,17 +2,16 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { CheckboxList } from "@/components/shared/CheckboxList";
-import { cn } from "@/lib/utils";
+import { FilterMenu } from "@/components/shared/FilterMenu";
 
 export type HobitOption = {
   slug: string;
   name: string;
-  category: string;
   tags: string[];
 };
 
 /**
- * A hobit multi-select with tag-filter chips: click tags to narrow the list (OR), then check the
+ * A hobit multi-select with a tag filter: narrow the list by tags (OR), then check the
  * hobits to select. Used by the onboarding wizard and the repo Hobits access editor.
  */
 export function HobitMultiSelect({
@@ -27,7 +26,7 @@ export function HobitMultiSelect({
   emptyLabel?: string;
 }) {
   const { t } = useTranslation();
-  const [activeTags, setActiveTags] = useState<Set<string>>(new Set());
+  const [activeTags, setActiveTags] = useState<string[]>([]);
 
   const allTags = useMemo(
     () => [...new Set(hobits.flatMap((h) => h.tags))].sort(),
@@ -36,46 +35,26 @@ export function HobitMultiSelect({
 
   const filtered = useMemo(
     () =>
-      activeTags.size === 0
+      activeTags.length === 0
         ? hobits
-        : hobits.filter((h) => h.tags.some((tag) => activeTags.has(tag))),
+        : hobits.filter((h) => h.tags.some((tag) => activeTags.includes(tag))),
     [hobits, activeTags],
   );
-
-  const toggleTag = (tag: string) =>
-    setActiveTags((s) => {
-      const next = new Set(s);
-      if (next.has(tag)) next.delete(tag);
-      else next.add(tag);
-      return next;
-    });
 
   return (
     <div className="space-y-3">
       {allTags.length > 0 ? (
-        <div className="flex flex-wrap gap-1.5">
-          {allTags.map((tag) => {
-            const active = activeTags.has(tag);
-            return (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => toggleTag(tag)}
-                className={cn(
-                  "rounded-full border px-2.5 py-0.5 text-xs transition-colors",
-                  active
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border text-muted-foreground hover:bg-muted",
-                )}
-              >
-                {tag}
-              </button>
-            );
-          })}
-          {activeTags.size > 0 ? (
+        <div className="flex items-center gap-2">
+          <FilterMenu
+            label={t("hobits.filters.tags")}
+            options={allTags}
+            selected={activeTags}
+            onChange={setActiveTags}
+          />
+          {activeTags.length > 0 ? (
             <button
               type="button"
-              onClick={() => setActiveTags(new Set())}
+              onClick={() => setActiveTags([])}
               className="px-2 py-0.5 text-xs text-muted-foreground underline"
             >
               {t("hobits.tags.clear_filter")}

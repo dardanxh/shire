@@ -64,6 +64,7 @@ def list_technologies(
     time_to_win: str | None = None,
     cost_model: str | None = None,
     cost_tier: str | None = None,
+    order_by: str | None = None,
     session: Session = Depends(get_session),
 ) -> Page[TechnologyResult]:
     """Paginated corpus search. `category` is a slug (a group slug includes its categories)."""
@@ -78,6 +79,7 @@ def list_technologies(
         time_to_win=time_to_win,
         cost_model=cost_model,
         cost_tier=cost_tier,
+        order_by=order_by,
     )
 
 

@@ -285,10 +285,9 @@ def enqueue_roster_suggestion(session: Session, topic_id: uuid.UUID) -> None:
         return
     hobits = HobitService(session).list_hobits()
     roster_block = "\n".join(
-        f"- {h.slug} — {h.name} ({h.category}): {h.description}"
+        f"- {h.slug} — {h.name}: {h.description}"
         + (f" [tags: {', '.join(h.tags)}]" if h.tags else "")
         for h in hobits
-        if h.enabled
     )
     jobs = JobService(session)
     model, _timeout = jobs.engine_defaults()

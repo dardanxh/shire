@@ -70,6 +70,22 @@
     },
     "table": {
       "error": "Failed to load data"
+    },
+    "cards": {
+      "per_row": "Cards per row",
+      "auto": "Auto"
+    },
+    "sort": {
+      "label": "Sort",
+      "default": "Default",
+      "name": "Name",
+      "newest": "Recently added",
+      "price": "Price",
+      "time_to_value": "Time to value",
+      "complexity": "Complexity",
+      "unread": "Unread",
+      "last_run": "Last run",
+      "origin_year": "Origin year"
     }
   }
 }

@@ -3,17 +3,35 @@
     "list": {
       "empty": "No hobits registered.",
       "col_name": "Hobit",
-      "col_category": "Category",
       "col_tags": "Tags",
       "col_unread": "Unread",
       "col_model": "Model",
-      "col_status": "Enabled",
       "col_last_run": "Last run",
-      "new_hobit": "New hobit"
+      "new_hobit": "New hobit",
+      "select_all": "Select all",
+      "clear_selection": "Clear",
+      "select_row": "Select {{name}}",
+      "selected_count_one": "{{count}} hobit selected",
+      "selected_count_other": "{{count}} hobits selected",
+      "bulk_model": "Set model",
+      "bulk_model_success_one": "{{count}} hobit set to {{model}}",
+      "bulk_model_success_other": "{{count}} hobits set to {{model}}",
+      "bulk_delete_one": "Delete ({{count}})",
+      "bulk_delete_other": "Delete ({{count}})",
+      "bulk_delete_confirm_title": "Delete selected hobits?",
+      "bulk_delete_confirm_body_one": "This permanently deletes {{count}} hobit with all of its runs, briefing items, and repository assignments.",
+      "bulk_delete_confirm_body_other": "This permanently deletes {{count}} hobits with all of their runs, briefing items, and repository assignments.",
+      "bulk_delete_skips_builtin": "The Repo Onboarding hobit is skipped — it can't be deleted.",
+      "bulk_delete_success_one": "{{count}} hobit deleted",
+      "bulk_delete_success_other": "{{count}} hobits deleted",
+      "assigned_tooltip_one": "Assigned to {{count}} repository ({{scheduled}} scheduled)",
+      "assigned_tooltip_other": "Assigned to {{count}} repositories ({{scheduled}} scheduled)"
     },
-    "status": {
-      "enabled": "Enabled",
-      "disabled": "Disabled"
+    "filters": {
+      "search": "Search hobits…",
+      "tags": "Tags",
+      "clear": "Clear filters",
+      "no_matches": "No hobits match the current filters."
     },
     "delete": {
       "title": "Delete hobit",
@@ -26,6 +44,10 @@
       "tags_add": "Add tag",
       "tags_remove": "Remove tag {{tag}}",
       "timeline_title": "Timeline",
+      "assignments_title": "Repositories & schedules",
+      "assignments_empty": "Not assigned to any repository yet — grant access from a repository's Hobits tab.",
+      "assignments_checked": "checked {{when}}",
+      "assignments_never_checked": "not checked yet",
       "runs_title": "Run history",
       "runs_empty": "No runs yet.",
       "run_repo": "Repository",
@@ -52,14 +74,6 @@
         "label": "Description",
         "placeholder": "One line on what this hobit looks for",
         "required": "A description is required"
-      },
-      "category": {
-        "label": "Category",
-        "required": "A category is required"
-      },
-      "enabled": {
-        "label": "Enabled",
-        "desc": "Master switch for this hobit. On: it can run — manually or on its repository schedules. Off: every run is blocked (manual and scheduled) until you switch it back on; past runs and posts stay visible."
       },
       "model": {
         "label": "Model",

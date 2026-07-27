@@ -27,7 +27,23 @@ import {
 } from "@/lib/api";
 import { type RepositoryListParams, repositoryKeys } from "./keys";
 
-/** List repositories (server-paginated: returns the `Page` envelope). */
+/** Statuses meaning the background ingest pipeline is still working on the repo. */
+export const INGEST_IN_PROGRESS = new Set([
+  "registered",
+  "cloning",
+  "analyzing",
+]);
+const INGEST_POLL_MS = 2500;
+
+export function isIngesting(repo: { status: string } | null | undefined) {
+  return repo != null && INGEST_IN_PROGRESS.has(repo.status);
+}
+
+/**
+ * List repositories (server-paginated: returns the `Page` envelope). Ingestion is
+ * asynchronous — the list polls while any visible repo is still cloning/analyzing,
+ * then stops on its own.
+ */
 export function useRepositoriesQuery(params: RepositoryListParams) {
   return useQuery({
     queryKey: repositoryKeys.list(params),
@@ -38,12 +54,19 @@ export function useRepositoriesQuery(params: RepositoryListParams) {
       if (error) throw error;
       return data;
     },
+    refetchInterval: (q) =>
+      q.state.data?.items.some(isIngesting) ? INGEST_POLL_MS : false,
   });
 }
 
-/** A single repository by id. Disabled while `id` is empty. */
+/**
+ * A single repository by id. Disabled while `id` is empty. Polls while the ingest
+ * pipeline is running; when it settles, every derived surface (analysis, context,
+ * branches, …) is invalidated so the view fills in with the fresh data.
+ */
 export function useRepositoryQuery(id: string) {
-  return useQuery({
+  const queryClient = useQueryClient();
+  const query = useQuery({
     queryKey: repositoryKeys.detail(id),
     queryFn: async () => {
       const { data, error } = await api.GET(
@@ -54,7 +77,21 @@ export function useRepositoryQuery(id: string) {
       return data;
     },
     enabled: id !== "",
+    refetchInterval: (q) =>
+      isIngesting(q.state.data) ? INGEST_POLL_MS : false,
   });
+
+  const ingesting = isIngesting(query.data);
+  const wasIngesting = useRef(false);
+  // Side effect: on the ingesting→settled transition, refresh everything derived from the repo.
+  useEffect(() => {
+    if (wasIngesting.current && !ingesting) {
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.all });
+    }
+    wasIngesting.current = ingesting;
+  }, [ingesting, queryClient]);
+
+  return query;
 }
 
 /**
@@ -346,7 +383,7 @@ export function useRefreshHobitMutation(id: string) {
   });
 }
 
-/** Ingest a new repository by git URL (clone + analyze, blocking). */
+/** Register a repository by git URL — the clone/analyze pipeline runs in the background. */
 export function useIngestRepositoryMutation() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -375,7 +412,7 @@ export function useIngestRepositoryMutation() {
   });
 }
 
-/** Pull the latest commits and re-run the full analysis (blocking). */
+/** Start a background pull + re-analysis; the repo status polls track progress. */
 const QUESTION_SETTLED = new Set(["succeeded", "failed", "cancelled"]);
 
 /**

@@ -23,6 +23,7 @@ from shire.domain.hobits.models import (
     HobitGuidanceRow,
     HobitRunFeedbackRow,
     HobitRunRow,
+    RemovedHobitRow,
     RepositoryHobitRow,
 )
 
@@ -38,7 +39,6 @@ class SqlHobitConfigRepository:
         return HobitConfigOverride(
             slug=row.slug,
             name=row.name,
-            enabled=row.enabled,
             model=row.model,
             charter=row.charter,
             instructions=row.instructions,
@@ -51,7 +51,6 @@ class SqlHobitConfigRepository:
         slug: str,
         *,
         name: str,
-        enabled: bool,
         model: str,
         charter: str,
         instructions: str,
@@ -64,7 +63,6 @@ class SqlHobitConfigRepository:
             row = HobitConfigRow(slug=slug, created_at=now)
             self._session.add(row)
         row.name = name
-        row.enabled = enabled
         row.model = model
         row.charter = charter
         row.instructions = instructions
@@ -89,7 +87,6 @@ def _to_custom(row: CustomHobitRow) -> CustomHobit:
             slug=row.slug,
             name=row.name,
             description=row.description,
-            category=row.category,
             default_charter=row.charter,
             default_instructions=row.instructions,
             default_model=row.model,
@@ -97,7 +94,6 @@ def _to_custom(row: CustomHobitRow) -> CustomHobit:
             writes_narrative=False,
             default_tags=_parse_tags(row.tags) or [],
         ),
-        enabled=row.enabled,
         created_at=row.created_at,
         updated_at=row.updated_at,
     )
@@ -131,19 +127,31 @@ class SqlCustomHobitRepository:
             self._session.add(row)
         row.name = spec.name
         row.description = spec.description
-        row.category = spec.category
         row.charter = spec.default_charter
         row.instructions = spec.default_instructions
         row.model = spec.default_model
         row.timeout_seconds = spec.default_timeout_seconds
         row.tags = ",".join(t.strip() for t in spec.default_tags if t.strip())
-        row.enabled = custom.enabled
         row.updated_at = now
 
     def delete(self, slug: str) -> None:
         row = self._session.get(CustomHobitRow, slug)
         if row is not None:
             self._session.delete(row)
+
+
+class SqlRemovedHobitRepository:
+    """Data access for deleted built-in hobits (the `removed_hobits` tombstone table)."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def slugs(self) -> set[str]:
+        return set(self._session.scalars(select(RemovedHobitRow.slug)))
+
+    def add(self, slug: str) -> None:
+        if self._session.get(RemovedHobitRow, slug) is None:
+            self._session.add(RemovedHobitRow(slug=slug, removed_at=datetime.now(UTC)))
 
 
 class SqlRepositoryHobitRepository:
@@ -230,6 +238,42 @@ class SqlRepositoryHobitRepository:
         row = self._session.get(RepositoryHobitRow, (repository_id, slug))
         if row is not None:
             row.last_checked_at = datetime.now(UTC)
+
+    def assignment_counts(self) -> dict[str, tuple[int, int]]:
+        """hobit_slug -> (assigned repos, scheduled repos [cadence other than manual])."""
+        stmt = select(
+            RepositoryHobitRow.hobit_slug,
+            func.count(),
+            func.count().filter(RepositoryHobitRow.cadence != "manual"),
+        ).group_by(RepositoryHobitRow.hobit_slug)
+        return {
+            slug: (total, scheduled)
+            for slug, total, scheduled in self._session.execute(stmt)
+        }
+
+    def assignments_for_hobit(
+        self, slug: str
+    ) -> list[tuple[uuid.UUID, str, str, datetime | None]]:
+        """(repository_id, repository slug, cadence, last_checked_at) per assigned repo.
+        Joins the repositories table directly (data layer only — same precedent as home/roadmap)."""
+        from shire.domain.repository.models import RepositoryRow
+
+        stmt = (
+            select(
+                RepositoryHobitRow.repository_id,
+                RepositoryRow.owner,
+                RepositoryRow.name,
+                RepositoryHobitRow.cadence,
+                RepositoryHobitRow.last_checked_at,
+            )
+            .join(RepositoryRow, RepositoryRow.id == RepositoryHobitRow.repository_id)
+            .where(RepositoryHobitRow.hobit_slug == slug)
+            .order_by(RepositoryRow.owner, RepositoryRow.name)
+        )
+        return [
+            (repo_id, f"{owner}/{name}", cadence, last_checked)
+            for repo_id, owner, name, cadence, last_checked in self._session.execute(stmt)
+        ]
 
 
 class SqlHobitRunRepository:

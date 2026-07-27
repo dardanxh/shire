@@ -5,7 +5,6 @@ import { toast } from "sonner";
 
 import {
   FormFooter,
-  SwitchField,
   TextareaField,
   TextField,
 } from "@/components/shared/form-fields";
@@ -23,7 +22,6 @@ export function HobitConfigForm({ hobit }: { hobit: HobitOut }) {
     resolver: standardSchemaResolver(makeHobitConfigSchema(t)),
     defaultValues: {
       name: hobit.name,
-      enabled: hobit.enabled,
       model: hobit.model,
       charter: hobit.charter,
       instructions: hobit.instructions,
@@ -49,12 +47,6 @@ export function HobitConfigForm({ hobit }: { hobit: HobitOut }) {
         <TextField<HobitConfigFormValues>
           name="name"
           label={t("hobits.form.name.label")}
-          disabled={isPending}
-        />
-        <SwitchField<HobitConfigFormValues>
-          name="enabled"
-          label={t("hobits.form.enabled.label")}
-          info={t("hobits.form.enabled.desc")}
           disabled={isPending}
         />
         <ModelPickerField<HobitConfigFormValues>

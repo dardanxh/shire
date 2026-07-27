@@ -7,11 +7,33 @@ import uuid
 from fastapi_pagination import Params
 from fastapi_pagination.bases import AbstractPage
 from fastapi_pagination.ext.sqlalchemy import paginate
-from sqlalchemy import Select, Text, exists, func, select
+from sqlalchemy import Select, Text, case, exists, func, select
 from sqlalchemy import or_ as sa_or
 from sqlalchemy.orm import Session
 
 from shire.domain.technology.models import TechCategoryRow, TechnologyRow
+
+
+def _ordering(order_by: str | None):
+    """ORDER BY clauses for the corpus search. Tier enums sort by rank (not alphabetically);
+    unknown/None falls back to the default name ordering."""
+    if order_by == "created_at":
+        return (TechnologyRow.created_at.desc(), TechnologyRow.name)
+    if order_by == "cost_tier":
+        rank = case(
+            {"free": 0, "low": 1, "medium": 2, "high": 3},
+            value=TechnologyRow.cost_tier,
+            else_=4,
+        )
+        return (rank, TechnologyRow.name)
+    if order_by == "time_to_win":
+        rank = case(
+            {"hours": 0, "days": 1, "weeks": 2},
+            value=TechnologyRow.time_to_win,
+            else_=3,
+        )
+        return (rank, TechnologyRow.name)
+    return (TechnologyRow.name,)
 
 
 class SqlTechCategoryRepository:
@@ -87,8 +109,9 @@ class SqlTechnologyRepository:
         time_to_win: str | None = None,
         cost_model: str | None = None,
         cost_tier: str | None = None,
+        order_by: str | None = None,
     ) -> AbstractPage:
-        query: Select = select(TechnologyRow).order_by(TechnologyRow.name)
+        query: Select = select(TechnologyRow).order_by(*_ordering(order_by))
         if category_ids:
             id_strings = [str(category_id) for category_id in category_ids]
             secondary_match = sa_or(

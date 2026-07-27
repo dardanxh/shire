@@ -15,6 +15,7 @@ export interface TechnologyListParams {
   time_to_win?: string;
   cost_model?: string;
   cost_tier?: string;
+  order_by?: string;
 }
 
 /**

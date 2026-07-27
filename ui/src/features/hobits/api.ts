@@ -50,6 +50,22 @@ export function useHobitRunsQuery(slug: string) {
   });
 }
 
+/** The repositories this hobit is assigned to, each with its run schedule. */
+export function useHobitAssignmentsQuery(slug: string) {
+  return useQuery({
+    queryKey: hobitKeys.assignments(slug),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/hobits/{slug}/assignments",
+        { params: { path: { slug } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: slug !== "",
+  });
+}
+
 /** The hobit's standing guidance distilled from run feedback (empty until distilled). */
 export function useHobitGuidanceQuery(slug: string) {
   return useQuery({
@@ -101,6 +117,51 @@ export function useUpdateHobitMutation(slug: string) {
     onSuccess: (data) => {
       queryClient.setQueryData(hobitKeys.detail(slug), data);
       queryClient.invalidateQueries({ queryKey: hobitKeys.lists() });
+    },
+  });
+}
+
+/** Save several hobits' configs in one go (sequential PUTs, one invalidation). */
+export function useBulkUpdateHobitsMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (
+      updates: Array<{ slug: string; body: HobitConfigUpdate }>,
+    ): Promise<void> => {
+      for (const { slug, body } of updates) {
+        const { error } = await api.PUT("/api/v1/hobits/{slug}", {
+          params: { path: { slug } },
+          body,
+        });
+        if (error) throw error;
+      }
+    },
+    // onSettled, not onSuccess: a mid-loop failure still leaves earlier
+    // hobits updated, and the list should reflect them.
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: hobitKeys.all });
+    },
+  });
+}
+
+/** Delete several custom hobits in one go (sequential DELETEs, one invalidation). */
+export function useBulkDeleteHobitsMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (slugs: string[]): Promise<void> => {
+      for (const slug of slugs) {
+        const { error } = await api.DELETE("/api/v1/hobits/{slug}", {
+          params: { path: { slug } },
+        });
+        if (error) throw error;
+      }
+    },
+    onSettled: (_data, _error, slugs) => {
+      for (const slug of slugs) {
+        queryClient.removeQueries({ queryKey: hobitKeys.detail(slug) });
+      }
+      queryClient.invalidateQueries({ queryKey: hobitKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ["briefing"] });
     },
   });
 }

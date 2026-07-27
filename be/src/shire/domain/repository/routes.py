@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, BackgroundTasks, Depends, status
 from sqlalchemy.orm import Session
 
 from shire.core.db import get_session
@@ -18,17 +18,22 @@ from shire.domain.repository.schemas import (
     RepositoryResult,
     SwitchBranchRequest,
 )
-from shire.domain.repository.services import RepositoryService
+from shire.domain.repository.services import RepositoryService, run_ingest_pipeline
 
 router = APIRouter(prefix="/repositories", tags=["repositories"])
 
 
 @router.post("", response_model=RepositoryResult, status_code=status.HTTP_201_CREATED)
 def ingest_repository(
-    body: IngestRepositoryRequest, session: Session = Depends(get_session)
+    body: IngestRepositoryRequest,
+    background_tasks: BackgroundTasks,
+    session: Session = Depends(get_session),
 ) -> RepositoryResult:
-    """Clone and analyze a repository from a git URL (blocking)."""
-    return RepositoryService(session).ingest(body.url, body.connection_id, body.tool_ids)
+    """Register a repository and start the clone→analyze pipeline in the background
+    (non-blocking — the row is returned immediately; poll its `status`)."""
+    result = RepositoryService(session).ingest(body.url, body.connection_id)
+    background_tasks.add_task(run_ingest_pipeline, result.id, tool_ids=body.tool_ids)
+    return result
 
 
 @router.get("", response_model=Page[RepositoryResult])
@@ -64,10 +69,15 @@ def repository_branch_names(
 
 @router.post("/{repository_id}/refresh", response_model=RepositoryResult)
 def refresh_repository(
-    repository_id: uuid.UUID, session: Session = Depends(get_session)
+    repository_id: uuid.UUID,
+    background_tasks: BackgroundTasks,
+    session: Session = Depends(get_session),
 ) -> RepositoryResult:
-    """Pull the latest from the remote and re-run the full analysis."""
-    return RepositoryService(session).refresh(repository_id)
+    """Pull the latest from the remote and re-run the full analysis in the background
+    (non-blocking — poll the repository's `status`)."""
+    result = RepositoryService(session).refresh(repository_id)
+    background_tasks.add_task(run_ingest_pipeline, result.id)
+    return result
 
 
 @router.post(
@@ -97,10 +107,16 @@ def list_repository_questions(
 def switch_repository_branch(
     repository_id: uuid.UUID,
     body: SwitchBranchRequest,
+    background_tasks: BackgroundTasks,
     session: Session = Depends(get_session),
 ) -> RepositoryResult:
-    """Check out a branch, clear generated artifacts, and re-run the full analysis (blocking)."""
-    return RepositoryService(session).switch_branch(repository_id, body.branch)
+    """Check out a branch, clear generated artifacts, and re-run the full analysis in the
+    background (non-blocking — poll the repository's `status`)."""
+    result = RepositoryService(session).switch_branch(repository_id, body.branch)
+    # Same-branch switches return early with the repo still `ready` — nothing to re-run.
+    if result.status == "cloning":
+        background_tasks.add_task(run_ingest_pipeline, result.id, branch=body.branch)
+    return result
 
 
 @router.delete("/{repository_id}", status_code=status.HTTP_204_NO_CONTENT)

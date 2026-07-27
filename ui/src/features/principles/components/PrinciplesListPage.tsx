@@ -1,7 +1,5 @@
 import { getRouteApi } from "@tanstack/react-router";
 import {
-  CircleCheckIcon,
-  CircleXIcon,
   PlusIcon,
   ScaleIcon,
   SlidersHorizontalIcon,
@@ -261,28 +259,6 @@ function PrincipleCard({ principle }: { principle: PrincipleOut }) {
       <p className="whitespace-pre-wrap text-sm text-muted-foreground">
         {principle.statement}
       </p>
-      {principle.upheld_count + principle.violated_count > 0 ? (
-        <div className="flex flex-wrap items-center gap-3 text-xs tabular-nums">
-          <span className="inline-flex items-center gap-1 text-success">
-            <CircleCheckIcon className="size-3.5" />
-            {t("principles.list.upheld_count", {
-              count: principle.upheld_count,
-            })}
-          </span>
-          {principle.violated_count > 0 ? (
-            <span className="inline-flex items-center gap-1 text-destructive">
-              <CircleXIcon className="size-3.5" />
-              {t("principles.list.violated_count", {
-                count: principle.violated_count,
-              })}
-            </span>
-          ) : null}
-        </div>
-      ) : (
-        <p className="text-xs text-muted-foreground">
-          {t("principles.list.never_audited")}
-        </p>
-      )}
     </Card>
   );
 }

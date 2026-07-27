@@ -4,7 +4,8 @@
     "subtitle": "Web news for your topics, fetched by the engine and deduplicated",
     "tabs": {
       "feed": "Feed",
-      "topics": "Topics"
+      "topics": "Topics",
+      "config": "Config"
     },
     "actions": {
       "fetch_now": "Fetch now",

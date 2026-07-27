@@ -1,9 +1,7 @@
 import { getRouteApi } from "@tanstack/react-router";
-import { RotateCcwIcon, SaveIcon } from "lucide-react";
 import { useId, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -12,12 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  computeSizing,
-  type IngestMode,
-  SIZING_DEFAULTS,
-  type SizingInputs,
-} from "../calc";
+import { computeSizing, type IngestMode, type SizingInputs } from "../calc";
 import {
   INGEST_MODES,
   INPUT_SECTIONS,
@@ -26,7 +19,6 @@ import {
   searchToInputs,
 } from "../schemas";
 import { ResultsPanel } from "./ResultsPanel";
-import { SaveCalculationDialog } from "./SaveCalculationDialog";
 
 const route = getRouteApi("/capacity-planner");
 
@@ -50,7 +42,6 @@ export function CalculatorPage() {
   }
 
   const results = useMemo(() => computeSizing(draft), [draft]);
-  const [saveOpen, setSaveOpen] = useState(false);
 
   const urlTimer = useRef<number | undefined>(undefined);
   const setField = (key: keyof SizingInputs, value: number | string) => {
@@ -65,44 +56,8 @@ export function CalculatorPage() {
     }, 250);
   };
 
-  const reset = () => {
-    window.clearTimeout(urlTimer.current);
-    setDraft(SIZING_DEFAULTS);
-    navigate({
-      search: (prev) => ({ ...prev, ...SIZING_DEFAULTS }),
-      replace: true,
-    });
-  };
-
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <h1 className="font-heading text-2xl font-semibold">
-            {t("sizing.title")}
-          </h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            {t("sizing.subtitle")}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={reset}>
-            <RotateCcwIcon />
-            {t("sizing.actions.reset")}
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setSaveOpen(true)}>
-            <SaveIcon />
-            {t("sizing.actions.save")}
-          </Button>
-        </div>
-      </div>
-
-      <SaveCalculationDialog
-        open={saveOpen}
-        onOpenChange={setSaveOpen}
-        inputs={draft}
-      />
-
       <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
         {/* Inputs */}
         <div className="flex flex-col gap-6">

@@ -25,6 +25,7 @@ import { useCrumbOverride } from "@/lib/crumb";
 import { formatDateTime } from "@/lib/format";
 import { useHobitQuery, useHobitRunsQuery } from "../api";
 import { DeleteHobitDialog } from "./DeleteHobitDialog";
+import { HobitAssignmentsCard } from "./HobitAssignmentsCard";
 import { HobitConfigForm } from "./HobitConfigForm";
 import { HobitFormDialog } from "./HobitFormDialog";
 import { HobitGuidanceCard } from "./HobitGuidanceCard";
@@ -108,41 +109,39 @@ export function HobitViewPage({ slug }: { slug: string }) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-1.5">
-          <Badge variant="outline" className="text-xs">
-            {hobit.category}
-          </Badge>
           <TagsEditor hobit={hobit} />
         </div>
         <div className="flex items-center gap-2">
           {hobit.custom ? (
-            <>
-              <HobitFormDialog
-                hobit={hobit}
-                trigger={
-                  <Button size="sm" variant="outline">
-                    <PencilIcon className="size-3.5" />
-                    {t("hobits.form.edit")}
-                  </Button>
-                }
-              />
-              <DeleteHobitDialog
-                slug={hobit.slug}
-                name={hobit.name}
-                onDeleted={() =>
-                  navigate({ to: "/hobits", search: { tab: "hobits" } })
-                }
-                trigger={
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2Icon className="size-3.5" />
-                    {t("hobits.delete.confirm")}
-                  </Button>
-                }
-              />
-            </>
+            <HobitFormDialog
+              hobit={hobit}
+              trigger={
+                <Button size="sm" variant="outline">
+                  <PencilIcon className="size-3.5" />
+                  {t("hobits.form.edit")}
+                </Button>
+              }
+            />
+          ) : null}
+          {/* Everything is deletable except the foundational onboarding hobit. */}
+          {hobit.slug !== "repo-onboarding" ? (
+            <DeleteHobitDialog
+              slug={hobit.slug}
+              name={hobit.name}
+              onDeleted={() =>
+                navigate({ to: "/hobits", search: { tab: "hobits" } })
+              }
+              trigger={
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2Icon className="size-3.5" />
+                  {t("hobits.delete.confirm")}
+                </Button>
+              }
+            />
           ) : null}
         </div>
       </div>
@@ -152,6 +151,8 @@ export function HobitViewPage({ slug }: { slug: string }) {
           <HobitConfigForm hobit={hobit} />
         </CardContent>
       </Card>
+
+      <HobitAssignmentsCard slug={slug} />
 
       <HobitGuidanceCard slug={slug} />
 

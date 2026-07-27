@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from shire.core.db import get_session
 from shire.domain.hobits.schemas import (
     CreateHobit,
+    HobitAssignmentResult,
     HobitConfigUpdate,
     HobitGuidanceResult,
     HobitResult,
@@ -48,7 +49,7 @@ def get_hobit(slug: str, session: Session = Depends(get_session)) -> HobitResult
 def update_hobit_config(
     slug: str, body: HobitConfigUpdate, session: Session = Depends(get_session)
 ) -> HobitResult:
-    """Save the hobit's config (model, charter, timeout, enabled). For a built-in hobit this is
+    """Save the hobit's config (model, charter, timeout). For a built-in hobit this is
     stored as an override; for a custom hobit it edits the hobit directly."""
     return HobitService(session).update_config(slug, body)
 
@@ -63,8 +64,9 @@ def update_hobit_definition(
 
 @router.delete("/hobits/{slug}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_hobit(slug: str, session: Session = Depends(get_session)) -> None:
-    """Delete a custom hobit and everything tied to it (runs, briefing items, assignments).
-    Built-in hobits can't be deleted — disable them instead."""
+    """Delete a hobit and everything tied to it (runs, briefing items, assignments). Built-in
+    hobits are tombstoned (their code-roster spec stays hidden); custom ones are dropped. The
+    foundational onboarding hobit can't be deleted."""
     HobitService(session).delete_hobit(slug)
 
 
@@ -72,6 +74,14 @@ def delete_hobit(slug: str, session: Session = Depends(get_session)) -> None:
 def list_hobit_runs(slug: str, session: Session = Depends(get_session)) -> list[HobitRunResult]:
     """This hobit's runs across every repository, newest first."""
     return HobitService(session).list_hobit_runs(slug)
+
+
+@router.get("/hobits/{slug}/assignments", response_model=list[HobitAssignmentResult])
+def list_hobit_assignments(
+    slug: str, session: Session = Depends(get_session)
+) -> list[HobitAssignmentResult]:
+    """The repositories this hobit is assigned to, each with its run schedule."""
+    return HobitService(session).list_assignments(slug)
 
 
 @router.get("/hobits/{slug}/guidance", response_model=HobitGuidanceResult)

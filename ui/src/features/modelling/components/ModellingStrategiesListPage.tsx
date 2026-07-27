@@ -8,7 +8,11 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
+import {
+  CardColumnsSelect,
+  useCardColumns,
+} from "@/components/shared/CardColumns";
+import { SortMenu } from "@/components/shared/SortMenu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,8 +37,30 @@ import { ModellingStrategyCard } from "./ModellingStrategyCard";
 
 const route = getRouteApi("/data/");
 
+const COMPLEXITY_RANK: Record<string, number> = { low: 0, medium: 1, high: 2 };
+
+function sortStrategies<
+  T extends { name: string; complexity: string; origin_year: number | null },
+>(items: T[], sortBy: string): T[] {
+  if (sortBy === "name")
+    return [...items].sort((a, b) => a.name.localeCompare(b.name));
+  if (sortBy === "complexity")
+    return [...items].sort(
+      (a, b) =>
+        (COMPLEXITY_RANK[a.complexity] ?? 3) -
+        (COMPLEXITY_RANK[b.complexity] ?? 3),
+    );
+  if (sortBy === "origin_year")
+    return [...items].sort(
+      (a, b) => (a.origin_year ?? 9999) - (b.origin_year ?? 9999),
+    );
+  return items;
+}
+
 export function ModellingStrategiesListPage() {
   const { t } = useTranslation();
+  const [gridClass, columns, setColumns] = useCardColumns();
+  const [sortBy, setSortBy] = useState<string>("default");
   const navigate = route.useNavigate();
   const search = route.useSearch();
 
@@ -187,6 +213,23 @@ export function ModellingStrategiesListPage() {
             className="bg-background pl-8"
           />
         </div>
+        <CardColumnsSelect
+          columns={columns}
+          onChange={setColumns}
+          label={t("common.cards.per_row")}
+          autoLabel={t("common.cards.auto")}
+        />
+        <SortMenu
+          label={t("common.sort.label")}
+          value={sortBy}
+          onChange={setSortBy}
+          options={[
+            { value: "default", label: t("common.sort.default") },
+            { value: "name", label: t("common.sort.name") },
+            { value: "complexity", label: t("common.sort.complexity") },
+            { value: "origin_year", label: t("common.sort.origin_year") },
+          ]}
+        />
         <Popover>
           <PopoverTrigger
             render={<Button variant="outline" className="bg-background" />}
@@ -300,7 +343,7 @@ export function ModellingStrategiesListPage() {
           </div>
         </div>
       ) : isPending ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className={gridClass}>
           {Array.from({ length: 6 }, (_, index) => (
             <Skeleton key={`sk-${index}`} className="h-44 rounded-xl" />
           ))}
@@ -315,8 +358,8 @@ export function ModellingStrategiesListPage() {
           </div>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {ordered.map((strategy) => (
+        <div className={gridClass}>
+          {sortStrategies(ordered, sortBy).map((strategy) => (
             <ModellingStrategyCard
               key={strategy.id}
               strategy={strategy}

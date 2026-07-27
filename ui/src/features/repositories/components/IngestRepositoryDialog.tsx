@@ -73,11 +73,11 @@ export function IngestRepositoryDialog({
   const hobitOptions = useMemo(
     () =>
       (hobitCatalog ?? [])
-        .filter((h) => h.category !== "Foundational")
+        // repo-onboarding runs for every repo; it isn't part of the assignable roster.
+        .filter((h) => h.slug !== "repo-onboarding")
         .map((h) => ({
           slug: h.slug,
           name: h.name,
-          category: h.category,
           tags: h.tags,
         })),
     [hobitCatalog],
@@ -151,7 +151,7 @@ export function IngestRepositoryDialog({
     <Dialog
       open={open}
       onOpenChange={(o) => {
-        if (isPending) return; // lock during the blocking ingest
+        if (isPending) return; // lock while the registration request is in flight
         setOpen(o);
         if (!o) reset();
       }}

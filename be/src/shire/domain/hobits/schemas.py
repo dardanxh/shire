@@ -147,8 +147,6 @@ class HobitResult(BaseModel):
     slug: str
     name: str
     description: str
-    category: str
-    enabled: bool
     model: str
     charter: str
     instructions: str
@@ -162,13 +160,25 @@ class HobitResult(BaseModel):
     # cadence and when the scheduler last evaluated it. None in the global roster listing.
     cadence: str | None = None
     last_checked_at: datetime | None = None
+    # Global assignment footprint: how many repositories this hobit is assigned to, and how
+    # many of those run it on a schedule (cadence other than "manual").
+    assigned_repos: int = 0
+    scheduled_repos: int = 0
+
+
+class HobitAssignmentResult(BaseModel):
+    """One repository a hobit is assigned to, with its run schedule."""
+
+    repository_id: uuid.UUID
+    repository_slug: str
+    cadence: str
+    last_checked_at: datetime | None
 
 
 class HobitConfigUpdate(BaseModel):
     """Full effective config sent by the config form; stored as overrides."""
 
     name: str = Field(min_length=1, max_length=120)
-    enabled: bool
     model: str
     charter: str
     instructions: str
@@ -181,13 +191,11 @@ class CreateHobit(BaseModel):
 
     name: str
     description: str
-    category: str = "Custom"
     charter: str
     instructions: str
     model: str = "sonnet"
     timeout_seconds: float = 180.0
     tags: list[str] = Field(default_factory=list)
-    enabled: bool = True
 
 
 class UpdateHobit(CreateHobit):

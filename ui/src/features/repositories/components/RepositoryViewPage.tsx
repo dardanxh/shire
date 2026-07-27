@@ -10,6 +10,7 @@ import {
   KeyRoundIcon,
   Layers2Icon,
   ListChecksIcon,
+  Loader2Icon,
   MapIcon,
   MessageCircleQuestionIcon,
   NetworkIcon,
@@ -46,7 +47,7 @@ import {
   formatNumber,
   shortSha,
 } from "@/lib/format";
-import { useAnalysisQuery, useRepositoryQuery } from "../api";
+import { isIngesting, useAnalysisQuery, useRepositoryQuery } from "../api";
 import type { RepositoryTab } from "../tabs";
 import { AiReadinessPanel } from "./AiReadinessPanel";
 import { ArchitecturePanel } from "./ArchitecturePanel";
@@ -144,90 +145,108 @@ export function RepositoryViewPage({
         ) : null}
       </div>
 
-      {!analysis || !facts ? (
-        <Card className="p-10 text-center">
-          <p className="font-medium">{t("repositories.view.pending_title")}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("repositories.view.pending_body")}
-          </p>
-        </Card>
-      ) : (
-        <>
-          <Tabs
-            value={tab}
-            onValueChange={(value) => onTabChange(value as RepositoryTab)}
-          >
-            <TabsList>
-              <TabsTrigger value="overview">
-                <GaugeIcon />
-                {t("repositories.view.tabs.overview")}
-              </TabsTrigger>
-              <TabsTrigger value="ask">
-                <MessageCircleQuestionIcon />
-                {t("repositories.view.tabs.ask")}
-              </TabsTrigger>
-              <TabsTrigger value="code">
-                <CodeIcon />
-                {t("repositories.view.tabs.code")}
-              </TabsTrigger>
-              <TabsTrigger value="architecture">
-                <NetworkIcon />
-                {t("repositories.view.tabs.architecture")}
-              </TabsTrigger>
-              <TabsTrigger value="tech-stack">
-                <Layers2Icon />
-                {t("repositories.view.tabs.tech_stack")}
-              </TabsTrigger>
-              <TabsTrigger value="ai-readiness">
-                <SparklesIcon />
-                {t("repositories.view.tabs.ai_readiness")}
-              </TabsTrigger>
-              <TabsTrigger value="activity">
-                <ActivityIcon />
-                {t("repositories.view.tabs.activity")}
-              </TabsTrigger>
-              <TabsTrigger value="branches">
-                <GitBranchIcon />
-                {t("repositories.view.tabs.branches")}
-              </TabsTrigger>
-              <TabsTrigger value="mrs">
-                <GitPullRequestIcon />
-                {t("repositories.view.tabs.mrs")}
-              </TabsTrigger>
-              <TabsTrigger value="dependencies">
-                <PackageIcon />
-                {t("repositories.view.tabs.dependencies")}
-              </TabsTrigger>
-              <TabsTrigger value="security">
-                <ShieldIcon />
-                {t("repositories.view.tabs.security")}
-              </TabsTrigger>
-              <TabsTrigger value="integrations">
-                <PuzzleIcon />
-                {t("repositories.view.tabs.integrations")}
-              </TabsTrigger>
-              <TabsTrigger value="context">
-                <BookOpenIcon />
-                {t("repositories.view.tabs.context")}
-              </TabsTrigger>
-              <TabsTrigger value="hobits">
-                <BotIcon />
-                {t("repositories.view.tabs.hobits")}
-              </TabsTrigger>
-              <TabsTrigger value="principles">
-                <ScaleIcon />
-                {t("repositories.view.tabs.principles")}
-              </TabsTrigger>
-              <TabsTrigger value="roadmaps">
-                <MapIcon />
-                {t("repositories.view.tabs.roadmaps")}
-              </TabsTrigger>
-              <TabsTrigger value="jobs">
-                <ListChecksIcon />
-                {t("repositories.view.tabs.jobs")}
-              </TabsTrigger>
-            </TabsList>
+      {/* Tabs stay visible (and clickable) while the repo initializes — content fills in
+          via polling once the analysis lands. */}
+      <Tabs
+        value={tab}
+        onValueChange={(value) => onTabChange(value as RepositoryTab)}
+      >
+        <TabsList>
+          <TabsTrigger value="overview">
+            <GaugeIcon />
+            {t("repositories.view.tabs.overview")}
+          </TabsTrigger>
+          <TabsTrigger value="ask">
+            <MessageCircleQuestionIcon />
+            {t("repositories.view.tabs.ask")}
+          </TabsTrigger>
+          <TabsTrigger value="code">
+            <CodeIcon />
+            {t("repositories.view.tabs.code")}
+          </TabsTrigger>
+          <TabsTrigger value="architecture">
+            <NetworkIcon />
+            {t("repositories.view.tabs.architecture")}
+          </TabsTrigger>
+          <TabsTrigger value="tech-stack">
+            <Layers2Icon />
+            {t("repositories.view.tabs.tech_stack")}
+          </TabsTrigger>
+          <TabsTrigger value="ai-readiness">
+            <SparklesIcon />
+            {t("repositories.view.tabs.ai_readiness")}
+          </TabsTrigger>
+          <TabsTrigger value="activity">
+            <ActivityIcon />
+            {t("repositories.view.tabs.activity")}
+          </TabsTrigger>
+          <TabsTrigger value="branches">
+            <GitBranchIcon />
+            {t("repositories.view.tabs.branches")}
+          </TabsTrigger>
+          <TabsTrigger value="mrs">
+            <GitPullRequestIcon />
+            {t("repositories.view.tabs.mrs")}
+          </TabsTrigger>
+          <TabsTrigger value="dependencies">
+            <PackageIcon />
+            {t("repositories.view.tabs.dependencies")}
+          </TabsTrigger>
+          <TabsTrigger value="security">
+            <ShieldIcon />
+            {t("repositories.view.tabs.security")}
+          </TabsTrigger>
+          <TabsTrigger value="integrations">
+            <PuzzleIcon />
+            {t("repositories.view.tabs.integrations")}
+          </TabsTrigger>
+          <TabsTrigger value="context">
+            <BookOpenIcon />
+            {t("repositories.view.tabs.context")}
+          </TabsTrigger>
+          <TabsTrigger value="hobits">
+            <BotIcon />
+            {t("repositories.view.tabs.hobits")}
+          </TabsTrigger>
+          <TabsTrigger value="principles">
+            <ScaleIcon />
+            {t("repositories.view.tabs.principles")}
+          </TabsTrigger>
+          <TabsTrigger value="roadmaps">
+            <MapIcon />
+            {t("repositories.view.tabs.roadmaps")}
+          </TabsTrigger>
+          <TabsTrigger value="jobs">
+            <ListChecksIcon />
+            {t("repositories.view.tabs.jobs")}
+          </TabsTrigger>
+        </TabsList>
 
+        {!analysis || !facts ? (
+          <Card className="p-10 text-center">
+            {isIngesting(repo) ? (
+              <>
+                <Loader2Icon className="mx-auto size-6 animate-spin text-muted-foreground" />
+                <p className="mt-3 font-medium">
+                  {t("repositories.view.initializing_title")}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t("repositories.view.initializing_body")}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="font-medium">
+                  {t("repositories.view.pending_title")}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t("repositories.view.pending_body")}
+                </p>
+              </>
+            )}
+          </Card>
+        ) : (
+          <>
             <TabsContent value="ask">
               <AskPanel repoId={repo.id} />
             </TabsContent>
@@ -578,16 +597,18 @@ export function RepositoryViewPage({
             <TabsContent value="hobits">
               <HobitsPanel repoId={repo.id} />
             </TabsContent>
-          </Tabs>
+          </>
+        )}
+      </Tabs>
 
-          <p className="text-xs text-muted-foreground">
-            {t("repositories.view.analyzed_meta", {
-              when: formatDateTime(analysis.analyzed_at),
-              sha: shortSha(analysis.commit_sha),
-            })}
-          </p>
-        </>
-      )}
+      {analysis ? (
+        <p className="text-xs text-muted-foreground">
+          {t("repositories.view.analyzed_meta", {
+            when: formatDateTime(analysis.analyzed_at),
+            sha: shortSha(analysis.commit_sha),
+          })}
+        </p>
+      ) : null}
     </div>
   );
 }

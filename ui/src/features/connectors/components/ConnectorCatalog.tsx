@@ -1,6 +1,10 @@
 import { ChevronRightIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  CardColumnsSelect,
+  useCardColumns,
+} from "@/components/shared/CardColumns";
 
 import { Badge } from "@/components/ui/badge";
 import { CONNECTION_PROVIDERS, type ConnectionProvider } from "@/lib/api";
@@ -54,13 +58,23 @@ export function ConnectorCatalog({
 }: {
   counts: Record<string, number>;
 }) {
+  const { t } = useTranslation();
   const [openProvider, setOpenProvider] = useState<ConnectionProvider | null>(
     null,
   );
+  const [gridClass, columns, setColumns] = useCardColumns();
 
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="flex justify-end">
+        <CardColumnsSelect
+          columns={columns}
+          onChange={setColumns}
+          label={t("common.cards.per_row")}
+          autoLabel={t("common.cards.auto")}
+        />
+      </div>
+      <div className={gridClass}>
         {CONNECTION_PROVIDERS.map((provider) => (
           <ConnectorCard
             key={provider}

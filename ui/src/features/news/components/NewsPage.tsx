@@ -14,7 +14,7 @@ import { NewsFeed } from "./NewsFeed";
 import { RecommendationsPanel } from "./RecommendationsPanel";
 import { TopicsPanel } from "./TopicsPanel";
 
-export type NewsTab = "feed" | "topics";
+export type NewsTab = "feed" | "topics" | "config";
 
 export function NewsPage({
   tab,
@@ -48,13 +48,32 @@ export function NewsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-end gap-3">
+      {/* One row: tabs left, page actions right. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Tabs
+          value={tab}
+          onValueChange={(next) => onTabChange(next as NewsTab)}
+        >
+          <TabsList>
+            <TabsTrigger value="feed">{t("news.tabs.feed")}</TabsTrigger>
+            <TabsTrigger value="topics">{t("news.tabs.topics")}</TabsTrigger>
+            <TabsTrigger value="config">{t("news.tabs.config")}</TabsTrigger>
+          </TabsList>
+        </Tabs>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => markAllRead(undefined)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => markAllRead(undefined)}
+          >
             <CheckCheckIcon className="size-4" />
             {t("news.actions.mark_all_read")}
           </Button>
-          <Button onClick={() => fetchNow(undefined)} disabled={isFetching}>
+          <Button
+            size="sm"
+            onClick={() => fetchNow(undefined)}
+            disabled={isFetching}
+          >
             {isFetching ? (
               <Loader2Icon className="size-4 animate-spin" />
             ) : (
@@ -67,13 +86,6 @@ export function NewsPage({
         </div>
       </div>
 
-      <Tabs value={tab} onValueChange={(next) => onTabChange(next as NewsTab)}>
-        <TabsList>
-          <TabsTrigger value="feed">{t("news.tabs.feed")}</TabsTrigger>
-          <TabsTrigger value="topics">{t("news.tabs.topics")}</TabsTrigger>
-        </TabsList>
-      </Tabs>
-
       {tab === "feed" ? (
         <NewsFeed
           page={page}
@@ -85,12 +97,13 @@ export function NewsPage({
           onTopicChange={onTopicChange}
           onUnreadChange={onUnreadChange}
         />
-      ) : (
+      ) : tab === "topics" ? (
         <div className="space-y-6">
           <TopicsPanel />
           <RecommendationsPanel />
-          <NewsConfigPanel />
         </div>
+      ) : (
+        <NewsConfigPanel />
       )}
     </div>
   );

@@ -16,7 +16,8 @@ export interface paths {
         put?: never;
         /**
          * Ingest Repository
-         * @description Clone and analyze a repository from a git URL (blocking).
+         * @description Register a repository and start the clone→analyze pipeline in the background
+         *     (non-blocking — the row is returned immediately; poll its `status`).
          */
         post: operations["ingest_repository_api_v1_repositories_post"];
         delete?: never;
@@ -98,7 +99,8 @@ export interface paths {
         put?: never;
         /**
          * Refresh Repository
-         * @description Pull the latest from the remote and re-run the full analysis.
+         * @description Pull the latest from the remote and re-run the full analysis in the background
+         *     (non-blocking — poll the repository's `status`).
          */
         post: operations["refresh_repository_api_v1_repositories__repository_id__refresh_post"];
         delete?: never;
@@ -143,7 +145,8 @@ export interface paths {
         put?: never;
         /**
          * Switch Repository Branch
-         * @description Check out a branch, clear generated artifacts, and re-run the full analysis (blocking).
+         * @description Check out a branch, clear generated artifacts, and re-run the full analysis in the
+         *     background (non-blocking — poll the repository's `status`).
          */
         post: operations["switch_repository_branch_api_v1_repositories__repository_id__branch_post"];
         delete?: never;
@@ -898,15 +901,16 @@ export interface paths {
         get: operations["get_hobit_api_v1_hobits__slug__get"];
         /**
          * Update Hobit Config
-         * @description Save the hobit's config (model, charter, timeout, enabled). For a built-in hobit this is
+         * @description Save the hobit's config (model, charter, timeout). For a built-in hobit this is
          *     stored as an override; for a custom hobit it edits the hobit directly.
          */
         put: operations["update_hobit_config_api_v1_hobits__slug__put"];
         post?: never;
         /**
          * Delete Hobit
-         * @description Delete a custom hobit and everything tied to it (runs, briefing items, assignments).
-         *     Built-in hobits can't be deleted — disable them instead.
+         * @description Delete a hobit and everything tied to it (runs, briefing items, assignments). Built-in
+         *     hobits are tombstoned (their code-roster spec stays hidden); custom ones are dropped. The
+         *     foundational onboarding hobit can't be deleted.
          */
         delete: operations["delete_hobit_api_v1_hobits__slug__delete"];
         options?: never;
@@ -946,6 +950,26 @@ export interface paths {
          * @description This hobit's runs across every repository, newest first.
          */
         get: operations["list_hobit_runs_api_v1_hobits__slug__runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/hobits/{slug}/assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Hobit Assignments
+         * @description The repositories this hobit is assigned to, each with its run schedule.
+         */
+        get: operations["list_hobit_assignments_api_v1_hobits__slug__assignments_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4183,11 +4207,6 @@ export interface components {
             name: string;
             /** Description */
             description: string;
-            /**
-             * Category
-             * @default Custom
-             */
-            category: string;
             /** Charter */
             charter: string;
             /** Instructions */
@@ -4204,11 +4223,6 @@ export interface components {
             timeout_seconds: number;
             /** Tags */
             tags?: string[];
-            /**
-             * Enabled
-             * @default true
-             */
-            enabled: boolean;
         };
         /** CreateItemDependency */
         CreateItemDependency: {
@@ -5007,14 +5021,29 @@ export interface components {
             reason: string;
         };
         /**
+         * HobitAssignmentResult
+         * @description One repository a hobit is assigned to, with its run schedule.
+         */
+        HobitAssignmentResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Repository Slug */
+            repository_slug: string;
+            /** Cadence */
+            cadence: string;
+            /** Last Checked At */
+            last_checked_at: string | null;
+        };
+        /**
          * HobitConfigUpdate
          * @description Full effective config sent by the config form; stored as overrides.
          */
         HobitConfigUpdate: {
             /** Name */
             name: string;
-            /** Enabled */
-            enabled: boolean;
             /** Model */
             model: string;
             /** Charter */
@@ -5053,10 +5082,6 @@ export interface components {
             name: string;
             /** Description */
             description: string;
-            /** Category */
-            category: string;
-            /** Enabled */
-            enabled: boolean;
             /** Model */
             model: string;
             /** Charter */
@@ -5079,6 +5104,16 @@ export interface components {
             cadence?: string | null;
             /** Last Checked At */
             last_checked_at?: string | null;
+            /**
+             * Assigned Repos
+             * @default 0
+             */
+            assigned_repos: number;
+            /**
+             * Scheduled Repos
+             * @default 0
+             */
+            scheduled_repos: number;
         };
         /**
          * HobitRunDetailResult
@@ -7459,11 +7494,6 @@ export interface components {
             name: string;
             /** Description */
             description: string;
-            /**
-             * Category
-             * @default Custom
-             */
-            category: string;
             /** Charter */
             charter: string;
             /** Instructions */
@@ -7480,11 +7510,6 @@ export interface components {
             timeout_seconds: number;
             /** Tags */
             tags?: string[];
-            /**
-             * Enabled
-             * @default true
-             */
-            enabled: boolean;
         };
         /** UpdateModellingStrategy */
         UpdateModellingStrategy: {
@@ -9554,6 +9579,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HobitRunResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_hobit_assignments_api_v1_hobits__slug__assignments_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HobitAssignmentResult"][];
                 };
             };
             /** @description Validation Error */
@@ -12452,6 +12508,7 @@ export interface operations {
                 time_to_win?: string | null;
                 cost_model?: string | null;
                 cost_tier?: string | null;
+                order_by?: string | null;
                 page?: number;
                 size?: number;
             };

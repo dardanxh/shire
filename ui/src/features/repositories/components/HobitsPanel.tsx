@@ -136,9 +136,6 @@ function HobitRow({
       <div className="min-w-0 space-y-1">
         <div className="flex items-center gap-2">
           <span className="font-medium">{hobit.name}</span>
-          <Badge variant="outline" className="text-xs">
-            {hobit.category}
-          </Badge>
           {fresh && (
             <Badge variant={FRESHNESS_VARIANT[fresh]} className="text-xs">
               {t(`repositories.hobits.freshness.${fresh}`)}
@@ -308,11 +305,11 @@ function AssignEditor({
       key={assignedSlugs}
       initial={new Set(assigned.map((h) => h.slug))}
       hobits={(all ?? [])
-        .filter((h) => h.category !== "Foundational")
+        // repo-onboarding runs for every repo; it isn't part of the assignable roster.
+        .filter((h) => h.slug !== "repo-onboarding")
         .map((h) => ({
           slug: h.slug,
           name: h.name,
-          category: h.category,
           tags: h.tags,
         }))}
       isPending={isPending}
@@ -333,7 +330,7 @@ function Editor({
   onSave,
 }: {
   initial: Set<string>;
-  hobits: { slug: string; name: string; category: string; tags: string[] }[];
+  hobits: { slug: string; name: string; tags: string[] }[];
   isPending: boolean;
   onSave: (slugs: string[]) => void;
 }) {

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { NewsPage, type NewsTab } from "@/features/news";
 
 const searchSchema = z.object({
-  tab: z.enum(["feed", "topics"]).catch("feed"),
+  tab: z.enum(["feed", "topics", "config"]).catch("feed"),
   page: z.coerce.number().int().min(1).catch(1),
   size: z.coerce.number().int().min(1).catch(20),
   topic: z.string().optional().catch(undefined),

@@ -18,7 +18,6 @@ export function TagsEditor({ hobit }: { hobit: HobitOut }) {
   const commit = (tags: string[]) =>
     save({
       name: hobit.name,
-      enabled: hobit.enabled,
       model: hobit.model,
       charter: hobit.charter,
       instructions: hobit.instructions,

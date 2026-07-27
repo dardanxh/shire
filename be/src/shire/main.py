@@ -66,6 +66,26 @@ async def lifespan(app: FastAPI):
     stop_dispatcher = threading.Event()
     dispatcher.start(stop_dispatcher)
 
+    # Ingestion runs as in-process background tasks; a restart mid-pipeline would leave repos
+    # stuck in cloning/analyzing forever (the busy-guard would even block a retry). Fail them.
+    try:
+        from sqlalchemy import update
+
+        from shire.core.db import unit_of_work
+        from shire.domain.repository.models import RepositoryRow
+
+        with unit_of_work() as session:
+            session.execute(
+                update(RepositoryRow)
+                .where(RepositoryRow.status.in_(("cloning", "analyzing")))
+                .values(
+                    status="failed",
+                    error="Ingestion was interrupted by a server restart — refresh to retry.",
+                )
+            )
+    except Exception:
+        logger.warning("Startup ingest-status reset failed.", exc_info=True)
+
     settings = get_settings()
     if settings.scheduler_enabled:
         from shire.core.db import unit_of_work

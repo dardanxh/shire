@@ -8,6 +8,11 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  CardColumnsSelect,
+  useCardColumns,
+} from "@/components/shared/CardColumns";
+import { SortMenu } from "@/components/shared/SortMenu";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,6 +53,8 @@ const OSS_PROPRIETARY = "proprietary";
 
 export function TechnologiesListPage() {
   const { t } = useTranslation();
+  const [gridClass, columns, setColumns] = useCardColumns();
+  const [sortBy, setSortBy] = useState<string>("name");
   const navigate = route.useNavigate();
   const search = route.useSearch();
 
@@ -69,6 +76,7 @@ export function TechnologiesListPage() {
     time_to_win: search.time_to_win,
     cost_model: search.cost_model,
     cost_tier: search.cost_tier,
+    order_by: sortBy === "name" ? undefined : sortBy,
   });
   const { data: categoryTree } = useTechnologyCategoriesQuery();
   const { data: totalCount } = useTechnologyTotalQuery();
@@ -306,6 +314,23 @@ export function TechnologiesListPage() {
             className="bg-background pl-8"
           />
         </div>
+        <CardColumnsSelect
+          columns={columns}
+          onChange={setColumns}
+          label={t("common.cards.per_row")}
+          autoLabel={t("common.cards.auto")}
+        />
+        <SortMenu
+          label={t("common.sort.label")}
+          value={sortBy}
+          onChange={setSortBy}
+          options={[
+            { value: "name", label: t("common.sort.name") },
+            { value: "created_at", label: t("common.sort.newest") },
+            { value: "cost_tier", label: t("common.sort.price") },
+            { value: "time_to_win", label: t("common.sort.time_to_value") },
+          ]}
+        />
         <Popover>
           <PopoverTrigger
             render={<Button variant="outline" className="bg-background" />}
@@ -585,7 +610,7 @@ export function TechnologiesListPage() {
           </div>
         </div>
       ) : isPending ? (
-        <CardGridSkeleton count={8} />
+        <CardGridSkeleton count={8} gridClass={gridClass} />
       ) : technologies.length === 0 &&
         search.tab === "starred" &&
         !hasFilters ? (
@@ -617,7 +642,7 @@ export function TechnologiesListPage() {
         </div>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className={gridClass}>
             {technologies.map((technology) => {
               const groupSlug = groupSlugs.get(technology.category_id);
               return (
@@ -641,7 +666,9 @@ export function TechnologiesListPage() {
             })}
           </div>
 
-          {isFetchingNextPage && <CardGridSkeleton count={4} />}
+          {isFetchingNextPage && (
+            <CardGridSkeleton count={4} gridClass={gridClass} />
+          )}
 
           {/* Sentinel — scrolling it into view loads the next page. */}
           <div ref={sentinelRef} className="h-px" />
@@ -673,9 +700,15 @@ function FilterField({
   );
 }
 
-function CardGridSkeleton({ count }: { count: number }) {
+function CardGridSkeleton({
+  count,
+  gridClass,
+}: {
+  count: number;
+  gridClass: string;
+}) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className={gridClass}>
       {Array.from({ length: count }, (_, index) => (
         <Skeleton key={`sk-${index}`} className="h-48 rounded-xl" />
       ))}

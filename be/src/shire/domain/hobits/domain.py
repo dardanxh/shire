@@ -86,7 +86,6 @@ class HobitSpec:
     slug: str
     name: str
     description: str
-    category: str  # "Theoretician" | "Technology Expert" | "Foundational"
     default_charter: str
     default_instructions: str
     default_model: str
@@ -112,7 +111,6 @@ class HobitConfigOverride:
 
     slug: str
     name: str | None
-    enabled: bool | None
     model: str | None
     charter: str | None
     instructions: str | None
@@ -126,7 +124,6 @@ class HobitConfig:
 
     slug: str
     name: str
-    enabled: bool
     model: str
     charter: str
     instructions: str
@@ -137,10 +134,9 @@ class HobitConfig:
 @dataclass(frozen=True)
 class CustomHobit:
     """A user-authored hobit stored entirely in the DB (identity + config in one place, no override
-    row). Its `spec` drives the same RepoHobit engine; `enabled` lives here."""
+    row). Its `spec` drives the same RepoHobit engine."""
 
     spec: HobitSpec
-    enabled: bool
     created_at: datetime
     updated_at: datetime
 

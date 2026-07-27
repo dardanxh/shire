@@ -9,7 +9,6 @@ import { z } from "zod";
 export function makeHobitConfigSchema(t: TFunction) {
   return z.object({
     name: z.string().trim().min(1, t("hobits.form.name.required")),
-    enabled: z.boolean(),
     model: z.string().trim().min(1, t("hobits.form.model.required")),
     charter: z.string().trim().min(1, t("hobits.form.charter.required")),
     instructions: z
@@ -50,7 +49,6 @@ export function makeHobitSchema(t: TFunction) {
       .string()
       .trim()
       .min(1, t("hobits.form.description.required")),
-    category: z.string().trim().min(1, t("hobits.form.category.required")),
     model: z.string().trim().min(1, t("hobits.form.model.required")),
     charter: z.string().trim().min(1, t("hobits.form.charter.required")),
     instructions: z
@@ -61,7 +59,6 @@ export function makeHobitSchema(t: TFunction) {
       .string()
       .refine((v) => Number(v) > 0, t("hobits.form.timeout.invalid")),
     tags: z.string(),
-    enabled: z.boolean(),
   });
 }
 

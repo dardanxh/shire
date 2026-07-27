@@ -250,7 +250,6 @@ _SPEC = HobitSpec(
     slug="x",
     name="X",
     description="",
-    category="MR Reviewer",
     default_charter="",
     default_instructions="",
     default_model="sonnet",

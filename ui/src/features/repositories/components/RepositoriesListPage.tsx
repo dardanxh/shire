@@ -34,7 +34,6 @@ import {
   useRefreshRepositoriesMutation,
   useRepositoriesQuery,
 } from "../api";
-import { IngestRepositoryDialog } from "./IngestRepositoryDialog";
 import { StatusBadge } from "./StatusBadge";
 
 export function RepositoriesListPage({
@@ -42,15 +41,11 @@ export function RepositoriesListPage({
   size,
   onPageChange,
   onSizeChange,
-  wizardOpen,
-  onWizardOpenChange,
 }: {
   page: number;
   size: number;
   onPageChange: (page: number) => void;
   onSizeChange: (size: number) => void;
-  wizardOpen?: boolean;
-  onWizardOpenChange?: (open: boolean) => void;
 }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -205,45 +200,39 @@ export function RepositoriesListPage({
 
   return (
     <div className="space-y-6">
-      {/* The hub's tab strip is the title — bulk actions appear once rows are ticked. */}
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        {selectedIds.length > 0 ? (
-          <>
-            <span className="mr-auto text-sm text-muted-foreground">
-              {t("repositories.list.selected_count", {
-                count: selectedIds.length,
-              })}
-            </span>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={isRefreshing}
-              onClick={handleBulkRefresh}
-            >
-              <RefreshCwIcon
-                className={isRefreshing ? "animate-spin" : undefined}
-              />
-              {t("repositories.list.refresh_selected")}
-            </Button>
-            <Button size="sm" variant="outline" onClick={handleRunCompliance}>
-              <ShieldCheckIcon />
-              {t("repositories.list.run_compliance")}
-            </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => setConfirmDeleteOpen(true)}
-            >
-              <Trash2Icon />
-              {t("repositories.list.delete_selected")}
-            </Button>
-          </>
-        ) : null}
-        <IngestRepositoryDialog
-          open={wizardOpen}
-          onOpenChange={onWizardOpenChange}
-        />
-      </div>
+      {/* Bulk actions appear once rows are ticked; otherwise no toolbar at all. */}
+      {selectedIds.length > 0 ? (
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <span className="mr-auto text-sm text-muted-foreground">
+            {t("repositories.list.selected_count", {
+              count: selectedIds.length,
+            })}
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={isRefreshing}
+            onClick={handleBulkRefresh}
+          >
+            <RefreshCwIcon
+              className={isRefreshing ? "animate-spin" : undefined}
+            />
+            {t("repositories.list.refresh_selected")}
+          </Button>
+          <Button size="sm" variant="outline" onClick={handleRunCompliance}>
+            <ShieldCheckIcon />
+            {t("repositories.list.run_compliance")}
+          </Button>
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={() => setConfirmDeleteOpen(true)}
+          >
+            <Trash2Icon />
+            {t("repositories.list.delete_selected")}
+          </Button>
+        </div>
+      ) : null}
 
       <Card className="overflow-hidden p-0">
         <DataTable

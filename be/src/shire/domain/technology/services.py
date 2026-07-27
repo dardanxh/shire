@@ -145,6 +145,7 @@ class TechnologyService:
         time_to_win: str | None = None,
         cost_model: str | None = None,
         cost_tier: str | None = None,
+        order_by: str | None = None,
     ) -> Page[TechnologyResult]:
         category_ids: list[uuid.UUID] | None = None
         if category:
@@ -167,6 +168,7 @@ class TechnologyService:
             time_to_win=time_to_win,
             cost_model=cost_model,
             cost_tier=cost_tier,
+            order_by=order_by,
         )
 
     def get_technology_blueprints(

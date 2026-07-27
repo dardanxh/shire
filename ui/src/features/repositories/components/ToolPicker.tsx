@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { FilterMenu } from "@/components/shared/FilterMenu";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import type { ToolStatusOut } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -28,7 +30,7 @@ export function ToolPicker({
   emptyLabel?: string;
 }) {
   const { t } = useTranslation();
-  const [category, setCategory] = useState<string | null>(null);
+  const [categories, setCategories] = useState<string[]>([]);
   const [query, setQuery] = useState("");
 
   if (tools.length === 0) {
@@ -37,40 +39,54 @@ export function ToolPicker({
     );
   }
 
-  const categories = [...new Set(tools.map((tool) => tool.category))];
+  const categoryOptions = [...new Set(tools.map((tool) => tool.category))];
   const q = query.trim().toLowerCase();
   const visible = tools.filter(
     (tool) =>
-      (!category || tool.category === category) &&
+      (categories.length === 0 || categories.includes(tool.category)) &&
       (!q ||
         tool.id.toLowerCase().includes(q) ||
         tool.name.toLowerCase().includes(q) ||
         tool.purpose.toLowerCase().includes(q)),
   );
 
+  // "Select all" acts on what's visible and installable, so it composes with the filters.
+  const selectable = visible.filter((tool) => tool.available);
+  const allSelected =
+    selectable.length > 0 && selectable.every((tool) => selected.has(tool.id));
+  const toggleAll = () => {
+    for (const tool of selectable) {
+      if (allSelected ? selected.has(tool.id) : !selected.has(tool.id)) {
+        onToggle(tool.id);
+      }
+    }
+  };
+
   return (
     <div className="space-y-3">
-      <Input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder={t("repositories.wizard.tools_search")}
-        className="h-8"
-      />
-      <div className="flex flex-wrap gap-1.5">
-        <FilterChip
-          label={t("repositories.wizard.tools_all")}
-          active={category === null}
-          onClick={() => setCategory(null)}
+      <div className="flex flex-wrap items-center gap-2">
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t("repositories.wizard.tools_search")}
+          className="h-8 max-w-xs flex-1"
         />
-        {categories.map((c) => (
-          <FilterChip
-            key={c}
-            label={c}
-            active={category === c}
-            className={cn("capitalize", category === c && categoryStyle(c))}
-            onClick={() => setCategory(c)}
+        <FilterMenu
+          label={t("repositories.wizard.tools_filter")}
+          options={categoryOptions}
+          selected={categories}
+          onChange={setCategories}
+          optionClassName="capitalize"
+        />
+        <div className="ml-auto flex items-center gap-2 text-sm text-muted-foreground">
+          <Checkbox
+            checked={allSelected}
+            onCheckedChange={toggleAll}
+            disabled={selectable.length === 0}
+            aria-label={t("repositories.wizard.tools_select_all")}
           />
-        ))}
+          {t("repositories.wizard.tools_select_all")}
+        </div>
       </div>
       <div className="max-h-72 divide-y divide-border overflow-y-auto rounded-lg border border-border">
         {visible.map((tool) => {
@@ -128,33 +144,5 @@ export function ToolPicker({
         ) : null}
       </div>
     </div>
-  );
-}
-
-function FilterChip({
-  label,
-  active,
-  className,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  className?: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "rounded-full border px-3 py-1 text-xs font-medium capitalize transition-colors",
-        active
-          ? "border-foreground/10 bg-muted text-foreground"
-          : "border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground",
-        className,
-      )}
-    >
-      {label}
-    </button>
   );
 }

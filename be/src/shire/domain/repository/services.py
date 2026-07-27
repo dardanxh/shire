@@ -152,14 +152,31 @@ class RepositoryService:
         return BranchNamesResult(default_branch=repo.default_branch, branches=names)
 
     # --- ingestion ------------------------------------------------------------
-    def ingest(
-        self,
-        url: str,
-        connection_id: uuid.UUID | None = None,
-        tool_ids: list[str] | None = None,
-    ) -> RepositoryResult:
-        repo = self._ingest(url, connection_id, tool_ids)
-        return RepositoryResult.of(repo)
+    def ingest(self, url: str, connection_id: uuid.UUID | None = None) -> RepositoryResult:
+        """Register the repository (or re-adopt an existing row) and return immediately.
+        The clone→analyze pipeline runs as a background task (see `run_ingest_pipeline`);
+        clients poll the repository's `status` until it settles."""
+        repo_url, coordinates = RepoUrl.parse(url)
+        repository = self._repos.get_by_coordinates(coordinates)
+        if repository is not None and repository.status in (
+            IngestionStatus.cloning,
+            IngestionStatus.analyzing,
+        ):
+            raise ConflictError("Repository is busy (cloning/analyzing) — try again shortly.")
+        if repository is None:
+            repository = Repository(
+                coordinates=coordinates, url=repo_url, connection_id=connection_id
+            )
+            self._repos.add(repository)
+        elif connection_id is not None:
+            repository.connection_id = connection_id
+        # Progress is visible from the first list render; doubles as the double-submit guard.
+        repository.mark_cloning()
+        self._repos.save(repository)
+        # Commit NOW: the request session's teardown commit runs after background tasks, so a
+        # pending "cloning" mutation left here would overwrite the pipeline's final status.
+        self._session.commit()
+        return RepositoryResult.of(repository)
 
     def remote_head(self, repository_id: uuid.UUID) -> str | None:
         """The remote's current HEAD commit for this repo's *active* branch (cheap `ls-remote`,
@@ -171,12 +188,18 @@ class RepositoryService:
         return self._clone.remote_head(clone_url, repo.current_branch or repo.default_branch)
 
     def refresh(self, repository_id: uuid.UUID) -> RepositoryResult:
-        """Pull the latest on the active branch and re-analyze. Never checks a branch out —
-        local repos adopt whatever the user has on disk (safe for unattended scheduled runs)."""
-        existing = self._repos.get(repository_id)
-        if existing is None:
+        """Mark the repo for a pull + re-analysis and return immediately — the pipeline runs as
+        a background task. Never checks a branch out; local repos adopt whatever the user has on
+        disk (safe for unattended scheduled runs)."""
+        repo = self._repos.get(repository_id)
+        if repo is None:
             raise NotFoundError("Repository not found")
-        repo = self._ingest(existing.url.value, existing.connection_id)
+        if repo.status in (IngestionStatus.cloning, IngestionStatus.analyzing):
+            raise ConflictError("Repository is busy (cloning/analyzing) — try again shortly.")
+        repo.mark_cloning()
+        self._repos.save(repo)
+        # Commit NOW — see `ingest` for why (teardown commit runs after the background task).
+        self._session.commit()
         return RepositoryResult.of(repo)
 
     # --- ask ("chat with the repo") --------------------------------------------
@@ -232,9 +255,9 @@ class RepositoryService:
 
     def switch_branch(self, repository_id: uuid.UUID, branch: str) -> RepositoryResult:
         """Make `branch` the repo's active branch: check it out, clear every generated artifact
-        (they reflect the old branch), and re-run the full analysis pipeline. Blocking, like
-        refresh. For local-provider repos this moves the user's own checkout — an explicit
-        action, refused while their working tree is dirty."""
+        (they reflect the old branch), and re-run the full analysis pipeline in the background
+        (non-blocking, like refresh). For local-provider repos this moves the user's own
+        checkout — an explicit action, refused while their working tree is dirty."""
         repo = self._repos.get(repository_id)
         if repo is None:
             raise NotFoundError("Repository not found")
@@ -264,8 +287,10 @@ class RepositoryService:
         self._analysis.clear_artifacts(repository_id)
 
         repo.current_branch = branch
+        repo.mark_cloning()
         self._repos.save(repo)
-        repo = self._run_pipeline(repo, repo.url.value, branch=branch)
+        # Commit NOW — see `ingest` for why (teardown commit runs after the background task).
+        self._session.commit()
         return RepositoryResult.of(repo)
 
     def delete(self, repository_id: uuid.UUID) -> None:
@@ -287,24 +312,18 @@ class RepositoryService:
         self._analysis.delete_for_repository(repository_id)
         self._repos.delete(repository_id)
 
-    def _ingest(
+    def run_pipeline(
         self,
-        url: str,
-        connection_id: uuid.UUID | None = None,
+        repository_id: uuid.UUID,
+        *,
+        branch: str | None = None,
         tool_ids: list[str] | None = None,
-    ) -> Repository:
-        """Register → clone → analyze → ready. On failure, persist the error state (no raise)."""
-        repo_url, coordinates = RepoUrl.parse(url)
-        repository = self._repos.get_by_coordinates(coordinates)
+    ) -> None:
+        """Run clone→analyze for an already-registered repository (the background-task body)."""
+        repository = self._repos.get(repository_id)
         if repository is None:
-            repository = Repository(
-                coordinates=coordinates, url=repo_url, connection_id=connection_id
-            )
-            self._repos.add(repository)
-        elif connection_id is not None:
-            repository.connection_id = connection_id
-
-        return self._run_pipeline(repository, url, tool_ids=tool_ids)
+            return
+        self._run_pipeline(repository, repository.url.value, branch=branch, tool_ids=tool_ids)
 
     def _run_pipeline(
         self,
@@ -315,10 +334,12 @@ class RepositoryService:
         tool_ids: list[str] | None = None,
     ) -> Repository:
         """Clone/update (optionally checking out `branch`) → analyze → ready; failures persist
-        the error state (no raise). Shared by ingest, refresh, and switch_branch."""
+        the error state (no raise). Runs on a background-task session — each phase transition
+        commits so pollers see cloning → analyzing → ready as it happens."""
         first_ingest = repository.clone_path is None
         repository.mark_cloning()
         self._repos.save(repository)
+        self._session.commit()
 
         try:
             clone_url, provider_client = self._authenticate(url, repository.connection_id)
@@ -337,6 +358,7 @@ class RepositoryService:
             repository.mark_cloned(outcome.clone_path, default_branch, outcome.active_branch)
             repository.mark_analyzing()
             self._repos.save(repository)
+            self._session.commit()
 
             # Pin the chosen tools before analysis so the language auto-link is bypassed.
             if tool_ids is not None:
@@ -347,10 +369,14 @@ class RepositoryService:
 
             repository.mark_ready(outcome.head_sha)
             self._repos.save(repository)
+            self._session.commit()
         except Exception as exc:
             logger.exception("Ingestion failed for %s", url)
+            # Discard whatever the failed phase half-wrote before persisting the error state.
+            self._session.rollback()
             repository.mark_failed(str(exc))
             self._repos.save(repository)
+            self._session.commit()
         return repository
 
     def _authenticate(
@@ -373,3 +399,22 @@ class RepositoryService:
         if credential.provider is GitProvider.github and credential.auth_method is AuthMethod.token:
             provider_client = GithubProviderClient(credential.secret)
         return clone_url, provider_client
+
+
+def run_ingest_pipeline(
+    repository_id: uuid.UUID,
+    *,
+    branch: str | None = None,
+    tool_ids: list[str] | None = None,
+) -> None:
+    """Background-task entry point for ingest/refresh/branch-switch: run the clone→analyze
+    pipeline on its own transactional session. Phase transitions commit inside `_run_pipeline`
+    so pollers see cloning → analyzing → ready/failed as they happen."""
+    from shire.core.db import unit_of_work
+
+    logger.info("Ingest pipeline started for %s", repository_id)
+    with unit_of_work() as session:
+        RepositoryService(session).run_pipeline(
+            repository_id, branch=branch, tool_ids=tool_ids
+        )
+    logger.info("Ingest pipeline finished for %s", repository_id)

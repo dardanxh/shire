@@ -2,7 +2,11 @@ import { getRouteApi } from "@tanstack/react-router";
 import { SearchIcon, SlidersHorizontalIcon, XIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
+import {
+  CardColumnsSelect,
+  useCardColumns,
+} from "@/components/shared/CardColumns";
+import { SortMenu } from "@/components/shared/SortMenu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,8 +32,21 @@ import { QualityMatrix } from "./QualityMatrix";
 
 const route = getRouteApi("/qualities/");
 
+function sortQualities<T extends { name: string; created_at: string }>(
+  items: T[],
+  sortBy: string,
+): T[] {
+  if (sortBy === "name")
+    return [...items].sort((a, b) => a.name.localeCompare(b.name));
+  if (sortBy === "newest")
+    return [...items].sort((a, b) => b.created_at.localeCompare(a.created_at));
+  return items;
+}
+
 export function QualitiesListPage() {
   const { t } = useTranslation();
+  const [gridClass, columns, setColumns] = useCardColumns();
+  const [sortBy, setSortBy] = useState<string>("default");
   const navigate = route.useNavigate();
   const search = route.useSearch();
 
@@ -124,6 +141,22 @@ export function QualitiesListPage() {
                 className="bg-background pl-8"
               />
             </div>
+            <CardColumnsSelect
+              columns={columns}
+              onChange={setColumns}
+              label={t("common.cards.per_row")}
+              autoLabel={t("common.cards.auto")}
+            />
+            <SortMenu
+              label={t("common.sort.label")}
+              value={sortBy}
+              onChange={setSortBy}
+              options={[
+                { value: "default", label: t("common.sort.default") },
+                { value: "name", label: t("common.sort.name") },
+                { value: "newest", label: t("common.sort.newest") },
+              ]}
+            />
             <Popover>
               <PopoverTrigger
                 render={<Button variant="outline" className="bg-background" />}
@@ -216,7 +249,7 @@ export function QualitiesListPage() {
               </div>
             </div>
           ) : isPending ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className={gridClass}>
               {Array.from({ length: 6 }, (_, index) => (
                 <Skeleton key={`sk-${index}`} className="h-40 rounded-xl" />
               ))}
@@ -230,8 +263,8 @@ export function QualitiesListPage() {
           ) : (
             // Flat grid — each card carries its category badge, so no section
             // headers. Server orders by category, position, name.
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {qualities.map((quality) => (
+            <div className={gridClass}>
+              {sortQualities(qualities, sortBy).map((quality) => (
                 <QualityCard key={quality.id} quality={quality} />
               ))}
             </div>
