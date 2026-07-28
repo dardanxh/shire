@@ -212,6 +212,7 @@ export type MemberRepositoryBreakdownOut =
   components["schemas"]["MemberRepositoryBreakdownResult"];
 export type MemberExclusionOut = components["schemas"]["MemberExclusionResult"];
 export type MemberActivityOut = components["schemas"]["MemberActivityResult"];
+export type MemberMergeOut = components["schemas"]["MemberMergeResult"];
 export type MemberRepositoryShareOut =
   components["schemas"]["MemberRepositoryShareResult"];
 

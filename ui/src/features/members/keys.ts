@@ -14,4 +14,5 @@ export const memberKeys = {
   activity: (id: string, params: MembersParams) =>
     [...memberKeys.all, "activity", id, params] as const,
   exclusions: () => [...memberKeys.all, "exclusions"] as const,
+  merges: () => [...memberKeys.all, "merges"] as const,
 };

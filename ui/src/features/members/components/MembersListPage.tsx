@@ -4,6 +4,7 @@ import {
   EyeIcon,
   EyeOffIcon,
   LayoutDashboardIcon,
+  MergeIcon,
   ScaleIcon,
   TriangleAlertIcon,
   UserMinusIcon,
@@ -36,6 +37,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useAddExclusionMutation, useMembersOverviewQuery } from "../api";
 import { ExclusionsDialog } from "./ExclusionsDialog";
+import { MergeMembersDialog } from "./MergeMembersDialog";
 import { Sparkline } from "./Sparkline";
 
 interface Props {
@@ -108,6 +110,7 @@ export function MembersListPage({ anonymize, onAnonymizeChange }: Props) {
   const { data, isPending, isError, error } =
     useMembersOverviewQuery(anonymize);
   const [exclusionsOpen, setExclusionsOpen] = useState(false);
+  const [mergeOpen, setMergeOpen] = useState(false);
 
   // Ticked members — dashboard (1), compare (2-3), untrack (any count).
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -316,6 +319,24 @@ export function MembersListPage({ anonymize, onAnonymizeChange }: Props) {
                   })}
                 </Button>
               ) : null}
+              {selectedIds.length >= 2 ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={anonymize}
+                  title={
+                    anonymize
+                      ? t("members.list.merge_disabled_anonymized")
+                      : undefined
+                  }
+                  onClick={() => setMergeOpen(true)}
+                >
+                  <MergeIcon />
+                  {t("members.list.merge_button", {
+                    count: selectedIds.length,
+                  })}
+                </Button>
+              ) : null}
               <Button
                 variant="destructive"
                 size="sm"
@@ -357,6 +378,14 @@ export function MembersListPage({ anonymize, onAnonymizeChange }: Props) {
           >
             <UsersIcon className="size-4" />
             {t("members.list.manage_exclusions")}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setMergeOpen(true)}
+          >
+            <MergeIcon className="size-4" />
+            {t("members.list.manage_merges")}
           </Button>
         </div>
       </div>
@@ -414,6 +443,13 @@ export function MembersListPage({ anonymize, onAnonymizeChange }: Props) {
       <ExclusionsDialog
         open={exclusionsOpen}
         onOpenChange={setExclusionsOpen}
+      />
+      <MergeMembersDialog
+        open={mergeOpen}
+        onOpenChange={setMergeOpen}
+        // No creation section when opened just to manage rules (or while anonymized).
+        members={anonymize ? [] : selectedMembers}
+        onMerged={() => setSelectedIds([])}
       />
     </div>
   );

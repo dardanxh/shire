@@ -15,16 +15,21 @@ from fnmatch import fnmatch
 from sqlalchemy.orm import Session
 
 from shire.core.exceptions import ConflictError, NotFoundError
-from shire.domain.members.models import MemberExclusionRow
-from shire.domain.members.repositories import SqlMemberExclusionRepository
+from shire.domain.members.models import MemberExclusionRow, MemberMergeRow
+from shire.domain.members.repositories import (
+    SqlMemberExclusionRepository,
+    SqlMemberMergeRepository,
+)
 from shire.domain.members.schemas import (
     CommitSizeBucketResult,
     CreateMemberExclusion,
+    CreateMemberMerge,
     MemberActivityResult,
     MemberCommitSizesResult,
     MemberDetailResult,
     MemberExclusionResult,
     MemberHeatmapCellResult,
+    MemberMergeResult,
     MemberRepositoryBreakdownResult,
     MemberRepositoryShareResult,
     MembersOverviewResult,
@@ -85,6 +90,9 @@ class _Aggregate:
     def __init__(self, identity_id: uuid.UUID, email: str) -> None:
         self.id = identity_id
         self.email = email
+        # Every raw contributor email folded into this identity (merges add aliases) —
+        # commit-record lookups must cover all of them.
+        self.emails: set[str] = {email}
         self.commits = 0
         self.lines_added = 0
         self.lines_removed = 0
@@ -107,6 +115,7 @@ class MembersService:
     def __init__(self, session: Session) -> None:
         self._substrate = AnalysisService(session)
         self._exclusions = SqlMemberExclusionRepository(session)
+        self._merges = SqlMemberMergeRepository(session)
 
     # --- overview + detail ----------------------------------------------------
     def overview(self, *, anonymize: bool = False) -> MembersOverviewResult:
@@ -175,7 +184,7 @@ class MembersService:
         labels = self._anon_labels(aggregates) if anonymize else {}
         name, email, anonymized = self._display(agg, labels)
 
-        history = self._substrate.commit_history_for_email(agg.email)
+        history = self._substrate.commit_history_for_emails(sorted(agg.emails))
         by_repo = {h.repository_id: h for h in history}
         records = [record for h in history for record in h.records]
 
@@ -258,6 +267,57 @@ class MembersService:
         if not self._exclusions.delete(exclusion_id):
             raise NotFoundError("No exclusion with that id.")
 
+    # --- identity merges ------------------------------------------------------
+    def list_merges(self) -> list[MemberMergeResult]:
+        return [MemberMergeResult.model_validate(row) for row in self._merges.list_all()]
+
+    def add_merges(self, body: CreateMemberMerge) -> list[MemberMergeResult]:
+        """Fold each alias email into the primary identity. One row per alias."""
+        primary = _norm_email(body.primary_email)
+        if not primary:
+            raise ConflictError("Primary email cannot be empty.")
+        aliases = sorted(
+            {_norm_email(alias) for alias in body.alias_emails} - {primary, ""}
+        )
+        if not aliases:
+            raise ConflictError("Pick at least one other identity to merge.")
+
+        existing = {row.alias_email: row.primary_email for row in self._merges.list_all()}
+        # A primary that is itself merged elsewhere chains to its ultimate identity.
+        seen: set[str] = set()
+        while primary in existing and primary not in seen:
+            seen.add(primary)
+            primary = existing[primary]
+
+        now = datetime.now(UTC)
+        rows: list[MemberMergeRow] = []
+        for alias in aliases:
+            if alias == primary:
+                continue
+            if alias in existing:
+                raise ConflictError(
+                    f"'{alias}' is already merged into '{existing[alias]}'."
+                )
+            rows.append(
+                MemberMergeRow(
+                    id=uuid.uuid4(),
+                    alias_email=alias,
+                    primary_email=primary,
+                    created_at=now,
+                )
+            )
+        # Keep the mapping flat: rules pointing at a newly-aliased email re-point.
+        new_aliases = {row.alias_email for row in rows}
+        for row in self._merges.list_all():
+            if row.primary_email in new_aliases:
+                row.primary_email = primary
+        self._merges.add_all(rows)
+        return [MemberMergeResult.model_validate(row) for row in rows]
+
+    def remove_merge(self, merge_id: uuid.UUID) -> None:
+        if not self._merges.delete(merge_id):
+            raise NotFoundError("No merge with that id.")
+
     # --- internals ------------------------------------------------------------
     def _aggregate(self) -> tuple[dict[uuid.UUID, _Aggregate], int, int]:
         """Fold every repo's contributors into per-identity member aggregates.
@@ -265,21 +325,33 @@ class MembersService:
         Returns (identity_id -> aggregate, repositories_analyzed, single_member_repos).
         """
         patterns = self._exclusion_patterns()
+        merge_map = self._merge_map()
         repos = self._substrate.contributors_across_repositories()
         aggregates: dict[uuid.UUID, _Aggregate] = {}
         single_maintainer = 0
 
         for repo in repos:
-            kept = [c for c in repo.contributors if not _is_excluded(c.name, c.email, patterns)]
+            # A contributor is excluded when their raw name/email matches, or when the
+            # identity they merge into is excluded (so untracking covers all aliases).
+            kept = [
+                c
+                for c in repo.contributors
+                if not _is_excluded(c.name, c.email, patterns)
+                and not _is_excluded(
+                    "", merge_map.get(_norm_email(c.email), ""), patterns
+                )
+            ]
             if len(kept) == 1:
                 single_maintainer += 1
             sole = len(kept) == 1
             for c in kept:
-                email = _norm_email(c.email)
+                raw_email = _norm_email(c.email)
+                email = merge_map.get(raw_email, raw_email)
                 ident = _identity_id(email)
                 agg = aggregates.get(ident)
                 if agg is None:
                     agg = aggregates[ident] = _Aggregate(ident, email)
+                agg.emails.add(raw_email)
                 agg.add_name(c.name)
                 agg.commits += c.commits
                 agg.lines_added += c.lines_added
@@ -309,6 +381,19 @@ class MembersService:
         stored = tuple(row.pattern for row in self._exclusions.list_all())
         return _DEFAULT_BOT_PATTERNS + stored
 
+    def _merge_map(self) -> dict[str, str]:
+        """alias email -> ultimate primary email, chains resolved (cycle-safe)."""
+        raw = {row.alias_email: row.primary_email for row in self._merges.list_all()}
+        resolved: dict[str, str] = {}
+        for alias in raw:
+            target = raw[alias]
+            seen = {alias}
+            while target in raw and target not in seen:
+                seen.add(target)
+                target = raw[target]
+            resolved[alias] = target
+        return resolved
+
     @staticmethod
     def _anon_labels(aggregates: dict[uuid.UUID, _Aggregate]) -> dict[uuid.UUID, str]:
         # Stable across list and detail: order by identity id, then assign A, B, C…
@@ -332,7 +417,15 @@ class MembersService:
         weeks: list[date],
     ) -> MemberSummaryResult:
         name, email, anonymized = self._display(agg, labels)
-        by_week = weekly_by_email.get(agg.email)
+        # Sum across every raw email folded into this identity (aliases from merges).
+        by_week: dict[date, int] | None = None
+        for member_email in agg.emails:
+            weeks_of_email = weekly_by_email.get(member_email)
+            if weeks_of_email is None:
+                continue
+            by_week = by_week or {}
+            for week, count in weeks_of_email.items():
+                by_week[week] = by_week.get(week, 0) + count
         return MemberSummaryResult(
             id=agg.id,
             name=name,

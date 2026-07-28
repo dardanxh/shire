@@ -145,3 +145,21 @@ class CreateMemberExclusion(BaseModel):
     pattern: str
     reason: str | None = None
     is_bot: bool = False
+
+
+class MemberMergeResult(BaseModel):
+    """One alias email folded into a primary identity email."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    alias_email: str
+    primary_email: str
+    created_at: datetime
+
+
+class CreateMemberMerge(BaseModel):
+    """Fold each alias email's contributions into the primary email's identity."""
+
+    primary_email: str
+    alias_emails: list[str]

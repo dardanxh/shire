@@ -398,15 +398,15 @@ class SqlCommitRecordRepository:
             ],
         )
 
-    def for_email(
-        self, email: str, analysis_ids: list[uuid.UUID]
+    def for_emails(
+        self, emails: list[str], analysis_ids: list[uuid.UUID]
     ) -> dict[uuid.UUID, list[CommitRecordRow]]:
-        """One email's commit rows, grouped by analysis id."""
-        if not analysis_ids:
+        """One identity's commit rows (across its alias emails), grouped by analysis id."""
+        if not analysis_ids or not emails:
             return {}
         rows = self._session.scalars(
             select(CommitRecordRow).where(
-                CommitRecordRow.author_email == email,
+                CommitRecordRow.author_email.in_(emails),
                 CommitRecordRow.analysis_id.in_(analysis_ids),
             )
         )

@@ -10,9 +10,11 @@ from sqlalchemy.orm import Session
 from shire.core.db import get_session
 from shire.domain.members.schemas import (
     CreateMemberExclusion,
+    CreateMemberMerge,
     MemberActivityResult,
     MemberDetailResult,
     MemberExclusionResult,
+    MemberMergeResult,
     MembersOverviewResult,
 )
 from shire.domain.members.services import MembersService
@@ -54,6 +56,29 @@ def remove_exclusion(
     exclusion_id: uuid.UUID, session: Session = Depends(get_session)
 ) -> None:
     MembersService(session).remove_exclusion(exclusion_id)
+
+
+@router.get("/merges", response_model=list[MemberMergeResult])
+def list_merges(session: Session = Depends(get_session)) -> list[MemberMergeResult]:
+    """Identity merges: alias emails folded into a primary identity."""
+    return MembersService(session).list_merges()
+
+
+@router.post(
+    "/merges",
+    response_model=list[MemberMergeResult],
+    status_code=status.HTTP_201_CREATED,
+)
+def add_merges(
+    body: CreateMemberMerge, session: Session = Depends(get_session)
+) -> list[MemberMergeResult]:
+    """Merge identities: fold each alias email's contributions into the primary email."""
+    return MembersService(session).add_merges(body)
+
+
+@router.delete("/merges/{merge_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_merge(merge_id: uuid.UUID, session: Session = Depends(get_session)) -> None:
+    MembersService(session).remove_merge(merge_id)
 
 
 @router.get("/{identity_id}", response_model=MemberDetailResult)

@@ -27,6 +27,10 @@
       "untrack_success_other": "{{count}} members untracked",
       "untrack_reason": "Untracked from members page",
       "untrack_disabled_anonymized": "Turn off anonymization to untrack members",
+      "merge_button_other": "Merge ({{count}})",
+      "merge_button_one": "Merge",
+      "merge_disabled_anonymized": "Turn off anonymization to merge members",
+      "manage_merges": "Merged identities",
       "col_member": "Member",
       "col_activity": "Activity",
       "col_repositories": "Repositories",
@@ -100,6 +104,21 @@
       "row_median_size": "Median commit size (lines)",
       "row_large_share": "Large-commit share (>500 lines)",
       "row_top_repos": "Top repositories by share"
+    },
+    "merge": {
+      "title": "Merge identities",
+      "description": "One person often commits under several emails. Merging folds every selected identity's commits, churn, and repos into the primary one — everywhere on this page. Reversible: remove a rule below to split that email out again.",
+      "pick_primary": "Keep as primary",
+      "commit_count_one": "{{count}} commit",
+      "commit_count_other": "{{count}} commits",
+      "confirm_other": "Merge {{count}} identities",
+      "confirm_one": "Merge",
+      "success_other": "{{count}} identities merged",
+      "success_one": "Identities merged",
+      "existing": "Existing merges",
+      "empty": "No identity merges yet. Select two or more members and pick Merge.",
+      "remove": "Split this email out again",
+      "removed": "Merge removed"
     },
     "exclusions": {
       "title": "Member exclusions",

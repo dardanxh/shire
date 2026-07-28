@@ -238,12 +238,15 @@ class AnalysisService:
             )
         return results
 
-    def commit_history_for_email(self, email: str) -> list[RepositoryCommitHistoryResult]:
-        """Every repo's latest-analysis commit rows for one identity email (members read seam).
+    def commit_history_for_emails(
+        self, emails: list[str]
+    ) -> list[RepositoryCommitHistoryResult]:
+        """Every repo's latest-analysis commit rows for one identity (members read seam).
 
-        Returns an entry per analyzed repository — even ones the email never touched — so the
-        caller can compute commit shares and detect analyses that predate per-commit persistence
-        (`has_records=False`, backfilled by a repo refresh).
+        `emails` is the identity's full alias set. Returns an entry per analyzed repository —
+        even ones the identity never touched — so the caller can compute commit shares and
+        detect analyses that predate per-commit persistence (`has_records=False`, backfilled
+        by a repo refresh).
         """
         meta = self._analyses.latest_complete_meta()
         names = {
@@ -252,7 +255,7 @@ class AnalysisService:
         }
         analysis_ids = [analysis_id for _, analysis_id, _ in meta]
         with_records = self._commit_records.analyses_with_records(analysis_ids)
-        by_analysis = self._commit_records.for_email(email, analysis_ids)
+        by_analysis = self._commit_records.for_emails(emails, analysis_ids)
         return [
             RepositoryCommitHistoryResult(
                 repository_id=repository_id,

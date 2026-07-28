@@ -798,6 +798,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/members/merges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Merges
+         * @description Identity merges: alias emails folded into a primary identity.
+         */
+        get: operations["list_merges_api_v1_members_merges_get"];
+        put?: never;
+        /**
+         * Add Merges
+         * @description Merge identities: fold each alias email's contributions into the primary email.
+         */
+        post: operations["add_merges_api_v1_members_merges_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/merges/{merge_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove Merge */
+        delete: operations["remove_merge_api_v1_members_merges__merge_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/members/{identity_id}": {
         parameters: {
             query?: never;
@@ -4294,6 +4335,16 @@ export interface components {
             is_bot: boolean;
         };
         /**
+         * CreateMemberMerge
+         * @description Fold each alias email's contributions into the primary email's identity.
+         */
+        CreateMemberMerge: {
+            /** Primary Email */
+            primary_email: string;
+            /** Alias Emails */
+            alias_emails: string[];
+        };
+        /**
          * CreateMergeReview
          * @description Create input: an ingested repository + a branch pair + the hobits acting as reviewers.
          */
@@ -5569,6 +5620,26 @@ export interface components {
             hour: number;
             /** Commits */
             commits: number;
+        };
+        /**
+         * MemberMergeResult
+         * @description One alias email folded into a primary identity email.
+         */
+        MemberMergeResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Alias Email */
+            alias_email: string;
+            /** Primary Email */
+            primary_email: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** MemberRepositoryBreakdownResult */
         MemberRepositoryBreakdownResult: {
@@ -9357,6 +9428,88 @@ export interface operations {
             header?: never;
             path: {
                 exclusion_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_merges_api_v1_members_merges_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberMergeResult"][];
+                };
+            };
+        };
+    };
+    add_merges_api_v1_members_merges_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMemberMerge"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberMergeResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_merge_api_v1_members_merges__merge_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                merge_id: string;
             };
             cookie?: never;
         };

@@ -102,3 +102,52 @@ export function useRemoveExclusionMutation() {
     },
   });
 }
+
+/** Identity merges: alias emails folded into a primary identity. */
+export function useMergesQuery() {
+  return useQuery({
+    queryKey: memberKeys.merges(),
+    queryFn: async () => {
+      const { data, error } = await api.GET("/api/v1/members/merges");
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+/** Merge identities: fold each alias email's contributions into the primary email. */
+export function useAddMergesMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      primary_email: string;
+      alias_emails: string[];
+    }) => {
+      const { data, error } = await api.POST("/api/v1/members/merges", {
+        body: input,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      // Merging changes identity aggregation in every members view.
+      queryClient.invalidateQueries({ queryKey: memberKeys.all });
+    },
+  });
+}
+
+/** Undo one alias's merge so it appears as its own member again. */
+export function useRemoveMergeMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (mergeId: string) => {
+      const { error } = await api.DELETE("/api/v1/members/merges/{merge_id}", {
+        params: { path: { merge_id: mergeId } },
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: memberKeys.all });
+    },
+  });
+}
