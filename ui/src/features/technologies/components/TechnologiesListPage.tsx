@@ -13,6 +13,7 @@ import {
   useCardColumns,
 } from "@/components/shared/CardColumns";
 import { SortMenu } from "@/components/shared/SortMenu";
+import { StarredFilterButton } from "@/components/shared/StarredFilter";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,10 +33,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
 import {
   useInfiniteTechnologiesQuery,
-  useStarredTechnologyTotalQuery,
   useTechnologyCategoriesQuery,
   useTechnologyTotalQuery,
 } from "../api";
@@ -72,7 +71,7 @@ export function TechnologiesListPage() {
     maturity: search.maturity,
     deployment: search.deployment,
     oss: search.oss,
-    starred: search.tab === "starred" ? true : undefined,
+    starred: search.starred ? true : undefined,
     time_to_win: search.time_to_win,
     cost_model: search.cost_model,
     cost_tier: search.cost_tier,
@@ -80,7 +79,6 @@ export function TechnologiesListPage() {
   });
   const { data: categoryTree } = useTechnologyCategoriesQuery();
   const { data: totalCount } = useTechnologyTotalQuery();
-  const { data: starredCount } = useStarredTechnologyTotalQuery();
   const namesById = categoryNamesById(categoryTree);
   const groupSlugs = groupSlugsByCategoryId(categoryTree);
 
@@ -141,7 +139,7 @@ export function TechnologiesListPage() {
   const clearFilters = () => {
     window.clearTimeout(searchTimer.current);
     setSearchInput("");
-    navigate({ search: (prev) => ({ tab: prev.tab }) });
+    navigate({ search: (prev) => ({ starred: prev.starred }) });
   };
 
   const maturityItems = [
@@ -247,37 +245,10 @@ export function TechnologiesListPage() {
       label: t(`technologies.adoption.tier_${search.cost_tier}`),
     });
 
-  const TABS = [
-    { key: "all", count: totalCount },
-    { key: "starred", count: starredCount },
-  ] as const;
-
   return (
     <div className="flex flex-col gap-6">
-      {/* Tabs left, page action right — one header row (same as architectures). */}
-      <div className="flex flex-wrap items-end justify-between gap-2 border-b">
-        <div className="flex items-center gap-1">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() =>
-                navigate({ search: (prev) => ({ ...prev, tab: tab.key }) })
-              }
-              className={cn(
-                "-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors",
-                search.tab === tab.key
-                  ? "border-primary text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {t(`technologies.list.tab_${tab.key}`)}
-              <span className="ml-1.5 text-xs text-muted-foreground">
-                {tab.count}
-              </span>
-            </button>
-          ))}
-        </div>
+      {/* Page actions right — one header row (same as architectures). */}
+      <div className="flex flex-wrap items-end justify-end gap-2 border-b">
         <div className="flex items-center gap-2 pb-2">
           <Button
             size="sm"
@@ -330,6 +301,18 @@ export function TechnologiesListPage() {
             { value: "cost_tier", label: t("common.sort.price") },
             { value: "time_to_win", label: t("common.sort.time_to_value") },
           ]}
+        />
+        <StarredFilterButton
+          active={Boolean(search.starred)}
+          label={t("common.filters.starred")}
+          onToggle={() =>
+            navigate({
+              search: (prev) => ({
+                ...prev,
+                starred: prev.starred ? undefined : true,
+              }),
+            })
+          }
         />
         <Popover>
           <PopoverTrigger
@@ -611,9 +594,7 @@ export function TechnologiesListPage() {
         </div>
       ) : isPending ? (
         <CardGridSkeleton count={8} gridClass={gridClass} />
-      ) : technologies.length === 0 &&
-        search.tab === "starred" &&
-        !hasFilters ? (
+      ) : technologies.length === 0 && search.starred && !hasFilters ? (
         <div className="grid min-h-[30vh] place-items-center">
           <div className="flex flex-col items-center gap-3 text-center">
             <p className="font-medium">

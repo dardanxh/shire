@@ -7,6 +7,7 @@ import {
   useCardColumns,
 } from "@/components/shared/CardColumns";
 import { SortMenu } from "@/components/shared/SortMenu";
+import { StarredFilterButton } from "@/components/shared/StarredFilter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,11 +77,13 @@ export function SecurityListPage() {
     q: search.tab === "regulations" ? search.q : undefined,
     category: regulationCategory,
     region: search.tab === "regulations" ? search.region : undefined,
+    starred: search.tab === "regulations" && search.starred ? true : undefined,
   });
   const practicesQuery = useDataSafetyPracticesQuery({
     q: search.tab === "practices" ? search.q : undefined,
     category: practiceCategory,
     complexity: search.tab === "practices" ? search.complexity : undefined,
+    starred: search.tab === "practices" && search.starred ? true : undefined,
   });
   const active =
     search.tab === "regulations" ? regulationsQuery : practicesQuery;
@@ -225,6 +228,18 @@ export function SecurityListPage() {
             { value: "default", label: t("common.sort.default") },
             { value: "name", label: t("common.sort.name") },
           ]}
+        />
+        <StarredFilterButton
+          active={Boolean(search.starred)}
+          label={t("common.filters.starred")}
+          onToggle={() =>
+            navigate({
+              search: (prev) => ({
+                ...prev,
+                starred: prev.starred ? undefined : true,
+              }),
+            })
+          }
         />
         <Popover>
           <PopoverTrigger

@@ -7,6 +7,8 @@ import type { QualityCategory } from "./schemas";
 export interface QualityListParams {
   q?: string;
   category?: QualityCategory;
+  /** true = starred only. */
+  starred?: boolean;
 }
 
 export const qualityKeys = {

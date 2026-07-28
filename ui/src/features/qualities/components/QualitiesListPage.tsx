@@ -7,6 +7,7 @@ import {
   useCardColumns,
 } from "@/components/shared/CardColumns";
 import { SortMenu } from "@/components/shared/SortMenu";
+import { StarredFilterButton } from "@/components/shared/StarredFilter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,6 +54,7 @@ export function QualitiesListPage() {
   const { data, isPending, isError, refetch } = useArchitectureQualitiesQuery({
     q: search.tab === "catalog" ? search.q : undefined,
     category: search.tab === "catalog" ? search.category : undefined,
+    starred: search.tab === "catalog" && search.starred ? true : undefined,
   });
   const qualities = data?.items ?? [];
 
@@ -156,6 +158,18 @@ export function QualitiesListPage() {
                 { value: "name", label: t("common.sort.name") },
                 { value: "newest", label: t("common.sort.newest") },
               ]}
+            />
+            <StarredFilterButton
+              active={Boolean(search.starred)}
+              label={t("common.filters.starred")}
+              onToggle={() =>
+                navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    starred: prev.starred ? undefined : true,
+                  }),
+                })
+              }
             />
             <Popover>
               <PopoverTrigger

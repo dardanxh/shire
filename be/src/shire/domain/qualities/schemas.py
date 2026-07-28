@@ -1,7 +1,7 @@
 """Pydantic result schemas for the architecture-qualities catalog.
 
-Read-only catalog: no Create*/Update* inputs — the seeder writes rows through the
-repository directly.
+Content is read-only — the seeder writes rows through the repository directly. The
+only user-editable field is `starred` (curation, not content).
 """
 
 from __future__ import annotations
@@ -43,6 +43,12 @@ class QualityTradeoff(BaseModel):
     quality_slug: str | None = Field(default=None, max_length=160)
 
 
+class UpdateArchitectureQuality(BaseModel):
+    """Star-only update — quality content stays seed-managed."""
+
+    starred: bool | None = None
+
+
 class ArchitectureQualityResult(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -58,6 +64,7 @@ class ArchitectureQualityResult(BaseModel):
     related_technology_slugs: list[str]
     related_quality_slugs: list[str]
     position: int
+    starred: bool
     source: Source
     created_at: datetime
     updated_at: datetime

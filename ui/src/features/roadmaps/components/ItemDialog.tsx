@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import {
   ExternalLinkIcon,
+  GitBranchIcon,
+  GitPullRequestIcon,
   Loader2Icon,
   LockIcon,
   PlusIcon,
@@ -26,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CreateMergeReviewDialog } from "@/features/merge-reviews";
 import {
   ROADMAP_EFFORTS,
   type RoadmapDetailOut,
@@ -348,7 +351,8 @@ export function ItemDialog({
  * The "Implement with AI" flow: dispatch → engine job in a disposable worktree
  * → branch pushed → PR opened. States: idle / inline confirm / running (with a
  * job link — survives reloads because the execution rides on the item) /
- * PR open|merged|closed / failed with retry.
+ * PR open|merged|closed / failed with retry. Local repositories get no PR:
+ * success leaves a branch in the clone, reviewed as a Shire merge review.
  */
 function ExecutionSection({
   roadmap,
@@ -388,6 +392,9 @@ function ExecutionSection({
 
   const dispatchable =
     !readOnly && (item.status === "todo" || item.status === "in_progress");
+  // Succeeded with no PR = local repository: the branch is the deliverable.
+  const isLocalBranch =
+    execution?.status === "succeeded" && execution.pr_url == null;
 
   return (
     <div className="space-y-2">
@@ -413,6 +420,40 @@ function ExecutionSection({
         </div>
       ) : null}
 
+      {execution?.status === "succeeded" && execution.pr_url == null ? (
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2 py-1 font-mono text-xs">
+              <GitBranchIcon className="size-3.5 shrink-0" />
+              {execution.branch}
+            </span>
+            {execution.total_cost_usd != null ? (
+              <span className="text-xs text-muted-foreground">
+                {t("roadmaps.item.execution_cost", {
+                  cost: execution.total_cost_usd.toFixed(2),
+                })}
+              </span>
+            ) : null}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {t("roadmaps.item.local_review_hint")}
+          </p>
+          {item.repository_id ? (
+            <CreateMergeReviewDialog
+              defaultRepositoryId={item.repository_id}
+              defaultSourceBranch={execution.branch}
+              defaultTitle={item.title}
+              trigger={
+                <Button size="sm">
+                  <GitPullRequestIcon className="size-3.5" />
+                  {t("roadmaps.item.create_merge_review")}
+                </Button>
+              }
+            />
+          ) : null}
+        </div>
+      ) : null}
+
       {execution?.status === "failed" ? (
         <p className="rounded-md border border-red-500/25 bg-red-500/10 px-3 py-2 text-xs text-red-700 dark:text-red-400">
           {execution.error ?? t("roadmaps.item.execution_failed")}
@@ -420,6 +461,7 @@ function ExecutionSection({
       ) : null}
 
       {dispatchable &&
+      !isLocalBranch &&
       (!execution?.pr_url || execution.pr_state === "closed") ? (
         confirming ? (
           <div className="space-y-2 rounded-md border border-border p-3">

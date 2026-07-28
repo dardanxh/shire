@@ -96,6 +96,7 @@ class UpdateModellingStrategy(BaseModel):
     diagram: str | None = None
     related_technology_slugs: list[str] | None = None
     position: int | None = None
+    starred: bool | None = None
 
 
 class ModellingStrategyResult(BaseModel):
@@ -117,6 +118,7 @@ class ModellingStrategyResult(BaseModel):
     diagram: str
     related_technology_slugs: list[str]
     position: int
+    starred: bool
     source: Source
     created_at: datetime
     updated_at: datetime

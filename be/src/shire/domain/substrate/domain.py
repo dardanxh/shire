@@ -89,6 +89,25 @@ class DailyCommitCount(ValueObject):
     count: int
 
 
+class CommitRecord(ValueObject):
+    """One commit attributed to its resolved author — per-member activity views.
+
+    `author_email` is the canonical (most-used) email of the commit's resolved identity within
+    the repo, normalized lowercase, so it matches the identity email the members context
+    aggregates by even when the person committed under an alias address.
+    """
+
+    sha: str
+    author_email: str
+    committed_at: datetime
+    insertions: int = 0
+    deletions: int = 0
+    files_changed: int = 0
+    # Author-local clock (derived from the commit's own UTC offset) for work-pattern views.
+    local_hour: int = 0
+    weekday: int = 0  # 0 = Monday
+
+
 class RepositoryFacts(ValueObject):
     """The L1 scalar fact bundle, embedded on an Analysis."""
 
@@ -292,6 +311,8 @@ class ScanContribution(ValueObject):
     commit_count: int | None = None
     contributors: list[Contributor] = Field(default_factory=list)
     commit_activity: list[DailyCommitCount] = Field(default_factory=list)
+    # Per-commit rows — persisted outside the Analysis aggregate (see SqlCommitRecordRepository).
+    commit_records: list[CommitRecord] = Field(default_factory=list)
     languages: list[LanguageStat] = Field(default_factory=list)
     loc_total: int | None = None
     primary_language: str | None = None

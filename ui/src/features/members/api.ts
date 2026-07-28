@@ -32,6 +32,22 @@ export function useMemberDetailQuery(id: string, anonymize: boolean) {
   });
 }
 
+/** One member's activity shape: weekly timeline, commit sizes, work pattern, repo shares. */
+export function useMemberActivityQuery(id: string, anonymize: boolean) {
+  return useQuery({
+    queryKey: memberKeys.activity(id, { anonymize }),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/members/{identity_id}/activity",
+        { params: { path: { identity_id: id }, query: { anonymize } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+  });
+}
+
 /** User-managed opt-out / bot exclusion patterns. */
 export function useExclusionsQuery() {
   return useQuery({

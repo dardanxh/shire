@@ -12,7 +12,7 @@ import re
 import shutil
 import uuid
 from collections.abc import Iterable
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 from sqlalchemy.orm import Session
@@ -38,6 +38,7 @@ from shire.domain.substrate.domain import (
 )
 from shire.domain.substrate.repositories import (
     SqlAnalysisRepository,
+    SqlCommitRecordRepository,
     SqlRepositoryToolRepository,
 )
 from shire.domain.substrate.schemas import (
@@ -48,12 +49,14 @@ from shire.domain.substrate.schemas import (
     CodeAgeResult,
     CodebaseOverviewResult,
     CodeMapResult,
+    CommitRecordResult,
     CouplingPair,
     CouplingResult,
     DependencyFreshnessItem,
     DependencyFreshnessResult,
     DependencyUsageResult,
     GraphResult,
+    RepositoryCommitHistoryResult,
     RepositoryContributorsResult,
     TechStackItem,
     TechStackResult,
@@ -117,6 +120,7 @@ class AnalysisService:
     def __init__(self, session: Session) -> None:
         self._session = session
         self._analyses = SqlAnalysisRepository(session)
+        self._commit_records = SqlCommitRecordRepository(session)
         # Cross-domain read (clone path) for on-demand tool runs — tightly coupled to a clone.
         self._repos = SqlRepositoryRepository(session)
         self._links = SqlRepositoryToolRepository(session)
@@ -173,6 +177,8 @@ class AnalysisService:
             tool_runs=merged.tool_runs,
         )
         self._analyses.add(analysis)
+        # Per-commit rows live outside the aggregate (volume) but share its lifecycle via FK.
+        self._commit_records.add_many(analysis.id, merged.commit_records)
         return analysis
 
     # --- reads ----------------------------------------------------------------
@@ -231,6 +237,56 @@ class AnalysisService:
                 )
             )
         return results
+
+    def commit_history_for_email(self, email: str) -> list[RepositoryCommitHistoryResult]:
+        """Every repo's latest-analysis commit rows for one identity email (members read seam).
+
+        Returns an entry per analyzed repository — even ones the email never touched — so the
+        caller can compute commit shares and detect analyses that predate per-commit persistence
+        (`has_records=False`, backfilled by a repo refresh).
+        """
+        meta = self._analyses.latest_complete_meta()
+        names = {
+            repo.id: f"{repo.coordinates.owner}/{repo.coordinates.name}"
+            for repo in self._repos.list()
+        }
+        analysis_ids = [analysis_id for _, analysis_id, _ in meta]
+        with_records = self._commit_records.analyses_with_records(analysis_ids)
+        by_analysis = self._commit_records.for_email(email, analysis_ids)
+        return [
+            RepositoryCommitHistoryResult(
+                repository_id=repository_id,
+                repository_name=names.get(repository_id, str(repository_id)),
+                total_commits=commit_count,
+                has_records=analysis_id in with_records,
+                records=[
+                    CommitRecordResult(
+                        committed_at=row.committed_at,
+                        insertions=row.insertions,
+                        deletions=row.deletions,
+                        files_changed=row.files_changed,
+                        local_hour=row.local_hour,
+                        weekday=row.weekday,
+                    )
+                    for row in by_analysis.get(analysis_id, [])
+                ],
+            )
+            for repository_id, analysis_id, commit_count in meta
+        ]
+
+    def weekly_commit_counts(self, since: datetime) -> dict[str, dict[date, int]]:
+        """email -> week start date -> commits, across every repo's latest analysis."""
+        meta = self._analyses.latest_complete_meta()
+        grouped = self._commit_records.weekly_counts_by_email(
+            [analysis_id for _, analysis_id, _ in meta], since
+        )
+        merged: dict[str, dict[date, int]] = {}
+        for email, weeks in grouped.items():
+            bucket = merged.setdefault(email, {})
+            for week_start, count in weeks.items():
+                day = week_start.date()
+                bucket[day] = bucket.get(day, 0) + count
+        return merged
 
     def dependency_usage(self, name: str) -> list[DependencyUsageResult]:
         grouped: dict[uuid.UUID, set[str]] = {}

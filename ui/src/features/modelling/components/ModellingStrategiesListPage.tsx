@@ -13,6 +13,7 @@ import {
   useCardColumns,
 } from "@/components/shared/CardColumns";
 import { SortMenu } from "@/components/shared/SortMenu";
+import { StarredFilterButton } from "@/components/shared/StarredFilter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,6 +77,7 @@ export function ModellingStrategiesListPage() {
     q: search.q,
     family,
     complexity: search.complexity,
+    starred: search.starred ? true : undefined,
   });
   const strategies = data?.items ?? [];
 
@@ -229,6 +231,18 @@ export function ModellingStrategiesListPage() {
             { value: "complexity", label: t("common.sort.complexity") },
             { value: "origin_year", label: t("common.sort.origin_year") },
           ]}
+        />
+        <StarredFilterButton
+          active={Boolean(search.starred)}
+          label={t("common.filters.starred")}
+          onToggle={() =>
+            navigate({
+              search: (prev) => ({
+                ...prev,
+                starred: prev.starred ? undefined : true,
+              }),
+            })
+          }
         />
         <Popover>
           <PopoverTrigger

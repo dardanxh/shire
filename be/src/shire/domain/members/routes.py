@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from shire.core.db import get_session
 from shire.domain.members.schemas import (
     CreateMemberExclusion,
+    MemberActivityResult,
     MemberDetailResult,
     MemberExclusionResult,
     MembersOverviewResult,
@@ -61,3 +62,15 @@ def member_detail(
 ) -> MemberDetailResult:
     """One member's cross-repo breakdown (per-repo commits + churn)."""
     return MembersService(session).detail(identity_id, anonymize=anonymize)
+
+
+@router.get("/{identity_id}/activity", response_model=MemberActivityResult)
+def member_activity(
+    identity_id: uuid.UUID, anonymize: bool = False, session: Session = Depends(get_session)
+) -> MemberActivityResult:
+    """One member's activity shape: weekly timeline, commit sizes, work pattern, repo shares.
+
+    Built from per-commit records of each repo's latest analysis; repos analyzed before
+    per-commit persistence are counted in `missing_data_repositories` until refreshed.
+    """
+    return MembersService(session).activity(identity_id, anonymize=anonymize)

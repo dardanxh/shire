@@ -29,6 +29,8 @@
       "advisor_button": "Help me choose",
       "compare_count": "Compare ({{count}})",
       "select_compare": "Select {{name}} for comparison",
+      "star_aria": "Star {{name}}",
+      "unstar_aria": "Unstar {{name}}",
       "delete_selected_button": "Delete ({{count}})",
       "delete_selected_title": "Delete selected architectures?",
       "delete_selected_description": "This permanently deletes {{count}} architecture(s), including their stages and diagrams. This cannot be undone.",

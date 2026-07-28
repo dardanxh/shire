@@ -99,6 +99,31 @@ class RepositoryContributorsResult(BaseModel):
     contributors: list[Contributor]
 
 
+class CommitRecordResult(BaseModel):
+    """One commit's shape, already attributed to a resolved identity email."""
+
+    committed_at: datetime
+    insertions: int
+    deletions: int
+    files_changed: int
+    local_hour: int
+    weekday: int  # 0 = Monday
+
+
+class RepositoryCommitHistoryResult(BaseModel):
+    """One repository's per-commit rows for a single identity email — the members read seam.
+
+    `has_records` is False when the repo's latest analysis predates per-commit persistence
+    (a repo refresh backfills it); `records` then stays empty even for active members.
+    """
+
+    repository_id: uuid.UUID
+    repository_name: str
+    total_commits: int
+    has_records: bool
+    records: list[CommitRecordResult]
+
+
 class ToolLogResult(BaseModel):
     """Raw findings log for one tool's latest run (lint/SAST/dead-code/secret locations)."""
 

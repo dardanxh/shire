@@ -10,6 +10,7 @@ import {
 // Filters live in the URL; `.catch()` per field so bad URLs degrade to defaults.
 const qualitiesSearchSchema = z.object({
   tab: z.enum(QUALITY_TABS).catch("catalog"),
+  starred: z.boolean().optional().catch(undefined),
   q: z.string().optional().catch(undefined),
   category: z.enum(QUALITY_CATEGORIES).optional().catch(undefined),
 });

@@ -13,6 +13,7 @@ import {
 // Filters live in the URL; `.catch()` per field so bad URLs degrade to defaults.
 const securitySearchSchema = z.object({
   tab: z.enum(SECURITY_TABS).catch("regulations"),
+  starred: z.boolean().optional().catch(undefined),
   q: z.string().optional().catch(undefined),
   category: z
     .enum([...REGULATION_CATEGORIES, ...PRACTICE_CATEGORIES])

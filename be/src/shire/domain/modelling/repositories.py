@@ -25,6 +25,7 @@ class SqlModellingStrategyRepository:
         family: str | None = None,
         complexity: str | None = None,
         q: str | None = None,
+        starred: bool | None = None,
     ) -> AbstractPage:
         query: Select = select(ModellingStrategyRow).order_by(
             ModellingStrategyRow.family,
@@ -33,6 +34,8 @@ class SqlModellingStrategyRepository:
         )
         if topic:
             query = query.where(ModellingStrategyRow.topic == topic)
+        if starred is not None:
+            query = query.where(ModellingStrategyRow.starred.is_(starred))
         if family:
             query = query.where(ModellingStrategyRow.family == family)
         if complexity:

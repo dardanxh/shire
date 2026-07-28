@@ -7,6 +7,7 @@ from collections.abc import Callable, Iterable
 from datetime import UTC, datetime, timedelta
 
 from shire.domain.substrate.domain import (
+    CommitRecord,
     Contributor,
     DailyCommitCount,
     Hotspot,
@@ -122,11 +123,35 @@ class GitStatsScanner:
             )
         ]
         activity = [DailyCommitCount(day=day, count=count) for day, count in sorted(by_day.items())]
+
+        # Per-commit rows carry the identity's canonical email so alias addresses roll up to the
+        # same person the members context aggregates by.
+        canonical_email = {
+            key: _top(data["emails"]).strip().lower() for key, data in by_author.items()
+        }
+        records = [
+            CommitRecord(
+                sha=commit.sha,
+                author_email=canonical_email.get(author_key(commit), "")
+                or commit.author_email.strip().lower(),
+                committed_at=commit.committed_at,
+                insertions=sum(fc.additions for fc in commit.files_changed),
+                deletions=sum(fc.deletions for fc in commit.files_changed),
+                files_changed=len(commit.files_changed),
+                # committed_at keeps the author's own UTC offset (%aI), so .hour/.weekday()
+                # are author-local — exactly what work-pattern views want.
+                local_hour=commit.committed_at.hour,
+                weekday=commit.committed_at.weekday(),
+            )
+            for commit in ctx.commits
+        ]
+
         dates = [c.committed_at for c in ctx.commits]
         return ScanContribution(
             commit_count=len(ctx.commits),
             contributors=contributors,
             commit_activity=activity,
+            commit_records=records,
             first_commit_at=min(dates),
             last_commit_at=max(dates),
         )

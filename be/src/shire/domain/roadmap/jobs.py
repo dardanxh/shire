@@ -208,6 +208,7 @@ def build_execute_prompt(item: RoadmapItemRow, repo_slug: str) -> str:
 
 
 def handle_roadmap_execute(job: JobRow) -> None:
+    from shire.domain.repository.domain import GitProvider
     from shire.domain.roadmap.execution import (
         ExecutionError,
         cleanup_execution_worktree,
@@ -243,11 +244,16 @@ def handle_roadmap_execute(job: JobRow) -> None:
             execution.agent_summary = parsed["summary"]
 
             pr = finalize_execution(session, execution, item, repo)
-            execution.pr_url = pr.url
-            execution.pr_number = pr.number
-            execution.pr_state = pr.state
+            if pr is not None:
+                execution.pr_url = pr.url
+                execution.pr_number = pr.number
+                execution.pr_state = pr.state
             execution.status = "succeeded"
             # The item stays in_progress while its PR is open; the PR sweep completes it.
+            # Local repos return no PR: the branch stays in the clone for review as a
+            # Shire merge review, and a successful run IS completion.
+            if pr is None and item.status != "done":
+                _transition_item(session, item, "done", actor="system", now=now)
         except ExecutionError as exc:
             execution.status = "failed"
             execution.error = str(exc)[:4000]
@@ -260,7 +266,14 @@ def handle_roadmap_execute(job: JobRow) -> None:
             if item is not None and item.status == "in_progress":
                 _transition_item(session, item, "todo", actor="system", now=now)
         finally:
-            cleanup_execution_worktree(execution, repo)
+            # A successful local-repo run keeps its branch — with no remote, the local
+            # ref is the only copy of the agent's work.
+            keep_branch = (
+                execution.status == "succeeded"
+                and repo is not None
+                and repo.provider == GitProvider.local.value
+            )
+            cleanup_execution_worktree(execution, repo, keep_branch=keep_branch)
 
 
 _DRIFT_PROMPT = """\

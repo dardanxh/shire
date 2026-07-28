@@ -7,7 +7,7 @@ import { TechnologiesListPage } from "@/features/technologies";
 // infinite-scroll, so pages are kept in memory by the infinite query, not the URL.
 // `.catch()` per field so a malformed URL degrades to defaults instead of throwing.
 const technologiesSearchSchema = z.object({
-  tab: z.enum(["all", "starred"]).catch("all"),
+  starred: z.boolean().optional().catch(undefined),
   q: z.string().optional().catch(undefined),
   category: z.string().optional().catch(undefined),
   maturity: z.string().optional().catch(undefined),

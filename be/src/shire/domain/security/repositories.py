@@ -24,12 +24,15 @@ class SqlDataRegulationRepository:
         category: str | None = None,
         region: str | None = None,
         q: str | None = None,
+        starred: bool | None = None,
     ) -> AbstractPage:
         query: Select = select(DataRegulationRow).order_by(
             DataRegulationRow.position, DataRegulationRow.name
         )
         if category:
             query = query.where(DataRegulationRow.category == category)
+        if starred is not None:
+            query = query.where(DataRegulationRow.starred.is_(starred))
         if region:
             query = query.where(DataRegulationRow.region == region)
         if q:
@@ -77,6 +80,7 @@ class SqlDataSafetyPracticeRepository:
         category: str | None = None,
         complexity: str | None = None,
         q: str | None = None,
+        starred: bool | None = None,
     ) -> AbstractPage:
         query: Select = select(DataSafetyPracticeRow).order_by(
             DataSafetyPracticeRow.category,
@@ -85,6 +89,8 @@ class SqlDataSafetyPracticeRepository:
         )
         if category:
             query = query.where(DataSafetyPracticeRow.category == category)
+        if starred is not None:
+            query = query.where(DataSafetyPracticeRow.starred.is_(starred))
         if complexity:
             query = query.where(DataSafetyPracticeRow.complexity == complexity)
         if q:

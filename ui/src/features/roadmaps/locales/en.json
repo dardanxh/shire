@@ -99,7 +99,7 @@
       "execution": "AI implementation",
       "execute": "Implement",
       "execute_again": "Implement again",
-      "execute_confirm": "This dispatches an agent that implements the item in an isolated worktree, pushes a branch, and opens a pull request for your review.",
+      "execute_confirm": "This dispatches an agent that implements the item in an isolated worktree. Provider-backed repositories get a branch pushed and a pull request opened; local repositories keep the branch for review inside Shire.",
       "blocked_explainer": "Blocked — finish, drop, or unlink the items under \"Blocked by\" first.",
       "execute_go": "Dispatch",
       "executing": "Implementing… the agent is working on a branch.",
@@ -109,7 +109,9 @@
       "view_pr": "PR #{{number}}",
       "pr_open": "Open",
       "pr_merged": "Merged",
-      "pr_closed": "Closed"
+      "pr_closed": "Closed",
+      "local_review_hint": "This repository is local, so no pull request was opened. Review the branch against your default branch as a Shire merge review.",
+      "create_merge_review": "Create merge review"
     },
     "regenerate": {
       "title": "Regenerate this roadmap?",

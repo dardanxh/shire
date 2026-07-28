@@ -51,9 +51,13 @@ function toggle(set: Set<string>, value: string): Set<string> {
  */
 export function CreateMergeReviewDialog({
   defaultRepositoryId,
+  defaultSourceBranch,
+  defaultTitle,
   trigger,
 }: {
   defaultRepositoryId?: string;
+  defaultSourceBranch?: string;
+  defaultTitle?: string;
   trigger?: ReactElement;
 }) {
   const { t } = useTranslation();
@@ -61,8 +65,8 @@ export function CreateMergeReviewDialog({
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const [repositoryId, setRepositoryId] = useState(defaultRepositoryId ?? "");
-  const [title, setTitle] = useState("");
-  const [sourceBranch, setSourceBranch] = useState("");
+  const [title, setTitle] = useState(defaultTitle ?? "");
+  const [sourceBranch, setSourceBranch] = useState(defaultSourceBranch ?? "");
   const [targetBranch, setTargetBranch] = useState("");
   const [stepError, setStepError] = useState<string | null>(null);
   const [hobits, setHobits] = useState<Set<string>>(new Set());
@@ -109,8 +113,8 @@ export function CreateMergeReviewDialog({
   const reset = () => {
     setStep(0);
     setRepositoryId(defaultRepositoryId ?? "");
-    setTitle("");
-    setSourceBranch("");
+    setTitle(defaultTitle ?? "");
+    setSourceBranch(defaultSourceBranch ?? "");
     setTargetBranch("");
     setStepError(null);
     setHobits(new Set());

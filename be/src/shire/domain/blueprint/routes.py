@@ -26,6 +26,7 @@ def list_blueprints(
     q: str | None = None,
     source: str | None = None,
     use_case: str | None = None,
+    starred: bool | None = None,
     session: Session = Depends(get_session),
 ) -> list[BlueprintResult]:
     """The library (small, unpaginated). `technology_id` matches recommended + alternatives;
@@ -36,6 +37,7 @@ def list_blueprints(
         q=q,
         source=source,
         use_case=use_case,
+        starred=starred,
     )
 
 

@@ -61,8 +61,12 @@ def finalize_execution(
     execution: RoadmapExecutionRow,
     item: RoadmapItemRow,
     repo: RepositoryRow,
-) -> PullRequestRef:
+) -> PullRequestRef | None:
     """Commit the worktree diff, push the branch with a transient credentialed URL, open the PR.
+
+    Local repositories stop after the commit: there is no remote to push to, so the branch in
+    the clone is the deliverable and returns None — the user reviews it in Shire as a merge
+    review against the default branch.
 
     Raises ExecutionError with a scrubbed message on any failure.
     """
@@ -76,6 +80,9 @@ def finalize_execution(
     if commit_sha is None:
         raise ExecutionError("The agent finished without changing any files.")
     execution.commit_sha = commit_sha
+
+    if repo.provider == GitProvider.local.value:
+        return None
 
     if repo.connection_id is None:
         raise ExecutionError("The repository has no connection to push with.")
@@ -103,13 +110,23 @@ def finalize_execution(
     return pr
 
 
-def cleanup_execution_worktree(execution: RoadmapExecutionRow, repo: RepositoryRow | None) -> None:
-    """Always-run teardown: the branch is on the remote (or worthless) — the checkout never is."""
+def cleanup_execution_worktree(
+    execution: RoadmapExecutionRow,
+    repo: RepositoryRow | None,
+    *,
+    keep_branch: bool = False,
+) -> None:
+    """Always-run teardown: the branch is on the remote (or worthless) — the checkout never is.
+
+    `keep_branch` is the local-repo success path: no remote holds the branch, so the local ref
+    IS the deliverable (same pattern as the readiness module).
+    """
     if not execution.worktree_path:
         return
     clone_path = Path(repo.clone_path) if repo is not None and repo.clone_path else None
     if clone_path is not None:
-        remove_worktree(clone_path, Path(execution.worktree_path), execution.branch)
+        branch = None if keep_branch else execution.branch
+        remove_worktree(clone_path, Path(execution.worktree_path), branch)
     execution.worktree_path = None
 
 

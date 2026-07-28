@@ -8,6 +8,8 @@ export interface BlueprintListParams {
   use_case?: string;
   /** "seed" (Blueprints tab) | "user" (My architectures tab). */
   source?: string;
+  /** true = starred only. */
+  starred?: boolean;
 }
 
 /** Query-key factory. */

@@ -23,6 +23,7 @@ class SqlArchitectureQualityRepository:
         transformer,
         category: str | None = None,
         q: str | None = None,
+        starred: bool | None = None,
     ) -> AbstractPage:
         query: Select = select(ArchitectureQualityRow).order_by(
             ArchitectureQualityRow.category,
@@ -31,6 +32,8 @@ class SqlArchitectureQualityRepository:
         )
         if category:
             query = query.where(ArchitectureQualityRow.category == category)
+        if starred is not None:
+            query = query.where(ArchitectureQualityRow.starred.is_(starred))
         if q:
             pattern = f"%{q}%"
             query = query.where(

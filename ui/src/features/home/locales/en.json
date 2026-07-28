@@ -1,5 +1,9 @@
 {
   "home": {
+    "hero": {
+      "title": "Welcome to the Shire, home of the hobits",
+      "subtitle": "steady little companions for your daily work"
+    },
     "system": {
       "title": "System",
       "claude_ok": "Claude Code",

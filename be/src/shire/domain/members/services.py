@@ -8,7 +8,8 @@ output is a project-health lens: knowledge distribution and single-maintainer ri
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime, timedelta
+from collections import Counter
+from datetime import UTC, date, datetime, timedelta
 from fnmatch import fnmatch
 
 from sqlalchemy.orm import Session
@@ -17,12 +18,18 @@ from shire.core.exceptions import ConflictError, NotFoundError
 from shire.domain.members.models import MemberExclusionRow
 from shire.domain.members.repositories import SqlMemberExclusionRepository
 from shire.domain.members.schemas import (
+    CommitSizeBucketResult,
     CreateMemberExclusion,
+    MemberActivityResult,
+    MemberCommitSizesResult,
     MemberDetailResult,
     MemberExclusionResult,
+    MemberHeatmapCellResult,
     MemberRepositoryBreakdownResult,
+    MemberRepositoryShareResult,
     MembersOverviewResult,
     MemberSummaryResult,
+    MemberWeeklyActivityResult,
     PortfolioHealthResult,
 )
 from shire.domain.substrate.services import AnalysisService
@@ -33,10 +40,20 @@ _IDENTITY_NS = uuid.uuid5(uuid.NAMESPACE_URL, "hobits/member-identity")
 # A member is "active" if their most recent commit (anywhere) is within this window.
 _ACTIVE_DAYS = 90
 
+# Row-sparkline window (weeks, oldest first).
+_SPARKLINE_WEEKS = 26
+
+# Commit-size histogram bars; commits above the last bound count as "large" (batch-y changes).
+_SIZE_BUCKETS = ((0, 10, "≤10"), (11, 50, "11-50"), (51, 200, "51-200"), (201, 500, "201-500"))
+_LARGE_COMMIT_LINES = 500
+
 # Applied on top of user-managed exclusions. Deliberately narrow — matches obvious automation, not
 # privacy-masked human emails (e.g. GitHub noreply addresses are real people and are kept).
 _DEFAULT_BOT_PATTERNS = (
-    "*[bot]*",
+    # fnmatch treats [seq] as a character class, so the literal "[bot]" suffix GitHub gives
+    # bot accounts must be written with escaped brackets — "*[bot]*" would silently exclude
+    # every member whose name/email contains a b, o, or t.
+    "*[[]bot[]]*",
     "dependabot*",
     "renovate*",
     "github-actions*",
@@ -95,9 +112,13 @@ class MembersService:
     def overview(self, *, anonymize: bool = False) -> MembersOverviewResult:
         aggregates, repo_count, single_maintainer = self._aggregate()
         labels = self._anon_labels(aggregates) if anonymize else {}
+        weeks = _week_grid(_SPARKLINE_WEEKS)
+        weekly_by_email = self._substrate.weekly_commit_counts(
+            datetime.now(UTC) - timedelta(weeks=_SPARKLINE_WEEKS)
+        )
         # Neutral default order: alphabetical by display name (NOT by output — not a ranking).
         ordered = sorted(aggregates.values(), key=lambda a: a.name.lower())
-        members = [self._to_summary(a, labels) for a in ordered]
+        members = [self._to_summary(a, labels, weekly_by_email, weeks) for a in ordered]
         return MembersOverviewResult(
             health=self._health(aggregates, repo_count, single_maintainer),
             members=members,
@@ -136,6 +157,79 @@ class MembersService:
             last_active_at=agg.last_active_at,
             status=self._status(agg.last_active_at),
             repositories=breakdown,
+        )
+
+    def activity(
+        self, identity_id: uuid.UUID, *, anonymize: bool = False
+    ) -> MemberActivityResult:
+        """One member's activity shape: weekly timeline, commit sizes, work pattern, repo shares.
+
+        Built from per-commit records of each repo's latest analysis. Repos analyzed before
+        per-commit persistence contribute nothing to the timeline/sizes/heatmap and are counted
+        in `missing_data_repositories` (a repo refresh backfills them).
+        """
+        aggregates, _, _ = self._aggregate()
+        agg = aggregates.get(identity_id)
+        if agg is None:
+            raise NotFoundError("No member with that id (they may be excluded).")
+        labels = self._anon_labels(aggregates) if anonymize else {}
+        name, email, anonymized = self._display(agg, labels)
+
+        history = self._substrate.commit_history_for_email(agg.email)
+        by_repo = {h.repository_id: h for h in history}
+        records = [record for h in history for record in h.records]
+
+        weekly_map: dict[date, list[int]] = {}
+        for record in records:
+            week = record.committed_at.date() - timedelta(
+                days=record.committed_at.weekday()
+            )
+            bucket = weekly_map.setdefault(week, [0, 0])
+            bucket[0] += 1
+            bucket[1] += record.insertions + record.deletions
+        weekly = [
+            MemberWeeklyActivityResult(
+                week_start=week, commits=commits, lines_changed=lines
+            )
+            for week, (commits, lines) in sorted(weekly_map.items())
+        ]
+
+        heat = Counter((record.weekday, record.local_hour) for record in records)
+        heatmap = [
+            MemberHeatmapCellResult(weekday=weekday, hour=hour, commits=commits)
+            for (weekday, hour), commits in sorted(heat.items())
+        ]
+
+        repositories: list[MemberRepositoryShareResult] = []
+        missing = 0
+        for rid, data in sorted(
+            agg.repositories.items(), key=lambda kv: kv[1]["commits"], reverse=True
+        ):
+            hist = by_repo.get(rid)
+            total = hist.total_commits if hist else 0
+            if hist is not None and not hist.has_records:
+                missing += 1
+            repositories.append(
+                MemberRepositoryShareResult(
+                    repository_id=rid,
+                    repository_name=data["name"],
+                    member_commits=data["commits"],
+                    total_commits=total,
+                    share=round(data["commits"] / total, 4) if total else 0.0,
+                    sole_maintainer=bool(data.get("sole")),
+                )
+            )
+
+        return MemberActivityResult(
+            id=agg.id,
+            name=name,
+            email=email,
+            anonymized=anonymized,
+            weekly=weekly,
+            sizes=_commit_sizes([r.insertions + r.deletions for r in records]),
+            heatmap=heatmap,
+            repositories=repositories,
+            missing_data_repositories=missing,
         )
 
     # --- exclusions (opt-out / bots) ------------------------------------------
@@ -179,6 +273,7 @@ class MembersService:
             kept = [c for c in repo.contributors if not _is_excluded(c.name, c.email, patterns)]
             if len(kept) == 1:
                 single_maintainer += 1
+            sole = len(kept) == 1
             for c in kept:
                 email = _norm_email(c.email)
                 ident = _identity_id(email)
@@ -200,6 +295,7 @@ class MembersService:
                         "lines_added": 0,
                         "lines_removed": 0,
                         "files_touched": 0,
+                        "sole": sole,
                     },
                 )
                 bucket["commits"] += c.commits
@@ -228,8 +324,15 @@ class MembersService:
             return label, f"{label.lower().replace(' ', '-')}@hidden", True
         return agg.name, agg.email, False
 
-    def _to_summary(self, agg: _Aggregate, labels: dict[uuid.UUID, str]) -> MemberSummaryResult:
+    def _to_summary(
+        self,
+        agg: _Aggregate,
+        labels: dict[uuid.UUID, str],
+        weekly_by_email: dict[str, dict[date, int]],
+        weeks: list[date],
+    ) -> MemberSummaryResult:
         name, email, anonymized = self._display(agg, labels)
+        by_week = weekly_by_email.get(agg.email)
         return MemberSummaryResult(
             id=agg.id,
             name=name,
@@ -243,6 +346,11 @@ class MembersService:
             first_active_at=agg.first_active_at,
             last_active_at=agg.last_active_at,
             status=self._status(agg.last_active_at),
+            # Empty (not zeros) when no repo has per-commit records for this member yet.
+            weekly_commits=[by_week.get(week, 0) for week in weeks] if by_week else [],
+            sole_maintainer_repos=sum(
+                1 for data in agg.repositories.values() if data.get("sole")
+            ),
         )
 
     @staticmethod
@@ -274,6 +382,36 @@ class MembersService:
 def _is_excluded(name: str, email: str, patterns: tuple[str, ...]) -> bool:
     haystacks = (name.strip().lower(), _norm_email(email))
     return any(fnmatch(h, p) for p in patterns for h in haystacks)
+
+
+def _week_grid(count: int) -> list[date]:
+    """The last `count` ISO week-start dates (Mondays), oldest first, current week last."""
+    monday = datetime.now(UTC).date()
+    monday -= timedelta(days=monday.weekday())
+    return [monday - timedelta(weeks=offset) for offset in range(count - 1, -1, -1)]
+
+
+def _commit_sizes(sizes: list[int]) -> MemberCommitSizesResult:
+    """Histogram + robust stats over per-commit changed-line counts."""
+    buckets = [
+        CommitSizeBucketResult(
+            label=label, count=sum(1 for size in sizes if low <= size <= high)
+        )
+        for low, high, label in _SIZE_BUCKETS
+    ]
+    large = sum(1 for size in sizes if size > _LARGE_COMMIT_LINES)
+    buckets.append(CommitSizeBucketResult(label=f"{_LARGE_COMMIT_LINES}+", count=large))
+    if not sizes:
+        return MemberCommitSizesResult(
+            buckets=buckets, median_lines=0, p90_lines=0, large_share=0.0
+        )
+    ordered = sorted(sizes)
+    return MemberCommitSizesResult(
+        buckets=buckets,
+        median_lines=ordered[len(ordered) // 2],
+        p90_lines=ordered[min(len(ordered) - 1, int(len(ordered) * 0.9))],
+        large_share=round(large / len(sizes), 3),
+    )
 
 
 def _min(a: datetime | None, b: datetime | None) -> datetime | None:

@@ -284,12 +284,14 @@ class RoadmapService:
         repo = self._session.get(RepositoryRow, item.repository_id)
         if repo is None or not repo.clone_path:
             raise ConflictError("The item's repository has no local clone.")
-        if repo.provider == GitProvider.local.value:
-            raise ConflictError("Local repositories cannot receive pull requests.")
-        if repo.connection_id is None:
-            raise ConflictError("The repository has no connection with push credentials.")
-        if ConnectionService(self._session).resolve_credential(repo.connection_id) is None:
-            raise ConflictError("The repository's connection no longer exists.")
+        if repo.provider != GitProvider.local.value:
+            # Provider-backed repos push a branch and open a PR, so credentials must exist
+            # up front. Local repos skip both: the branch stays in the clone and is
+            # reviewed in Shire as a merge review.
+            if repo.connection_id is None:
+                raise ConflictError("The repository has no connection with push credentials.")
+            if ConnectionService(self._session).resolve_credential(repo.connection_id) is None:
+                raise ConflictError("The repository's connection no longer exists.")
         if self._executions.has_pending(item.id):
             raise ConflictError("An execution for this item is already in flight.")
 

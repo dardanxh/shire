@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "@/lib/api";
 import type { components } from "@/lib/api-types.gen";
@@ -13,6 +13,10 @@ export type DataSafetyPractice =
   components["schemas"]["DataSafetyPracticeResult"];
 export type RegulationArticle = components["schemas"]["RegulationArticle"];
 export type PracticeSatisfies = components["schemas"]["PracticeSatisfies"];
+export type UpdateDataRegulation =
+  components["schemas"]["UpdateDataRegulation"];
+export type UpdateDataSafetyPractice =
+  components["schemas"]["UpdateDataSafetyPractice"];
 
 /**
  * One tab's catalog in one fetch — 12 regulations / ~14 practices against the
@@ -71,5 +75,41 @@ export function useDataSafetyPracticeQuery(id: string) {
       return data;
     },
     enabled: id !== "",
+  });
+}
+
+/** Star-only curation — regulation content stays seed-managed. */
+export function useUpdateDataRegulationMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: UpdateDataRegulation) => {
+      const { data, error } = await api.PATCH(
+        "/api/v1/data-regulations/{regulation_id}",
+        { params: { path: { regulation_id: id } }, body },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: securityKeys.all });
+    },
+  });
+}
+
+/** Star-only curation — practice content stays seed-managed. */
+export function useUpdateDataSafetyPracticeMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: UpdateDataSafetyPractice) => {
+      const { data, error } = await api.PATCH(
+        "/api/v1/data-safety-practices/{practice_id}",
+        { params: { path: { practice_id: id } }, body },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: securityKeys.all });
+    },
   });
 }

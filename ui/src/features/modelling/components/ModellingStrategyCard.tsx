@@ -1,11 +1,15 @@
 import { Link } from "@tanstack/react-router";
+import { StarIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import type { ModellingStrategy } from "../api";
+import {
+  type ModellingStrategy,
+  useUpdateModellingStrategyMutation,
+} from "../api";
 import { COMPLEXITY_BADGE_VARIANT } from "../schemas";
 
 /**
@@ -29,6 +33,9 @@ export function ModellingStrategyCard({
   onToggleSelect?: () => void;
 }) {
   const { t } = useTranslation();
+  const { mutate: updateStrategy } = useUpdateModellingStrategyMutation(
+    strategy.id,
+  );
   return (
     <div className="group relative h-full">
       <Link
@@ -37,7 +44,7 @@ export function ModellingStrategyCard({
         className="block h-full rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <Card className="flex h-full flex-col gap-3 bg-card shadow-sm transition-shadow group-hover:shadow-lg">
-          <CardHeader className="pr-10">
+          <CardHeader className="pr-16">
             <span className="truncate font-medium">{strategy.name}</span>
           </CardHeader>
           <CardContent className="flex flex-1 flex-col gap-3">
@@ -67,7 +74,7 @@ export function ModellingStrategyCard({
             name: strategy.name,
           })}
           className={cn(
-            "absolute top-4 right-4 border-muted-foreground/40 bg-card",
+            "absolute top-4 right-10 border-muted-foreground/40 bg-card",
             // Hidden at rest; revealed on hover/focus or while comparing.
             !selected &&
               !selectionActive &&
@@ -75,6 +82,27 @@ export function ModellingStrategyCard({
           )}
         />
       )}
+      {/* Sibling of the Link (not a child) so starring never navigates. */}
+      <button
+        type="button"
+        onClick={() => updateStrategy({ starred: !strategy.starred })}
+        aria-label={t(
+          strategy.starred
+            ? "modelling.list.unstar_aria"
+            : "modelling.list.star_aria",
+          { name: strategy.name },
+        )}
+        className={cn(
+          "absolute top-3 right-3 rounded-md p-1 transition-colors",
+          strategy.starred
+            ? "text-warning"
+            : "text-muted-foreground/40 hover:text-warning",
+        )}
+      >
+        <StarIcon
+          className={cn("size-4", strategy.starred && "fill-warning")}
+        />
+      </button>
     </div>
   );
 }

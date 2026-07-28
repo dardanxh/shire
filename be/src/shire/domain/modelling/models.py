@@ -10,7 +10,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, DateTime, Integer, String, Text, Uuid
+from sqlalchemy import Boolean, CheckConstraint, DateTime, Integer, String, Text, Uuid
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
@@ -71,6 +71,7 @@ class ModellingStrategyRow(Base):
     related_technology_slugs: Mapped[list[str]] = mapped_column(JSONB, default=list)
     # Orders rows within a family (e.g. BCNF between 3NF and 4NF, not after 5NF).
     position: Mapped[int] = mapped_column(Integer, default=0)
+    starred: Mapped[bool] = mapped_column(Boolean, default=False)
     source: Mapped[str] = mapped_column(String(10), default="user")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

@@ -2,7 +2,7 @@
  * Default search for the list route. The list is now infinite-scroll, so pagination
  * lives in memory (not the URL) and the defaults are just "no filters".
  */
-export const LIST_SEARCH = { tab: "all" } as const;
+export const LIST_SEARCH = {} as const;
 
 /** Filters for the corpus browse grid (server-side; pagination handled by the infinite query). */
 export interface TechnologyListParams {

@@ -29,11 +29,12 @@ def list_modelling_strategies(
     family: Family | None = None,
     complexity: Complexity | None = None,
     q: str | None = None,
+    starred: bool | None = None,
     session: Session = Depends(get_session),
 ) -> Page[ModellingStrategyResult]:
     """Paginated catalog, ordered by family, position, name."""
     return ModellingStrategyService(session).list_strategies(
-        params, topic=topic, family=family, complexity=complexity, q=q
+        params, topic=topic, family=family, complexity=complexity, q=q, starred=starred
     )
 
 

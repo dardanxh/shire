@@ -1,5 +1,6 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import apps from "@/features/apps/locales/en.json";
 import architectures from "@/features/architectures/locales/en.json";
 import briefing from "@/features/briefing/locales/en.json";
 import compliance from "@/features/compliance/locales/en.json";
@@ -53,6 +54,7 @@ const en = {
   ...sizing,
   ...techchoice,
   ...compliance,
+  ...apps,
 };
 
 i18n.use(initReactI18next).init({

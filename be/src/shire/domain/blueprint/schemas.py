@@ -104,6 +104,7 @@ class UpdateBlueprint(BaseModel):
     flows: list[BlueprintFlow] | None = None
     position: int | None = None
     stages: list[CreateBlueprintStage] | None = None
+    starred: bool | None = None
 
 
 class BlueprintStageResult(BaseModel):
@@ -143,6 +144,7 @@ class BlueprintResult(BaseModel):
     diagrams: list[BlueprintDiagram]
     family_tags: list[str]
     flows: list[BlueprintFlow]
+    starred: bool
     source: Source
     position: int
     stages: list[BlueprintStageResult]

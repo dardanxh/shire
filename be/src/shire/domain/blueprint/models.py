@@ -6,6 +6,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import (
+    Boolean,
     CheckConstraint,
     DateTime,
     Float,
@@ -53,6 +54,7 @@ class ArchitectureBlueprintRow(Base):
     # flows: [{id, source_stage_id, target_stage_id, label, kind, ...}] — data-flow
     # edges between stages (by stage id).
     flows: Mapped[list[dict]] = mapped_column(JSONB, default=list)
+    starred: Mapped[bool] = mapped_column(Boolean, default=False)
     source: Mapped[str] = mapped_column(String(10), default="user")
     position: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(

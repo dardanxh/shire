@@ -5,6 +5,7 @@ import {
   SearchIcon,
   SlidersHorizontalIcon,
   SparklesIcon,
+  StarIcon,
   Trash2Icon,
   XIcon,
 } from "lucide-react";
@@ -16,6 +17,7 @@ import {
   useCardColumns,
 } from "@/components/shared/CardColumns";
 import { SortMenu } from "@/components/shared/SortMenu";
+import { StarredFilterButton } from "@/components/shared/StarredFilter";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -56,6 +58,7 @@ import {
   useBlueprintCountsQuery,
   useBlueprintsQuery,
   useDeleteBlueprintMutation,
+  useUpdateBlueprintMutation,
 } from "../api";
 import { FAMILIES, FAMILY_COLORS } from "../families";
 import { USE_CASE_SLUGS } from "../use-cases";
@@ -65,25 +68,29 @@ const route = getRouteApi("/architectures/");
 function BlueprintCard({
   blueprint,
   selected,
+  selectionActive,
   selectionFull,
   onToggleSelect,
 }: {
   blueprint: Blueprint;
   selected: boolean;
+  /** Any card selected — keeps every checkbox visible mid-comparison. */
+  selectionActive: boolean;
   /** Three architectures are already picked — block further selection. */
   selectionFull: boolean;
   onToggleSelect: () => void;
 }) {
   const { t } = useTranslation();
+  const { mutate: updateBlueprint } = useUpdateBlueprintMutation(blueprint.id);
   // Category stripe: the first family tag picks the accent color.
   const stripeColor =
     FAMILY_COLORS[blueprint.family_tags[0] as keyof typeof FAMILY_COLORS];
   return (
-    <div className="relative h-full">
+    <div className="group relative h-full">
       <Link
         to="/architectures/$id"
         params={{ id: blueprint.id }}
-        className="group block h-full rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="block h-full rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <Card
           className={cn(
@@ -96,7 +103,7 @@ function BlueprintCard({
             stripeColor ? { borderLeftColor: `${stripeColor}80` } : undefined
           }
         >
-          <CardHeader className="pr-10">
+          <CardHeader className="pr-16">
             <CardTitle>{blueprint.name}</CardTitle>
             {blueprint.use_case && (
               <CardDescription>{blueprint.use_case}</CardDescription>
@@ -112,8 +119,35 @@ function BlueprintCard({
         aria-label={t("blueprints.list.select_compare", {
           name: blueprint.name,
         })}
-        className="absolute top-4 right-4 border-muted-foreground/40 bg-card"
+        className={cn(
+          "absolute top-4 right-10 border-muted-foreground/40 bg-card",
+          // Hidden at rest; revealed on hover/focus or while comparing.
+          !selected &&
+            !selectionActive &&
+            "opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100",
+        )}
       />
+      {/* Sibling of the Link (not a child) so starring never navigates. */}
+      <button
+        type="button"
+        onClick={() => updateBlueprint({ starred: !blueprint.starred })}
+        aria-label={t(
+          blueprint.starred
+            ? "blueprints.list.unstar_aria"
+            : "blueprints.list.star_aria",
+          { name: blueprint.name },
+        )}
+        className={cn(
+          "absolute top-3 right-3 rounded-md p-1 transition-colors",
+          blueprint.starred
+            ? "text-warning"
+            : "text-muted-foreground/40 hover:text-warning",
+        )}
+      >
+        <StarIcon
+          className={cn("size-4", blueprint.starred && "fill-warning")}
+        />
+      </button>
     </div>
   );
 }
@@ -155,6 +189,7 @@ export function BlueprintsListPage() {
     use_case: search.use_case,
     q: search.q,
     source,
+    starred: search.starred ? true : undefined,
   });
   const { data: counts } = useBlueprintCountsQuery();
   const tabTotal = source === "user" ? counts?.user : counts?.seed;
@@ -348,6 +383,18 @@ export function BlueprintsListPage() {
             { value: "complexity", label: t("common.sort.complexity") },
           ]}
         />
+        <StarredFilterButton
+          active={Boolean(search.starred)}
+          label={t("common.filters.starred")}
+          onToggle={() =>
+            navigate({
+              search: (prev) => ({
+                ...prev,
+                starred: prev.starred ? undefined : true,
+              }),
+            })
+          }
+        />
         <Popover>
           <PopoverTrigger
             render={<Button variant="outline" className="bg-background" />}
@@ -476,6 +523,7 @@ export function BlueprintsListPage() {
               key={blueprint.id}
               blueprint={blueprint}
               selected={selectedIds.includes(blueprint.id)}
+              selectionActive={selectedIds.length > 0}
               selectionFull={!isMine && selectedIds.length >= 3}
               onToggleSelect={() => toggleSelect(blueprint.id)}
             />

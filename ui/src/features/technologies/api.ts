@@ -55,20 +55,6 @@ export function useTechnologyTotalQuery() {
   });
 }
 
-/** Count of starred technologies — drives the Starred tab badge. */
-export function useStarredTechnologyTotalQuery() {
-  return useQuery({
-    queryKey: [...technologyKeys.all, "starred-total"],
-    queryFn: async () => {
-      const { data, error } = await api.GET("/api/v1/technologies", {
-        params: { query: { page: 1, size: 1, starred: true } },
-      });
-      if (error) throw error;
-      return data.total;
-    },
-  });
-}
-
 export type TechnologyBlueprintRef =
   components["schemas"]["TechnologyBlueprintRef"];
 

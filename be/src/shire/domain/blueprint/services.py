@@ -35,6 +35,7 @@ class BlueprintService:
         q: str | None = None,
         source: str | None = None,
         use_case: str | None = None,
+        starred: bool | None = None,
     ) -> list[BlueprintResult]:
         rows = self._blueprints.search(
             family_tag=family_tag,
@@ -42,6 +43,7 @@ class BlueprintService:
             q=q,
             source=source,
             use_case=use_case,
+            starred=starred,
         )
         return [BlueprintResult.model_validate(row) for row in rows]
 
@@ -142,6 +144,9 @@ class BlueprintService:
         rows = self._get_rows([blueprint_id for blueprint_id, _ in updates])
         for row, (_, update) in zip(rows, updates, strict=True):
             changes = update.model_dump(mode="json", exclude_unset=True)
+            # Starring alone is curation, not content editing — leave `source`
+            # untouched so seed refreshes keep updating the row.
+            only_starred = set(changes) == {"starred"}
             slug_taken = (
                 "slug" in changes
                 and changes["slug"] != row.slug
@@ -156,7 +161,8 @@ class BlueprintService:
             for field, value in changes.items():
                 setattr(row, field, value)
             self._validate_canvas_state(row)
-            row.source = "user"
+            if not only_starred:
+                row.source = "user"
         # Flush before serializing — newly inserted stage rows get their ids at flush.
         self._session.flush()
         return [BlueprintResult.model_validate(row) for row in rows]

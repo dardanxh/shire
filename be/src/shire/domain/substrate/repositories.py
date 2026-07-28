@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, insert, select
 from sqlalchemy.orm import Session
 
 from shire.domain.substrate.domain import (
@@ -13,6 +13,7 @@ from shire.domain.substrate.domain import (
     AnalysisStatus,
     CiCdConfig,
     CiCdSystem,
+    CommitRecord,
     Contributor,
     DailyCommitCount,
     Dependency,
@@ -32,6 +33,7 @@ from shire.domain.substrate.models import (
     AnalysisRow,
     CiCdRow,
     CommitActivityRow,
+    CommitRecordRow,
     ContributorRow,
     DependencyRow,
     HealthCheckRow,
@@ -325,6 +327,20 @@ class SqlAnalysisRepository:
         row = self._session.scalars(stmt).first()
         return _to_domain(row) if row else None
 
+    def latest_complete_meta(self) -> list[tuple[uuid.UUID, uuid.UUID, int]]:
+        """(repository_id, analysis_id, commit_count) of each repo's latest complete analysis.
+
+        A scalar read (Postgres DISTINCT ON) for cross-repo lookups that must not pay the cost
+        of materializing full aggregates.
+        """
+        stmt = (
+            select(AnalysisRow.repository_id, AnalysisRow.id, AnalysisRow.commit_count)
+            .where(AnalysisRow.status == AnalysisStatus.complete.value)
+            .order_by(AnalysisRow.repository_id, AnalysisRow.analyzed_at.desc())
+            .distinct(AnalysisRow.repository_id)
+        )
+        return [(rid, aid, count) for rid, aid, count in self._session.execute(stmt)]
+
     def list_for_repository(self, repository_id: uuid.UUID) -> list[Analysis]:
         stmt = (
             select(AnalysisRow)
@@ -345,6 +361,90 @@ class SqlAnalysisRepository:
             .distinct()
         )
         return [(rid, ver) for rid, ver in self._session.execute(stmt).all()]
+
+
+class SqlCommitRecordRepository:
+    """Per-commit history rows, kept out of the Analysis aggregate on purpose.
+
+    Histories run to tens of thousands of rows per repo, so they are bulk-inserted after the
+    analysis row and read only through targeted queries — never materialized with the aggregate.
+    Deletes ride the FK's ON DELETE CASCADE when an analysis is replaced or purged.
+    """
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def add_many(self, analysis_id: uuid.UUID, records: list[CommitRecord]) -> None:
+        if not records:
+            return
+        # The freshly added analysis row must exist before its FK children.
+        self._session.flush()
+        self._session.execute(
+            insert(CommitRecordRow),
+            [
+                {
+                    "id": uuid.uuid4(),
+                    "analysis_id": analysis_id,
+                    "sha": record.sha,
+                    "author_email": record.author_email,
+                    "committed_at": record.committed_at,
+                    "insertions": record.insertions,
+                    "deletions": record.deletions,
+                    "files_changed": record.files_changed,
+                    "local_hour": record.local_hour,
+                    "weekday": record.weekday,
+                }
+                for record in records
+            ],
+        )
+
+    def for_email(
+        self, email: str, analysis_ids: list[uuid.UUID]
+    ) -> dict[uuid.UUID, list[CommitRecordRow]]:
+        """One email's commit rows, grouped by analysis id."""
+        if not analysis_ids:
+            return {}
+        rows = self._session.scalars(
+            select(CommitRecordRow).where(
+                CommitRecordRow.author_email == email,
+                CommitRecordRow.analysis_id.in_(analysis_ids),
+            )
+        )
+        grouped: dict[uuid.UUID, list[CommitRecordRow]] = {}
+        for row in rows:
+            grouped.setdefault(row.analysis_id, []).append(row)
+        return grouped
+
+    def analyses_with_records(self, analysis_ids: list[uuid.UUID]) -> set[uuid.UUID]:
+        """Which of these analyses have any commit rows (i.e. postdate this feature)."""
+        if not analysis_ids:
+            return set()
+        rows = self._session.execute(
+            select(CommitRecordRow.analysis_id)
+            .where(CommitRecordRow.analysis_id.in_(analysis_ids))
+            .distinct()
+        )
+        return {analysis_id for (analysis_id,) in rows}
+
+    def weekly_counts_by_email(
+        self, analysis_ids: list[uuid.UUID], since: datetime
+    ) -> dict[str, dict[datetime, int]]:
+        """email -> week_start (date_trunc) -> commits, across the given analyses."""
+        if not analysis_ids:
+            return {}
+        week = func.date_trunc("week", CommitRecordRow.committed_at)
+        rows = self._session.execute(
+            select(CommitRecordRow.author_email, week, func.count())
+            .where(
+                CommitRecordRow.analysis_id.in_(analysis_ids),
+                CommitRecordRow.committed_at >= since,
+            )
+            .group_by(CommitRecordRow.author_email, week)
+        )
+        grouped: dict[str, dict[datetime, int]] = {}
+        for email, week_start, count in rows:
+            grouped.setdefault(email, {})[week_start] = count
+        return grouped
 
 
 class SqlRepositoryToolRepository:

@@ -211,6 +211,9 @@ export type MemberDetailOut = components["schemas"]["MemberDetailResult"];
 export type MemberRepositoryBreakdownOut =
   components["schemas"]["MemberRepositoryBreakdownResult"];
 export type MemberExclusionOut = components["schemas"]["MemberExclusionResult"];
+export type MemberActivityOut = components["schemas"]["MemberActivityResult"];
+export type MemberRepositoryShareOut =
+  components["schemas"]["MemberRepositoryShareResult"];
 
 /** Repository lifecycle status (backend types it as a bare string). */
 export type RepositoryStatus =

@@ -29,6 +29,7 @@ import { Route as ConnectorsRouteImport } from './routes/connectors'
 import { Route as ComplianceRouteImport } from './routes/compliance'
 import { Route as CapacityPlannerRouteImport } from './routes/capacity-planner'
 import { Route as ArchitecturesRouteImport } from './routes/architectures'
+import { Route as AppsRouteImport } from './routes/apps'
 import { Route as AiReadinessRouteImport } from './routes/ai-readiness'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TechnologiesIndexRouteImport } from './routes/technologies/index'
@@ -37,6 +38,7 @@ import { Route as SecurityIndexRouteImport } from './routes/security/index'
 import { Route as RoadmapsIndexRouteImport } from './routes/roadmaps.index'
 import { Route as RepositoriesIndexRouteImport } from './routes/repositories.index'
 import { Route as QualitiesIndexRouteImport } from './routes/qualities/index'
+import { Route as MembersIndexRouteImport } from './routes/members/index'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
 import { Route as HobitsIndexRouteImport } from './routes/hobits.index'
 import { Route as DataIndexRouteImport } from './routes/data/index'
@@ -49,6 +51,8 @@ import { Route as RoadmapsIdRouteImport } from './routes/roadmaps.$id'
 import { Route as RepositoriesIdRouteImport } from './routes/repositories.$id'
 import { Route as QualitiesIdRouteImport } from './routes/qualities/$id'
 import { Route as MergeReviewsIdRouteImport } from './routes/merge-reviews.$id'
+import { Route as MembersCompareRouteImport } from './routes/members/compare'
+import { Route as MembersIdRouteImport } from './routes/members/$id'
 import { Route as JobsIdRouteImport } from './routes/jobs.$id'
 import { Route as HobitsSlugRouteImport } from './routes/hobits.$slug'
 import { Route as DataNewRouteImport } from './routes/data/new'
@@ -169,6 +173,11 @@ const ArchitecturesRoute = ArchitecturesRouteImport.update({
   path: '/architectures',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppsRoute = AppsRouteImport.update({
+  id: '/apps',
+  path: '/apps',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AiReadinessRoute = AiReadinessRouteImport.update({
   id: '/ai-readiness',
   path: '/ai-readiness',
@@ -208,6 +217,11 @@ const QualitiesIndexRoute = QualitiesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => QualitiesRoute,
+} as any)
+const MembersIndexRoute = MembersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MembersRoute,
 } as any)
 const JobsIndexRoute = JobsIndexRouteImport.update({
   id: '/',
@@ -268,6 +282,16 @@ const MergeReviewsIdRoute = MergeReviewsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => MergeReviewsRoute,
+} as any)
+const MembersCompareRoute = MembersCompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => MembersRoute,
+} as any)
+const MembersIdRoute = MembersIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => MembersRoute,
 } as any)
 const JobsIdRoute = JobsIdRouteImport.update({
   id: '/$id',
@@ -368,6 +392,7 @@ const ArchitecturesIdDiagramRoute = ArchitecturesIdDiagramRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai-readiness': typeof AiReadinessRoute
+  '/apps': typeof AppsRoute
   '/architectures': typeof ArchitecturesRouteWithChildren
   '/capacity-planner': typeof CapacityPlannerRoute
   '/compliance': typeof ComplianceRoute
@@ -376,7 +401,7 @@ export interface FileRoutesByFullPath {
   '/data': typeof DataRouteWithChildren
   '/hobits': typeof HobitsRouteWithChildren
   '/jobs': typeof JobsRouteWithChildren
-  '/members': typeof MembersRoute
+  '/members': typeof MembersRouteWithChildren
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
@@ -397,6 +422,8 @@ export interface FileRoutesByFullPath {
   '/data/new': typeof DataNewRoute
   '/hobits/$slug': typeof HobitsSlugRoute
   '/jobs/$id': typeof JobsIdRoute
+  '/members/$id': typeof MembersIdRoute
+  '/members/compare': typeof MembersCompareRoute
   '/merge-reviews/$id': typeof MergeReviewsIdRoute
   '/qualities/$id': typeof QualitiesIdRoute
   '/repositories/$id': typeof RepositoriesIdRoute
@@ -409,6 +436,7 @@ export interface FileRoutesByFullPath {
   '/data/': typeof DataIndexRoute
   '/hobits/': typeof HobitsIndexRoute
   '/jobs/': typeof JobsIndexRoute
+  '/members/': typeof MembersIndexRoute
   '/qualities/': typeof QualitiesIndexRoute
   '/repositories/': typeof RepositoriesIndexRoute
   '/roadmaps/': typeof RoadmapsIndexRoute
@@ -429,10 +457,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-readiness': typeof AiReadinessRoute
+  '/apps': typeof AppsRoute
   '/capacity-planner': typeof CapacityPlannerRoute
   '/compliance': typeof ComplianceRoute
   '/connectors': typeof ConnectorsRoute
-  '/members': typeof MembersRoute
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
@@ -447,6 +475,8 @@ export interface FileRoutesByTo {
   '/data/new': typeof DataNewRoute
   '/hobits/$slug': typeof HobitsSlugRoute
   '/jobs/$id': typeof JobsIdRoute
+  '/members/$id': typeof MembersIdRoute
+  '/members/compare': typeof MembersCompareRoute
   '/merge-reviews/$id': typeof MergeReviewsIdRoute
   '/qualities/$id': typeof QualitiesIdRoute
   '/repositories/$id': typeof RepositoriesIdRoute
@@ -459,6 +489,7 @@ export interface FileRoutesByTo {
   '/data': typeof DataIndexRoute
   '/hobits': typeof HobitsIndexRoute
   '/jobs': typeof JobsIndexRoute
+  '/members': typeof MembersIndexRoute
   '/qualities': typeof QualitiesIndexRoute
   '/repositories': typeof RepositoriesIndexRoute
   '/roadmaps': typeof RoadmapsIndexRoute
@@ -480,6 +511,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ai-readiness': typeof AiReadinessRoute
+  '/apps': typeof AppsRoute
   '/architectures': typeof ArchitecturesRouteWithChildren
   '/capacity-planner': typeof CapacityPlannerRoute
   '/compliance': typeof ComplianceRoute
@@ -488,7 +520,7 @@ export interface FileRoutesById {
   '/data': typeof DataRouteWithChildren
   '/hobits': typeof HobitsRouteWithChildren
   '/jobs': typeof JobsRouteWithChildren
-  '/members': typeof MembersRoute
+  '/members': typeof MembersRouteWithChildren
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
@@ -509,6 +541,8 @@ export interface FileRoutesById {
   '/data/new': typeof DataNewRoute
   '/hobits/$slug': typeof HobitsSlugRoute
   '/jobs/$id': typeof JobsIdRoute
+  '/members/$id': typeof MembersIdRoute
+  '/members/compare': typeof MembersCompareRoute
   '/merge-reviews/$id': typeof MergeReviewsIdRoute
   '/qualities/$id': typeof QualitiesIdRoute
   '/repositories/$id': typeof RepositoriesIdRoute
@@ -521,6 +555,7 @@ export interface FileRoutesById {
   '/data/': typeof DataIndexRoute
   '/hobits/': typeof HobitsIndexRoute
   '/jobs/': typeof JobsIndexRoute
+  '/members/': typeof MembersIndexRoute
   '/qualities/': typeof QualitiesIndexRoute
   '/repositories/': typeof RepositoriesIndexRoute
   '/roadmaps/': typeof RoadmapsIndexRoute
@@ -543,6 +578,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/ai-readiness'
+    | '/apps'
     | '/architectures'
     | '/capacity-planner'
     | '/compliance'
@@ -572,6 +608,8 @@ export interface FileRouteTypes {
     | '/data/new'
     | '/hobits/$slug'
     | '/jobs/$id'
+    | '/members/$id'
+    | '/members/compare'
     | '/merge-reviews/$id'
     | '/qualities/$id'
     | '/repositories/$id'
@@ -584,6 +622,7 @@ export interface FileRouteTypes {
     | '/data/'
     | '/hobits/'
     | '/jobs/'
+    | '/members/'
     | '/qualities/'
     | '/repositories/'
     | '/roadmaps/'
@@ -604,10 +643,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/ai-readiness'
+    | '/apps'
     | '/capacity-planner'
     | '/compliance'
     | '/connectors'
-    | '/members'
     | '/merge-reviews'
     | '/news'
     | '/principles'
@@ -622,6 +661,8 @@ export interface FileRouteTypes {
     | '/data/new'
     | '/hobits/$slug'
     | '/jobs/$id'
+    | '/members/$id'
+    | '/members/compare'
     | '/merge-reviews/$id'
     | '/qualities/$id'
     | '/repositories/$id'
@@ -634,6 +675,7 @@ export interface FileRouteTypes {
     | '/data'
     | '/hobits'
     | '/jobs'
+    | '/members'
     | '/qualities'
     | '/repositories'
     | '/roadmaps'
@@ -654,6 +696,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/ai-readiness'
+    | '/apps'
     | '/architectures'
     | '/capacity-planner'
     | '/compliance'
@@ -683,6 +726,8 @@ export interface FileRouteTypes {
     | '/data/new'
     | '/hobits/$slug'
     | '/jobs/$id'
+    | '/members/$id'
+    | '/members/compare'
     | '/merge-reviews/$id'
     | '/qualities/$id'
     | '/repositories/$id'
@@ -695,6 +740,7 @@ export interface FileRouteTypes {
     | '/data/'
     | '/hobits/'
     | '/jobs/'
+    | '/members/'
     | '/qualities/'
     | '/repositories/'
     | '/roadmaps/'
@@ -716,6 +762,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiReadinessRoute: typeof AiReadinessRoute
+  AppsRoute: typeof AppsRoute
   ArchitecturesRoute: typeof ArchitecturesRouteWithChildren
   CapacityPlannerRoute: typeof CapacityPlannerRoute
   ComplianceRoute: typeof ComplianceRoute
@@ -724,7 +771,7 @@ export interface RootRouteChildren {
   DataRoute: typeof DataRouteWithChildren
   HobitsRoute: typeof HobitsRouteWithChildren
   JobsRoute: typeof JobsRouteWithChildren
-  MembersRoute: typeof MembersRoute
+  MembersRoute: typeof MembersRouteWithChildren
   MergeReviewsRoute: typeof MergeReviewsRouteWithChildren
   NewsRoute: typeof NewsRoute
   PrinciplesRoute: typeof PrinciplesRoute
@@ -881,6 +928,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ArchitecturesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/apps': {
+      id: '/apps'
+      path: '/apps'
+      fullPath: '/apps'
+      preLoaderRoute: typeof AppsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ai-readiness': {
       id: '/ai-readiness'
       path: '/ai-readiness'
@@ -936,6 +990,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/qualities/'
       preLoaderRoute: typeof QualitiesIndexRouteImport
       parentRoute: typeof QualitiesRoute
+    }
+    '/members/': {
+      id: '/members/'
+      path: '/'
+      fullPath: '/members/'
+      preLoaderRoute: typeof MembersIndexRouteImport
+      parentRoute: typeof MembersRoute
     }
     '/jobs/': {
       id: '/jobs/'
@@ -1020,6 +1081,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/merge-reviews/$id'
       preLoaderRoute: typeof MergeReviewsIdRouteImport
       parentRoute: typeof MergeReviewsRoute
+    }
+    '/members/compare': {
+      id: '/members/compare'
+      path: '/compare'
+      fullPath: '/members/compare'
+      preLoaderRoute: typeof MembersCompareRouteImport
+      parentRoute: typeof MembersRoute
+    }
+    '/members/$id': {
+      id: '/members/$id'
+      path: '/$id'
+      fullPath: '/members/$id'
+      preLoaderRoute: typeof MembersIdRouteImport
+      parentRoute: typeof MembersRoute
     }
     '/jobs/$id': {
       id: '/jobs/$id'
@@ -1239,6 +1314,21 @@ const JobsRouteChildren: JobsRouteChildren = {
 
 const JobsRouteWithChildren = JobsRoute._addFileChildren(JobsRouteChildren)
 
+interface MembersRouteChildren {
+  MembersIdRoute: typeof MembersIdRoute
+  MembersCompareRoute: typeof MembersCompareRoute
+  MembersIndexRoute: typeof MembersIndexRoute
+}
+
+const MembersRouteChildren: MembersRouteChildren = {
+  MembersIdRoute: MembersIdRoute,
+  MembersCompareRoute: MembersCompareRoute,
+  MembersIndexRoute: MembersIndexRoute,
+}
+
+const MembersRouteWithChildren =
+  MembersRoute._addFileChildren(MembersRouteChildren)
+
 interface MergeReviewsRouteChildren {
   MergeReviewsIdRoute: typeof MergeReviewsIdRoute
 }
@@ -1346,6 +1436,7 @@ const TechnologiesRouteWithChildren = TechnologiesRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiReadinessRoute: AiReadinessRoute,
+  AppsRoute: AppsRoute,
   ArchitecturesRoute: ArchitecturesRouteWithChildren,
   CapacityPlannerRoute: CapacityPlannerRoute,
   ComplianceRoute: ComplianceRoute,
@@ -1354,7 +1445,7 @@ const rootRouteChildren: RootRouteChildren = {
   DataRoute: DataRouteWithChildren,
   HobitsRoute: HobitsRouteWithChildren,
   JobsRoute: JobsRouteWithChildren,
-  MembersRoute: MembersRoute,
+  MembersRoute: MembersRouteWithChildren,
   MergeReviewsRoute: MergeReviewsRouteWithChildren,
   NewsRoute: NewsRoute,
   PrinciplesRoute: PrinciplesRoute,

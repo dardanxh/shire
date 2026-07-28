@@ -15,7 +15,9 @@
       "empty_description": "Adjust the filters or search, or add a strategy.",
       "compare_button": "Compare",
       "compare_count": "Compare ({{count}})",
-      "select_compare": "Select {{name}} for comparison"
+      "select_compare": "Select {{name}} for comparison",
+      "star_aria": "Star {{name}}",
+      "unstar_aria": "Unstar {{name}}"
     },
     "compare": {
       "crumb": "Compare",

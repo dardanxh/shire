@@ -13,6 +13,8 @@ export interface ModellingListParams {
   q?: string;
   family?: ModellingFamily;
   complexity?: ModellingComplexity;
+  /** true = starred only. */
+  starred?: boolean;
 }
 
 export const modellingKeys = {

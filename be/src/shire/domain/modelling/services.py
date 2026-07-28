@@ -34,10 +34,17 @@ class ModellingStrategyService:
         family: str | None = None,
         complexity: str | None = None,
         q: str | None = None,
+        starred: bool | None = None,
     ) -> Page[ModellingStrategyResult]:
         transformer = lambda rows: [ModellingStrategyResult.model_validate(row) for row in rows]  # noqa: E731
         return self._strategies.search(
-            params, transformer, topic=topic, family=family, complexity=complexity, q=q
+            params,
+            transformer,
+            topic=topic,
+            family=family,
+            complexity=complexity,
+            q=q,
+            starred=starred,
         )
 
     def get_strategies(self, strategy_ids: list[uuid.UUID]) -> list[ModellingStrategyResult]:
@@ -82,7 +89,10 @@ class ModellingStrategyService:
                 )
             for field, value in changes.items():
                 setattr(row, field, value)
-            row.source = "user"
+            # Starring alone is curation, not content editing — leave `source`
+            # untouched so seed refreshes keep updating the row.
+            if set(changes) != {"starred"}:
+                row.source = "user"
             results.append(ModellingStrategyResult.model_validate(row))
         self._session.flush()
         return results

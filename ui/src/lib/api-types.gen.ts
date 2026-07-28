@@ -818,6 +818,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/members/{identity_id}/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Member Activity
+         * @description One member's activity shape: weekly timeline, commit sizes, work pattern, repo shares.
+         *
+         *     Built from per-commit records of each repo's latest analysis; repos analyzed before
+         *     per-commit persistence are counted in `missing_data_repositories` until refreshed.
+         */
+        get: operations["member_activity_api_v1_members__identity_id__activity_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/repositories/{repository_id}/context": {
         parameters: {
             query?: never;
@@ -2518,7 +2541,11 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Update Data Regulation
+         * @description Star-only curation — regulation content stays seed-managed.
+         */
+        patch: operations["update_data_regulation_api_v1_data_regulations__regulation_id__patch"];
         trace?: never;
     };
     "/api/v1/data-safety-practices": {
@@ -2555,7 +2582,11 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Update Data Safety Practice
+         * @description Star-only curation — practice content stays seed-managed.
+         */
+        patch: operations["update_data_safety_practice_api_v1_data_safety_practices__practice_id__patch"];
         trace?: never;
     };
     "/api/v1/architecture-qualities": {
@@ -2592,7 +2623,11 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Update Architecture Quality
+         * @description Star-only curation — quality content stays seed-managed.
+         */
+        patch: operations["update_architecture_quality_api_v1_architecture_qualities__quality_id__patch"];
         trace?: never;
     };
     "/api/v1/compliance-checks": {
@@ -2931,6 +2966,8 @@ export interface components {
             related_quality_slugs: string[];
             /** Position */
             position: number;
+            /** Starred */
+            starred: boolean;
             /**
              * Source
              * @enum {string}
@@ -3166,6 +3203,8 @@ export interface components {
             family_tags: string[];
             /** Flows */
             flows: components["schemas"]["BlueprintFlow"][];
+            /** Starred */
+            starred: boolean;
             /**
              * Source
              * @enum {string}
@@ -3525,6 +3564,16 @@ export interface components {
          * @enum {string}
          */
         CommentSeverity: "info" | "minor" | "major" | "critical";
+        /**
+         * CommitSizeBucketResult
+         * @description One bar of the commit-size histogram (`label` like "1-10", "500+").
+         */
+        CommitSizeBucketResult: {
+            /** Label */
+            label: string;
+            /** Count */
+            count: number;
+        };
         /** ComplianceCheckResult */
         ComplianceCheckResult: {
             /**
@@ -4529,6 +4578,8 @@ export interface components {
             related_technology_slugs: string[];
             /** Position */
             position: number;
+            /** Starred */
+            starred: boolean;
             /**
              * Source
              * @enum {string}
@@ -4580,6 +4631,8 @@ export interface components {
             related_practice_slugs: string[];
             /** Position */
             position: number;
+            /** Starred */
+            starred: boolean;
             /**
              * Source
              * @enum {string}
@@ -5422,6 +5475,43 @@ export interface components {
             /** Pct */
             pct: number;
         };
+        /** MemberActivityResult */
+        MemberActivityResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Email */
+            email: string;
+            /** Anonymized */
+            anonymized: boolean;
+            /** Weekly */
+            weekly: components["schemas"]["MemberWeeklyActivityResult"][];
+            sizes: components["schemas"]["MemberCommitSizesResult"];
+            /** Heatmap */
+            heatmap: components["schemas"]["MemberHeatmapCellResult"][];
+            /** Repositories */
+            repositories: components["schemas"]["MemberRepositoryShareResult"][];
+            /** Missing Data Repositories */
+            missing_data_repositories: number;
+        };
+        /**
+         * MemberCommitSizesResult
+         * @description Shape of this member's commits — batch-of-large-changes vs steady small ones.
+         */
+        MemberCommitSizesResult: {
+            /** Buckets */
+            buckets: components["schemas"]["CommitSizeBucketResult"][];
+            /** Median Lines */
+            median_lines: number;
+            /** P90 Lines */
+            p90_lines: number;
+            /** Large Share */
+            large_share: number;
+        };
         /** MemberDetailResult */
         MemberDetailResult: {
             /**
@@ -5471,6 +5561,15 @@ export interface components {
              */
             created_at: string;
         };
+        /** MemberHeatmapCellResult */
+        MemberHeatmapCellResult: {
+            /** Weekday */
+            weekday: number;
+            /** Hour */
+            hour: number;
+            /** Commits */
+            commits: number;
+        };
         /** MemberRepositoryBreakdownResult */
         MemberRepositoryBreakdownResult: {
             /**
@@ -5488,6 +5587,27 @@ export interface components {
             lines_removed: number;
             /** Files Touched */
             files_touched: number;
+        };
+        /**
+         * MemberRepositoryShareResult
+         * @description How much of a repo's history is this member's — gravitation, framed as bus-factor.
+         */
+        MemberRepositoryShareResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Repository Name */
+            repository_name: string;
+            /** Member Commits */
+            member_commits: number;
+            /** Total Commits */
+            total_commits: number;
+            /** Share */
+            share: number;
+            /** Sole Maintainer */
+            sole_maintainer: boolean;
         };
         /**
          * MemberSummaryResult
@@ -5521,6 +5641,22 @@ export interface components {
             last_active_at: string | null;
             /** Status */
             status: string;
+            /** Weekly Commits */
+            weekly_commits: number[];
+            /** Sole Maintainer Repos */
+            sole_maintainer_repos: number;
+        };
+        /** MemberWeeklyActivityResult */
+        MemberWeeklyActivityResult: {
+            /**
+             * Week Start
+             * Format: date
+             */
+            week_start: string;
+            /** Commits */
+            commits: number;
+            /** Lines Changed */
+            lines_changed: number;
         };
         /** MembersOverviewResult */
         MembersOverviewResult: {
@@ -5757,6 +5893,8 @@ export interface components {
             related_technology_slugs: string[];
             /** Position */
             position: number;
+            /** Starred */
+            starred: boolean;
             /**
              * Source
              * @enum {string}
@@ -7395,6 +7533,14 @@ export interface components {
             body: string;
         };
         /**
+         * UpdateArchitectureQuality
+         * @description Star-only update — quality content stays seed-managed.
+         */
+        UpdateArchitectureQuality: {
+            /** Starred */
+            starred?: boolean | null;
+        };
+        /**
          * UpdateBlueprint
          * @description `stages`, when provided, is upserted by id (existing ids keep their identity).
          */
@@ -7429,6 +7575,8 @@ export interface components {
             position?: number | null;
             /** Stages */
             stages?: components["schemas"]["CreateBlueprintStage"][] | null;
+            /** Starred */
+            starred?: boolean | null;
         };
         /**
          * UpdateConnection
@@ -7468,6 +7616,22 @@ export interface components {
              * @default false
              */
             devils_advocate: boolean;
+        };
+        /**
+         * UpdateDataRegulation
+         * @description Star-only update — regulation content stays seed-managed.
+         */
+        UpdateDataRegulation: {
+            /** Starred */
+            starred?: boolean | null;
+        };
+        /**
+         * UpdateDataSafetyPractice
+         * @description Star-only update — practice content stays seed-managed.
+         */
+        UpdateDataSafetyPractice: {
+            /** Starred */
+            starred?: boolean | null;
         };
         /**
          * UpdateEngineConfig
@@ -7542,6 +7706,8 @@ export interface components {
             related_technology_slugs?: string[] | null;
             /** Position */
             position?: number | null;
+            /** Starred */
+            starred?: boolean | null;
         };
         /** UpdateNewsConfig */
         UpdateNewsConfig: {
@@ -9234,6 +9400,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MemberDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    member_activity_api_v1_members__identity_id__activity_get: {
+        parameters: {
+            query?: {
+                anonymize?: boolean;
+            };
+            header?: never;
+            path: {
+                identity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberActivityResult"];
                 };
             };
             /** @description Validation Error */
@@ -12189,6 +12388,7 @@ export interface operations {
                 q?: string | null;
                 source?: string | null;
                 use_case?: string | null;
+                starred?: boolean | null;
             };
             header?: never;
             path?: never;
@@ -12704,6 +12904,7 @@ export interface operations {
                 family?: ("normalization" | "warehouse-methodologies" | "dimensional-schemas" | "nosql" | "specialized" | "slowly-changing-dimensions" | "compatibility" | "migration-patterns" | "text-formats" | "binary-row-formats" | "columnar-formats") | null;
                 complexity?: ("low" | "medium" | "high") | null;
                 q?: string | null;
+                starred?: boolean | null;
                 page?: number;
                 size?: number;
             };
@@ -12867,6 +13068,7 @@ export interface operations {
                 category?: ("privacy" | "healthcare" | "payments" | "financial" | "ai" | "resilience") | null;
                 region?: ("eu" | "us" | "canada" | "brazil" | "india" | "global") | null;
                 q?: string | null;
+                starred?: boolean | null;
                 page?: number;
                 size?: number;
             };
@@ -12927,12 +13129,48 @@ export interface operations {
             };
         };
     };
+    update_data_regulation_api_v1_data_regulations__regulation_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                regulation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateDataRegulation"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataRegulationResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_data_safety_practices_api_v1_data_safety_practices_get: {
         parameters: {
             query?: {
                 category?: ("encryption-keys" | "deidentification" | "access-control" | "data-lifecycle" | "monitoring-response") | null;
                 complexity?: ("low" | "medium" | "high") | null;
                 q?: string | null;
+                starred?: boolean | null;
                 page?: number;
                 size?: number;
             };
@@ -12993,11 +13231,47 @@ export interface operations {
             };
         };
     };
+    update_data_safety_practice_api_v1_data_safety_practices__practice_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                practice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateDataSafetyPractice"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataSafetyPracticeResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_architecture_qualities_api_v1_architecture_qualities_get: {
         parameters: {
             query?: {
                 category?: ("performance" | "reliability" | "recovery" | "data-integrity" | "operability") | null;
                 q?: string | null;
+                starred?: boolean | null;
                 page?: number;
                 size?: number;
             };
@@ -13037,6 +13311,41 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArchitectureQualityResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_architecture_quality_api_v1_architecture_qualities__quality_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quality_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateArchitectureQuality"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {

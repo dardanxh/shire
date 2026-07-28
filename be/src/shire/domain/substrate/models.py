@@ -15,6 +15,7 @@ from sqlalchemy import (
     Float,
     ForeignKey,
     Integer,
+    SmallInteger,
     String,
     Text,
     UniqueConstraint,
@@ -143,6 +144,32 @@ class CommitActivityRow(Base):
     )
     day: Mapped[date] = mapped_column(Date)
     count: Mapped[int] = mapped_column(Integer)
+
+
+class CommitRecordRow(Base):
+    """One commit of an analysis's history, attributed to its resolved author identity.
+
+    Deliberately NOT a relationship on AnalysisRow — histories run to tens of thousands of
+    rows and must never selectin-load with the aggregate. Writes/reads go through
+    SqlCommitRecordRepository; deletes ride the FK's ON DELETE CASCADE.
+    """
+
+    __tablename__ = "commit_records"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    analysis_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("analyses.id", ondelete="CASCADE"), index=True
+    )
+    sha: Mapped[str] = mapped_column(String(64))
+    # Canonical (most-used) email of the resolved author identity, normalized lowercase — matches
+    # the identity email the members context aggregates by, even for alias addresses.
+    author_email: Mapped[str] = mapped_column(String(320), index=True)
+    committed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    insertions: Mapped[int] = mapped_column(Integer, default=0)
+    deletions: Mapped[int] = mapped_column(Integer, default=0)
+    files_changed: Mapped[int] = mapped_column(Integer, default=0)
+    # Author-local clock (from the commit's own UTC offset) for work-pattern views.
+    local_hour: Mapped[int] = mapped_column(SmallInteger, default=0)
+    weekday: Mapped[int] = mapped_column(SmallInteger, default=0)  # 0 = Monday
 
 
 class LanguageStatRow(Base):

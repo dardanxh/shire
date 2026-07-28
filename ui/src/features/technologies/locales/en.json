@@ -14,8 +14,6 @@
       "end_of_list": "That's the whole corpus.",
       "empty_title": "No technologies found",
       "empty_description": "Adjust the filters, or add a technology to the corpus.",
-      "tab_all": "Technologies",
-      "tab_starred": "Starred",
       "star_aria": "Star {{name}}",
       "unstar_aria": "Unstar {{name}}",
       "starred_empty_title": "No starred technologies yet",

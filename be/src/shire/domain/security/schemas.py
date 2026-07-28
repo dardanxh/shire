@@ -1,7 +1,7 @@
 """Pydantic result schemas for the security & data privacy catalogs.
 
-Read-only catalogs this iteration: no Create*/Update* inputs — the seeder writes rows
-through the repositories directly.
+Content is read-only this iteration — the seeder writes rows through the repositories
+directly. The only user-editable field is `starred` (curation, not content).
 """
 
 from __future__ import annotations
@@ -66,6 +66,18 @@ class PracticeSatisfies(BaseModel):
     note: str = ""
 
 
+class UpdateDataRegulation(BaseModel):
+    """Star-only update — regulation content stays seed-managed."""
+
+    starred: bool | None = None
+
+
+class UpdateDataSafetyPractice(BaseModel):
+    """Star-only update — practice content stays seed-managed."""
+
+    starred: bool | None = None
+
+
 class DataRegulationResult(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -89,6 +101,7 @@ class DataRegulationResult(BaseModel):
     related_practice_slugs: list[str]
     related_technology_slugs: list[str]
     position: int
+    starred: bool
     source: Source
     created_at: datetime
     updated_at: datetime
@@ -109,6 +122,7 @@ class DataSafetyPracticeResult(BaseModel):
     related_technology_slugs: list[str]
     related_practice_slugs: list[str]
     position: int
+    starred: bool
     source: Source
     created_at: datetime
     updated_at: datetime

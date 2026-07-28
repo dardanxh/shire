@@ -1,0 +1,25 @@
+{
+  "apps": {
+    "crumb": "Apps",
+    "title": "Apps",
+    "subtitle": "Standalone tools for planning, evaluation, and checks.",
+    "catalog": {
+      "ai_readiness": {
+        "name": "AI Readiness",
+        "description": "Analyze repositories for AI-assisted development readiness and get adoption suggestions."
+      },
+      "capacity_planner": {
+        "name": "Capacity Planner",
+        "description": "Model team capacity and estimate delivery sizing scenarios."
+      },
+      "tech_chooser": {
+        "name": "Tech Chooser",
+        "description": "Compare technology options side by side against weighted criteria."
+      },
+      "compliance": {
+        "name": "Compliance",
+        "description": "Run compliance checks against standards across your repositories."
+      }
+    }
+  }
+}

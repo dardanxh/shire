@@ -1,7 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   BookOpenIcon,
-  CalculatorIcon,
   ChevronDownIcon,
   CpuIcon,
   DatabaseIcon,
@@ -11,16 +10,14 @@ import {
   HomeIcon,
   LandmarkIcon,
   LayersIcon,
+  LayoutGridIcon,
   ListChecksIcon,
   type LucideIcon,
   MapIcon,
   PlugIcon,
   ScaleIcon,
   SettingsIcon,
-  ShieldCheckIcon,
   ShieldIcon,
-  SlidersHorizontalIcon,
-  SparklesIcon,
   UsersIcon,
   WrenchIcon,
 } from "lucide-react";
@@ -39,12 +36,12 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { APPS } from "@/features/apps";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -157,7 +154,7 @@ const KNOWLEDGE_ITEMS: NavItem[] = [
     to: "/technologies",
     labelKey: "common.nav.technologies",
     icon: CpuIcon,
-    search: { tab: "all" },
+    search: {},
     match: (p) => p === "/technologies" || p.startsWith("/technologies/"),
   },
   {
@@ -183,36 +180,16 @@ const KNOWLEDGE_ITEMS: NavItem[] = [
   },
 ];
 
-/** Interactive tools, grouped under an "Apps" label. */
+/** Single launcher entry; individual apps live on the /apps card grid. */
 const APPS_ITEMS: NavItem[] = [
   {
-    to: "/ai-readiness",
-    labelKey: "common.nav.ai_readiness",
-    icon: SparklesIcon,
-    search: {},
-    match: (p) => p === "/ai-readiness" || p.startsWith("/ai-readiness/"),
-  },
-  {
-    to: "/capacity-planner",
-    labelKey: "common.nav.capacity_planner",
-    icon: CalculatorIcon,
-    search: {},
+    to: "/apps",
+    labelKey: "common.nav.apps",
+    icon: LayoutGridIcon,
+    // Stays highlighted while inside any app the launcher links to.
     match: (p) =>
-      p === "/capacity-planner" || p.startsWith("/capacity-planner/"),
-  },
-  {
-    to: "/tech-chooser",
-    labelKey: "common.nav.tech_chooser",
-    icon: SlidersHorizontalIcon,
-    search: {},
-    match: (p) => p === "/tech-chooser" || p.startsWith("/tech-chooser/"),
-  },
-  {
-    to: "/compliance",
-    labelKey: "common.nav.compliance",
-    icon: ShieldCheckIcon,
-    search: {},
-    match: (p) => p === "/compliance" || p.startsWith("/compliance/"),
+      p === "/apps" ||
+      APPS.some((app) => p === app.to || p.startsWith(`${app.to}/`)),
   },
 ];
 
@@ -306,20 +283,6 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <Link
-          to="/"
-          className="flex items-center gap-2 px-2 py-1.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
-          aria-label={`${t("common.app.name")} home`}
-        >
-          <img
-            src="/logo.svg"
-            alt=""
-            aria-hidden
-            className="size-8 shrink-0 rounded-md"
-          />
-        </Link>
-      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
@@ -350,12 +313,11 @@ export function AppSidebar() {
           items={KNOWLEDGE_ITEMS}
           pathname={pathname}
         />
-        <CollapsibleNavGroup
-          id="apps"
-          labelKey="common.nav.group_apps"
-          items={APPS_ITEMS}
-          pathname={pathname}
-        />
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <NavItemsMenu items={APPS_ITEMS} pathname={pathname} />
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>

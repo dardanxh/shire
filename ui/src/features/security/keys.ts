@@ -13,6 +13,8 @@ export interface RegulationListParams {
   q?: string;
   category?: RegulationCategory;
   region?: RegulationRegion;
+  /** true = starred only. */
+  starred?: boolean;
 }
 
 /** Filters for the practice browse grid (server-side). */
@@ -20,6 +22,8 @@ export interface PracticeListParams {
   q?: string;
   category?: PracticeCategory;
   complexity?: PracticeComplexity;
+  /** true = starred only. */
+  starred?: boolean;
 }
 
 export const securityKeys = {

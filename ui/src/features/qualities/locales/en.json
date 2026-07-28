@@ -8,6 +8,8 @@
       "filters": "Filters",
       "filter_category": "Category",
       "remove_filter": "Remove {{name}} filter",
+      "star_aria": "Star {{name}}",
+      "unstar_aria": "Unstar {{name}}",
       "count_one": "{{count}} quality",
       "count_other": "{{count}} qualities",
       "empty": "No qualities match these filters.",

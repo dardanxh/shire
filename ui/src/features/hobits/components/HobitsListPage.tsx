@@ -326,6 +326,7 @@ export function HobitsListPage({
               key={hobit.slug}
               hobit={hobit}
               selected={selectedSlugs.includes(hobit.slug)}
+              selectionActive={selectedSlugs.length > 0}
               onToggleSelect={() => toggleSelect(hobit.slug)}
             />
           ))}
@@ -386,10 +387,13 @@ const groupOf = (hobit: HobitOut) => GROUPS.find((g) => hobit.tags.includes(g));
 function HobitCard({
   hobit,
   selected,
+  selectionActive,
   onToggleSelect,
 }: {
   hobit: HobitOut;
   selected: boolean;
+  /** Any card selected — keeps every checkbox visible mid-selection. */
+  selectionActive: boolean;
   onToggleSelect: () => void;
 }) {
   const { t } = useTranslation();
@@ -414,22 +418,32 @@ function HobitCard({
         }
       }}
       className={cn(
-        "cursor-pointer gap-3 border-l-4 transition-shadow hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring",
+        "group relative cursor-pointer gap-3 border-l-4 transition-shadow hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring",
         selected && "ring-2 ring-primary",
       )}
       style={{ borderLeftColor: accent }}
     >
-      <div className="flex items-start gap-3 px-(--card-spacing)">
-        {/* biome-ignore lint/a11y/noStaticElementInteractions: stops card navigation around the checkbox */}
-        {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard events on the checkbox don't bubble a click */}
-        <span onClick={(e) => e.stopPropagation()} className="pt-0.5">
-          <Checkbox
-            checked={selected}
-            onCheckedChange={onToggleSelect}
-            aria-label={t("hobits.list.select_row", { name: hobit.name })}
-          />
-        </span>
-        <div className="min-w-0 flex-1 space-y-1">
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: stops card navigation around the checkbox */}
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard events on the checkbox don't bubble a click */}
+      <span
+        onClick={(e) => e.stopPropagation()}
+        className="absolute top-4 right-4"
+      >
+        <Checkbox
+          checked={selected}
+          onCheckedChange={onToggleSelect}
+          aria-label={t("hobits.list.select_row", { name: hobit.name })}
+          className={cn(
+            "border-muted-foreground/40 bg-card",
+            // Hidden at rest; revealed on hover/focus or while selecting.
+            !selected &&
+              !selectionActive &&
+              "opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100",
+          )}
+        />
+      </span>
+      <div className="pr-10 pl-(--card-spacing)">
+        <div className="min-w-0 space-y-1">
           <div className="flex items-center gap-2">
             <span className="truncate font-medium">{hobit.name}</span>
             {hobit.unread_count > 0 ? (

@@ -1,21 +1,42 @@
+import { Link, useNavigate } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import { EyeIcon, EyeOffIcon, ShieldCheckIcon, UsersIcon } from "lucide-react";
+import {
+  EyeIcon,
+  EyeOffIcon,
+  LayoutDashboardIcon,
+  ScaleIcon,
+  TriangleAlertIcon,
+  UserMinusIcon,
+  UsersIcon,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import { DataTable } from "@/components/shared/DataTable";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   extractErrorMessage,
   type MemberSummaryOut,
   type PortfolioHealthOut,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { useMembersOverviewQuery } from "../api";
+import { useAddExclusionMutation, useMembersOverviewQuery } from "../api";
 import { ExclusionsDialog } from "./ExclusionsDialog";
-import { MemberDetailDialog } from "./MemberDetailDialog";
+import { Sparkline } from "./Sparkline";
 
 interface Props {
   anonymize: boolean;
@@ -83,13 +104,75 @@ function formatDate(iso: string | null): string {
 
 export function MembersListPage({ anonymize, onAnonymizeChange }: Props) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { data, isPending, isError, error } =
     useMembersOverviewQuery(anonymize);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [exclusionsOpen, setExclusionsOpen] = useState(false);
 
+  // Ticked members — dashboard (1), compare (2-3), untrack (any count).
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const members = data?.members ?? [];
+  const allSelected =
+    members.length > 0 && members.every((m) => selectedIds.includes(m.id));
+  const toggleSelect = (id: string) =>
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  const toggleSelectAll = () =>
+    setSelectedIds(allSelected ? [] : members.map((m) => m.id));
+  const selectedMembers = members.filter((m) => selectedIds.includes(m.id));
+
+  // Untrack = add an email exclusion per member; reversible via Manage exclusions.
+  const [confirmUntrackOpen, setConfirmUntrackOpen] = useState(false);
+  const { mutateAsync: addExclusion, isPending: isUntracking } =
+    useAddExclusionMutation();
+  const handleUntrack = async () => {
+    try {
+      for (const member of selectedMembers) {
+        await addExclusion({
+          pattern: member.email,
+          reason: t("members.list.untrack_reason"),
+          is_bot: false,
+        });
+      }
+      toast.success(
+        t("members.list.untrack_success", { count: selectedMembers.length }),
+      );
+      setSelectedIds([]);
+      setConfirmUntrackOpen(false);
+    } catch {
+      // Failures toast via the global mutation handler; untracked rows drop out
+      // on invalidation, the rest stay selected for retry.
+    }
+  };
+
+  const openDashboard = (id: string) =>
+    navigate({ to: "/members/$id", params: { id }, search: { anonymize } });
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: toggle helpers are recreated per render; the memo keys on the state they close over
   const columns = useMemo<ColumnDef<MemberSummaryOut>[]>(
     () => [
+      {
+        id: "select",
+        enableSorting: false,
+        meta: { isAction: true, className: "w-10" },
+        header: () => (
+          <Checkbox
+            checked={allSelected}
+            onCheckedChange={toggleSelectAll}
+            aria-label={t("members.list.select_all")}
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={selectedIds.includes(row.original.id)}
+            onCheckedChange={() => toggleSelect(row.original.id)}
+            aria-label={t("members.list.select_row", {
+              name: row.original.name,
+            })}
+          />
+        ),
+      },
       {
         accessorKey: "name",
         header: t("members.list.col_member"),
@@ -101,6 +184,12 @@ export function MembersListPage({ anonymize, onAnonymizeChange }: Props) {
             </span>
           </div>
         ),
+      },
+      {
+        id: "activity",
+        enableSorting: false,
+        header: t("members.list.col_activity"),
+        cell: ({ row }) => <Sparkline values={row.original.weekly_commits} />,
       },
       {
         accessorKey: "repository_count",
@@ -150,27 +239,102 @@ export function MembersListPage({ anonymize, onAnonymizeChange }: Props) {
         accessorKey: "status",
         header: t("members.list.col_status"),
         cell: ({ row }) => (
-          <Badge
-            variant="outline"
-            className={cn(
-              row.original.status === "active"
-                ? "border-emerald-500/25 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-                : "border-foreground/10 bg-muted text-muted-foreground",
-            )}
-          >
-            {t(`members.list.status_${row.original.status}`)}
-          </Badge>
+          <div className="flex items-center gap-1.5">
+            <Badge
+              variant="outline"
+              className={cn(
+                row.original.status === "active"
+                  ? "border-emerald-500/25 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                  : "border-foreground/10 bg-muted text-muted-foreground",
+              )}
+            >
+              {t(`members.list.status_${row.original.status}`)}
+            </Badge>
+            {row.original.sole_maintainer_repos > 0 ? (
+              <Badge
+                variant="outline"
+                className="gap-1 border-warning/30 bg-warning/10 text-warning"
+                title={t("members.list.sole_maintainer_hint", {
+                  count: row.original.sole_maintainer_repos,
+                })}
+              >
+                <TriangleAlertIcon className="size-3" />
+                {row.original.sole_maintainer_repos}
+              </Badge>
+            ) : null}
+          </div>
         ),
       },
     ],
-    [t],
+    // members matters: toggleSelectAll closes over the current member ids.
+    [t, selectedIds, allSelected, members],
   );
 
   const health = data?.health;
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-end gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          {selectedIds.length > 0 ? (
+            <>
+              <span className="text-sm text-muted-foreground">
+                {t("members.list.selected_count", {
+                  count: selectedIds.length,
+                })}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedIds([])}
+              >
+                {t("members.list.clear_selection")}
+              </Button>
+              {selectedIds.length === 1 ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => openDashboard(selectedIds[0])}
+                >
+                  <LayoutDashboardIcon />
+                  {t("members.list.view_dashboard")}
+                </Button>
+              ) : null}
+              {selectedIds.length >= 2 && selectedIds.length <= 3 ? (
+                <Button
+                  size="sm"
+                  render={
+                    <Link
+                      to="/members/compare"
+                      search={{ ids: selectedIds, anonymize }}
+                    />
+                  }
+                >
+                  <ScaleIcon />
+                  {t("members.list.compare_count", {
+                    count: selectedIds.length,
+                  })}
+                </Button>
+              ) : null}
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={anonymize}
+                title={
+                  anonymize
+                    ? t("members.list.untrack_disabled_anonymized")
+                    : undefined
+                }
+                onClick={() => setConfirmUntrackOpen(true)}
+              >
+                <UserMinusIcon />
+                {t("members.list.untrack_button", {
+                  count: selectedIds.length,
+                })}
+              </Button>
+            </>
+          ) : null}
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button
             variant={anonymize ? "default" : "outline"}
@@ -197,29 +361,18 @@ export function MembersListPage({ anonymize, onAnonymizeChange }: Props) {
         </div>
       </div>
 
-      {/* Ethics note — always visible: this is a resilience lens, not a leaderboard. */}
-      <Card className="flex-row items-start gap-3 border-primary/20 bg-primary/5 p-4">
-        <ShieldCheckIcon className="mt-0.5 size-5 shrink-0 text-primary" />
-        <div className="space-y-0.5">
-          <p className="text-sm font-medium">{t("members.ethics.title")}</p>
-          <p className="text-sm text-muted-foreground">
-            {t("members.ethics.body")}
-          </p>
-        </div>
-      </Card>
-
       {health ? <HealthCards health={health} /> : null}
 
       <Card className="overflow-hidden p-0">
         <DataTable
           columns={columns}
-          data={data?.members ?? []}
+          data={members}
           isPending={isPending}
           isError={isError}
           errorMessage={t("common.states.api_unreachable", {
             message: error ? extractErrorMessage(error) : "",
           })}
-          onRowClick={(row) => setSelectedId(row.id)}
+          onRowClick={(row) => openDashboard(row.id)}
           emptyState={
             <div className="p-12 text-center text-sm text-muted-foreground">
               {t("members.list.empty")}
@@ -228,11 +381,36 @@ export function MembersListPage({ anonymize, onAnonymizeChange }: Props) {
         />
       </Card>
 
-      <MemberDetailDialog
-        id={selectedId}
-        anonymize={anonymize}
-        onClose={() => setSelectedId(null)}
-      />
+      <AlertDialog
+        open={confirmUntrackOpen}
+        onOpenChange={setConfirmUntrackOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("members.list.untrack_title", { count: selectedIds.length })}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("members.list.untrack_description")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isUntracking}>
+              {t("common.actions.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={isUntracking}
+              onClick={handleUntrack}
+            >
+              {t("members.list.untrack_confirm", {
+                count: selectedIds.length,
+              })}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <ExclusionsDialog
         open={exclusionsOpen}
         onOpenChange={setExclusionsOpen}

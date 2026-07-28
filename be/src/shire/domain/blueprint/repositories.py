@@ -24,6 +24,7 @@ class SqlBlueprintRepository:
         q: str | None = None,
         source: str | None = None,
         use_case: str | None = None,
+        starred: bool | None = None,
     ) -> list[ArchitectureBlueprintRow]:
         query = (
             select(ArchitectureBlueprintRow)
@@ -32,6 +33,8 @@ class SqlBlueprintRepository:
         )
         if source:
             query = query.where(ArchitectureBlueprintRow.source == source)
+        if starred is not None:
+            query = query.where(ArchitectureBlueprintRow.starred.is_(starred))
         if use_case:
             query = query.where(ArchitectureBlueprintRow.use_cases.contains([use_case]))
         if family_tag:

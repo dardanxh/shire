@@ -33,12 +33,8 @@
       "modelling": "Data",
       "security": "Security",
       "qualities": "Qualities",
-      "capacity_planner": "Capacity Planner",
-      "tech_chooser": "Tech Chooser",
-      "compliance": "Compliance",
-      "ai_readiness": "AI Readiness",
+      "apps": "Apps",
       "group_knowledge": "Knowledge",
-      "group_apps": "Apps",
       "group_workspace": "Workspace",
       "group_intelligence": "Intelligence",
       "group_platform": "Platform"
@@ -86,6 +82,9 @@
       "unread": "Unread",
       "last_run": "Last run",
       "origin_year": "Origin year"
+    },
+    "filters": {
+      "starred": "Starred"
     }
   }
 }
