@@ -2,12 +2,13 @@
   "readiness": {
     "crumb": "AI Readiness",
     "title": "AI Readiness",
-    "description": "How ready each repository is for AI coding assistants — detected configs, artifact coverage, and pending suggestions.",
-    "none_detected": "None detected",
+    "description": "Pick a repository to see its AI-assistant readiness and run the check — detected configs, artifact coverage, and suggestions.",
+    "pick_placeholder": "Select a repository…",
+    "pick_title": "No repository selected",
+    "pick_body": "Choose a repository above to see its readiness and run the check.",
     "artifacts": "{{present}}/{{expected}} artifacts",
     "suggestions_one": "{{count}} suggestion",
     "suggestions_other": "{{count}} suggestions",
-    "view": "View",
     "empty_title": "No repositories yet",
     "empty_body": "Add a repository to see its AI-assistant readiness here."
   }

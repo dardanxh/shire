@@ -1,3 +1,4 @@
+export { AiReadinessPanel } from "./components/AiReadinessPanel";
 export { DiagramViewPage } from "./components/DiagramViewPage";
 export { IngestRepositoryDialog } from "./components/IngestRepositoryDialog";
 export { RepositoriesListPage } from "./components/RepositoriesListPage";
