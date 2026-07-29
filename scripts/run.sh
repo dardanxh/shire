@@ -7,8 +7,14 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
+if ! command -v claude >/dev/null 2>&1 \
+   && [ -z "${ANTHROPIC_API_KEY:-}" ] && [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && [ ! -d "${HOME}/.claude" ]; then
+  echo "NOTE: no Claude CLI or auth detected — agent jobs (hobits, ask, council…) will fail."
+  echo "      Everything else (ingest, scanners, catalogs) works. See README > Claude authentication."
+fi
+
 echo "==> Database"
-( cd be && docker compose up -d && uv run alembic upgrade head )
+( cd be && docker compose up -d --wait && uv run alembic upgrade head )
 
 echo "==> Backend API on http://localhost:8000  (docs: /docs, tools: /tools)"
 ( cd be && uv run uvicorn shire.main:app --port 8000 ) &

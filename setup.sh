@@ -60,6 +60,10 @@ else
 
   auth_mode="none"
   if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
+    case "$ANTHROPIC_API_KEY" in
+      sk-ant-*) ;;
+      *) note "WARNING: ANTHROPIC_API_KEY doesn't look like an Anthropic key (expected sk-ant-...)" ;;
+    esac
     auth_mode="api-key"
     {
       echo "# Claude auth: paid API key (from your shell env at setup time)."
@@ -98,8 +102,9 @@ else
       note ".env as CLAUDE_CODE_OAUTH_TOKEN=... , then re-run ./setup.sh"
       ;;
     none)
-      note "WARNING: no Claude auth found. The stack will start, but agent jobs will fail"
-      note "until you add ONE of these to .env and re-run ./setup.sh:"
+      note "No Claude auth found — that's fine to start: ingest, scanners, scorecards, and"
+      note "catalogs all work without it. Agent features (hobits, ask, council…) will be"
+      note "unavailable until you add ONE of these to .env and re-run ./setup.sh:"
       note "  ANTHROPIC_API_KEY=sk-ant-...   plus  USE_API_KEY=true"
       note "  CLAUDE_CODE_OAUTH_TOKEN=...    (from \`claude setup-token\`)"
       ;;

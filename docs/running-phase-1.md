@@ -33,7 +33,7 @@ uv sync
 uv run alembic upgrade head
 
 # 4. Run the API (http://localhost:8000, docs at /docs)
-uv run uvicorn hobits.main:app --reload --port 8000
+uv run uvicorn shire.main:app --reload --port 8000
 ```
 
 Ingest a repository and read its analysis:

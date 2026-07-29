@@ -2,6 +2,9 @@
 
 Thanks for your interest in contributing! This document covers the development workflow and
 conventions. For what Shire *is*, start with the [README](./README.md) and [`docs/`](./docs).
+For what's planned and good first areas, see the [roadmap](./ROADMAP.md).
+
+By participating you agree to our [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 ## Monorepo layout
 
@@ -51,13 +54,13 @@ Backend / engine:
 
 ```bash
 cd be && uv run ruff check && uv run pytest
-cd engine && uv run ruff check
+cd engine && uv run ruff check && uv run pytest
 ```
 
 Frontend:
 
 ```bash
-cd ui && pnpm typecheck && pnpm lint
+cd ui && pnpm typecheck && pnpm lint && pnpm test
 ```
 
 ## Common workflows
