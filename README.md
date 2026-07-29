@@ -1,5 +1,6 @@
 # Shire
 
+[![CI](https://github.com/dardanxh/shire/actions/workflows/ci.yml/badge.svg)](https://github.com/dardanxh/shire/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
 [![Python 3.13+](https://img.shields.io/badge/Python-3.13%2B-blue.svg)](./be/pyproject.toml)
 [![React 19](https://img.shields.io/badge/React-19-61dafb.svg)](./ui/package.json)
@@ -13,21 +14,53 @@ attention — all running on your own machine.
 
 ## What it does
 
-- **Repository intelligence** — ingest any git repo and get a living scorecard: lines of code
-  & complexity (scc, lizard, radon), SBOM & vulnerabilities (syft, osv-scanner), leaked
-  secrets (gitleaks), OSSF Scorecard, dead code, git history & ownership analysis.
-- **Hobits** — configurable expert agents (built-in roster + your own custom ones) that run
-  Claude against your clones on a cadence and report findings.
-- **Briefing** — a tiered "what changed / what needs me" digest across all repos.
+### Workspace
+
+- **Repositories** — ingest any git repo and get a living scorecard: lines of code &
+  complexity (scc, lizard, radon), SBOM & vulnerabilities (syft, osv-scanner), leaked secrets
+  (gitleaks), OSSF Scorecard, dead code, git history & ownership. The detail view goes deep:
+  **Ask** (free-form Q&A answered by an agent exploring the actual code), Claude-written
+  architecture / tech-stack / overview artifacts, branches, dependencies, security, and more.
+- **Evolution** — every analysis refresh is kept as a snapshot: browse history, see deltas
+  between runs, version every Claude artifact, and generate change narratives on demand.
 - **Merge reviews** — branch-pair analysis: changes, impact, risk.
+- **Members** — one identity per contributor across alias emails, with per-commit analytics
+  and ownership insight.
+
+### Intelligence
+
+- **Hobits** — configurable expert agents (built-in roster + your own) that run Claude against
+  your clones on a cadence and report findings. Rate their runs and the feedback tunes future
+  ones.
+- **Briefing** — a tiered "what changed / what needs me" digest across all repos, on the home
+  page.
 - **Roadmaps** — AI-planned cross-repo roadmaps with executable tickets (worktree → branch).
-- **Ask** — free-form Q&A about any repo, answered by an agent exploring the actual code.
-- **News & Principles** — topic-driven engineering news with repo-context recommendations,
-  and codified engineering convictions audited against your code.
-- **Visual artifacts** *(optional tools)* — dependency graphs (emerge), code-age charts
-  (git-of-theseus), temporal coupling (code-maat), 3D code-city maps (CodeCharta).
+- **Council** — convene agents with distinct perspectives (including a devil's advocate) to
+  debate a topic and converge on a recommendation.
+- **Principles** — codified engineering convictions, audited against your code.
+- **News** — topic-driven engineering news with repo-context recommendations.
+
+### Apps
+
+Standalone tools for planning, evaluation, and checks:
+**AI Readiness** (how ready is a repo for AI-assisted development), **Capacity Planner**
+(team capacity & delivery sizing), **Tech Chooser** (weighted side-by-side technology
+comparison), **Compliance** (standards checks across repos).
+
+### Knowledge
+
+Curated, starrable reference catalogs — architecture archetypes & blueprints, technologies,
+data modelling patterns, security standards, quality attributes. Seeded content plus your own
+entries.
+
+### Platform
+
 - **Job engine** — every Claude interaction is a non-blocking job in a Postgres queue with a
   live activity feed, token accounting, and horizontal scale-out.
+- **Connectors** — GitHub / GitLab / Bitbucket credentials for private repos and richer
+  metadata, encrypted at rest.
+- **Visual artifacts** *(optional tools)* — dependency graphs (emerge), code-age charts
+  (git-of-theseus), temporal coupling (code-maat), 3D code-city maps (CodeCharta).
 
 ## Architecture
 
@@ -41,8 +74,8 @@ flowchart LR
     BE -. "shared /data volume<br/>(clones, worktrees, artifacts)" .-> EN
 ```
 
-- **`be/`** — FastAPI backend: repository ingest, analysis substrate, hobit/briefing/roadmap
-  domains, Postgres-backed job queue.
+- **`be/`** — FastAPI backend: a modular monolith of ~25 feature domains (repository ingest,
+  analysis substrate, hobits, roadmaps, council, catalogs…) plus the Postgres-backed job queue.
 - **`engine/`** — stateless worker: claims jobs (`FOR UPDATE SKIP LOCKED`), runs them through
   the Claude Code CLI headlessly, streams progress back. Run more instances to scale out.
 - **`ui/`** — React 19 + Vite + TanStack Router SPA.
@@ -67,7 +100,7 @@ starts the stack, and waits for it to be healthy:
 
 ### Claude authentication
 
-Agent features (hobits, ask, merge reviews, roadmaps) run through the
+Agent features (hobits, ask, merge reviews, roadmaps, council…) run through the
 [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code). `setup.sh` picks up
 whichever of these it finds, or you can add one to `.env` later and re-run it:
 
@@ -77,7 +110,8 @@ whichever of these it finds, or you can add one to `.env` later and re-run it:
 | **Claude subscription (token)** | Run `claude setup-token` on your machine, put the result in `.env` as `CLAUDE_CODE_OAUTH_TOKEN=...`. Uses your Pro/Max subscription. |
 | **Claude subscription (mount)** | If `~/.claude` exists, setup.sh mounts it into the engine container. Note: on macOS credentials live in the Keychain, so prefer the token method there. |
 
-Everything else (ingest, scanners, scorecards, visualizations) works with no Claude auth at all.
+Everything else (ingest, scanners, scorecards, catalogs, visualizations) works with no Claude
+auth at all.
 
 ### Day-2 commands
 
@@ -164,7 +198,8 @@ the substrate model, hobit anatomy, coordination, domain model, and tool setup. 
 ## Contributing
 
 Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for the development
-workflow, code conventions, and PR guidelines.
+workflow, code conventions, and PR guidelines. All changes land through pull requests; CI
+(lint, build, and tests for both `ui/` and `be/`) must pass before merge.
 
 ## License
 
