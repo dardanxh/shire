@@ -172,6 +172,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/repositories/{repository_id}/analysis/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Analysis History
+         * @description Every complete snapshot's headline scalars, oldest first (evolution timeline).
+         */
+        get: operations["analysis_history_api_v1_repositories__repository_id__analysis_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/analysis/delta": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Analysis Delta
+         * @description Deterministic diff between two snapshots (defaults: previous -> latest).
+         */
+        get: operations["analysis_delta_api_v1_repositories__repository_id__analysis_delta_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/analysis/delta/explain": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Explain Analysis Delta
+         * @description Enqueue the "what changed since last check" narrative for a snapshot pair.
+         */
+        post: operations["explain_analysis_delta_api_v1_repositories__repository_id__analysis_delta_explain_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/artifact-versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Artifact Versions
+         * @description Version history of a Claude repo artifact (architecture kind / overview / tech stack).
+         */
+        get: operations["artifact_versions_api_v1_repositories__repository_id__artifact_versions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dependencies/{name}/repositories": {
         parameters: {
             query?: never;
@@ -2905,6 +2985,56 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AnalysisDeltaResult
+         * @description Deterministic diff between two analysis snapshots, plus any persisted narrative.
+         */
+        AnalysisDeltaResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /**
+             * From Analysis Id
+             * Format: uuid
+             */
+            from_analysis_id: string;
+            /** From Commit Sha */
+            from_commit_sha: string;
+            /**
+             * From Analyzed At
+             * Format: date-time
+             */
+            from_analyzed_at: string;
+            /**
+             * To Analysis Id
+             * Format: uuid
+             */
+            to_analysis_id: string;
+            /** To Commit Sha */
+            to_commit_sha: string;
+            /**
+             * To Analyzed At
+             * Format: date-time
+             */
+            to_analyzed_at: string;
+            /** Facts */
+            facts: components["schemas"]["FactDelta"][];
+            dependencies: components["schemas"]["DeltaDependencies"];
+            /** Hotspots Entered */
+            hotspots_entered: string[];
+            /** Hotspots Left */
+            hotspots_left: string[];
+            /** Languages */
+            languages: components["schemas"]["LanguageShift"][];
+            contributors: components["schemas"]["DeltaContributors"];
+            commits: components["schemas"]["DeltaCommits"];
+            /** Note */
+            note: string | null;
+            /** Note Generated At */
+            note_generated_at: string | null;
+        };
         /** AnalysisResult */
         AnalysisResult: {
             /**
@@ -2944,6 +3074,56 @@ export interface components {
             health_checks: components["schemas"]["HealthCheck"][];
             /** Tool Runs */
             tool_runs: components["schemas"]["ToolRun"][];
+        };
+        /**
+         * AnalysisSnapshotSummary
+         * @description One complete snapshot's headline scalars — the evolution timeline row.
+         */
+        AnalysisSnapshotSummary: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /** Commit Sha */
+            commit_sha: string;
+            /**
+             * Analyzed At
+             * Format: date-time
+             */
+            analyzed_at: string;
+            /** Loc Total */
+            loc_total: number;
+            /** Commit Count */
+            commit_count: number;
+            /** Contributor Count */
+            contributor_count: number;
+            /** Dependency Count */
+            dependency_count: number;
+            /** Vulnerability Count */
+            vulnerability_count: number;
+            /** Vuln Critical */
+            vuln_critical: number;
+            /** Vuln High */
+            vuln_high: number;
+            /** Secret Count */
+            secret_count: number;
+            /** Health Score */
+            health_score: number | null;
+            /** Maintainability Index */
+            maintainability_index: number | null;
+            /** Ccn Average */
+            ccn_average: number | null;
+            /** Code Lines */
+            code_lines: number | null;
+            /** Test Count */
+            test_count: number | null;
+            /** Rating Maintainability */
+            rating_maintainability: string;
+            /** Rating Security */
+            rating_security: string;
+            /** Rating Health */
+            rating_health: string;
         };
         /** ApplySuggestions */
         ApplySuggestions: {
@@ -3058,6 +3238,34 @@ export interface components {
             role: string;
             /** Present */
             present: boolean;
+        };
+        /**
+         * ArtifactVersionResult
+         * @description One historical generation of a Claude repo artifact.
+         */
+        ArtifactVersionResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Artifact */
+            artifact: string;
+            /** Kind */
+            kind: string;
+            /** Branch */
+            branch: string;
+            /** Commit Sha */
+            commit_sha: string;
+            /** Content */
+            content: {
+                [key: string]: unknown;
+            };
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /**
          * AskQuestionRequest
@@ -4700,6 +4908,41 @@ export interface components {
              */
             updated_at: string;
         };
+        /** DeltaCommitAuthor */
+        DeltaCommitAuthor: {
+            /** Email */
+            email: string;
+            /** Commits */
+            commits: number;
+        };
+        /**
+         * DeltaCommits
+         * @description New commits between the snapshots (sha set difference of per-commit records).
+         */
+        DeltaCommits: {
+            /** Count */
+            count: number;
+            /** Authors */
+            authors: components["schemas"]["DeltaCommitAuthor"][];
+            /** Has Commit Data */
+            has_commit_data: boolean;
+        };
+        /** DeltaContributors */
+        DeltaContributors: {
+            /** Joined */
+            joined: string[];
+            /** Departed */
+            departed: string[];
+        };
+        /** DeltaDependencies */
+        DeltaDependencies: {
+            /** Added */
+            added: components["schemas"]["DependencyChange"][];
+            /** Removed */
+            removed: components["schemas"]["DependencyChange"][];
+            /** Changed */
+            changed: components["schemas"]["DependencyChange"][];
+        };
         /** Dependency */
         Dependency: {
             ecosystem: components["schemas"]["Ecosystem"];
@@ -4714,6 +4957,17 @@ export interface components {
              * @default false
              */
             is_dev: boolean;
+        };
+        /** DependencyChange */
+        DependencyChange: {
+            /** Name */
+            name: string;
+            /** Ecosystem */
+            ecosystem: string;
+            /** Before Version */
+            before_version?: string | null;
+            /** After Version */
+            after_version?: string | null;
         };
         /** DependencyFreshnessItem */
         DependencyFreshnessItem: {
@@ -4923,6 +5177,16 @@ export interface components {
             ratings?: components["schemas"]["Ratings"];
         };
         /**
+         * ExplainDelta
+         * @description Snapshot pair to narrate; omitted ids default to previous -> latest.
+         */
+        ExplainDelta: {
+            /** From Id */
+            from_id?: string | null;
+            /** To Id */
+            to_id?: string | null;
+        };
+        /**
          * ExportIssuesRequest
          * @description Optional narrowing; default = every exportable item of the current version.
          */
@@ -4954,6 +5218,18 @@ export interface components {
             issue_url: string | null;
             /** Skipped Reason */
             skipped_reason: string | null;
+        };
+        /**
+         * FactDelta
+         * @description One scalar metric that changed between two snapshots.
+         */
+        FactDelta: {
+            /** Field */
+            field: string;
+            /** Before */
+            before: number | string | null;
+            /** After */
+            after: number | string | null;
         };
         /** FactsResult */
         FactsResult: {
@@ -5514,6 +5790,15 @@ export interface components {
             num_turns?: number | null;
             /** Models */
             models?: string[] | null;
+        };
+        /** LanguageShift */
+        LanguageShift: {
+            /** Language */
+            language: string;
+            /** Before Loc */
+            before_loc: number;
+            /** After Loc */
+            after_loc: number;
         };
         /** LanguageStat */
         LanguageStat: {
@@ -8341,6 +8626,140 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AnalysisResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    analysis_history_api_v1_repositories__repository_id__analysis_history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisSnapshotSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    analysis_delta_api_v1_repositories__repository_id__analysis_delta_get: {
+        parameters: {
+            query?: {
+                from_id?: string | null;
+                to_id?: string | null;
+            };
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisDeltaResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    explain_analysis_delta_api_v1_repositories__repository_id__analysis_delta_explain_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExplainDelta"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    artifact_versions_api_v1_repositories__repository_id__artifact_versions_get: {
+        parameters: {
+            query: {
+                artifact: string;
+                kind?: string | null;
+            };
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArtifactVersionResult"][];
                 };
             };
             /** @description Validation Error */

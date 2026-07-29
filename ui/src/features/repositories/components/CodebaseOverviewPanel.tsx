@@ -15,6 +15,7 @@ import {
   useGenerateCodebaseOverviewMutation,
 } from "../api";
 import { repositoryKeys } from "../keys";
+import { ArtifactVersionHistory } from "./ArtifactVersionHistory";
 
 export function CodebaseOverviewPanel({ repoId }: { repoId: string }) {
   const { t } = useTranslation();
@@ -141,6 +142,17 @@ export function CodebaseOverviewPanel({ repoId }: { repoId: string }) {
                 })}
               </p>
             ) : null}
+            <ArtifactVersionHistory
+              repoId={repoId}
+              artifact="codebase-overview"
+              renderContent={(version) => (
+                <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+                  {typeof version.content.summary === "string"
+                    ? version.content.summary
+                    : JSON.stringify(version.content, null, 2)}
+                </p>
+              )}
+            />
           </div>
         ) : (
           <p className="py-6 text-center text-sm text-muted-foreground">

@@ -18,6 +18,10 @@ from shire.core.db import unit_of_work
 from shire.core.settings import get_settings
 from shire.domain.jobs.models import JobRow
 from shire.domain.repository.models import RepositoryRow
+from shire.domain.substrate.repositories import (
+    SqlAnalysisDeltaNoteRepository,
+    SqlArtifactVersionRepository,
+)
 from shire.domain.substrate.schemas import DependencyFreshnessItem
 from shire.domain.substrate.services import (
     _extract_mermaid_block,
@@ -43,6 +47,19 @@ def _branch_still_active(job: JobRow) -> bool:
         return (row.current_branch or row.default_branch) == expected
 
 
+def _record_version(job: JobRow, artifact: str, kind: str, content: dict) -> None:
+    """Append the artifact's new content to the version history (hash-deduped)."""
+    with unit_of_work() as session:
+        SqlArtifactVersionRepository(session).record(
+            repository_id=uuid.UUID(job.payload["repository_id"]),
+            artifact=artifact,
+            kind=kind,
+            branch=job.payload.get("branch") or "",
+            commit_sha=job.payload.get("commit_sha") or "",
+            content=content,
+        )
+
+
 def handle_architecture(job: JobRow) -> None:
     if not _branch_still_active(job):
         _mark_failed(job.id, "The repository's active branch changed since this job was queued.")
@@ -56,6 +73,7 @@ def handle_architecture(job: JobRow) -> None:
     out_dir = _artifact_dir("architecture", job.payload["repository_id"])
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / f"{job.payload['kind']}.json").write_text(json.dumps({"mermaid": mermaid}))
+    _record_version(job, "architecture", job.payload["kind"], {"mermaid": mermaid})
 
 
 def handle_codebase_overview(job: JobRow) -> None:
@@ -71,6 +89,7 @@ def handle_codebase_overview(job: JobRow) -> None:
     out_dir = _artifact_dir("codebase-overview", job.payload["repository_id"])
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "overview.json").write_text(json.dumps(overview))
+    _record_version(job, "codebase-overview", "", overview)
 
 
 def _normalize_tech_name(name: str) -> str:
@@ -130,6 +149,26 @@ def handle_tech_stack(job: JobRow) -> None:
     (out_dir / "tech-stack.json").write_text(
         json.dumps({"branch": job.payload.get("branch"), "items": items})
     )
+    _record_version(
+        job, "tech-stack", "", {"branch": job.payload.get("branch"), "items": items}
+    )
+
+
+def handle_evolution_note(job: JobRow) -> None:
+    """Persist the "what changed since last check" narrative for a snapshot pair."""
+    if job.status != "succeeded":
+        return
+    narrative = (job.result or "").strip()
+    if not narrative:
+        _mark_failed(job.id, "The agent returned an empty change summary.")
+        return
+    with unit_of_work() as session:
+        SqlAnalysisDeltaNoteRepository(session).upsert(
+            repository_id=uuid.UUID(job.payload["repository_id"]),
+            from_analysis_id=uuid.UUID(job.payload["from_analysis_id"]),
+            to_analysis_id=uuid.UUID(job.payload["to_analysis_id"]),
+            narrative=narrative,
+        )
 
 
 def handle_dependency_gains(job: JobRow) -> None:

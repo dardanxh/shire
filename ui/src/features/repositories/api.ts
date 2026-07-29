@@ -2,8 +2,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 
 import {
+  type AnalysisDeltaOut,
   type AnalysisOut,
+  type AnalysisSnapshotOut,
   type ArchitectureOut,
+  type ArtifactVersionOut,
   api,
   type BranchesOut,
   type BranchNamesOut,
@@ -671,6 +674,100 @@ export function useGenerateDependencyFreshnessMutation(id: string) {
     },
     onSuccess: (data) =>
       queryClient.setQueryData(repositoryKeys.dependencyFreshness(id), data),
+  });
+}
+
+/** Every complete snapshot's headline scalars, oldest first — the evolution timeline. */
+export function useAnalysisHistoryQuery(id: string) {
+  return useQuery<AnalysisSnapshotOut[]>({
+    queryKey: repositoryKeys.analysisHistory(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/analysis/history",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+  });
+}
+
+/**
+ * Deterministic diff between two snapshots (defaults: previous -> latest). Resolves to
+ * `null` when fewer than two snapshots exist (409), so the panel can show a hint.
+ */
+export function useAnalysisDeltaQuery(
+  id: string,
+  fromId: string | null,
+  toId: string | null,
+) {
+  return useQuery<AnalysisDeltaOut | null>({
+    queryKey: repositoryKeys.analysisDelta(id, fromId, toId),
+    queryFn: async () => {
+      const { data, error, response } = await api.GET(
+        "/api/v1/repositories/{repository_id}/analysis/delta",
+        {
+          params: {
+            path: { repository_id: id },
+            query: {
+              from_id: fromId ?? undefined,
+              to_id: toId ?? undefined,
+            },
+          },
+        },
+      );
+      if (response.status === 409) return null;
+      if (error) throw error;
+      return data ?? null;
+    },
+    enabled: id !== "",
+  });
+}
+
+/** Enqueue the "what changed since last check" narrative. Caller tracks the job and
+ * invalidates the delta when it settles. */
+export function useExplainDeltaMutation(id: string) {
+  return useMutation({
+    mutationFn: async (pair: {
+      from_id: string | null;
+      to_id: string | null;
+    }): Promise<JobOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/analysis/delta/explain",
+        {
+          params: { path: { repository_id: id } },
+          body: { from_id: pair.from_id, to_id: pair.to_id },
+        },
+      );
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+/** Version history of a Claude repo artifact (architecture kind / overview / tech stack). */
+export function useArtifactVersionsQuery(
+  id: string,
+  artifact: string,
+  kind: string | null = null,
+) {
+  return useQuery<ArtifactVersionOut[]>({
+    queryKey: repositoryKeys.artifactVersions(id, artifact, kind),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/artifact-versions",
+        {
+          params: {
+            path: { repository_id: id },
+            query: { artifact, kind: kind ?? undefined },
+          },
+        },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
   });
 }
 

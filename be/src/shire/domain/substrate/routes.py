@@ -10,14 +10,18 @@ from sqlalchemy.orm import Session
 from shire.core.db import get_session
 from shire.domain.jobs.schemas import JobResult
 from shire.domain.substrate.schemas import (
+    AnalysisDeltaResult,
     AnalysisResult,
+    AnalysisSnapshotSummary,
     ArchitectureResult,
+    ArtifactVersionResult,
     CodeAgeResult,
     CodebaseOverviewResult,
     CodeMapResult,
     CouplingResult,
     DependencyFreshnessResult,
     DependencyUsageResult,
+    ExplainDelta,
     GraphResult,
     TechStackResult,
     ToolLogResult,
@@ -32,6 +36,56 @@ def latest_analysis(
     repository_id: uuid.UUID, session: Session = Depends(get_session)
 ) -> AnalysisResult:
     return AnalysisService(session).latest_result(repository_id)
+
+
+@router.get(
+    "/repositories/{repository_id}/analysis/history",
+    response_model=list[AnalysisSnapshotSummary],
+)
+def analysis_history(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> list[AnalysisSnapshotSummary]:
+    """Every complete snapshot's headline scalars, oldest first (evolution timeline)."""
+    return AnalysisService(session).analysis_history(repository_id)
+
+
+@router.get(
+    "/repositories/{repository_id}/analysis/delta", response_model=AnalysisDeltaResult
+)
+def analysis_delta(
+    repository_id: uuid.UUID,
+    from_id: uuid.UUID | None = None,
+    to_id: uuid.UUID | None = None,
+    session: Session = Depends(get_session),
+) -> AnalysisDeltaResult:
+    """Deterministic diff between two snapshots (defaults: previous -> latest)."""
+    return AnalysisService(session).analysis_delta(repository_id, from_id, to_id)
+
+
+@router.post(
+    "/repositories/{repository_id}/analysis/delta/explain", response_model=JobResult
+)
+def explain_analysis_delta(
+    repository_id: uuid.UUID,
+    body: ExplainDelta,
+    session: Session = Depends(get_session),
+) -> JobResult:
+    """Enqueue the "what changed since last check" narrative for a snapshot pair."""
+    return AnalysisService(session).enqueue_delta_note(repository_id, body)
+
+
+@router.get(
+    "/repositories/{repository_id}/artifact-versions",
+    response_model=list[ArtifactVersionResult],
+)
+def artifact_versions(
+    repository_id: uuid.UUID,
+    artifact: str,
+    kind: str | None = None,
+    session: Session = Depends(get_session),
+) -> list[ArtifactVersionResult]:
+    """Version history of a Claude repo artifact (architecture kind / overview / tech stack)."""
+    return AnalysisService(session).artifact_versions(repository_id, artifact, kind)
 
 
 @router.get("/dependencies/{name}/repositories", response_model=list[DependencyUsageResult])
