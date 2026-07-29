@@ -31,6 +31,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Lint
         run: pnpm lint
+      - name: Test
+        run: pnpm test
       - name: Build
         run: pnpm build
 
@@ -52,5 +54,24 @@ jobs:
         run: uv run ruff check
       - name: Build
         run: uv build
+      - name: Test
+        run: uv run pytest
+
+  engine:
+    name: engine
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: engine
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: engine/uv.lock
+      - name: Install
+        run: uv sync --frozen
+      - name: Lint
+        run: uv run ruff check
       - name: Test
         run: uv run pytest

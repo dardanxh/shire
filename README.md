@@ -12,6 +12,21 @@ continuously analyzes your repositories, lets specialized agents watch what matt
 (architecture drift, security, dependencies, code health…), and surfaces only what needs your
 attention — all running on your own machine.
 
+![Repository scorecard — grades, metrics, and deep-dive tabs for an ingested repo](./docs/images/repository-scorecard.png)
+
+<details>
+<summary><strong>More screenshots</strong> — hobits roster, knowledge catalogs</summary>
+
+*The hobit roster — narrow-domain expert agents you can run, tune, and extend:*
+
+![Hobits roster](./docs/images/hobits-roster.png)
+
+*Curated knowledge catalogs, seeded on first startup:*
+
+![Technologies catalog](./docs/images/knowledge-technologies.png)
+
+</details>
+
 ## What it does
 
 ### Workspace
@@ -84,7 +99,12 @@ flowchart LR
 
 ## Quickstart (Docker — recommended)
 
-Requirements: [Docker](https://docs.docker.com/get-docker/) with the Compose plugin.
+**Prerequisites:** [Docker](https://docs.docker.com/get-docker/) with the Compose v2 plugin
+(Docker Desktop includes it; on Linux install
+[docker-compose-plugin](https://docs.docker.com/compose/install/linux/)). That's the only
+requirement — Python, Node, the Claude Code CLI, and all analysis tools ship inside the
+images. A Claude account is **not** required to get started (see
+[Claude authentication](#claude-authentication)).
 
 ```bash
 git clone https://github.com/dardanxh/shire.git
@@ -93,25 +113,41 @@ cd shire
 ```
 
 That's it. The script generates a `.env` (including the encryption key), builds all images,
-starts the stack, and waits for it to be healthy:
+starts the stack, runs the database migrations, and waits for it to be healthy:
 
 - **UI** → http://localhost:3000
 - **API docs** → http://localhost:8000/docs
 
+### Your first ten minutes
+
+1. Open http://localhost:3000 — the home page shows a getting-started checklist.
+2. **Ingest a repository**: *Repositories → Add*, paste any git URL (a small public repo
+   like `https://github.com/pallets/click` is a good first try). Cloning + the scanner
+   pipeline take a couple of minutes; the scorecard fills in as results land.
+3. Explore the detail view — metrics, dependencies, security, git history — then, if you've
+   set up Claude auth, try **Ask** a question about the code or generate the architecture
+   artifact.
+4. The **Knowledge** section is pre-populated on first startup with seeded catalogs
+   (blueprints, technologies, security standards…) — it's not empty-by-bug, and you can add
+   your own entries.
+
 ### Claude authentication
 
-Agent features (hobits, ask, merge reviews, roadmaps, council…) run through the
-[Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code). `setup.sh` picks up
-whichever of these it finds, or you can add one to `.env` later and re-run it:
+**Claude auth is optional.** Repository ingest, all scanners, scorecards, evolution history,
+members analytics, knowledge catalogs, and visualizations work with no Claude account at
+all. What needs it: the agent features — hobits, Ask, Claude-written artifacts, merge
+reviews, roadmaps, council, briefing — which run through the
+[Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) bundled in the engine
+image.
+
+`setup.sh` picks up whichever of these it finds, or you can add one to `.env` later and
+re-run it:
 
 | Method | How |
 | --- | --- |
-| **API key** | `export ANTHROPIC_API_KEY=sk-ant-...` before `./setup.sh` (or add it + `USE_API_KEY=true` to `.env`). Billed per token. |
-| **Claude subscription (token)** | Run `claude setup-token` on your machine, put the result in `.env` as `CLAUDE_CODE_OAUTH_TOKEN=...`. Uses your Pro/Max subscription. |
+| **API key** | `export ANTHROPIC_API_KEY=sk-ant-...` before `./setup.sh` (or add it + `USE_API_KEY=true` to `.env`). Pay-per-token via the [Claude API](https://console.anthropic.com/). |
+| **Claude subscription (token)** | Run `claude setup-token` on your machine, put the result in `.env` as `CLAUDE_CODE_OAUTH_TOKEN=...`. Uses your Claude **Pro or Max** subscription — Max is recommended for heavy agent use, Pro works fine for trying things out. |
 | **Claude subscription (mount)** | If `~/.claude` exists, setup.sh mounts it into the engine container. Note: on macOS credentials live in the Keychain, so prefer the token method there. |
-
-Everything else (ingest, scanners, scorecards, catalogs, visualizations) works with no Claude
-auth at all.
 
 ### Day-2 commands
 
@@ -124,9 +160,18 @@ docker compose up -d --build      # rebuild after pulling changes
 
 ## Native development setup
 
-Prefer running services directly? You need: Python 3.13+ with [uv](https://docs.astral.sh/uv/),
-Node 20+ with pnpm, Docker (for Postgres only), and the
-[Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) logged in.
+Prefer running services directly? Prerequisites:
+
+- **Python 3.13+** with [uv](https://docs.astral.sh/uv/)
+- **Node 20+** with [pnpm](https://pnpm.io/installation)
+- **Docker** (for the Postgres container only)
+- **Claude Code CLI** — `npm install -g @anthropic-ai/claude-code` — plus auth for agent
+  features: either be logged in (`claude` once, interactively), export
+  `ANTHROPIC_API_KEY`, or export `CLAUDE_CODE_OAUTH_TOKEN` (from `claude setup-token`).
+  As with Docker, everything except agent features works without it.
+- *(optional)* Homebrew, for the scanner binaries (`scc`, `syft`, `osv-scanner`,
+  `gitleaks`, `scorecard`) — missing tools degrade gracefully, their scorecard sections
+  just report unavailable.
 
 ```bash
 ./scripts/setup.sh   # deps + Postgres container + migrations + scanner tools (brew)
@@ -183,6 +228,18 @@ For native development each service reads its own `.env` — see
 [`be/.env.example`](./be/.env.example), [`engine/.env.example`](./engine/.env.example),
 [`ui/.env.example`](./ui/.env.example).
 
+## Troubleshooting
+
+| Symptom | Cause / fix |
+| --- | --- |
+| `setup.sh` fails at "Checking prerequisites" | Docker isn't installed, the Compose v2 plugin is missing, or the daemon isn't running. Start Docker Desktop (macOS/Windows) or `systemctl start docker` (Linux) and re-run. |
+| "backend did not become healthy" | First boot builds images and runs migrations; on slow machines this can exceed the wait. Check `docker compose logs backend` — if migrations are still running, `docker compose ps` until healthy. A genuinely failed migration will show in the same logs. |
+| "WARNING: no Claude auth found" during setup | Not an error — the stack starts fine and everything except agent features works. Add one auth method to `.env` (see [Claude authentication](#claude-authentication)) and re-run `./setup.sh` whenever you want agent features. |
+| Agent jobs fail with an auth error (macOS, mount method) | The mounted `~/.claude` doesn't carry Keychain credentials into the container. Run `claude setup-token`, put the token in `.env` as `CLAUDE_CODE_OAUTH_TOKEN=...`, re-run `./setup.sh`. |
+| Knowledge sections look pre-filled | Intentional: seed catalogs are loaded on first startup. Repository data only appears after you ingest a repo. |
+| Deleted `.env` and things broke | Re-running `./setup.sh` regenerates it — but with a **new** `SHIRE_SECRET_KEY`, which orphans any git credentials stored under the old key (they can't be decrypted; re-enter them under *Connectors*). If you still have the old key, put it back instead. |
+| Full reset | `docker compose down -v` deletes the database and cloned repos, then `./setup.sh` starts fresh. |
+
 ## Security model
 
 Shire is **local-first by design**: the API has no authentication and is meant to run on your
@@ -197,9 +254,11 @@ the substrate model, hobit anatomy, coordination, domain model, and tool setup. 
 
 ## Contributing
 
-Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for the development
-workflow, code conventions, and PR guidelines. All changes land through pull requests; CI
-(lint, build, and tests for both `ui/` and `be/`) must pass before merge.
+Contributions are welcome — fork away! See [CONTRIBUTING.md](./CONTRIBUTING.md) for the
+development workflow, code conventions, and PR guidelines, [ROADMAP.md](./ROADMAP.md) for
+what's planned and good first areas, and our
+[Code of Conduct](./CODE_OF_CONDUCT.md). All changes land through pull requests; CI (lint,
+build, and tests across `ui/`, `be/`, and `engine/`) must pass before merge.
 
 ## License
 

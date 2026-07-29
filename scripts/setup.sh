@@ -8,8 +8,31 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
+echo "==> [0/5] Checking prerequisites"
+missing=0
+for tool in uv docker node; do
+  if ! command -v "$tool" >/dev/null 2>&1; then
+    case "$tool" in
+      uv)     echo "  ! uv not found — install: https://docs.astral.sh/uv/getting-started/installation/" ;;
+      docker) echo "  ! docker not found (needed for Postgres) — https://docs.docker.com/get-docker/" ;;
+      node)   echo "  ! node not found (need 20+) — https://nodejs.org or brew install node" ;;
+    esac
+    missing=1
+  fi
+done
+[ "$missing" = 1 ] && { echo "Install the missing prerequisites and re-run."; exit 1; }
+node_major="$(node -e 'console.log(process.versions.node.split(".")[0])')"
+if [ "$node_major" -lt 20 ]; then
+  echo "  ! Node $node_major found, but 20+ is required. Upgrade and re-run."
+  exit 1
+fi
+if ! command -v claude >/dev/null 2>&1; then
+  echo "  ! Claude Code CLI not found — agent features (hobits, ask, council…) won't run."
+  echo "    Everything else works. Install later with: npm install -g @anthropic-ai/claude-code"
+fi
+
 echo "==> [1/5] External analysis tools (brew)"
-# Source of truth for this list: be/src/hobits/substrate/infrastructure/external_tools/
+# Source of truth for this list: be/src/shire/integrations/external_tools/
 if command -v brew >/dev/null 2>&1; then
   brew install scc syft osv-scanner gitleaks scorecard || true
 else
