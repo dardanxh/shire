@@ -47,6 +47,7 @@ packages = ["src/shire"]
 line-length = 100
 target-version = "py313"
 src = ["src", "tests"]
+extend-exclude = ["migrations"]
 
 [tool.ruff.lint]
 select = [
