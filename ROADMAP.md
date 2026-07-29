@@ -23,8 +23,9 @@ feature-rich:
 - **PR / code-review companion** — a hobit that reviews pull requests in context of the
   substrate (ownership, coupling, drift), not just the diff. Merge reviews cover branch
   pairs today; this brings the same depth to the provider's PR flow.
-- **Event-triggered hobits** — hobits already run on a cadence (hourly/daily/weekly/cron
-  via Prefect); the next step is inter-hobit automations, where one hobit's finding
+- **Event-triggered hobits** — cadence scheduling (hourly/daily/weekly/cron) is built on
+  Prefect as an opt-in add-on (see `docs/running-phase-2.5.md`); next steps are bundling
+  it into the Docker stack and inter-hobit automations, where one hobit's finding
   triggers another's run.
 - **Decision journal** — an ADR assistant that captures and audits architectural
   decisions against the codebase over time.
