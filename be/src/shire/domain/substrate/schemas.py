@@ -132,6 +132,117 @@ class ToolLogResult(BaseModel):
     line_count: int = 0
 
 
+class AnalysisSnapshotSummary(BaseModel):
+    """One complete snapshot's headline scalars — the evolution timeline row."""
+
+    analysis_id: uuid.UUID
+    commit_sha: str
+    analyzed_at: datetime
+    loc_total: int
+    commit_count: int
+    contributor_count: int
+    dependency_count: int
+    vulnerability_count: int
+    vuln_critical: int
+    vuln_high: int
+    secret_count: int
+    health_score: float | None
+    maintainability_index: float | None
+    ccn_average: float | None
+    code_lines: int | None
+    test_count: int | None
+    rating_maintainability: str
+    rating_security: str
+    rating_health: str
+
+
+class FactDelta(BaseModel):
+    """One scalar metric that changed between two snapshots."""
+
+    field: str
+    before: float | str | None
+    after: float | str | None
+
+
+class DependencyChange(BaseModel):
+    name: str
+    ecosystem: str
+    before_version: str | None = None
+    after_version: str | None = None
+
+
+class DeltaDependencies(BaseModel):
+    added: list[DependencyChange]
+    removed: list[DependencyChange]
+    changed: list[DependencyChange]
+
+
+class LanguageShift(BaseModel):
+    language: str
+    before_loc: int
+    after_loc: int
+
+
+class DeltaContributors(BaseModel):
+    joined: list[str]
+    departed: list[str]
+
+
+class DeltaCommitAuthor(BaseModel):
+    email: str
+    commits: int
+
+
+class DeltaCommits(BaseModel):
+    """New commits between the snapshots (sha set difference of per-commit records)."""
+
+    count: int
+    authors: list[DeltaCommitAuthor]
+    # False when either snapshot predates per-commit persistence — count falls back to the
+    # commit_count fact difference and authors stay empty.
+    has_commit_data: bool
+
+
+class AnalysisDeltaResult(BaseModel):
+    """Deterministic diff between two analysis snapshots, plus any persisted narrative."""
+
+    repository_id: uuid.UUID
+    from_analysis_id: uuid.UUID
+    from_commit_sha: str
+    from_analyzed_at: datetime
+    to_analysis_id: uuid.UUID
+    to_commit_sha: str
+    to_analyzed_at: datetime
+    facts: list[FactDelta]
+    dependencies: DeltaDependencies
+    hotspots_entered: list[str]
+    hotspots_left: list[str]
+    languages: list[LanguageShift]
+    contributors: DeltaContributors
+    commits: DeltaCommits
+    note: str | None
+    note_generated_at: datetime | None
+
+
+class ExplainDelta(BaseModel):
+    """Snapshot pair to narrate; omitted ids default to previous -> latest."""
+
+    from_id: uuid.UUID | None = None
+    to_id: uuid.UUID | None = None
+
+
+class ArtifactVersionResult(BaseModel):
+    """One historical generation of a Claude repo artifact."""
+
+    id: uuid.UUID
+    artifact: str
+    kind: str
+    branch: str
+    commit_sha: str
+    content: dict
+    created_at: datetime
+
+
 class DependencyUsageResult(BaseModel):
     repository_id: uuid.UUID
     versions: list[str]

@@ -11,6 +11,7 @@ import json
 import re
 import shutil
 import uuid
+from collections import Counter
 from collections.abc import Iterable
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -37,14 +38,19 @@ from shire.domain.substrate.domain import (
     ScanContribution,
 )
 from shire.domain.substrate.repositories import (
+    SqlAnalysisDeltaNoteRepository,
     SqlAnalysisRepository,
+    SqlArtifactVersionRepository,
     SqlCommitRecordRepository,
     SqlRepositoryToolRepository,
 )
 from shire.domain.substrate.schemas import (
+    AnalysisDeltaResult,
     AnalysisResult,
+    AnalysisSnapshotSummary,
     ArchitectureDiagram,
     ArchitectureResult,
+    ArtifactVersionResult,
     CodeAgeCohort,
     CodeAgeResult,
     CodebaseOverviewResult,
@@ -52,10 +58,18 @@ from shire.domain.substrate.schemas import (
     CommitRecordResult,
     CouplingPair,
     CouplingResult,
+    DeltaCommitAuthor,
+    DeltaCommits,
+    DeltaContributors,
+    DeltaDependencies,
+    DependencyChange,
     DependencyFreshnessItem,
     DependencyFreshnessResult,
     DependencyUsageResult,
+    ExplainDelta,
+    FactDelta,
     GraphResult,
+    LanguageShift,
     RepositoryCommitHistoryResult,
     RepositoryContributorsResult,
     TechStackItem,
@@ -121,6 +135,8 @@ class AnalysisService:
         self._session = session
         self._analyses = SqlAnalysisRepository(session)
         self._commit_records = SqlCommitRecordRepository(session)
+        self._artifact_versions = SqlArtifactVersionRepository(session)
+        self._delta_notes = SqlAnalysisDeltaNoteRepository(session)
         # Cross-domain read (clone path) for on-demand tool runs — tightly coupled to a clone.
         self._repos = SqlRepositoryRepository(session)
         self._links = SqlRepositoryToolRepository(session)
@@ -290,6 +306,167 @@ class AnalysisService:
                 day = week_start.date()
                 bucket[day] = bucket.get(day, 0) + count
         return merged
+
+    # --- evolution (snapshot history + deltas) --------------------------------
+    def analysis_history(self, repository_id: uuid.UUID) -> list[AnalysisSnapshotSummary]:
+        """Every complete snapshot's headline scalars, oldest first."""
+        return [
+            AnalysisSnapshotSummary(
+                analysis_id=row.id,
+                commit_sha=row.commit_sha,
+                analyzed_at=row.analyzed_at,
+                loc_total=row.loc_total,
+                commit_count=row.commit_count,
+                contributor_count=row.contributor_count,
+                dependency_count=row.dependency_count,
+                vulnerability_count=row.vulnerability_count,
+                vuln_critical=row.vuln_critical,
+                vuln_high=row.vuln_high,
+                secret_count=row.secret_count,
+                health_score=row.health_score,
+                maintainability_index=row.maintainability_index,
+                ccn_average=row.ccn_average,
+                code_lines=row.code_lines,
+                test_count=row.test_count,
+                rating_maintainability=row.rating_maintainability,
+                rating_security=row.rating_security,
+                rating_health=row.rating_health,
+            )
+            for row in self._analyses.list_meta_for_repository(repository_id)
+        ]
+
+    def analysis_delta(
+        self,
+        repository_id: uuid.UUID,
+        from_id: uuid.UUID | None = None,
+        to_id: uuid.UUID | None = None,
+    ) -> AnalysisDeltaResult:
+        """Deterministic diff between two snapshots (defaults: previous -> latest)."""
+        from_id, to_id = self._resolve_delta_pair(repository_id, from_id, to_id)
+        before = self._get_snapshot(repository_id, from_id)
+        after = self._get_snapshot(repository_id, to_id)
+        note = self._delta_notes.get(from_id, to_id)
+        return AnalysisDeltaResult(
+            repository_id=repository_id,
+            from_analysis_id=from_id,
+            from_commit_sha=before.commit_sha,
+            from_analyzed_at=before.analyzed_at,
+            to_analysis_id=to_id,
+            to_commit_sha=after.commit_sha,
+            to_analyzed_at=after.analyzed_at,
+            facts=_fact_deltas(before, after),
+            dependencies=_dependency_deltas(before, after),
+            hotspots_entered=sorted(
+                {h.path for h in after.hotspots} - {h.path for h in before.hotspots}
+            ),
+            hotspots_left=sorted(
+                {h.path for h in before.hotspots} - {h.path for h in after.hotspots}
+            ),
+            languages=_language_shifts(before, after),
+            contributors=_contributor_deltas(before, after),
+            commits=self._commit_deltas(before, after),
+            note=note.narrative if note else None,
+            note_generated_at=note.created_at if note else None,
+        )
+
+    def enqueue_delta_note(
+        self, repository_id: uuid.UUID, body: ExplainDelta
+    ) -> JobResult:
+        """Enqueue the on-demand "what changed since last check" narrative."""
+        from_id, to_id = self._resolve_delta_pair(repository_id, body.from_id, body.to_id)
+        delta = self.analysis_delta(repository_id, from_id, to_id)
+        repo = self._require_cloned_repo(repository_id)
+        jobs = JobService(self._session)
+        model, timeout_seconds = jobs.engine_defaults()
+        diff_json = delta.model_dump(mode="json", exclude={"note", "note_generated_at"})
+        job = jobs.enqueue(
+            kind=job_kinds.SUBSTRATE_EVOLUTION_NOTE,
+            title=f"Change summary — {repo.coordinates.slug}",
+            prompt=_EVOLUTION_NOTE_PROMPT.format(
+                repo=repo.coordinates.slug,
+                from_sha=delta.from_commit_sha,
+                to_sha=delta.to_commit_sha,
+                from_date=delta.from_analyzed_at.date().isoformat(),
+                to_date=delta.to_analyzed_at.date().isoformat(),
+                diff_json=json.dumps(diff_json, indent=2),
+            ),
+            payload={
+                "cwd": repo.clone_path,
+                "model": model,
+                "timeout_seconds": timeout_seconds,
+                "repository_id": str(repository_id),
+                "from_analysis_id": str(from_id),
+                "to_analysis_id": str(to_id),
+            },
+            repository_id=repository_id,
+        )
+        return JobResult.of(job)
+
+    def artifact_versions(
+        self, repository_id: uuid.UUID, artifact: str, kind: str | None = None
+    ) -> list[ArtifactVersionResult]:
+        """Version history of a Claude repo artifact, newest first."""
+        return [
+            ArtifactVersionResult(
+                id=row.id,
+                artifact=row.artifact,
+                kind=row.kind,
+                branch=row.branch,
+                commit_sha=row.commit_sha,
+                content=row.content,
+                created_at=row.created_at,
+            )
+            for row in self._artifact_versions.list(repository_id, artifact, kind)
+        ]
+
+    def _resolve_delta_pair(
+        self,
+        repository_id: uuid.UUID,
+        from_id: uuid.UUID | None,
+        to_id: uuid.UUID | None,
+    ) -> tuple[uuid.UUID, uuid.UUID]:
+        ids = [row.id for row in self._analyses.list_meta_for_repository(repository_id)]
+        if to_id is None:
+            if not ids:
+                raise NotFoundError("No completed analysis for this repository")
+            to_id = ids[-1]
+        if from_id is None:
+            index = ids.index(to_id) if to_id in ids else len(ids) - 1
+            if index <= 0:
+                raise ConflictError(
+                    "Only one analysis snapshot exists — refresh the repository after "
+                    "new commits land to start tracking changes."
+                )
+            from_id = ids[index - 1]
+        if from_id == to_id:
+            raise ConflictError("Pick two different snapshots to compare.")
+        return from_id, to_id
+
+    def _get_snapshot(self, repository_id: uuid.UUID, analysis_id: uuid.UUID) -> Analysis:
+        analysis = self._analyses.get(analysis_id)
+        if analysis is None or analysis.repository_id != repository_id:
+            raise NotFoundError("No analysis snapshot with that id for this repository")
+        return analysis
+
+    def _commit_deltas(self, before: Analysis, after: Analysis) -> DeltaCommits:
+        from_shas = self._commit_records.sha_authors_for_analysis(before.id)
+        to_shas = self._commit_records.sha_authors_for_analysis(after.id)
+        if not from_shas or not to_shas:
+            return DeltaCommits(
+                count=max(after.facts.commit_count - before.facts.commit_count, 0),
+                authors=[],
+                has_commit_data=False,
+            )
+        new = {sha: email for sha, email in to_shas.items() if sha not in from_shas}
+        counts = Counter(new.values())
+        return DeltaCommits(
+            count=len(new),
+            authors=[
+                DeltaCommitAuthor(email=email, commits=count)
+                for email, count in counts.most_common()
+            ],
+            has_commit_data=True,
+        )
 
     def dependency_usage(self, name: str) -> list[DependencyUsageResult]:
         grouped: dict[uuid.UUID, set[str]] = {}
@@ -573,6 +750,7 @@ class AnalysisService:
                     "timeout_seconds": timeout_seconds,
                     "repository_id": str(repository_id),
                     "branch": repo.current_branch or repo.default_branch,
+                "commit_sha": repo.last_analyzed_commit or "",
                 },
                 repository_id=repository_id,
             )
@@ -630,6 +808,7 @@ class AnalysisService:
                 "repository_id": str(repository_id),
                 "kind": kind.slug,
                 "branch": repo.current_branch or repo.default_branch,
+                "commit_sha": repo.last_analyzed_commit or "",
             },
             repository_id=repository_id,
         )
@@ -677,6 +856,7 @@ class AnalysisService:
                 "timeout_seconds": timeout_seconds,
                 "repository_id": str(repository_id),
                 "branch": repo.current_branch or repo.default_branch,
+                "commit_sha": repo.last_analyzed_commit or "",
             },
             repository_id=repository_id,
         )
@@ -727,6 +907,7 @@ class AnalysisService:
                 "timeout_seconds": timeout_seconds,
                 "repository_id": str(repository_id),
                 "branch": repo.current_branch or repo.default_branch,
+                "commit_sha": repo.last_analyzed_commit or "",
             },
             repository_id=repository_id,
         )
@@ -969,6 +1150,129 @@ def _extract_json_object(text: str) -> str | None:
             return text[after:close].strip()
     match = re.search(r"\{.*\}", text, re.DOTALL)
     return match.group(0) if match else None
+
+
+_EVOLUTION_NOTE_PROMPT = """You are reviewing what changed in repository {repo} between two \
+snapshots.
+
+Snapshot A (baseline): commit {from_sha}, analyzed {from_date}
+Snapshot B (current):  commit {to_sha}, analyzed {to_date}
+
+A deterministic diff of the two snapshots (metric changes, dependency moves, hotspot shifts, \
+contributors, new commits):
+{diff_json}
+
+Inspect the actual changes with `git log --stat {from_sha}..{to_sha}` (and \
+`git diff --stat {from_sha}..{to_sha}` where helpful). Read files only — do not modify anything.
+
+Write a concise markdown summary (max ~300 words) of what happened since the last check:
+- the main themes of the change (features, refactors, fixes, dependency moves)
+- anything that changes the architecture or its risks
+- notable shifts in the metrics above and what likely caused them
+
+Plain markdown only, no preamble."""
+
+
+# Scalar metrics compared between snapshots (facts + enrichment field names).
+_DELTA_FACT_FIELDS = ("loc_total", "commit_count", "contributor_count", "dependency_count")
+_DELTA_ENRICHMENT_FIELDS = (
+    "code_lines",
+    "complexity_total",
+    "function_count",
+    "ccn_average",
+    "ccn_max",
+    "high_complexity_count",
+    "maintainability_index",
+    "cocomo_cost_usd",
+    "sbom_package_count",
+    "vulnerability_count",
+    "vuln_critical",
+    "vuln_high",
+    "vuln_moderate",
+    "vuln_low",
+    "secret_count",
+    "health_score",
+    "test_count",
+    "test_to_code_ratio",
+    "test_coverage_pct",
+    "lint_issue_count",
+    "sast_issue_count",
+    "dead_code_count",
+    "bus_factor",
+    "top_author_share",
+)
+
+
+def _fact_deltas(before: Analysis, after: Analysis) -> list[FactDelta]:
+    """Only the scalars that actually changed — an empty list means metric-stable."""
+    deltas: list[FactDelta] = []
+    for field in _DELTA_FACT_FIELDS:
+        old, new = getattr(before.facts, field), getattr(after.facts, field)
+        if old != new:
+            deltas.append(FactDelta(field=field, before=old, after=new))
+    for field in _DELTA_ENRICHMENT_FIELDS:
+        old, new = getattr(before.enrichment, field), getattr(after.enrichment, field)
+        if old != new:
+            deltas.append(FactDelta(field=field, before=old, after=new))
+    for field in ("maintainability", "security", "health"):
+        old = getattr(before.enrichment.ratings, field).value
+        new = getattr(after.enrichment.ratings, field).value
+        if old != new:
+            deltas.append(FactDelta(field=f"rating_{field}", before=old, after=new))
+    return deltas
+
+
+def _dependency_deltas(before: Analysis, after: Analysis) -> DeltaDependencies:
+    def keyed(analysis: Analysis) -> dict[tuple[str, str], str | None]:
+        return {
+            (dep.ecosystem.value, dep.name): dep.version for dep in analysis.dependencies
+        }
+
+    old, new = keyed(before), keyed(after)
+    added = [
+        DependencyChange(ecosystem=eco, name=name, after_version=new[(eco, name)])
+        for eco, name in sorted(new.keys() - old.keys())
+    ]
+    removed = [
+        DependencyChange(ecosystem=eco, name=name, before_version=old[(eco, name)])
+        for eco, name in sorted(old.keys() - new.keys())
+    ]
+    changed = [
+        DependencyChange(
+            ecosystem=eco,
+            name=name,
+            before_version=old[(eco, name)],
+            after_version=new[(eco, name)],
+        )
+        for eco, name in sorted(old.keys() & new.keys())
+        if old[(eco, name)] != new[(eco, name)]
+    ]
+    return DeltaDependencies(added=added, removed=removed, changed=changed)
+
+
+def _language_shifts(before: Analysis, after: Analysis) -> list[LanguageShift]:
+    old = {lang.language: lang.loc for lang in before.languages}
+    new = {lang.language: lang.loc for lang in after.languages}
+    return [
+        LanguageShift(
+            language=language, before_loc=old.get(language, 0), after_loc=new.get(language, 0)
+        )
+        for language in sorted(old.keys() | new.keys())
+        if old.get(language, 0) != new.get(language, 0)
+    ]
+
+
+def _contributor_deltas(before: Analysis, after: Analysis) -> DeltaContributors:
+    def keyed(analysis: Analysis) -> dict[str, str]:
+        return {
+            c.email.strip().lower(): (c.name or c.email) for c in analysis.contributors
+        }
+
+    old, new = keyed(before), keyed(after)
+    return DeltaContributors(
+        joined=sorted(new[email] for email in new.keys() - old.keys()),
+        departed=sorted(old[email] for email in old.keys() - new.keys()),
+    )
 
 
 def _merge(contributions: Iterable[ScanContribution]) -> ScanContribution:

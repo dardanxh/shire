@@ -306,7 +306,8 @@
         "principles": "Principles",
         "roadmaps": "Roadmaps",
         "tech_stack": "Tech stack",
-        "ai_readiness": "AI readiness"
+        "ai_readiness": "AI readiness",
+        "evolution": "Evolution"
       },
       "overview": {
         "title": "Codebase Overview for Humans",
@@ -400,6 +401,41 @@
         "not_in_catalog": "Not in catalog",
         "other_category": "Other",
         "generated_at": "Detected {{when}}"
+      },
+      "evolution": {
+        "baseline": "baseline",
+        "chip_commits_one": "+{{count}} commit",
+        "chip_commits_other": "+{{count}} commits",
+        "no_metric_changes": "No metric changes between these snapshots.",
+        "single_snapshot": "Only one analysis snapshot exists so far. Refresh the repository after new commits land — every refresh at a new commit adds a snapshot here, and changes are tracked between them.",
+        "compare": "What changed",
+        "compare_range": "{{from}} ({{fromDate}}) → {{to}} ({{toDate}})",
+        "slot_from": "From snapshot",
+        "slot_to": "To snapshot",
+        "explain_button": "Explain changes",
+        "explain_queued": "Change summary queued",
+        "explain_done": "Change summary ready",
+        "explain_failed": "Change summary failed",
+        "note_title": "Since last check",
+        "dependencies": "Dependencies",
+        "hotspots": "Hotspots",
+        "languages": "Languages",
+        "contributors": "Contributors",
+        "new_commits_one": "{{count}} new commit",
+        "new_commits_other": "{{count}} new commits",
+        "no_commit_data": "No per-commit data for one of these snapshots — refresh the repository to backfill.",
+        "trend_loc": "Lines of code",
+        "trend_health": "Health score",
+        "trend_vulns": "Vulnerabilities",
+        "timeline": "Snapshot timeline"
+      },
+      "versions": {
+        "label_one": "{{count}} version",
+        "label_other": "{{count}} versions",
+        "hide": "Hide history",
+        "placeholder": "View a previous version…",
+        "current": "current",
+        "viewing": "Version from {{when}}"
       }
     },
     "integrations": {

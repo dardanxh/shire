@@ -38,6 +38,7 @@ from shire.domain.substrate.jobs import (
     handle_architecture,
     handle_codebase_overview,
     handle_dependency_gains,
+    handle_evolution_note,
     handle_tech_stack,
 )
 
@@ -56,6 +57,7 @@ HANDLERS: dict[str, Callable[[JobRow], None]] = {
     kinds.SUBSTRATE_CODEBASE_OVERVIEW: handle_codebase_overview,
     kinds.SUBSTRATE_DEPENDENCY_GAINS: handle_dependency_gains,
     kinds.SUBSTRATE_TECH_STACK: handle_tech_stack,
+    kinds.SUBSTRATE_EVOLUTION_NOTE: handle_evolution_note,
     kinds.COMPLIANCE_CHECK: handle_compliance_check,
     kinds.READINESS_SUGGEST: handle_readiness_suggest,
     kinds.READINESS_APPLY: handle_readiness_apply,

@@ -146,6 +146,44 @@ class CommitActivityRow(Base):
     count: Mapped[int] = mapped_column(Integer)
 
 
+class ArtifactVersionRow(Base):
+    """One generation of a Claude-produced repo artifact (architecture diagram, codebase
+    overview, tech stack). Disk singletons remain the "current" cache; these rows keep the
+    history so evolution can be walked even across branch switches (rows are never cleared)."""
+
+    __tablename__ = "artifact_versions"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    repository_id: Mapped[uuid.UUID] = mapped_column(Uuid, index=True)
+    # "architecture" | "codebase-overview" | "tech-stack"
+    artifact: Mapped[str] = mapped_column(String(32))
+    # Diagram kind slug for architecture; "" for single-kind artifacts.
+    kind: Mapped[str] = mapped_column(String(64), default="")
+    branch: Mapped[str] = mapped_column(String(255), default="")
+    # Repo HEAD (last analyzed commit) when the artifact was generated.
+    commit_sha: Mapped[str] = mapped_column(String(64), default="")
+    content: Mapped[dict] = mapped_column(JSON)
+    # sha256 of canonical content — identical regenerations don't append noise versions.
+    content_hash: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class AnalysisDeltaNoteRow(Base):
+    """On-demand Claude narrative explaining what changed between two analysis snapshots."""
+
+    __tablename__ = "analysis_delta_notes"
+    __table_args__ = (
+        UniqueConstraint(
+            "from_analysis_id", "to_analysis_id", name="uq_delta_note_pair"
+        ),
+    )
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    repository_id: Mapped[uuid.UUID] = mapped_column(Uuid, index=True)
+    from_analysis_id: Mapped[uuid.UUID] = mapped_column(Uuid)
+    to_analysis_id: Mapped[uuid.UUID] = mapped_column(Uuid)
+    narrative: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
 class CommitRecordRow(Base):
     """One commit of an analysis's history, attributed to its resolved author identity.
 

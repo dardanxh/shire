@@ -16,6 +16,17 @@ export const repositoryKeys = {
   details: () => [...repositoryKeys.all, "detail"] as const,
   detail: (id: string) => [...repositoryKeys.details(), id] as const,
   analysis: (id: string) => [...repositoryKeys.detail(id), "analysis"] as const,
+  analysisHistory: (id: string) =>
+    [...repositoryKeys.detail(id), "analysis-history"] as const,
+  analysisDelta: (id: string, fromId: string | null, toId: string | null) =>
+    [...repositoryKeys.detail(id), "analysis-delta", fromId, toId] as const,
+  artifactVersions: (id: string, artifact: string, kind: string | null) =>
+    [
+      ...repositoryKeys.detail(id),
+      "artifact-versions",
+      artifact,
+      kind,
+    ] as const,
   branches: (id: string) => [...repositoryKeys.detail(id), "branches"] as const,
   branchNames: (id: string) =>
     [...repositoryKeys.detail(id), "branch-names"] as const,

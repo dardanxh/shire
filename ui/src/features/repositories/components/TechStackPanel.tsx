@@ -18,6 +18,7 @@ import {
 import { formatDateTime } from "@/lib/format";
 import { useGenerateTechStackMutation, useTechStackQuery } from "../api";
 import { repositoryKeys } from "../keys";
+import { ArtifactVersionHistory } from "./ArtifactVersionHistory";
 
 export function TechStackPanel({ repoId }: { repoId: string }) {
   const { t } = useTranslation();
@@ -173,6 +174,26 @@ export function TechStackPanel({ repoId }: { repoId: string }) {
                 })}
               </p>
             ) : null}
+            <ArtifactVersionHistory
+              repoId={repoId}
+              artifact="tech-stack"
+              renderContent={(version) => (
+                <div className="flex flex-wrap gap-1.5">
+                  {(Array.isArray(version.content.items)
+                    ? version.content.items
+                    : []
+                  ).map((item: { detected_name?: string }, index: number) => (
+                    <Badge
+                      key={item.detected_name ?? index}
+                      variant="secondary"
+                      className="text-[11px]"
+                    >
+                      {item.detected_name}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            />
           </div>
         ) : (
           <p className="py-6 text-center text-sm text-muted-foreground">

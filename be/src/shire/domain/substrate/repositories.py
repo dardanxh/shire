@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import uuid
 from datetime import UTC, datetime
 
@@ -30,7 +32,9 @@ from shire.domain.substrate.domain import (
     Vulnerability,
 )
 from shire.domain.substrate.models import (
+    AnalysisDeltaNoteRow,
     AnalysisRow,
+    ArtifactVersionRow,
     CiCdRow,
     CommitActivityRow,
     CommitRecordRow,
@@ -327,6 +331,22 @@ class SqlAnalysisRepository:
         row = self._session.scalars(stmt).first()
         return _to_domain(row) if row else None
 
+    def list_meta_for_repository(self, repository_id: uuid.UUID) -> list[AnalysisRow]:
+        """Every complete snapshot's scalar row, oldest first — history/trend reads.
+
+        Returns raw rows (scalar columns only are meant to be read); callers must NOT touch
+        child collections or the selectin loads defeat the point of this method.
+        """
+        stmt = (
+            select(AnalysisRow)
+            .where(
+                AnalysisRow.repository_id == repository_id,
+                AnalysisRow.status == AnalysisStatus.complete.value,
+            )
+            .order_by(AnalysisRow.analyzed_at.asc())
+        )
+        return list(self._session.scalars(stmt))
+
     def latest_complete_meta(self) -> list[tuple[uuid.UUID, uuid.UUID, int]]:
         """(repository_id, analysis_id, commit_count) of each repo's latest complete analysis.
 
@@ -426,6 +446,15 @@ class SqlCommitRecordRepository:
         )
         return {analysis_id for (analysis_id,) in rows}
 
+    def sha_authors_for_analysis(self, analysis_id: uuid.UUID) -> dict[str, str]:
+        """sha -> author_email for one analysis's history (delta "new commits" rollup)."""
+        rows = self._session.execute(
+            select(CommitRecordRow.sha, CommitRecordRow.author_email).where(
+                CommitRecordRow.analysis_id == analysis_id
+            )
+        )
+        return dict(rows.all())
+
     def weekly_counts_by_email(
         self, analysis_ids: list[uuid.UUID], since: datetime
     ) -> dict[str, dict[datetime, int]]:
@@ -445,6 +474,111 @@ class SqlCommitRecordRepository:
         for email, week_start, count in rows:
             grouped.setdefault(email, {})[week_start] = count
         return grouped
+
+
+class SqlArtifactVersionRepository:
+    """Versioned history of Claude-produced repo artifacts. Append-only; identical
+    regenerations (same content hash as the latest version of the same slot) are skipped."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def record(
+        self,
+        repository_id: uuid.UUID,
+        artifact: str,
+        kind: str,
+        branch: str,
+        commit_sha: str,
+        content: dict,
+    ) -> bool:
+        """Append a version unless it's byte-identical to the slot's latest. Returns True
+        when a new version row was written."""
+        digest = _content_hash(content)
+        latest = self._session.scalars(
+            select(ArtifactVersionRow)
+            .where(
+                ArtifactVersionRow.repository_id == repository_id,
+                ArtifactVersionRow.artifact == artifact,
+                ArtifactVersionRow.kind == kind,
+                ArtifactVersionRow.branch == branch,
+            )
+            .order_by(ArtifactVersionRow.created_at.desc())
+            .limit(1)
+        ).first()
+        if latest is not None and latest.content_hash == digest:
+            return False
+        self._session.add(
+            ArtifactVersionRow(
+                repository_id=repository_id,
+                artifact=artifact,
+                kind=kind,
+                branch=branch,
+                commit_sha=commit_sha,
+                content=content,
+                content_hash=digest,
+                created_at=datetime.now(UTC),
+            )
+        )
+        return True
+
+    def list(
+        self, repository_id: uuid.UUID, artifact: str, kind: str | None = None
+    ) -> list[ArtifactVersionRow]:
+        stmt = (
+            select(ArtifactVersionRow)
+            .where(
+                ArtifactVersionRow.repository_id == repository_id,
+                ArtifactVersionRow.artifact == artifact,
+            )
+            .order_by(ArtifactVersionRow.created_at.desc())
+        )
+        if kind is not None:
+            stmt = stmt.where(ArtifactVersionRow.kind == kind)
+        return list(self._session.scalars(stmt))
+
+
+class SqlAnalysisDeltaNoteRepository:
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def get(
+        self, from_analysis_id: uuid.UUID, to_analysis_id: uuid.UUID
+    ) -> AnalysisDeltaNoteRow | None:
+        return self._session.scalars(
+            select(AnalysisDeltaNoteRow).where(
+                AnalysisDeltaNoteRow.from_analysis_id == from_analysis_id,
+                AnalysisDeltaNoteRow.to_analysis_id == to_analysis_id,
+            )
+        ).first()
+
+    def upsert(
+        self,
+        repository_id: uuid.UUID,
+        from_analysis_id: uuid.UUID,
+        to_analysis_id: uuid.UUID,
+        narrative: str,
+    ) -> AnalysisDeltaNoteRow:
+        row = self.get(from_analysis_id, to_analysis_id)
+        if row is None:
+            row = AnalysisDeltaNoteRow(
+                repository_id=repository_id,
+                from_analysis_id=from_analysis_id,
+                to_analysis_id=to_analysis_id,
+                narrative=narrative,
+                created_at=datetime.now(UTC),
+            )
+            self._session.add(row)
+        else:
+            row.narrative = narrative
+            row.created_at = datetime.now(UTC)
+        return row
+
+
+def _content_hash(content: dict) -> str:
+    return hashlib.sha256(
+        json.dumps(content, sort_keys=True, default=str).encode()
+    ).hexdigest()
 
 
 class SqlRepositoryToolRepository:

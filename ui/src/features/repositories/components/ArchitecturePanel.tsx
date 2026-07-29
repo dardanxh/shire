@@ -26,6 +26,7 @@ import {
   useGenerateArchitectureDiagramMutation,
 } from "../api";
 import { repositoryKeys } from "../keys";
+import { ArtifactVersionHistory } from "./ArtifactVersionHistory";
 import { MermaidDiagram } from "./MermaidDiagram";
 
 // Display order of the category groups.
@@ -185,6 +186,18 @@ function DiagramCard({
                 })}
               </p>
             ) : null}
+            <ArtifactVersionHistory
+              repoId={repoId}
+              artifact="architecture"
+              kind={diagram.kind}
+              renderContent={(version) =>
+                typeof version.content.mermaid === "string" ? (
+                  <div className="max-h-72 overflow-auto rounded-md bg-muted/30 p-3">
+                    <MermaidDiagram code={version.content.mermaid} />
+                  </div>
+                ) : null
+              }
+            />
           </div>
         ) : (
           <p className="py-6 text-center text-sm text-muted-foreground">
