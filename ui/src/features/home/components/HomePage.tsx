@@ -29,9 +29,6 @@ export function HomePage() {
           <h1 className="font-heading text-2xl font-semibold leading-tight">
             {t("home.hero.title")}
           </h1>
-          <p className="text-sm text-muted-foreground">
-            {t("home.hero.subtitle")}
-          </p>
         </div>
       </div>
 
