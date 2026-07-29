@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 392" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#8b949e"/>
+    </marker>
+  </defs>
+
+  <!-- Browser -->
+  <rect x="24" y="176" width="112" height="48" rx="24" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="80" y="205" text-anchor="middle" font-size="14" font-weight="600" fill="#1e293b">Browser</text>
+
+  <!-- Browser -> ui -->
+  <line x1="136" y1="200" x2="170" y2="200" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ui -->
+  <rect x="176" y="168" width="180" height="64" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="266" y="195" text-anchor="middle" font-size="14" font-weight="600" fill="#1e293b">ui — React 19 SPA</text>
+  <text x="266" y="216" text-anchor="middle" font-size="12" fill="#64748b">nginx :3000</text>
+
+  <!-- ui -> be -->
+  <line x1="356" y1="200" x2="410" y2="200" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="384" y="190" text-anchor="middle" font-size="12" font-family="ui-monospace, 'SF Mono', Menlo, monospace" fill="#8b949e">/api/*</text>
+
+  <!-- be -->
+  <rect x="416" y="168" width="196" height="64" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="514" y="195" text-anchor="middle" font-size="14" font-weight="600" fill="#1e293b">be — FastAPI :8000</text>
+  <text x="514" y="216" text-anchor="middle" font-size="12" fill="#64748b">substrate scanners + domains</text>
+
+  <!-- db (cylinder) -->
+  <path d="M 700 62 L 700 96 A 100 12 0 0 0 900 96 L 900 62" fill="#eef4fa" stroke="#5b8db8" stroke-width="1.5"/>
+  <ellipse cx="800" cy="62" rx="100" ry="12" fill="#e2edf7" stroke="#5b8db8" stroke-width="1.5"/>
+  <text x="800" y="86" text-anchor="middle" font-size="14" font-weight="600" fill="#1e3a56">PostgreSQL 17</text>
+  <text x="800" y="102" text-anchor="middle" font-size="12" fill="#48729c">+ pgvector</text>
+
+  <!-- be -> db -->
+  <path d="M 612 184 C 662 184, 646 84, 694 82" fill="none" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- be <-> engine : shared volume (dotted, no arrowheads) -->
+  <path d="M 612 216 C 650 216, 656 204, 694 204" fill="none" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <text x="654" y="242" text-anchor="middle" font-size="11.5" fill="#8b949e">shared /data volume</text>
+  <text x="654" y="257" text-anchor="middle" font-size="11.5" fill="#8b949e">(clones, worktrees, artifacts)</text>
+
+  <!-- engine -->
+  <rect x="700" y="178" width="200" height="52" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="800" y="209" text-anchor="middle" font-size="14" font-weight="600" fill="#1e293b">engine — job worker</text>
+
+  <!-- engine -> db -->
+  <line x1="800" y1="178" x2="800" y2="124" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="812" y="146" font-size="11.5" fill="#8b949e">claim jobs</text>
+  <text x="812" y="161" font-size="11.5" fill="#8b949e">(LISTEN/NOTIFY)</text>
+
+  <!-- engine -> claude -->
+  <line x1="800" y1="230" x2="800" y2="294" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="812" y="258" font-size="11.5" font-family="ui-monospace, 'SF Mono', Menlo, monospace" fill="#8b949e">claude -p</text>
+  <text x="812" y="273" font-size="11.5" fill="#8b949e">(headless)</text>
+
+  <!-- Claude Code CLI -->
+  <rect x="700" y="300" width="200" height="52" rx="8" fill="#fdf1ea" stroke="#d97757" stroke-width="1.5"/>
+  <text x="800" y="331" text-anchor="middle" font-size="14" font-weight="600" fill="#7c3a22">Claude Code CLI</text>
+</svg>

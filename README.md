@@ -79,15 +79,7 @@ entries.
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    U([Browser]) --> UI["ui — React 19 SPA<br/>nginx :3000"]
-    UI -- "/api/*" --> BE["be — FastAPI :8000<br/>substrate scanners + domains"]
-    BE --> DB[("PostgreSQL 17<br/>+ pgvector")]
-    EN["engine — job worker"] -- "claim jobs<br/>(LISTEN/NOTIFY)" --> DB
-    EN -- "claude -p (headless)" --> CC["Claude Code CLI"]
-    BE -. "shared /data volume<br/>(clones, worktrees, artifacts)" .-> EN
-```
+![Shire architecture — React SPA → FastAPI → PostgreSQL, with a job-worker engine driving the Claude Code CLI](./docs/images/architecture.svg)
 
 - **`be/`** — FastAPI backend: a modular monolith of ~25 feature domains (repository ingest,
   analysis substrate, hobits, roadmaps, council, catalogs…) plus the Postgres-backed job queue.
