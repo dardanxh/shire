@@ -15,14 +15,11 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import exists, func, select, text
 from sqlalchemy.orm import Session
 
-from shire.core.pagination import Page, PaginationParams
 from shire.core.settings import get_settings
 from shire.domain.briefing.models import BriefingItemRow
 from shire.domain.connections.models import ConnectionRow
-from shire.domain.council.models import CouncilTopicRow
 from shire.domain.hobits.models import HobitRunRow
 from shire.domain.home.schemas import (
-    ActivityEventResult,
     AttentionResult,
     ClaudeStatusResult,
     EngineStatusResult,
@@ -31,7 +28,6 @@ from shire.domain.home.schemas import (
 )
 from shire.domain.jobs.models import JobRow
 from shire.domain.jobs.services import JobService
-from shire.domain.merge_review.models import MergeReviewRow
 from shire.domain.principles.models import PrincipleRow
 from shire.domain.repository.models import RepositoryRow
 from shire.domain.roadmap.models import (
@@ -39,7 +35,7 @@ from shire.domain.roadmap.models import (
     RoadmapExecutionRow,
     RoadmapItemRow,
 )
-from shire.domain.substrate.models import AnalysisRow, RepositoryToolRow
+from shire.domain.substrate.models import RepositoryToolRow
 from shire.integrations.claude_agent import ClaudeAgent
 
 _CLAUDE_VERSION_TTL_SECONDS = 300.0
@@ -49,23 +45,6 @@ _claude_lock = threading.Lock()
 # An engine that claimed a job this recently is treated as alive even when the LISTEN
 # backend isn't visible (e.g. the roles ever diverge and pg_stat_activity masks queries).
 _JOB_ACTIVITY_WINDOW = timedelta(minutes=2)
-
-# Job kinds hidden from the activity feed: internal fan-out (a council convene spawns
-# roster/take/chair jobs, a merge review spawns mr.* jobs — the feed shows the umbrella
-# event from the owning table instead) and scheduled background ticks.
-_FEED_HIDDEN_JOB_KINDS = (
-    "council.roster",
-    "council.take_r1",
-    "council.take_r2",
-    "council.chair",
-    "mr.classification",
-    "mr.overview",
-    "mr.hobit_review",
-    "hobit.feedback_distill",
-    "news.poll",
-    "news.recommend",
-    "roadmap.drift",
-)
 
 
 def _claude_version() -> str | None:
@@ -93,139 +72,6 @@ class HomeService:
             checklist=self._checklist(),
             attention=self._attention(),
         )
-
-    def activity(self, params: PaginationParams) -> Page[ActivityEventResult]:
-        """Reverse-chronological feed of recent work, derived — no event table.
-
-        Jobs already record most actions (with a human title); the other sources cover
-        what never becomes a job (onboarding, scanner refreshes) or is better shown as
-        one umbrella event than as its fan-out jobs (council convenes, merge reviews).
-        Each source is fetched newest-first up to offset+limit, merged in memory, and
-        sliced — cheap at feed page sizes, and one ORDER BY per already-indexed column.
-        """
-        session = self._session
-        fetch = params.offset + params.limit
-        events: list[ActivityEventResult] = []
-
-        for job in session.scalars(
-            select(JobRow)
-            .where(JobRow.kind.notin_(_FEED_HIDDEN_JOB_KINDS))
-            .order_by(JobRow.created_at.desc())
-            .limit(fetch)
-        ):
-            events.append(
-                ActivityEventResult(
-                    id=job.id,
-                    kind=job.kind,
-                    title=job.title,
-                    status=job.status,
-                    repository_id=job.repository_id,
-                    repository_slug=None,
-                    occurred_at=job.created_at,
-                )
-            )
-
-        for repo_id, owner, name, created_at in session.execute(
-            select(
-                RepositoryRow.id, RepositoryRow.owner, RepositoryRow.name, RepositoryRow.created_at
-            )
-            .order_by(RepositoryRow.created_at.desc())
-            .limit(fetch)
-        ):
-            events.append(
-                ActivityEventResult(
-                    id=repo_id,
-                    kind="repository.onboarded",
-                    title=f"{owner}/{name}",
-                    status=None,
-                    repository_id=repo_id,
-                    repository_slug=f"{owner}/{name}",
-                    occurred_at=created_at,
-                )
-            )
-
-        for analysis in session.scalars(
-            select(AnalysisRow).order_by(AnalysisRow.analyzed_at.desc()).limit(fetch)
-        ):
-            events.append(
-                ActivityEventResult(
-                    id=analysis.id,
-                    kind="repository.analyzed",
-                    title=analysis.commit_sha[:12],
-                    status=analysis.status,
-                    repository_id=analysis.repository_id,
-                    repository_slug=None,
-                    occurred_at=analysis.analyzed_at,
-                )
-            )
-
-        for topic in session.scalars(
-            select(CouncilTopicRow)
-            .where(CouncilTopicRow.convened_at.is_not(None))
-            .order_by(CouncilTopicRow.convened_at.desc())
-            .limit(fetch)
-        ):
-            events.append(
-                ActivityEventResult(
-                    id=topic.id,
-                    kind="council.convened",
-                    title=topic.name,
-                    status=topic.status,
-                    repository_id=None,
-                    repository_slug=None,
-                    occurred_at=topic.convened_at,  # type: ignore[arg-type]  # filtered not-null
-                )
-            )
-
-        for review in session.scalars(
-            select(MergeReviewRow).order_by(MergeReviewRow.created_at.desc()).limit(fetch)
-        ):
-            events.append(
-                ActivityEventResult(
-                    id=review.id,
-                    kind="merge_review.created",
-                    title=f"{review.source_branch} → {review.target_branch}",
-                    status=review.overall_status,
-                    repository_id=review.repository_id,
-                    repository_slug=None,
-                    occurred_at=review.created_at,
-                )
-            )
-
-        events.sort(key=lambda e: (e.occurred_at, str(e.id)), reverse=True)
-        page_events = events[params.offset : params.offset + params.limit]
-
-        # One lookup stitches repo slugs onto job/analysis/review events; analyses keep no
-        # FK, so a deleted repo simply yields no slug.
-        missing = {
-            e.repository_id for e in page_events if e.repository_id and not e.repository_slug
-        }
-        if missing:
-            slug_by_id = {
-                row.id: f"{row.owner}/{row.name}"
-                for row in session.execute(
-                    select(RepositoryRow.id, RepositoryRow.owner, RepositoryRow.name).where(
-                        RepositoryRow.id.in_(missing)
-                    )
-                )
-            }
-            for event in page_events:
-                if event.repository_id and not event.repository_slug:
-                    event.repository_slug = slug_by_id.get(event.repository_id)
-
-        total = sum(
-            int(session.scalar(query) or 0)
-            for query in (
-                select(func.count(JobRow.id)).where(JobRow.kind.notin_(_FEED_HIDDEN_JOB_KINDS)),
-                select(func.count(RepositoryRow.id)),
-                select(func.count(AnalysisRow.id)),
-                select(func.count(CouncilTopicRow.id)).where(
-                    CouncilTopicRow.convened_at.is_not(None)
-                ),
-                select(func.count(MergeReviewRow.id)),
-            )
-        )
-        return Page.create(items=page_events, total=total, params=params)
 
     def _claude_status(self) -> ClaudeStatusResult:
         version = _claude_version()

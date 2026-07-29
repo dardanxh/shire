@@ -2437,8 +2437,7 @@ export interface paths {
         };
         /**
          * Home Activity
-         * @description Recent work across the workspace, newest first — derived from jobs, repository
-         *     onboardings, analysis refreshes, council convenes, and merge reviews.
+         * @description Recent work across the workspace, newest first — read from the activity log.
          */
         get: operations["home_activity_api_v1_home_activity_get"];
         put?: never;

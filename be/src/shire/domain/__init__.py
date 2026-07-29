@@ -6,6 +6,7 @@ autogenerate (imported via `shire.core.metadata`).
 
 from __future__ import annotations
 
+from shire.domain.activity import models as _activity_models  # noqa: F401
 from shire.domain.blueprint import models as _blueprint_models  # noqa: F401
 from shire.domain.briefing import models as _briefing_models  # noqa: F401
 from shire.domain.capacity import models as _capacity_models  # noqa: F401

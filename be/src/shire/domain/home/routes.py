@@ -7,7 +7,9 @@ from sqlalchemy.orm import Session
 
 from shire.core.db import get_session
 from shire.core.pagination import Page, PaginationParams
-from shire.domain.home.schemas import ActivityEventResult, HomeStatusResult
+from shire.domain.activity.schemas import ActivityEventResult
+from shire.domain.activity.services import ActivityService
+from shire.domain.home.schemas import HomeStatusResult
 from shire.domain.home.services import HomeService
 
 router = APIRouter(prefix="/home", tags=["home"])
@@ -25,6 +27,5 @@ def home_activity(
     params: PaginationParams = Depends(),
     session: Session = Depends(get_session),
 ) -> Page[ActivityEventResult]:
-    """Recent work across the workspace, newest first — derived from jobs, repository
-    onboardings, analysis refreshes, council convenes, and merge reviews."""
-    return HomeService(session).activity(params)
+    """Recent work across the workspace, newest first — read from the activity log."""
+    return ActivityService(session).feed(params)
