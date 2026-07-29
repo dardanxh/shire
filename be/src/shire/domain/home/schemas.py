@@ -56,3 +56,20 @@ class HomeStatusResult(BaseModel):
     engine: EngineStatusResult
     checklist: OnboardingChecklistResult
     attention: AttentionResult
+
+
+class ActivityEventResult(BaseModel):
+    """One entry of the Home activity feed — a recent piece of work, newest first."""
+
+    # The source row's id: the job id for job-backed events, otherwise the entity id
+    # (repository, council topic, merge review) the event describes.
+    id: uuid.UUID
+    # A job kind verbatim (e.g. "hobit.run", "substrate.architecture") or one of the
+    # synthesized kinds: "repository.onboarded", "repository.analyzed",
+    # "council.convened", "merge_review.created".
+    kind: str
+    title: str
+    status: str | None
+    repository_id: uuid.UUID | None
+    repository_slug: str | None
+    occurred_at: datetime
