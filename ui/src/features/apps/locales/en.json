@@ -13,7 +13,7 @@
         "description": "Model team capacity and estimate delivery sizing scenarios."
       },
       "tech_chooser": {
-        "name": "Tech Chooser",
+        "name": "Tech-Stack Picker",
         "description": "Compare technology options side by side against weighted criteria."
       },
       "compliance": {

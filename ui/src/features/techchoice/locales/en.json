@@ -1,8 +1,8 @@
 {
   "techchoice": {
-    "title": "Tech Chooser",
+    "title": "Tech-Stack Picker",
     "subtitle": "Pick a category, weigh what matters, and get a ranked shortlist from the corpus.",
-    "crumb": "Tech Chooser",
+    "crumb": "Tech-Stack Picker",
     "tabs": {
       "chooser": "Chooser",
       "history": "History"
