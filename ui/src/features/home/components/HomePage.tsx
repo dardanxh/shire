@@ -23,7 +23,7 @@ export function HomePage() {
           src="/logo.svg"
           alt=""
           aria-hidden
-          className="size-10 shrink-0 rounded-lg"
+          className="size-14 shrink-0 rounded-lg"
         />
         <div>
           <h1 className="font-heading text-2xl font-semibold leading-tight">
