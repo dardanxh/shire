@@ -1,8 +1,15 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import { roadmapKeys } from "@/features/roadmaps";
 import { api, type HomeStatusOut } from "@/lib/api";
 import { homeKeys } from "./keys";
+
+const ACTIVITY_PAGE_SIZE = 15;
 
 /**
  * The landing page's single read: Claude/engine status + checklist facts.
@@ -19,6 +26,29 @@ export function useHomeStatusQuery() {
     },
     staleTime: 15_000,
     refetchInterval: 30_000,
+  });
+}
+
+/**
+ * The Home activity feed: recent work across the workspace, newest first,
+ * appended page by page via the "Load more" button.
+ */
+export function useActivityFeedQuery() {
+  return useInfiniteQuery({
+    queryKey: homeKeys.activity(),
+    queryFn: async ({ pageParam }) => {
+      const { data, error } = await api.GET("/api/v1/home/activity", {
+        params: {
+          query: { page: pageParam, page_size: ACTIVITY_PAGE_SIZE },
+        },
+      });
+      if (error) throw error;
+      return data;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.page < lastPage.total_pages ? lastPage.page + 1 : undefined,
+    staleTime: 15_000,
   });
 }
 

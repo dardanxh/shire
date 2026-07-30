@@ -125,6 +125,7 @@ export type ExportIssuesOut = components["schemas"]["ExportIssuesResult"];
 export type RepoRoadmapSliceOut =
   components["schemas"]["RepoRoadmapSliceResult"];
 export type HomeStatusOut = components["schemas"]["HomeStatusResult"];
+export type ActivityEventOut = components["schemas"]["ActivityEventResult"];
 export type CouncilTopicOut = components["schemas"]["CouncilTopicResult"];
 export type CouncilTopicDetailOut =
   components["schemas"]["CouncilTopicDetailResult"];

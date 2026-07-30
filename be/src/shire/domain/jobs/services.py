@@ -90,6 +90,10 @@ class JobService:
             created_at=datetime.now(UTC),
         )
         self._jobs.add(row)
+        # Deferred import: activity imports JobRow from this domain's models.
+        from shire.domain.activity.services import ActivityService
+
+        ActivityService(self._session).record_job(row)
         self._session.execute(
             text("SELECT pg_notify(:channel, :payload)"),
             {"channel": JOBS_NEW_CHANNEL, "payload": str(row.id)},

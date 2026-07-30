@@ -2428,6 +2428,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/home/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Home Activity
+         * @description Recent work across the workspace, newest first — read from the activity log.
+         */
+        get: operations["home_activity_api_v1_home_activity_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/blueprints": {
         parameters: {
             query?: never;
@@ -2985,6 +3005,32 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * ActivityEventResult
+         * @description One entry of the Home activity feed — a recent piece of work, newest first.
+         */
+        ActivityEventResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Title */
+            title: string;
+            /** Status */
+            status: string | null;
+            /** Repository Id */
+            repository_id: string | null;
+            /** Repository Slug */
+            repository_slug: string | null;
+            /**
+             * Occurred At
+             * Format: date-time
+             */
+            occurred_at: string;
+        };
         /**
          * AnalysisDeltaResult
          * @description Deterministic diff between two analysis snapshots, plus any persisted narrative.
@@ -6500,6 +6546,19 @@ export interface components {
             has_hobit_run: boolean;
             /** First Repository Id */
             first_repository_id: string | null;
+        };
+        /** Page[ActivityEventResult] */
+        Page_ActivityEventResult_: {
+            /** Items */
+            items: components["schemas"]["ActivityEventResult"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
         };
         /** Page[ArchitectureQualityResult] */
         Page_ArchitectureQualityResult_: {
@@ -12948,6 +13007,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HomeStatusResult"];
+                };
+            };
+        };
+    };
+    home_activity_api_v1_home_activity_get: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ActivityEventResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

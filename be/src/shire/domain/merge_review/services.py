@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from shire.core.exceptions import ConflictError, NotFoundError, ValidationError
 from shire.core.pagination import Page, PaginationParams
+from shire.domain.activity.services import ActivityService
 from shire.domain.connections.domain import GitProvider
 from shire.domain.hobits.services import HobitService
 from shire.domain.merge_review.domain import CommentSeverity, Footprint, MrComment
@@ -86,6 +87,12 @@ class MergeReviewService:
         self._reviews.add(row)
         self._hobit_reviews.replace_for_review(row.id, data.hobit_slugs)
         review_id = row.id
+        ActivityService(self._session).record(
+            kind="merge_review.created",
+            title=row.title or f"{row.source_branch} → {row.target_branch}",
+            entity_id=review_id,
+            repository_id=repo.id,
+        )
 
         # Enqueue inside this transaction: the job row and its NOTIFY become visible to the
         # engine service atomically with the review itself.
