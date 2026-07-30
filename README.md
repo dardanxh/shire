@@ -59,7 +59,7 @@ attention — all running on your own machine.
 
 Standalone tools for planning, evaluation, and checks:
 **AI Readiness** (how ready is a repo for AI-assisted development), **Capacity Planner**
-(team capacity & delivery sizing), **Tech Chooser** (weighted side-by-side technology
+(team capacity & delivery sizing), **Tech-Stack Picker** (weighted side-by-side technology
 comparison), **Compliance** (standards checks across repos).
 
 ### Knowledge
