@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from shire.core.exceptions import ConflictError, NotFoundError, ValidationError
 from shire.core.pagination import Page, PaginationParams
 from shire.core.settings import get_settings
+from shire.domain.activity.services import ActivityService
 from shire.domain.connections.domain import AuthMethod, GitProvider
 from shire.domain.connections.services import ConnectionService
 from shire.domain.jobs import kinds as job_kinds
@@ -163,6 +164,7 @@ class RepositoryService:
             IngestionStatus.analyzing,
         ):
             raise ConflictError("Repository is busy (cloning/analyzing) — try again shortly.")
+        is_new = repository is None
         if repository is None:
             repository = Repository(
                 coordinates=coordinates, url=repo_url, connection_id=connection_id
@@ -173,6 +175,14 @@ class RepositoryService:
         # Progress is visible from the first list render; doubles as the double-submit guard.
         repository.mark_cloning()
         self._repos.save(repository)
+        if is_new:
+            # After save() so the repository row is in the session before the FK'd feed row.
+            ActivityService(self._session).record(
+                kind="repository.onboarded",
+                title=f"{coordinates.owner}/{coordinates.name}",
+                entity_id=repository.id,
+                repository_id=repository.id,
+            )
         # Commit NOW: the request session's teardown commit runs after background tasks, so a
         # pending "cloning" mutation left here would overwrite the pipeline's final status.
         self._session.commit()
@@ -369,6 +379,12 @@ class RepositoryService:
 
             repository.mark_ready(outcome.head_sha)
             self._repos.save(repository)
+            ActivityService(self._session).record(
+                kind="repository.analyzed",
+                title=outcome.head_sha[:12],
+                entity_id=repository.id,
+                repository_id=repository.id,
+            )
             self._session.commit()
         except Exception as exc:
             logger.exception("Ingestion failed for %s", url)

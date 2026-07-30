@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { extractErrorMessage } from "@/lib/api";
 import { useHomeStatusQuery } from "../api";
+import { ActivityFeedCard } from "./ActivityFeedCard";
 import { AttentionCard } from "./AttentionCard";
 import { OnboardingChecklistCard } from "./OnboardingChecklistCard";
 import { QuickActionsCard } from "./QuickActionsCard";
@@ -29,9 +30,6 @@ export function HomePage() {
           <h1 className="font-heading text-2xl font-semibold leading-tight">
             {t("home.hero.title")}
           </h1>
-          <p className="text-sm text-muted-foreground">
-            {t("home.hero.subtitle")}
-          </p>
         </div>
       </div>
 
@@ -53,6 +51,7 @@ export function HomePage() {
         <div className="space-y-4">
           <QuickActionsCard status={status} />
           <AttentionCard status={status} />
+          <ActivityFeedCard />
           <SystemStatusCard status={status} />
           <OnboardingChecklistCard status={status} />
           <SpendCard />

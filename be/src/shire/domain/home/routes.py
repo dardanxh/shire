@@ -6,6 +6,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from shire.core.db import get_session
+from shire.core.pagination import Page, PaginationParams
+from shire.domain.activity.schemas import ActivityEventResult
+from shire.domain.activity.services import ActivityService
 from shire.domain.home.schemas import HomeStatusResult
 from shire.domain.home.services import HomeService
 
@@ -17,3 +20,12 @@ def home_status(session: Session = Depends(get_session)) -> HomeStatusResult:
     """Everything the landing page needs in one read: Claude CLI availability + version,
     the engine's liveness, and the raw facts the onboarding checklist derives from."""
     return HomeService(session).status()
+
+
+@router.get("/activity", response_model=Page[ActivityEventResult])
+def home_activity(
+    params: PaginationParams = Depends(),
+    session: Session = Depends(get_session),
+) -> Page[ActivityEventResult]:
+    """Recent work across the workspace, newest first — read from the activity log."""
+    return ActivityService(session).feed(params)

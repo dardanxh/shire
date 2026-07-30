@@ -20,13 +20,13 @@ feature-rich:
 
 ## Next — product depth
 
-- **Scheduled hobits (Prefect)** — cadence-based and event-triggered hobit runs with
-  retries and run history, Postgres-backed (no Redis). The groundwork exists behind the
-  Phase 2.5 settings; finishing and defaulting it is the next product milestone.
 - **PR / code-review companion** — a hobit that reviews pull requests in context of the
-  substrate (ownership, coupling, drift), not just the diff.
-- **"Explain the diff" watcher** — on-demand narrative for any change range, building on
-  the evolution snapshots.
+  substrate (ownership, coupling, drift), not just the diff. Merge reviews cover branch
+  pairs today; this brings the same depth to the provider's PR flow.
+- **Event-triggered hobits** — cadence scheduling (hourly/daily/weekly/cron) is built on
+  Prefect as an opt-in add-on (see `docs/running-phase-2.5.md`); next steps are bundling
+  it into the Docker stack and inter-hobit automations, where one hobit's finding
+  triggers another's run.
 - **Decision journal** — an ADR assistant that captures and audits architectural
   decisions against the codebase over time.
 
@@ -40,8 +40,6 @@ feature-rich:
   run history.
 - **Multi-user & auth** — Shire is deliberately local-first and single-user today; a
   proper auth story is the gate to team deployments.
-- **Dark mode & theming** — the theme plumbing (next-themes, token-based styling) is in
-  place; the dark palette isn't.
 
 ## How to contribute
 

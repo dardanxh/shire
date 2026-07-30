@@ -38,13 +38,16 @@ export function formatAge(ageDays: number | null | undefined): string {
   return `~${Math.round(years)} year${Math.round(years) === 1 ? "" : "s"}`;
 }
 
-/** Relative time from now, e.g. "today", "3 days ago", "2 months ago". */
+/** Relative time from now, e.g. "just now", "3h ago", "3 days ago", "2 months ago". */
 export function formatTimeAgo(iso: string | null | undefined): string {
   if (!iso) return "—";
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) return "—";
-  const days = (Date.now() - then) / 86_400_000;
-  if (days < 1) return "today";
+  const minutes = (Date.now() - then) / 60_000;
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${Math.round(minutes)}m ago`;
+  const days = minutes / 1_440;
+  if (days < 1) return `${Math.round(minutes / 60)}h ago`;
   if (days < 60) {
     const d = Math.round(days);
     return `${d} day${d === 1 ? "" : "s"} ago`;

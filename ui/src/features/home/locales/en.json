@@ -1,8 +1,7 @@
 {
   "home": {
     "hero": {
-      "title": "Welcome to the Shire, home of the hobits",
-      "subtitle": "steady little companions for your daily work"
+      "title": "Welcome to Shire, the land of agentic hobits"
     },
     "system": {
       "title": "System",
@@ -66,6 +65,32 @@
       "all_installed": "Everything is installed — full analysis coverage.",
       "copy": "Copy command",
       "view_all": "View all tools →"
+    },
+    "activity": {
+      "title": "Recent activity",
+      "empty": "Nothing here yet — import a repository to get things moving.",
+      "load_more": "Load more",
+      "loading": "Loading…",
+      "kinds": {
+        "repository_onboarded": "Repository onboarded",
+        "repository_analyzed": "Repository analyzed",
+        "council_convened": "Council convened",
+        "merge_review_created": "Merge review",
+        "hobit_run": "Hobit run",
+        "substrate_architecture": "Architecture generated",
+        "substrate_codebase_overview": "Overview written",
+        "substrate_tech_stack": "Tech stack mapped",
+        "substrate_dependency_gains": "Dependency gains checked",
+        "substrate_evolution_note": "Change narrative",
+        "principle_audit": "Principles audited",
+        "repo_question": "Question asked",
+        "readiness_suggest": "AI-readiness suggested",
+        "readiness_apply": "AI-readiness applied",
+        "compliance_check": "Compliance check",
+        "roadmap_generate": "Roadmap generated",
+        "roadmap_execute": "Roadmap item executed",
+        "fallback": "Job"
+      }
     },
     "attention": {
       "title": "Needs attention",

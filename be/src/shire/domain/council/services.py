@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from shire.core.exceptions import ConflictError, NotFoundError
 from shire.core.pagination import Page, PaginationParams
+from shire.domain.activity.services import ActivityService
 from shire.domain.council.models import (
     CONVENABLE_STATUSES,
     EDITABLE_STATUSES,
@@ -152,6 +153,9 @@ class CouncilService:
         )
         if claimed.rowcount != 1:
             raise ConflictError("A debate is already running for this topic.")
+        ActivityService(self._session).record(
+            kind="council.convened", title=row.name, entity_id=topic_id
+        )
         self._takes.delete_for_topic(topic_id)
         self._session.expire_all()  # re-read the claimed status/convene_id below
         enqueue_round_one(self._session, topic_id)
