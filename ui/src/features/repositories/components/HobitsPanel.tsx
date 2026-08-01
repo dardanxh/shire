@@ -1,4 +1,4 @@
-import { Loader2Icon, PlayIcon, RefreshCwIcon } from "lucide-react";
+import { Loader2Icon, PlayIcon, PlusIcon, RefreshCwIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -6,7 +6,19 @@ import { toast } from "sonner";
 import { HobitMultiSelect } from "@/components/shared/HobitMultiSelect";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -27,6 +39,7 @@ import {
   useSetCadenceMutation,
   useSetRepoHobitsMutation,
 } from "../api";
+import { HobitRunResults } from "./HobitRunResults";
 
 /** Cadence presets offered in the dropdown; a fifth "custom" option reveals a cron input. */
 const CADENCE_PRESETS = ["manual", "hourly", "daily", "weekly"] as const;
@@ -82,6 +95,9 @@ export function HobitsPanel({ repoId }: { repoId: string }) {
       <Card>
         <CardHeader>
           <CardTitle>{t("repositories.hobits.assigned_title")}</CardTitle>
+          <CardAction>
+            <AssignEditor repoId={repoId} assigned={assigned ?? []} />
+          </CardAction>
         </CardHeader>
         <CardContent className="space-y-3">
           {(assigned?.length ?? 0) === 0 ? (
@@ -102,7 +118,11 @@ export function HobitsPanel({ repoId }: { repoId: string }) {
         </CardContent>
       </Card>
 
-      <AssignEditor repoId={repoId} assigned={assigned ?? []} />
+      <HobitRunResults
+        repoId={repoId}
+        runs={runs ?? []}
+        assigned={assigned ?? []}
+      />
     </div>
   );
 }
@@ -287,7 +307,8 @@ function CadenceControl({
   );
 }
 
-/** Edit which hobits are assigned to the repo (checkbox list of all non-foundational hobits). */
+/** Edit which hobits are assigned to the repo — an Assign button that opens the checkbox
+ * list of all non-foundational hobits in a dialog. */
 function AssignEditor({
   repoId,
   assigned,
@@ -296,30 +317,49 @@ function AssignEditor({
   assigned: HobitOut[];
 }) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
   const { data: all } = useHobitsQuery();
   const { mutate: save, isPending } = useSetRepoHobitsMutation();
   const assignedSlugs = assigned.map((h) => h.slug).join(",");
 
   return (
-    <Editor
-      key={assignedSlugs}
-      initial={new Set(assigned.map((h) => h.slug))}
-      hobits={(all ?? [])
-        // repo-onboarding runs for every repo; it isn't part of the assignable roster.
-        .filter((h) => h.slug !== "repo-onboarding")
-        .map((h) => ({
-          slug: h.slug,
-          name: h.name,
-          tags: h.tags,
-        }))}
-      isPending={isPending}
-      onSave={(slugs) =>
-        save(
-          { id: repoId, slugs },
-          { onSuccess: () => toast.success(t("repositories.hobits.saved")) },
-        )
-      }
-    />
+    <>
+      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
+        <PlusIcon className="size-4" />
+        {t("repositories.hobits.assign")}
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{t("repositories.hobits.manage_title")}</DialogTitle>
+          </DialogHeader>
+          <Editor
+            key={`${assignedSlugs}:${open}`}
+            initial={new Set(assigned.map((h) => h.slug))}
+            hobits={(all ?? [])
+              // repo-onboarding runs for every repo; it isn't part of the assignable roster.
+              .filter((h) => h.slug !== "repo-onboarding")
+              .map((h) => ({
+                slug: h.slug,
+                name: h.name,
+                tags: h.tags,
+              }))}
+            isPending={isPending}
+            onSave={(slugs) =>
+              save(
+                { id: repoId, slugs },
+                {
+                  onSuccess: () => {
+                    toast.success(t("repositories.hobits.saved"));
+                    setOpen(false);
+                  },
+                },
+              )
+            }
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -338,34 +378,29 @@ function Editor({
   const [selected, setSelected] = useState(initial);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("repositories.hobits.manage_title")}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <HobitMultiSelect
-          hobits={hobits}
-          selected={selected}
-          onToggle={(v) =>
-            setSelected((s) => {
-              const next = new Set(s);
-              if (next.has(v)) next.delete(v);
-              else next.add(v);
-              return next;
-            })
-          }
-          emptyLabel={t("repositories.hobits.none_available")}
-        />
-        <div className="flex justify-end">
-          <Button
-            size="sm"
-            disabled={isPending}
-            onClick={() => onSave([...selected])}
-          >
-            {t("repositories.hobits.save")}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="space-y-3">
+      <HobitMultiSelect
+        hobits={hobits}
+        selected={selected}
+        onToggle={(v) =>
+          setSelected((s) => {
+            const next = new Set(s);
+            if (next.has(v)) next.delete(v);
+            else next.add(v);
+            return next;
+          })
+        }
+        emptyLabel={t("repositories.hobits.none_available")}
+      />
+      <div className="flex justify-end">
+        <Button
+          size="sm"
+          disabled={isPending}
+          onClick={() => onSave([...selected])}
+        >
+          {t("repositories.hobits.save")}
+        </Button>
+      </div>
+    </div>
   );
 }

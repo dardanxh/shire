@@ -73,8 +73,9 @@
     },
     "hobits": {
       "assigned_title": "Assigned hobits",
-      "assigned_empty": "No hobits assigned yet. Use the panel below to grant access.",
+      "assigned_empty": "No hobits assigned yet. Click Assign to grant access.",
       "manage_title": "Manage access",
+      "assign": "Assign",
       "none_available": "No hobits available.",
       "last_run": "Last run: {{status}} · {{when}}",
       "never": "Not run on this repo yet",
@@ -109,6 +110,11 @@
         "apply": "Apply",
         "cron_label": "Cron expression",
         "saved": "Cadence updated"
+      },
+      "results": {
+        "title": "Results",
+        "show_more": "Show more",
+        "no_detail": "This run produced no output."
       }
     },
     "status": {
