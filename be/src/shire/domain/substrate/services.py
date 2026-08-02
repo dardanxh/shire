@@ -1203,7 +1203,8 @@ bullet per theme (merge related commits into one bullet), plain language, no sha
 into the relevant bullet rather than a separate section.
 - End with one line: `Contributors: <name> (<n> commits), …` from the commit list above.
 
-Plain markdown only, no preamble, no headings other than the bold labels."""
+Plain markdown only. Begin your reply DIRECTLY with the first bold category label — no \
+preamble, no verification notes, no headings other than the bold labels."""
 
 
 # Scalar metrics compared between snapshots (facts + enrichment field names).

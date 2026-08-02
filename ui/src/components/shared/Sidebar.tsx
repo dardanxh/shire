@@ -4,7 +4,6 @@ import {
   ChevronDownIcon,
   CpuIcon,
   DatabaseIcon,
-  EyeIcon,
   FolderGitIcon,
   GaugeIcon,
   GlobeIcon,
@@ -15,6 +14,7 @@ import {
   ListChecksIcon,
   type LucideIcon,
   MapIcon,
+  NewspaperIcon,
   PlugIcon,
   ScaleIcon,
   SettingsIcon,
@@ -80,7 +80,7 @@ const WORKSPACE_ITEMS: NavItem[] = [
   {
     to: "/developments",
     labelKey: "common.nav.developments",
-    icon: EyeIcon,
+    icon: NewspaperIcon,
     match: (p) => p === "/developments",
   },
   {
