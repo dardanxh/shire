@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
   CheckIcon,
+  CopyIcon,
   EyeIcon,
   EyeOffIcon,
   Loader2Icon,
@@ -376,8 +377,21 @@ function DeltaNarrative({
 
   if (delta.note) {
     return (
-      <div className="rounded-md border border-border bg-muted/30 p-3">
-        <Markdown>{delta.note}</Markdown>
+      <div className="group relative rounded-md border border-border bg-muted/30 p-3">
+        <Button
+          size="sm"
+          variant="ghost"
+          className="absolute top-1.5 right-1.5 h-7 px-2 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+          onClick={() => {
+            navigator.clipboard
+              .writeText(delta.note ?? "")
+              .then(() => toast.success(t("developments.copied")));
+          }}
+        >
+          <CopyIcon className="size-3.5" />
+          {t("developments.copy")}
+        </Button>
+        <Markdown className="pr-20">{delta.note}</Markdown>
       </div>
     );
   }

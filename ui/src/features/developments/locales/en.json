@@ -36,6 +36,8 @@
     "add_no_match": "No repositories match.",
     "add_all_watched": "Every repository is already on the watchlist.",
     "summary_auto_pending": "Summarizing the changes…",
-    "lines": "lines"
+    "lines": "lines",
+    "copy": "Copy",
+    "copied": "Summary copied — ready to paste to your team."
   }
 }
