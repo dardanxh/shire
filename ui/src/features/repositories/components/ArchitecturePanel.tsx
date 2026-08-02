@@ -97,18 +97,12 @@ export function ArchitecturePanel({ repoId }: { repoId: string }) {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-lg font-semibold">
-          {t("repositories.view.tabs.architecture")}
-        </h2>
-        <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-          {t("repositories.view.architecture.desc")}
-        </p>
         {!agentAvailable ? (
-          <p className="mt-2 text-sm text-amber-600 dark:text-amber-500">
+          <p className="mb-2 text-sm text-amber-600 dark:text-amber-500">
             {t("repositories.view.architecture.unavailable")}
           </p>
         ) : null}
-        <div className="mt-3">
+        <div>
           <Button
             size="sm"
             disabled={!agentAvailable || missing.length === 0}
