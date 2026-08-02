@@ -111,17 +111,52 @@ else
   esac
 fi
 
-# --- 2b. opt-in local-repos mount -------------------------------------------------------
+# --- 2b. local repos access (deliberate grant) ------------------------------------------
 # Nothing on the host is visible to the containers by default. To add repos already on this
-# machine by absolute path, the user deliberately grants access to ONE directory:
-#   SHIRE_LOCAL_REPOS_DIR=/path/to/repos ./setup.sh
-# mounts it into backend + engine at the same path. Idempotent against an existing .env.
-if [ -n "${SHIRE_LOCAL_REPOS_DIR:-}" ]; then
-  repos_dir="${SHIRE_LOCAL_REPOS_DIR%/}"
-  if [ ! -d "$repos_dir" ]; then
-    echo "ERROR: SHIRE_LOCAL_REPOS_DIR is not a directory: $repos_dir" >&2
-    exit 1
+# machine by absolute path, the user grants access to ONE directory, mounted into backend +
+# engine at the same path. The grant comes from $SHIRE_LOCAL_REPOS_DIR (scripted use) or the
+# interactive prompt below; skipping is fine — git-URL ingest needs nothing. Idempotent
+# against an existing .env; re-run ./setup.sh anytime to grant or change the folder.
+repos_dir="${SHIRE_LOCAL_REPOS_DIR:-}"
+if [ -n "$repos_dir" ] && [ ! -d "${repos_dir%/}" ]; then
+  echo "ERROR: SHIRE_LOCAL_REPOS_DIR is not a directory: $repos_dir" >&2
+  exit 1
+fi
+if [ -z "$repos_dir" ] && [ -t 0 ]; then
+  current="$(grep '^SHIRE_LOCAL_REPOS_DIR=' .env | cut -d= -f2- || true)"
+  bold "==> Repositories on this machine (optional)"
+  if [ -n "$current" ]; then
+    note "Folder currently shared with Shire: ${current}"
+    note "Enter a different folder to change it, or press Enter to keep it."
+  else
+    note "Shire can also analyze repos that already live on this machine, added in the UI by"
+    note "their folder path. That needs your permission: name ONE folder (e.g. ~/projects)"
+    note "and only that folder is shared with Shire — nothing else on your disk is visible."
+    note ""
+    note "Press Enter to skip. Skipping means adding repos by local path will NOT work (repos"
+    note "by git URL always work); you can grant a folder later by re-running ./setup.sh."
   fi
+  while :; do
+    printf '  Folder where you keep your repositories (Enter to skip): '
+    read -r answer || answer=""
+    [ -z "$answer" ] && break
+    case "$answer" in
+      "~") answer="$HOME" ;;
+      "~/"*) answer="${HOME}/${answer#\~/}" ;;
+    esac
+    case "$answer" in
+      /*) ;;
+      *) note "Please enter an absolute path (starting with /) — got: $answer"; continue ;;
+    esac
+    if [ -d "$answer" ]; then
+      repos_dir="$answer"
+      break
+    fi
+    note "Not a directory: $answer (try again, or press Enter to skip)"
+  done
+fi
+if [ -n "$repos_dir" ]; then
+  repos_dir="${repos_dir%/}"
   bold "==> Granting the stack access to ${repos_dir} (local-repos mount)"
   if grep -q '^SHIRE_LOCAL_REPOS_DIR=' .env; then
     sed -i.bak "s|^SHIRE_LOCAL_REPOS_DIR=.*|SHIRE_LOCAL_REPOS_DIR=${repos_dir}|" .env && rm -f .env.bak
@@ -165,6 +200,11 @@ bold "==> Shire is up"
 note "UI:        http://localhost:3000"
 note "Backend:   http://localhost:8000"
 note "API docs:  http://localhost:8000/docs"
+if grep -q '^SHIRE_LOCAL_REPOS_DIR=' .env; then
+  note "Local repos: $(grep '^SHIRE_LOCAL_REPOS_DIR=' .env | cut -d= -f2-) is shared with Shire"
+else
+  note "Local repos: no folder shared — repos by git URL only (re-run ./setup.sh to grant one)"
+fi
 note ""
 note "Logs:      docker compose logs -f"
 note "Stop:      docker compose down          (data is kept in named volumes)"
