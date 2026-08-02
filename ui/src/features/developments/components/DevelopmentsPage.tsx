@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
   CheckIcon,
+  ChevronDownIcon,
   CopyIcon,
   EyeIcon,
   EyeOffIcon,
@@ -256,13 +257,7 @@ function WatchlistCard({ entry }: { entry: WatchlistEntryOut }) {
             summaryPending={entry.summary_pending}
           />
         ) : entry.up_to_date ? (
-          <p className="text-sm text-muted-foreground">
-            {t("developments.up_to_date", {
-              when: entry.reviewed
-                ? formatDate(entry.reviewed.analyzed_at)
-                : "",
-            })}
-          </p>
+          <ReviewedWindow entry={entry} />
         ) : (
           <p className="text-sm text-muted-foreground">
             {t("developments.baseline_only")}
@@ -270,6 +265,46 @@ function WatchlistCard({ entry }: { entry: WatchlistEntryOut }) {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+/** Up-to-date card body: closed by default, but the just-reviewed window stays viewable. */
+function ReviewedWindow({ entry }: { entry: WatchlistEntryOut }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm text-muted-foreground">
+          {t("developments.up_to_date", {
+            when: entry.reviewed ? formatDate(entry.reviewed.analyzed_at) : "",
+          })}
+        </p>
+        {entry.reviewed_delta ? (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-muted-foreground"
+            onClick={() => setOpen((o) => !o)}
+          >
+            <ChevronDownIcon
+              className={`size-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+            />
+            {open
+              ? t("developments.hide_last_review")
+              : t("developments.show_last_review")}
+          </Button>
+        ) : null}
+      </div>
+      {open && entry.reviewed_delta ? (
+        <PendingDelta
+          repoId={entry.repository.id}
+          delta={entry.reviewed_delta}
+          summaryPending={false}
+        />
+      ) : null}
+    </div>
   );
 }
 

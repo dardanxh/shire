@@ -40,6 +40,9 @@ class RepositoryRow(Base):
     # from here to the latest snapshot; "mark reviewed" advances it. A sha (not analysis id)
     # because re-analyzing the same commit replaces the snapshot row and its id.
     last_reviewed_commit_sha: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    # Where the cursor sat before the last "mark reviewed" — lets an up-to-date card still
+    # show (collapsed) the window that was just reviewed instead of losing it.
+    prev_reviewed_commit_sha: Mapped[str | None] = mapped_column(String(64), nullable=True)
     last_analyzed_commit: Mapped[str | None] = mapped_column(String(64), nullable=True)
     last_analyzed_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True

@@ -38,6 +38,8 @@
     "summary_auto_pending": "Summarizing the changes…",
     "lines": "lines",
     "copy": "Copy",
-    "copied": "Summary copied — ready to paste to your team."
+    "copied": "Summary copied — ready to paste to your team.",
+    "show_last_review": "Show last review",
+    "hide_last_review": "Hide last review"
   }
 }
