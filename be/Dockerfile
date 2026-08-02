@@ -1,6 +1,7 @@
 # Shire backend — FastAPI API + analysis substrate.
-# Bundles the core scanner binaries (scc, syft, osv-scanner, gitleaks, scorecard) and the
-# Claude Code CLI (used only for availability probes here; agent runs happen in the engine).
+# Bundles the core scanner binaries (scc, syft, osv-scanner, gitleaks, scorecard). The Claude
+# Code CLI is NOT bundled — agent runs happen in the engine, which publishes CLI availability
+# to the shared /data volume (SHIRE_CLAUDE_VERSION_FILE) for the backend's status probes.
 
 # --- scanner binaries (arch-aware GitHub release downloads) ---------------------------
 FROM debian:bookworm-slim AS scanners
@@ -34,33 +35,31 @@ RUN set -eux; \
 FROM python:3.13-slim
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# git for clone/analysis (GitPython shells out); Node 22 for the Claude Code CLI.
+# git for clone/analysis (GitPython shells out).
 RUN apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates \
-    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && npm install -g @anthropic-ai/claude-code \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=scanners /out/ /usr/local/bin/
-
-RUN useradd -m -u 1000 shire && mkdir -p /data && chown shire:shire /data
-
-WORKDIR /app
-COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-dev --no-install-project
-COPY README.md alembic.ini ./
-COPY migrations ./migrations
-COPY src ./src
-RUN uv sync --frozen --no-dev && chown -R shire:shire /app
-
 COPY --chmod=755 docker-entrypoint.sh /docker-entrypoint.sh
 
+RUN useradd -m -u 1000 shire && mkdir -p /data /app && chown shire:shire /data /app
+
+# Build the venv as the runtime user — a root-owned venv would need a `chown -R` afterwards,
+# which duplicates every venv file into an extra ~250MB image layer.
 USER shire
 ENV HOME=/home/shire \
     PATH="/app/.venv/bin:$PATH" \
     # Clones land on a volume shared with the engine; git 2.35+ refuses repos whose owner uid
     # differs from the caller's ("dubious ownership") unless marked safe.
     GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=safe.directory GIT_CONFIG_VALUE_0=*
+
+WORKDIR /app
+COPY --chown=shire:shire pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev --no-install-project
+COPY --chown=shire:shire README.md alembic.ini ./
+COPY --chown=shire:shire migrations ./migrations
+COPY --chown=shire:shire src ./src
+RUN uv sync --frozen --no-dev
 
 EXPOSE 8000
 ENTRYPOINT ["/docker-entrypoint.sh"]

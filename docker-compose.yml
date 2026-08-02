@@ -37,6 +37,9 @@ services:
       SHIRE_GRAPH_ROOT: /data/graph
       SHIRE_ARTIFACTS_ROOT: /data/artifacts
       SHIRE_WORKTREE_ROOT: /data/worktrees
+      # The backend image doesn't bundle the Claude CLI; the engine publishes its version
+      # here at startup, and the backend reads it to report availability.
+      SHIRE_CLAUDE_VERSION_FILE: /data/.shire/claude-version
       SHIRE_SECRET_KEY: ${SHIRE_SECRET_KEY:?missing — run ./setup.sh (or copy .env.example to .env)}
       SHIRE_GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       SHIRE_CLAUDE_MODEL: ${CLAUDE_MODEL:-sonnet}
@@ -62,6 +65,7 @@ services:
     environment:
       ENGINE_DATABASE_URL: postgresql://shire:shire@db:5432/shire
       ENGINE_CONCURRENCY: ${ENGINE_CONCURRENCY:-2}
+      ENGINE_CLAUDE_VERSION_FILE: /data/.shire/claude-version
       ENGINE_USE_API_KEY: ${USE_API_KEY:-false}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       CLAUDE_CODE_OAUTH_TOKEN: ${CLAUDE_CODE_OAUTH_TOKEN:-}

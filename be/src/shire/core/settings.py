@@ -54,6 +54,10 @@ class Settings(BaseSettings):
     # SHIRE_USE_API_KEY=true to opt in to paid API-key auth (the key is then passed through).
     claude_binary: str = Field(default="claude")
     use_api_key: bool = Field(default=False)
+    # Containerized deploys keep the Claude CLI only in the engine image; the engine writes its
+    # `claude --version` line to this file (on the shared /data volume) so the backend can report
+    # availability without bundling Node + the CLI itself. Unset in native dev (CLI is on PATH).
+    claude_version_file: Path | None = Field(default=None)
     claude_model: str = Field(default="sonnet")
     claude_timeout_seconds: float = Field(default=500.0)
 

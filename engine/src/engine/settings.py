@@ -23,6 +23,11 @@ class EngineSettings(BaseSettings):
 
     claude_binary: str = Field(default="claude")
 
+    # When set, the worker publishes the CLI's `--version` line here at startup (and removes a
+    # stale marker when the CLI is missing). The containerized backend — which doesn't bundle
+    # the CLI — reads it off the shared /data volume to report Claude availability.
+    claude_version_file: str | None = Field(default=None)
+
     # Opt in to paid API-key auth: when true, ANTHROPIC_API_KEY is passed through to the
     # claude subprocess instead of stripped. Default false = subscription auth (key stripped).
     use_api_key: bool = Field(default=False)

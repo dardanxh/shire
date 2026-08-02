@@ -48,16 +48,24 @@ class ClaudeCliEngine:
 
     def available(self) -> bool:
         """True when the CLI is installed and answers `--version` quickly."""
+        return self.version() is not None
+
+    def version(self) -> str | None:
+        """First line of `claude --version`, or None when the CLI is missing/unresponsive.
+        Generous timeout: the CLI's very first run in a fresh container can be slow."""
         try:
             proc = subprocess.run(
                 [self._binary, "--version"],
                 capture_output=True,
                 text=True,
-                timeout=5,
+                timeout=15,
             )
         except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
-            return False
-        return proc.returncode == 0
+            return None
+        if proc.returncode != 0:
+            return None
+        out = (proc.stdout or "").strip()
+        return out.splitlines()[0] if out else ""
 
     def run(
         self,

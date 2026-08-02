@@ -111,6 +111,38 @@ else
   esac
 fi
 
+# --- 2b. opt-in local-repos mount -------------------------------------------------------
+# Nothing on the host is visible to the containers by default. To add repos already on this
+# machine by absolute path, the user deliberately grants access to ONE directory:
+#   SHIRE_LOCAL_REPOS_DIR=/path/to/repos ./setup.sh
+# mounts it into backend + engine at the same path. Idempotent against an existing .env.
+if [ -n "${SHIRE_LOCAL_REPOS_DIR:-}" ]; then
+  repos_dir="${SHIRE_LOCAL_REPOS_DIR%/}"
+  if [ ! -d "$repos_dir" ]; then
+    echo "ERROR: SHIRE_LOCAL_REPOS_DIR is not a directory: $repos_dir" >&2
+    exit 1
+  fi
+  bold "==> Granting the stack access to ${repos_dir} (local-repos mount)"
+  if grep -q '^SHIRE_LOCAL_REPOS_DIR=' .env; then
+    sed -i.bak "s|^SHIRE_LOCAL_REPOS_DIR=.*|SHIRE_LOCAL_REPOS_DIR=${repos_dir}|" .env && rm -f .env.bak
+  else
+    {
+      echo ""
+      echo "# Host directory you granted the stack access to (mounted into backend+engine at"
+      echo "# the same path) so repos under it can be added by absolute path in the UI."
+      echo "SHIRE_LOCAL_REPOS_DIR=${repos_dir}"
+    } >> .env
+  fi
+  if grep -q '^COMPOSE_FILE=' .env; then
+    # Anchor on the COMPOSE_FILE line itself — comments elsewhere in .env mention the file too.
+    if ! grep -q '^COMPOSE_FILE=.*docker-compose\.local-repos\.yml' .env; then
+      sed -i.bak 's|^COMPOSE_FILE=.*|&:docker-compose.local-repos.yml|' .env && rm -f .env.bak
+    fi
+  else
+    echo "COMPOSE_FILE=docker-compose.yml:docker-compose.local-repos.yml" >> .env
+  fi
+fi
+
 # --- 3. build + start -------------------------------------------------------------------
 bold "==> Building and starting the stack (first build takes a few minutes)"
 docker compose up -d --build
@@ -131,8 +163,16 @@ fi
 
 bold "==> Shire is up"
 note "UI:        http://localhost:3000"
+note "Backend:   http://localhost:8000"
 note "API docs:  http://localhost:8000/docs"
 note ""
 note "Logs:      docker compose logs -f"
 note "Stop:      docker compose down          (data is kept in named volumes)"
 note "Reset:     docker compose down -v       (DELETES the database and cloned repos)"
+
+# Open the UI in the default browser (best-effort; no-op on headless machines).
+if command -v open >/dev/null 2>&1; then
+  open "http://localhost:3000" >/dev/null 2>&1 || true
+elif command -v xdg-open >/dev/null 2>&1; then
+  xdg-open "http://localhost:3000" >/dev/null 2>&1 || true
+fi

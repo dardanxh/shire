@@ -34,7 +34,7 @@ from shire.domain.readiness.schemas import (
     ReadinessSuggestionResult,
 )
 from shire.domain.repository.repositories import SqlRepositoryRepository
-from shire.integrations.claude_agent import ClaudeAgent
+from shire.integrations.claude_agent import claude_available
 from shire.integrations.git_worktree import add_worktree
 
 
@@ -81,7 +81,7 @@ class ReadinessService:
             executions=[
                 ReadinessExecutionResult.model_validate(row) for row in executions
             ],
-            agent_available=ClaudeAgent().available(),
+            agent_available=claude_available(),
         )
 
     # --- suggestions (AI, read-only) ------------------------------------------

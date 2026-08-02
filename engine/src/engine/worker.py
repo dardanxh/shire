@@ -13,6 +13,7 @@ from __future__ import annotations
 import logging
 import time
 from concurrent.futures import Future, ThreadPoolExecutor
+from pathlib import Path
 from typing import Any
 
 import psycopg
@@ -109,16 +110,35 @@ def _execute(settings: EngineSettings, engine: Engine, job: dict[str, Any]) -> N
             logger.exception("Could not settle crashed job %s", job_id)
 
 
+def _publish_claude_version(path: str | None, version: str | None) -> None:
+    """Drop the CLI's version line where the backend can see it (the shared /data volume) —
+    the containerized backend image doesn't bundle the CLI, so this is its availability
+    signal. Removes a stale marker when the CLI is missing. Best-effort."""
+    if not path:
+        return
+    target = Path(path)
+    try:
+        if version is None:
+            target.unlink(missing_ok=True)
+        else:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(version + "\n", encoding="utf-8")
+    except OSError:
+        logger.warning("Could not update claude version marker at %s", path, exc_info=True)
+
+
 def main() -> None:
     settings = get_settings()
     engine: Engine = ClaudeCliEngine(
         binary=settings.claude_binary, use_api_key=settings.use_api_key
     )
-    if not engine.available():
+    claude_version = engine.version()
+    if claude_version is None:
         logger.warning(
             "The '%s' CLI is not available — jobs will fail until it is installed/logged in.",
             settings.claude_binary,
         )
+    _publish_claude_version(settings.claude_version_file, claude_version)
 
     recovered = db.recover_own(settings.database_url, settings.worker_id)
     if recovered:

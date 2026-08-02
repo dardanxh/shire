@@ -116,6 +116,10 @@ starts the stack, runs the database migrations, and waits for it to be healthy:
 2. **Ingest a repository**: *Repositories → Add*, paste any git URL (a small public repo
    like `https://github.com/pallets/click` is a good first try). Cloning + the scanner
    pipeline take a couple of minutes; the scorecard fills in as results land.
+   Repos **already on your machine** work too, but need a one-time deliberate grant first —
+   nothing on your disk is visible to the containers by default. Run
+   `SHIRE_LOCAL_REPOS_DIR=/path/to/your/repos ./setup.sh` to share that one folder, then
+   paste any repo path under it.
 3. Explore the detail view — metrics, dependencies, security, git history — then, if you've
    set up Claude auth, try **Ask** a question about the code or generate the architecture
    artifact.
@@ -229,6 +233,8 @@ For native development each service reads its own `.env` — see
 | "WARNING: no Claude auth found" during setup | Not an error — the stack starts fine and everything except agent features works. Add one auth method to `.env` (see [Claude authentication](#claude-authentication)) and re-run `./setup.sh` whenever you want agent features. |
 | Agent jobs fail with an auth error (macOS, mount method) | The mounted `~/.claude` doesn't carry Keychain credentials into the container. Run `claude setup-token`, put the token in `.env` as `CLAUDE_CODE_OAUTH_TOKEN=...`, re-run `./setup.sh`. |
 | Knowledge sections look pre-filled | Intentional: seed catalogs are loaded on first startup. Repository data only appears after you ingest a repo. |
+| "No such directory" when adding a repo by local path | The containers can't see your files until you grant access to a folder: `SHIRE_LOCAL_REPOS_DIR=/path/to/repos ./setup.sh`. If you already did, check capitalization (container paths are case-sensitive, macOS isn't) and that the repo is under the granted folder. |
+| Home page briefly says "Claude Code CLI not found" | The engine publishes CLI availability shortly after startup; the banner clears within ~15 seconds once it does. If it persists, check `docker compose logs engine`. |
 | Deleted `.env` and things broke | Re-running `./setup.sh` regenerates it — but with a **new** `SHIRE_SECRET_KEY`, which orphans any git credentials stored under the old key (they can't be decrypted; re-enter them under *Connectors*). If you still have the old key, put it back instead. |
 | Full reset | `docker compose down -v` deletes the database and cloned repos, then `./setup.sh` starts fresh. |
 
@@ -237,6 +243,13 @@ For native development each service reads its own `.env` — see
 Shire is **local-first by design**: the API has no authentication and is meant to run on your
 own machine or a trusted private network — don't expose ports 3000/8000 to the internet. Stored
 git credentials are encrypted at rest with `SHIRE_SECRET_KEY`. See [SECURITY.md](./SECURITY.md).
+
+The containers see **nothing on your host filesystem by default**. Adding repos by local path
+requires an explicit, deliberate grant of a single directory
+(`SHIRE_LOCAL_REPOS_DIR=/path/to/repos ./setup.sh` — see
+[`docker-compose.local-repos.yml`](./docker-compose.local-repos.yml)); only that directory is
+ever mounted, and you can revoke it by removing the two lines from `.env` and re-running
+`./setup.sh`.
 
 ## Documentation
 

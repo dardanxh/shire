@@ -37,7 +37,15 @@ class GitCloneService:
         """
         dest = Path(path).expanduser()
         if not dest.is_dir():
-            raise FileNotFoundError(f"No such directory: {dest}")
+            hint = ""
+            if Path("/.dockerenv").exists():
+                hint = (
+                    " — Shire runs in Docker and cannot see your files unless you grant it "
+                    "access to a folder: run  SHIRE_LOCAL_REPOS_DIR=/path/to/your/repos "
+                    "./setup.sh  and retry. If you already did, check capitalization — paths "
+                    "inside the container are case-sensitive, unlike the macOS default."
+                )
+            raise FileNotFoundError(f"No such directory: {dest}{hint}")
         if not (dest / ".git").exists():
             raise ValueError(f"Not a git repository (no .git): {dest}")
         repo = Repo(dest)
