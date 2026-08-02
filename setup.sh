@@ -15,6 +15,13 @@ cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 bold() { printf '\033[1m%s\033[0m\n' "$*"; }
 note() { printf '  %s\n' "$*"; }
+upsert_env() { # upsert_env KEY VALUE — update or append KEY=VALUE in .env
+  if grep -q "^$1=" .env; then
+    sed -i.bak "s|^$1=.*|$1=$2|" .env && rm -f .env.bak
+  else
+    printf '%s=%s\n' "$1" "$2" >> .env
+  fi
+}
 
 # --- 1. prerequisites -------------------------------------------------------------------
 bold "==> Checking prerequisites"
@@ -38,6 +45,25 @@ if [ -f .env ]; then
   bold "==> Using existing .env"
   note "(delete .env to regenerate — but keep SHIRE_SECRET_KEY: rotating it orphans any"
   note " credentials already encrypted with it)"
+
+  # Claude auth can be added or replaced on a re-run without editing files:
+  #   CLAUDE_CODE_OAUTH_TOKEN=... ./setup.sh   or   ANTHROPIC_API_KEY=... ./setup.sh
+  if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
+    bold "==> Updating Claude auth in .env (API-key mode)"
+    upsert_env ANTHROPIC_API_KEY "${ANTHROPIC_API_KEY}"
+    upsert_env USE_API_KEY true
+  elif [ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
+    bold "==> Updating Claude auth in .env (subscription-token mode)"
+    upsert_env CLAUDE_CODE_OAUTH_TOKEN "${CLAUDE_CODE_OAUTH_TOKEN}"
+  fi
+  # Token/key auth supersedes the ~/.claude mount — drop the overlay so the engine stops
+  # reading the host's live .claude.json (rewritten by the host CLI mid-run; through a bind
+  # mount those writes appear torn and the engine errors with "configuration file corrupted").
+  if [ -n "${ANTHROPIC_API_KEY:-}${CLAUDE_CODE_OAUTH_TOKEN:-}" ] \
+     && grep -q '^COMPOSE_FILE=.*docker-compose\.claude\.yml' .env; then
+    note "Removing the ~/.claude mount (token/key auth replaces it)"
+    sed -i.bak 's|:docker-compose.claude.yml||; s|docker-compose.claude.yml:||' .env && rm -f .env.bak
+  fi
 else
   bold "==> Generating .env"
 
@@ -76,7 +102,10 @@ else
       echo "# Claude auth: subscription OAuth token (from \`claude setup-token\`)."
       echo "CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN}"
     } >> .env
-  elif [ -d "${HOME}/.claude" ] && [ -f "${HOME}/.claude.json" ]; then
+  elif [ "$(uname -s)" != "Darwin" ] && [ -d "${HOME}/.claude" ] && [ -f "${HOME}/.claude.json" ]; then
+    # Linux only. On macOS the mount is broken twice over: credentials live in the Keychain
+    # (not ~/.claude), and the host CLI rewrites ~/.claude.json while the stack runs — reads
+    # through a bind mount then appear torn and the engine fails with "config file corrupted".
     auth_mode="mount"
     {
       echo "# Claude auth: host ~/.claude mounted into the engine (docker-compose.claude.yml)."
@@ -96,17 +125,16 @@ else
     api-key)     note "Claude auth: ANTHROPIC_API_KEY (API-key mode)" ;;
     oauth-token) note "Claude auth: CLAUDE_CODE_OAUTH_TOKEN (subscription mode)" ;;
     mount)
-      note "Claude auth: mounting ~/.claude into the engine container."
-      note "NOTE: on macOS the CLI stores credentials in the Keychain, so the mount may not"
-      note "carry auth. If agent jobs fail, run \`claude setup-token\` and put the token in"
-      note ".env as CLAUDE_CODE_OAUTH_TOKEN=... , then re-run ./setup.sh"
+      note "Claude auth: mounting ~/.claude into the engine container (Linux)."
+      note "If agent jobs fail with an auth error, run \`claude setup-token\` and re-run:"
+      note "  CLAUDE_CODE_OAUTH_TOKEN=<token> ./setup.sh"
       ;;
     none)
       note "No Claude auth found — that's fine to start: ingest, scanners, scorecards, and"
-      note "catalogs all work without it. Agent features (hobits, ask, council…) will be"
-      note "unavailable until you add ONE of these to .env and re-run ./setup.sh:"
-      note "  ANTHROPIC_API_KEY=sk-ant-...   plus  USE_API_KEY=true"
-      note "  CLAUDE_CODE_OAUTH_TOKEN=...    (from \`claude setup-token\`)"
+      note "catalogs all work without it. Agent features (hobits, ask, council…) stay off"
+      note "until you run ONE of these (no file editing needed):"
+      note "  claude setup-token   then   CLAUDE_CODE_OAUTH_TOKEN=<token> ./setup.sh"
+      note "  ANTHROPIC_API_KEY=sk-ant-... ./setup.sh   (paid API key)"
       ;;
   esac
 fi

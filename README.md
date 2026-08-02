@@ -136,14 +136,14 @@ reviews, roadmaps, council, briefing — which run through the
 [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) bundled in the engine
 image.
 
-`setup.sh` picks up whichever of these it finds, or you can add one to `.env` later and
-re-run it:
+`setup.sh` picks up whichever of these it finds — at first setup or any later re-run, no
+file editing needed:
 
 | Method | How |
 | --- | --- |
-| **API key** | `export ANTHROPIC_API_KEY=sk-ant-...` before `./setup.sh` (or add it + `USE_API_KEY=true` to `.env`). Pay-per-token via the [Claude API](https://console.anthropic.com/). |
-| **Claude subscription (token)** | Run `claude setup-token` on your machine, put the result in `.env` as `CLAUDE_CODE_OAUTH_TOKEN=...`. Uses your Claude **Pro or Max** subscription — Max is recommended for heavy agent use, Pro works fine for trying things out. |
-| **Claude subscription (mount)** | If `~/.claude` exists, setup.sh mounts it into the engine container. Note: on macOS credentials live in the Keychain, so prefer the token method there. |
+| **Claude subscription (token)** | Run `claude setup-token` on your machine, then `CLAUDE_CODE_OAUTH_TOKEN=<token> ./setup.sh`. Uses your Claude **Pro or Max** subscription — Max is recommended for heavy agent use, Pro works fine for trying things out. |
+| **API key** | `ANTHROPIC_API_KEY=sk-ant-... ./setup.sh`. Pay-per-token via the [Claude API](https://console.anthropic.com/). |
+| **Claude subscription (mount, Linux only)** | If `~/.claude` exists on a Linux host, setup.sh mounts it into the engine container. Not offered on macOS: credentials live in the Keychain there, and the host CLI rewriting `~/.claude.json` corrupts reads through the mount — use the token method instead. |
 
 ### Day-2 commands
 
@@ -231,7 +231,8 @@ For native development each service reads its own `.env` — see
 | `setup.sh` fails at "Checking prerequisites" | Docker isn't installed, the Compose v2 plugin is missing, or the daemon isn't running. Start Docker Desktop (macOS/Windows) or `systemctl start docker` (Linux) and re-run. |
 | "backend did not become healthy" | First boot builds images and runs migrations; on slow machines this can exceed the wait. Check `docker compose logs backend` — if migrations are still running, `docker compose ps` until healthy. A genuinely failed migration will show in the same logs. |
 | "WARNING: no Claude auth found" during setup | Not an error — the stack starts fine and everything except agent features works. Add one auth method to `.env` (see [Claude authentication](#claude-authentication)) and re-run `./setup.sh` whenever you want agent features. |
-| Agent jobs fail with an auth error (macOS, mount method) | The mounted `~/.claude` doesn't carry Keychain credentials into the container. Run `claude setup-token`, put the token in `.env` as `CLAUDE_CODE_OAUTH_TOKEN=...`, re-run `./setup.sh`. |
+| Agent jobs fail with an auth error (mount method) | The mounted `~/.claude` doesn't carry credentials (macOS Keychain, or a logged-out CLI). Run `claude setup-token`, then `CLAUDE_CODE_OAUTH_TOKEN=<token> ./setup.sh`. |
+| Agent jobs fail with "Claude configuration file … is corrupted" | The engine is reading your host `~/.claude.json` through the mount while the host CLI rewrites it (macOS). Your host file is fine. Switch to token auth: `claude setup-token`, then `CLAUDE_CODE_OAUTH_TOKEN=<token> ./setup.sh` — setup removes the mount automatically. |
 | Knowledge sections look pre-filled | Intentional: seed catalogs are loaded on first startup. Repository data only appears after you ingest a repo. |
 | "No such directory" when adding a repo by local path | The containers can't see your files until you share a folder: re-run `./setup.sh` and answer the repositories-folder question (or `SHIRE_LOCAL_REPOS_DIR=/path/to/repos ./setup.sh`). If you already did, check capitalization (container paths are case-sensitive, macOS isn't) and that the repo is under the shared folder. |
 | Home page briefly says "Claude Code CLI not found" | The engine publishes CLI availability shortly after startup; the banner clears within ~15 seconds once it does. If it persists, check `docker compose logs engine`. |

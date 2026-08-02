@@ -5,9 +5,12 @@
 #
 # (setup.sh enables this automatically by writing COMPOSE_FILE=... into .env.)
 #
-# Caveat: on macOS the Claude CLI keeps its OAuth credentials in the system Keychain, not in
-# ~/.claude — so this mount alone may not carry auth. The reliable subscription path there is
-# `claude setup-token` on the host and CLAUDE_CODE_OAUTH_TOKEN in .env.
+# LINUX ONLY. On macOS this is broken twice over: the CLI keeps its OAuth credentials in the
+# system Keychain (not ~/.claude), and the host CLI rewrites ~/.claude.json while the stack
+# runs — reads through a single-file bind mount then appear torn, and the engine fails with
+# "Claude configuration file ... is corrupted". On macOS use `claude setup-token` on the host
+# and `CLAUDE_CODE_OAUTH_TOKEN=<token> ./setup.sh` instead (setup.sh won't pick this mount on
+# macOS by itself).
 services:
   engine:
     volumes:
