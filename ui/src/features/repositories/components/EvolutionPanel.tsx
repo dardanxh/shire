@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { toast } from "sonner";
 
+import { Markdown } from "@/components/shared/Markdown";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -509,7 +510,7 @@ export function EvolutionPanel({ repoId }: { repoId: string }) {
                     <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                       {t("repositories.view.evolution.note_title")}
                     </p>
-                    <p className="whitespace-pre-wrap text-sm">{delta.note}</p>
+                    <Markdown>{delta.note}</Markdown>
                   </div>
                 ) : null}
                 <DeltaDetail delta={delta} />

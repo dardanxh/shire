@@ -13,6 +13,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import { Markdown } from "@/components/shared/Markdown";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -375,8 +376,8 @@ function DeltaNarrative({
 
   if (delta.note) {
     return (
-      <div className="rounded-md border border-border bg-muted/30 p-3 text-sm leading-relaxed whitespace-pre-wrap">
-        {delta.note}
+      <div className="rounded-md border border-border bg-muted/30 p-3">
+        <Markdown>{delta.note}</Markdown>
       </div>
     );
   }
