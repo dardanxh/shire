@@ -6,8 +6,7 @@
     "refreshing": "Refreshing…",
     "refresh_toast_one": "Pulling {{count}} repository…",
     "refresh_toast_other": "Pulling {{count}} repositories…",
-    "empty": "No repositories on your watchlist yet. Open a repository and hit Watch — it'll show up here with everything that changed since your last review.",
-    "empty_cta": "Browse repositories",
+    "empty": "No repositories on your watchlist yet. Add the ones you want a daily change digest for.",
     "status_cloning": "Pulling…",
     "status_analyzing": "Analyzing…",
     "mark_reviewed": "Mark reviewed",
@@ -31,6 +30,10 @@
     "watch": "Watch",
     "unwatch": "Unwatch",
     "watch_toast": "Added to your watchlist.",
-    "unwatch_toast": "Removed from your watchlist."
+    "unwatch_toast": "Removed from your watchlist.",
+    "add_repos": "Add repositories",
+    "add_search": "Search repositories…",
+    "add_no_match": "No repositories match.",
+    "add_all_watched": "Every repository is already on the watchlist."
   }
 }

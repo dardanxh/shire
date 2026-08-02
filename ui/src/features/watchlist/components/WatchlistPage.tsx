@@ -3,23 +3,43 @@ import { Link } from "@tanstack/react-router";
 import {
   CheckIcon,
   EyeIcon,
+  EyeOffIcon,
   Loader2Icon,
+  PlusIcon,
   RefreshCwIcon,
   SparklesIcon,
 } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useTrackedJob } from "@/features/jobs";
-import { useExplainDeltaMutation } from "@/features/repositories/api";
+import {
+  useExplainDeltaMutation,
+  useRepositoriesQuery,
+} from "@/features/repositories/api";
 import type { AnalysisDeltaOut, WatchlistEntryOut } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import {
   useMarkReviewedMutation,
   useRefreshWatchlistMutation,
+  useSetWatchedMutation,
   useWatchlistQuery,
 } from "../api";
 import { watchlistKeys } from "../keys";
@@ -55,26 +75,33 @@ export function WatchlistPage() {
             {t("watchlist.desc")}
           </p>
         </div>
-        <Button
-          onClick={() =>
-            refreshAll(undefined, {
-              onSuccess: (ids) =>
-                toast.success(
-                  t("watchlist.refresh_toast", { count: ids.length }),
-                ),
-            })
-          }
-          disabled={isRefreshQueueing || anyRefreshing || entries.length === 0}
-        >
-          {anyRefreshing ? (
-            <Loader2Icon className="size-4 animate-spin" />
-          ) : (
-            <RefreshCwIcon className="size-4" />
-          )}
-          {anyRefreshing
-            ? t("watchlist.refreshing")
-            : t("watchlist.pull_latest")}
-        </Button>
+        <div className="flex items-center gap-2">
+          <AddRepositoriesPicker
+            watchedIds={entries.map((e) => e.repository.id)}
+          />
+          <Button
+            onClick={() =>
+              refreshAll(undefined, {
+                onSuccess: (ids) =>
+                  toast.success(
+                    t("watchlist.refresh_toast", { count: ids.length }),
+                  ),
+              })
+            }
+            disabled={
+              isRefreshQueueing || anyRefreshing || entries.length === 0
+            }
+          >
+            {anyRefreshing ? (
+              <Loader2Icon className="size-4 animate-spin" />
+            ) : (
+              <RefreshCwIcon className="size-4" />
+            )}
+            {anyRefreshing
+              ? t("watchlist.refreshing")
+              : t("watchlist.pull_latest")}
+          </Button>
+        </div>
       </div>
 
       {isPending ? null : entries.length === 0 ? (
@@ -84,17 +111,7 @@ export function WatchlistPage() {
             <p className="max-w-md text-sm text-muted-foreground">
               {t("watchlist.empty")}
             </p>
-            <Button
-              variant="outline"
-              render={
-                <Link
-                  to="/repositories"
-                  search={{ view: "repositories", page: 1, size: 20 }}
-                />
-              }
-            >
-              {t("watchlist.empty_cta")}
-            </Button>
+            <AddRepositoriesPicker watchedIds={[]} />
           </CardContent>
         </Card>
       ) : (
@@ -106,12 +123,70 @@ export function WatchlistPage() {
   );
 }
 
+/** Popover picker of not-yet-watched repositories — click to add to the watchlist. */
+function AddRepositoriesPicker({ watchedIds }: { watchedIds: string[] }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  // The picker is a curated shortlist, not a browse surface — first 100 repos is plenty.
+  const { data } = useRepositoriesQuery({ page: 1, page_size: 100 });
+  const { mutate: setWatched, isPending } = useSetWatchedMutation();
+
+  const watched = new Set(watchedIds);
+  const candidates = (data?.items ?? []).filter((r) => !watched.has(r.id));
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger render={<Button variant="outline" />}>
+        <PlusIcon className="size-4" />
+        {t("watchlist.add_repos")}
+      </PopoverTrigger>
+      <PopoverContent className="w-80 p-0" align="end">
+        <Command>
+          <CommandInput placeholder={t("watchlist.add_search")} />
+          <CommandList>
+            <CommandEmpty>
+              {candidates.length === 0
+                ? t("watchlist.add_all_watched")
+                : t("watchlist.add_no_match")}
+            </CommandEmpty>
+            <CommandGroup>
+              {candidates.map((repo) => (
+                <CommandItem
+                  key={repo.id}
+                  value={repo.slug}
+                  disabled={isPending}
+                  onSelect={() =>
+                    setWatched(
+                      { id: repo.id, watched: true },
+                      {
+                        onSuccess: () => {
+                          toast.success(t("watchlist.watch_toast"));
+                          if (candidates.length === 1) setOpen(false);
+                        },
+                      },
+                    )
+                  }
+                >
+                  <EyeIcon className="size-3.5 text-muted-foreground" />
+                  {repo.slug}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 function WatchlistCard({ entry }: { entry: WatchlistEntryOut }) {
   const { t } = useTranslation();
   const repo = entry.repository;
   const refreshing = REFRESHING.has(repo.status);
   const { mutate: markReviewed, isPending: isMarking } =
     useMarkReviewedMutation();
+  const { mutate: setWatched, isPending: isUnwatching } =
+    useSetWatchedMutation();
 
   return (
     <Card>
@@ -134,21 +209,40 @@ function WatchlistCard({ entry }: { entry: WatchlistEntryOut }) {
             </Badge>
           ) : null}
         </div>
-        {entry.delta ? (
+        <div className="flex items-center gap-2">
+          {entry.delta ? (
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={isMarking || refreshing}
+              onClick={() =>
+                markReviewed(repo.id, {
+                  onSuccess: () => toast.success(t("watchlist.reviewed_toast")),
+                })
+              }
+            >
+              <CheckIcon className="size-3.5" />
+              {t("watchlist.mark_reviewed")}
+            </Button>
+          ) : null}
           <Button
             size="sm"
-            variant="outline"
-            disabled={isMarking || refreshing}
+            variant="ghost"
+            className="text-muted-foreground"
+            disabled={isUnwatching}
             onClick={() =>
-              markReviewed(repo.id, {
-                onSuccess: () => toast.success(t("watchlist.reviewed_toast")),
-              })
+              setWatched(
+                { id: repo.id, watched: false },
+                {
+                  onSuccess: () => toast.success(t("watchlist.unwatch_toast")),
+                },
+              )
             }
           >
-            <CheckIcon className="size-3.5" />
-            {t("watchlist.mark_reviewed")}
+            <EyeOffIcon className="size-3.5" />
+            {t("watchlist.unwatch")}
           </Button>
-        ) : null}
+        </div>
       </CardHeader>
       <CardContent>
         {entry.delta ? (
