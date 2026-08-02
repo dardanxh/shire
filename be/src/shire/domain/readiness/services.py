@@ -87,7 +87,7 @@ class ReadinessService:
     # --- suggestions (AI, read-only) ------------------------------------------
     def enqueue_suggest(self, repository_id: uuid.UUID) -> JobResult:
         repo = self._require_cloned_repo(repository_id)
-        scan = catalog.scan_repo(repo.clone_path)
+        scan = catalog.scan_repo(repo.analysis_path)
         jobs = JobService(self._session)
         model, timeout_seconds = jobs.engine_defaults()
         job = jobs.enqueue(
@@ -95,7 +95,7 @@ class ReadinessService:
             title=f"AI readiness suggestions — {repo.coordinates.slug}",
             prompt=build_suggest_prompt(repo.coordinates.slug, scan),
             payload={
-                "cwd": repo.clone_path,
+                "cwd": repo.analysis_path,
                 "model": model,
                 "timeout_seconds": timeout_seconds,
                 "repository_id": str(repository_id),

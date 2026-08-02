@@ -392,16 +392,20 @@ export function useIngestRepositoryMutation() {
   return useMutation({
     mutationFn: async ({
       url,
+      subpath,
       connectionId,
       toolIds,
     }: {
       url: string;
+      /** Monorepo focus: scope the record to one subdirectory of the repo. */
+      subpath?: string | null;
       connectionId?: string | null;
       toolIds?: string[] | null;
     }): Promise<RepositoryOut> => {
       const { data, error } = await api.POST("/api/v1/repositories", {
         body: {
           url,
+          subpath: subpath || null,
           connection_id: connectionId || null,
           tool_ids: toolIds ?? null,
         },

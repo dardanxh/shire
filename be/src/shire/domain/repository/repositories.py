@@ -21,7 +21,10 @@ def _to_domain(row: RepositoryRow) -> Repository:
     return Repository(
         id=row.id,
         coordinates=RepoCoordinates(
-            provider=GitProvider(row.provider), owner=row.owner, name=row.name
+            provider=GitProvider(row.provider),
+            owner=row.owner,
+            name=row.name,
+            subpath=row.subpath or "",
         ),
         url=RepoUrl(value=row.url),
         connection_id=row.connection_id,
@@ -42,6 +45,7 @@ def _apply(row: RepositoryRow, repo: Repository) -> None:
     row.provider = repo.coordinates.provider.value
     row.owner = repo.coordinates.owner
     row.name = repo.coordinates.name
+    row.subpath = repo.coordinates.subpath
     row.url = repo.url.value
     row.connection_id = repo.connection_id
     row.default_branch = repo.default_branch
@@ -82,6 +86,7 @@ class SqlRepositoryRepository:
             RepositoryRow.provider == coordinates.provider.value,
             RepositoryRow.owner == coordinates.owner,
             RepositoryRow.name == coordinates.name,
+            RepositoryRow.subpath == coordinates.subpath,
         )
         row = self._session.scalars(stmt).first()
         return _to_domain(row) if row else None
@@ -94,6 +99,23 @@ class SqlRepositoryRepository:
 
     def count(self) -> int:
         return self._session.scalar(select(func.count()).select_from(RepositoryRow)) or 0
+
+    def count_clone_sharers(self, coordinates: RepoCoordinates, exclude_id: uuid.UUID) -> int:
+        """How many OTHER records point at the same clone on disk (same provider/owner/name,
+        any subpath). Guards clone deletion — sibling monorepo records share one clone."""
+        return (
+            self._session.scalar(
+                select(func.count())
+                .select_from(RepositoryRow)
+                .where(
+                    RepositoryRow.provider == coordinates.provider.value,
+                    RepositoryRow.owner == coordinates.owner,
+                    RepositoryRow.name == coordinates.name,
+                    RepositoryRow.id != exclude_id,
+                )
+            )
+            or 0
+        )
 
     def delete(self, repository_id: uuid.UUID) -> None:
         """Delete the repository row. FK-cascaded children (context pack, tool links, hobit

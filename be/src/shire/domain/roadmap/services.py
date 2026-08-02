@@ -323,7 +323,9 @@ class RoadmapService:
                 # The agent works only inside the disposable worktree. Write access via
                 # Edit/Write, deliberately NO Bash (arbitrary command execution); the PR +
                 # repo CI is the safety net for unverified changes.
-                "cwd": str(worktree),
+                # Monorepo-focused records point the agent at their subdirectory of the
+                # worktree; git operations (branch, diff, PR) still run at the worktree root.
+                "cwd": str(worktree / repo.subpath if repo.subpath else worktree),
                 "model": model,
                 "timeout_seconds": config.execution_timeout_seconds,
                 "allowed_tools": ["Read", "Grep", "Glob", "Edit", "Write"],
@@ -453,8 +455,9 @@ class RoadmapService:
                 title=f"Roadmap drift: {repo.owner}/{repo.name}",
                 prompt=build_drift_prompt(f"{repo.owner}/{repo.name}", items),
                 payload={
-                    # Read-only inspection inside the main clone (default tools).
-                    "cwd": repo.clone_path,
+                    # Read-only inspection inside the main clone (default tools);
+                    # monorepo-focused records scope the agent to their subdirectory.
+                    "cwd": repo.analysis_path,
                     "model": model,
                     "timeout_seconds": timeout_seconds,
                     "drift_check_id": str(check.id),

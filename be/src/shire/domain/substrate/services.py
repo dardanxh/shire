@@ -391,7 +391,7 @@ class AnalysisService:
                 diff_json=json.dumps(diff_json, indent=2),
             ),
             payload={
-                "cwd": repo.clone_path,
+                "cwd": repo.analysis_path,
                 "model": model,
                 "timeout_seconds": timeout_seconds,
                 "repository_id": str(repository_id),
@@ -551,7 +551,9 @@ class AnalysisService:
 
         from pathlib import Path
 
-        ctx = self._build_context(Path(repo.clone_path), analysis.commit_sha, repo.url.value)
+        ctx = self._build_context(
+            Path(repo.clone_path), analysis.commit_sha, repo.url.value, repo.coordinates.subpath
+        )
         _apply_tool(analysis, tool_name, scanner.scan(ctx))
         self._analyses.add(analysis)  # idempotent replace by (repository, commit)
         return AnalysisResult.of(analysis)
@@ -592,8 +594,8 @@ class AnalysisService:
         out_dir = get_settings().graph_root / str(repository_id)
         # Clear any prior run so a failure can't leave a stale graph looking current.
         shutil.rmtree(out_dir, ignore_errors=True)
-        project_name = Path(repo.clone_path).name or str(repository_id)
-        if emerge.run(Path(repo.clone_path), out_dir, project_name) is None:
+        project_name = Path(repo.analysis_path).name or str(repository_id)
+        if emerge.run(Path(repo.analysis_path), out_dir, project_name) is None:
             raise ConflictError("Graph generation failed — emerge produced no output.")
         return self.graph_status(repository_id)
 
@@ -626,6 +628,8 @@ class AnalysisService:
         out_dir = self._artifact_dir("git-of-theseus", repository_id)
         shutil.rmtree(out_dir, ignore_errors=True)
         branch = repo.current_branch or repo.default_branch
+        # git-of-theseus walks git history, so it needs the git root — for monorepo-focused
+        # records the chart covers the whole repository (known repo-level artifact).
         if adapter.run(Path(repo.clone_path), out_dir, branch) is None:
             raise ConflictError("Code-age generation failed — git-of-theseus produced no output.")
         return self.code_age_status(repository_id)
@@ -660,6 +664,8 @@ class AnalysisService:
         repo = self._require_cloned_repo(repository_id)
         out_dir = self._artifact_dir("code-maat", repository_id)
         shutil.rmtree(out_dir, ignore_errors=True)
+        # code-maat mines `git log`, so it runs at the git root — for monorepo-focused records
+        # coupling pairs cover the whole repository (known repo-level artifact).
         rows = adapter.run(Path(repo.clone_path), out_dir)
         if rows is None:
             raise ConflictError("Coupling analysis failed — code-maat produced no output.")
@@ -745,7 +751,7 @@ class AnalysisService:
                 title=f"Dependency upgrade gains — {repo.coordinates.slug}",
                 prompt=_gains_prompt(outdated),
                 payload={
-                    "cwd": repo.clone_path,
+                    "cwd": repo.analysis_path,
                     "model": model,
                     "timeout_seconds": timeout_seconds,
                     "repository_id": str(repository_id),
@@ -802,7 +808,7 @@ class AnalysisService:
             title=f"Architecture diagram: {kind.title} — {repo.coordinates.slug}",
             prompt=architecture.build_prompt(kind, repo.coordinates.slug),
             payload={
-                "cwd": repo.clone_path,
+                "cwd": repo.analysis_path,
                 "model": model,
                 "timeout_seconds": timeout_seconds,
                 "repository_id": str(repository_id),
@@ -851,7 +857,7 @@ class AnalysisService:
             title=f"Codebase overview — {repo.coordinates.slug}",
             prompt=_OVERVIEW_PROMPT.format(repo=repo.coordinates.slug),
             payload={
-                "cwd": repo.clone_path,
+                "cwd": repo.analysis_path,
                 "model": model,
                 "timeout_seconds": timeout_seconds,
                 "repository_id": str(repository_id),
@@ -902,7 +908,7 @@ class AnalysisService:
             title=f"Tech stack — {repo.coordinates.slug}",
             prompt=_TECH_STACK_PROMPT.format(repo=repo.coordinates.slug),
             payload={
-                "cwd": repo.clone_path,
+                "cwd": repo.analysis_path,
                 "model": model,
                 "timeout_seconds": timeout_seconds,
                 "repository_id": str(repository_id),
@@ -948,7 +954,7 @@ class AnalysisService:
         repo = self._require_cloned_repo(repository_id)
         out_dir = self._artifact_dir("codecharta", repository_id)
         shutil.rmtree(out_dir, ignore_errors=True)
-        if adapter.run(Path(repo.clone_path), out_dir) is None:
+        if adapter.run(Path(repo.analysis_path), out_dir) is None:
             raise ConflictError("Code-map generation failed — CodeCharta produced no output.")
         return self.code_map_status(repository_id)
 

@@ -5691,6 +5691,8 @@ export interface components {
             connection_id?: string | null;
             /** Tool Ids */
             tool_ids?: string[] | null;
+            /** Subpath */
+            subpath?: string | null;
         };
         /**
          * JobDetailResult
@@ -7198,6 +7200,8 @@ export interface components {
             owner: string;
             /** Name */
             name: string;
+            /** Subpath */
+            subpath: string;
             /** Slug */
             slug: string;
             /** Url */

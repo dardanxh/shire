@@ -39,6 +39,7 @@ from shire.integrations.git_branches import inspect_branches, list_branch_names
 from shire.integrations.git_clone import (
     DirtyWorkingTreeError,
     GitCloneService,
+    discover_git_root,
     ensure_clean,
 )
 from shire.integrations.git_history import build_scan_context
@@ -55,6 +56,19 @@ def _within(path: Path, root: Path) -> bool:
         return True
     except (ValueError, OSError):
         return False
+
+
+def _normalize_subpath(raw: str | None) -> str:
+    """A clean relative subdirectory ('' when unset). Rejects absolute paths and traversal."""
+    sub = (raw or "").strip().replace("\\", "/").strip("/")
+    if not sub:
+        return ""
+    parts = [p for p in sub.split("/") if p not in ("", ".")]
+    if not parts:
+        return ""
+    if ".." in parts:
+        raise ValidationError("Subdirectory must be a relative path inside the repository")
+    return "/".join(parts)
 
 
 _QUESTION_PROMPT = """\
@@ -153,11 +167,35 @@ class RepositoryService:
         return BranchNamesResult(default_branch=repo.default_branch, branches=names)
 
     # --- ingestion ------------------------------------------------------------
-    def ingest(self, url: str, connection_id: uuid.UUID | None = None) -> RepositoryResult:
+    def ingest(
+        self,
+        url: str,
+        connection_id: uuid.UUID | None = None,
+        subpath: str | None = None,
+    ) -> RepositoryResult:
         """Register the repository (or re-adopt an existing row) and return immediately.
         The clone→analyze pipeline runs as a background task (see `run_ingest_pipeline`);
-        clients poll the repository's `status` until it settles."""
+        clients poll the repository's `status` until it settles.
+
+        `subpath` scopes the record to a subdirectory (monorepo support) — the same repo can
+        be onboarded once per subdirectory. For local paths, pasting a subdirectory works
+        without `subpath`: the git root is discovered upward and the focus set automatically."""
+        sub = _normalize_subpath(subpath)
         repo_url, coordinates = RepoUrl.parse(url)
+        if coordinates.provider is GitProvider.local:
+            found = discover_git_root(Path(repo_url.value))
+            if found is None:
+                raise ValidationError(
+                    f"Not a git repository (no .git here or in any parent): {repo_url.value}"
+                )
+            root, discovered = found
+            if discovered:
+                sub = f"{discovered}/{sub}" if sub else discovered
+            repo_url, coordinates = RepoUrl.parse(str(root))
+            if sub and not (root / sub).is_dir():
+                raise ValidationError(f"Subdirectory not found in repository: {sub}")
+        if sub:
+            coordinates = coordinates.model_copy(update={"subpath": sub})
         repository = self._repos.get_by_coordinates(coordinates)
         if repository is not None and repository.status in (
             IngestionStatus.cloning,
@@ -179,7 +217,7 @@ class RepositoryService:
             # After save() so the repository row is in the session before the FK'd feed row.
             ActivityService(self._session).record(
                 kind="repository.onboarded",
-                title=f"{coordinates.owner}/{coordinates.name}",
+                title=coordinates.slug,
                 entity_id=repository.id,
                 repository_id=repository.id,
             )
@@ -240,7 +278,7 @@ class RepositoryService:
             title=f"Q: {question[:120]}{'…' if len(question) > 120 else ''}",
             prompt=_question_prompt(repo.coordinates.slug, context_md, question),
             payload={
-                "cwd": repo.clone_path,
+                "cwd": repo.analysis_path,
                 "model": model,
                 "timeout_seconds": timeout_seconds,
                 "repository_id": str(repository_id),
@@ -316,6 +354,8 @@ class RepositoryService:
             repo.coordinates.provider is not GitProvider.local
             and repo.clone_path
             and _within(Path(repo.clone_path), get_settings().clone_root)
+            # Sibling monorepo records (other subpaths of the same repo) share this clone.
+            and self._repos.count_clone_sharers(repo.coordinates, repo.id) == 0
         ):
             shutil.rmtree(repo.clone_path, ignore_errors=True)
 
@@ -366,6 +406,13 @@ class RepositoryService:
                 default_branch = repository.default_branch
 
             repository.mark_cloned(outcome.clone_path, default_branch, outcome.active_branch)
+            if repository.coordinates.subpath:
+                focus = Path(outcome.clone_path) / repository.coordinates.subpath
+                if not focus.is_dir():
+                    raise ValueError(
+                        f"Subdirectory '{repository.coordinates.subpath}' not found in the "
+                        "repository — check the path (case-sensitive)."
+                    )
             repository.mark_analyzing()
             self._repos.save(repository)
             self._session.commit()
@@ -374,7 +421,12 @@ class RepositoryService:
             if tool_ids is not None:
                 self._analysis.set_integrations(repository.id, set(tool_ids))
 
-            ctx = self._build_context(Path(outcome.clone_path), outcome.head_sha, url)
+            ctx = self._build_context(
+                Path(outcome.clone_path),
+                outcome.head_sha,
+                url,
+                repository.coordinates.subpath,
+            )
             self._analysis.analyze(repository.id, ctx)
 
             repository.mark_ready(outcome.head_sha)
