@@ -49,6 +49,7 @@ from shire.domain.techchoice.routes import router as techchoice_router
 from shire.domain.technology.routes import categories_router as tech_categories_router
 from shire.domain.technology.routes import technologies_router as technologies_router
 from shire.domain.tools.routes import router as tools_router
+from shire.domain.watchlist.routes import router as watchlist_router
 from shire.integrations.external_tools.codecharta import resolve_viewer_dir
 
 API_V1_PREFIX = "/api/v1"
@@ -133,6 +134,7 @@ app.include_router(roadmaps_router, prefix=API_V1_PREFIX)
 app.include_router(repo_roadmaps_router, prefix=API_V1_PREFIX)
 app.include_router(council_router, prefix=API_V1_PREFIX)
 app.include_router(home_router, prefix=API_V1_PREFIX)
+app.include_router(watchlist_router, prefix=API_V1_PREFIX)
 app.include_router(blueprints_router, prefix=API_V1_PREFIX)
 app.include_router(tech_categories_router, prefix=API_V1_PREFIX)
 app.include_router(technologies_router, prefix=API_V1_PREFIX)

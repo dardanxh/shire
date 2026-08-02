@@ -138,7 +138,11 @@ export function RepositoryViewPage({
               </a>
             )}
           </div>
-          <RepositoryActions id={repo.id} slug={repo.slug} />
+          <RepositoryActions
+            id={repo.id}
+            slug={repo.slug}
+            watched={repo.watched}
+          />
         </div>
         {repo.status === "failed" && repo.error ? (
           <Card className="border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">

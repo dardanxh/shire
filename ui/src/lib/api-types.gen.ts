@@ -2448,6 +2448,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/watchlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Watchlist
+         * @description The daily digest: every watched repo with what changed since it was last reviewed.
+         */
+        get: operations["get_watchlist_api_v1_watchlist_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/watchlist/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Refresh Watchlist
+         * @description Pull latest for every idle watched repo (non-blocking; poll the digest for status).
+         */
+        post: operations["refresh_watchlist_api_v1_watchlist_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/watchlist/{repository_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set Watched
+         * @description Add or remove a repository from the watchlist.
+         */
+        put: operations["set_watched_api_v1_watchlist__repository_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/watchlist/{repository_id}/reviewed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark Reviewed
+         * @description Advance the review cursor to the latest snapshot — tomorrow's digest starts here.
+         */
+        post: operations["mark_reviewed_api_v1_watchlist__repository_id__reviewed_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/blueprints": {
         parameters: {
             query?: never;
@@ -7214,6 +7294,8 @@ export interface components {
             current_branch: string;
             /** Status */
             status: string;
+            /** Watched */
+            watched: boolean;
             /** Last Analyzed Commit */
             last_analyzed_commit: string | null;
             /** Last Analyzed At */
@@ -8306,6 +8388,44 @@ export interface components {
             severity: string;
             /** Fixed Version */
             fixed_version?: string | null;
+        };
+        /**
+         * WatchRequest
+         * @description Add or remove a repository from the watchlist.
+         */
+        WatchRequest: {
+            /** Watched */
+            watched: boolean;
+        };
+        /**
+         * WatchlistEntryResult
+         * @description One watched repository's digest state.
+         *
+         *     `delta` is the full deterministic diff from the review cursor to the latest snapshot
+         *     (commits + authors, fact/dependency/contributor shifts, and the AI narrative when one
+         *     has been generated for that pair). None when there is nothing pending: the repo is
+         *     up to date, or only a single baseline snapshot exists.
+         */
+        WatchlistEntryResult: {
+            repository: components["schemas"]["RepositoryResult"];
+            latest: components["schemas"]["AnalysisSnapshotSummary"] | null;
+            reviewed: components["schemas"]["AnalysisSnapshotSummary"] | null;
+            delta: components["schemas"]["AnalysisDeltaResult"] | null;
+            /** Up To Date */
+            up_to_date: boolean;
+        };
+        /**
+         * WatchlistRefreshResult
+         * @description Repositories queued for a pull + re-analysis (busy ones are skipped).
+         */
+        WatchlistRefreshResult: {
+            /** Queued Repository Ids */
+            queued_repository_ids: string[];
+        };
+        /** WatchlistResult */
+        WatchlistResult: {
+            /** Entries */
+            entries: components["schemas"]["WatchlistEntryResult"][];
         };
         /**
          * MarkReadRequest
@@ -13036,6 +13156,112 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Page_ActivityEventResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_watchlist_api_v1_watchlist_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WatchlistResult"];
+                };
+            };
+        };
+    };
+    refresh_watchlist_api_v1_watchlist_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WatchlistRefreshResult"];
+                };
+            };
+        };
+    };
+    set_watched_api_v1_watchlist__repository_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WatchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepositoryResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_reviewed_api_v1_watchlist__repository_id__reviewed_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WatchlistEntryResult"];
                 };
             };
             /** @description Validation Error */
