@@ -8411,6 +8411,8 @@ export interface components {
             latest: components["schemas"]["AnalysisSnapshotSummary"] | null;
             reviewed: components["schemas"]["AnalysisSnapshotSummary"] | null;
             delta: components["schemas"]["AnalysisDeltaResult"] | null;
+            /** Summary Pending */
+            summary_pending: boolean;
             /** Up To Date */
             up_to_date: boolean;
         };

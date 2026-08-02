@@ -55,7 +55,7 @@ const DIGEST_FACTS = new Set([
   "test_count",
 ]);
 
-export function WatchlistPage() {
+export function DevelopmentsPage() {
   const { t } = useTranslation();
   const { data, isPending } = useWatchlistQuery();
   const { mutate: refreshAll, isPending: isRefreshQueueing } =
@@ -70,9 +70,9 @@ export function WatchlistPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold">{t("watchlist.title")}</h1>
+          <h1 className="text-xl font-semibold">{t("developments.title")}</h1>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            {t("watchlist.desc")}
+            {t("developments.desc")}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -84,7 +84,7 @@ export function WatchlistPage() {
               refreshAll(undefined, {
                 onSuccess: (ids) =>
                   toast.success(
-                    t("watchlist.refresh_toast", { count: ids.length }),
+                    t("developments.refresh_toast", { count: ids.length }),
                   ),
               })
             }
@@ -98,8 +98,8 @@ export function WatchlistPage() {
               <RefreshCwIcon className="size-4" />
             )}
             {anyRefreshing
-              ? t("watchlist.refreshing")
-              : t("watchlist.pull_latest")}
+              ? t("developments.refreshing")
+              : t("developments.pull_latest")}
           </Button>
         </div>
       </div>
@@ -109,7 +109,7 @@ export function WatchlistPage() {
           <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
             <EyeIcon className="size-8 text-muted-foreground" />
             <p className="max-w-md text-sm text-muted-foreground">
-              {t("watchlist.empty")}
+              {t("developments.empty")}
             </p>
             <AddRepositoriesPicker watchedIds={[]} />
           </CardContent>
@@ -138,16 +138,16 @@ function AddRepositoriesPicker({ watchedIds }: { watchedIds: string[] }) {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger render={<Button variant="outline" />}>
         <PlusIcon className="size-4" />
-        {t("watchlist.add_repos")}
+        {t("developments.add_repos")}
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
         <Command>
-          <CommandInput placeholder={t("watchlist.add_search")} />
+          <CommandInput placeholder={t("developments.add_search")} />
           <CommandList>
             <CommandEmpty>
               {candidates.length === 0
-                ? t("watchlist.add_all_watched")
-                : t("watchlist.add_no_match")}
+                ? t("developments.add_all_watched")
+                : t("developments.add_no_match")}
             </CommandEmpty>
             <CommandGroup>
               {candidates.map((repo) => (
@@ -160,7 +160,7 @@ function AddRepositoriesPicker({ watchedIds }: { watchedIds: string[] }) {
                       { id: repo.id, watched: true },
                       {
                         onSuccess: () => {
-                          toast.success(t("watchlist.watch_toast"));
+                          toast.success(t("developments.watch_toast"));
                           if (candidates.length === 1) setOpen(false);
                         },
                       },
@@ -205,7 +205,7 @@ function WatchlistCard({ entry }: { entry: WatchlistEntryOut }) {
           {refreshing ? (
             <Badge variant="secondary" className="gap-1">
               <Loader2Icon className="size-3 animate-spin" />
-              {t(`watchlist.status_${repo.status}`)}
+              {t(`developments.status_${repo.status}`)}
             </Badge>
           ) : null}
         </div>
@@ -217,12 +217,13 @@ function WatchlistCard({ entry }: { entry: WatchlistEntryOut }) {
               disabled={isMarking || refreshing}
               onClick={() =>
                 markReviewed(repo.id, {
-                  onSuccess: () => toast.success(t("watchlist.reviewed_toast")),
+                  onSuccess: () =>
+                    toast.success(t("developments.reviewed_toast")),
                 })
               }
             >
               <CheckIcon className="size-3.5" />
-              {t("watchlist.mark_reviewed")}
+              {t("developments.mark_reviewed")}
             </Button>
           ) : null}
           <Button
@@ -234,22 +235,27 @@ function WatchlistCard({ entry }: { entry: WatchlistEntryOut }) {
               setWatched(
                 { id: repo.id, watched: false },
                 {
-                  onSuccess: () => toast.success(t("watchlist.unwatch_toast")),
+                  onSuccess: () =>
+                    toast.success(t("developments.unwatch_toast")),
                 },
               )
             }
           >
             <EyeOffIcon className="size-3.5" />
-            {t("watchlist.unwatch")}
+            {t("developments.unwatch")}
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         {entry.delta ? (
-          <PendingDelta repoId={repo.id} delta={entry.delta} />
+          <PendingDelta
+            repoId={repo.id}
+            delta={entry.delta}
+            summaryPending={entry.summary_pending}
+          />
         ) : entry.up_to_date ? (
           <p className="text-sm text-muted-foreground">
-            {t("watchlist.up_to_date", {
+            {t("developments.up_to_date", {
               when: entry.reviewed
                 ? formatDate(entry.reviewed.analyzed_at)
                 : "",
@@ -257,7 +263,7 @@ function WatchlistCard({ entry }: { entry: WatchlistEntryOut }) {
           </p>
         ) : (
           <p className="text-sm text-muted-foreground">
-            {t("watchlist.baseline_only")}
+            {t("developments.baseline_only")}
           </p>
         )}
       </CardContent>
@@ -268,9 +274,11 @@ function WatchlistCard({ entry }: { entry: WatchlistEntryOut }) {
 function PendingDelta({
   repoId,
   delta,
+  summaryPending,
 }: {
   repoId: string;
   delta: AnalysisDeltaOut;
+  summaryPending: boolean;
 }) {
   const { t } = useTranslation();
 
@@ -278,14 +286,23 @@ function PendingDelta({
 
   return (
     <div className="flex flex-col gap-4">
+      <DeltaNarrative
+        repoId={repoId}
+        delta={delta}
+        summaryPending={summaryPending}
+      />
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="font-medium">
           {delta.commits.has_commit_data
-            ? t("watchlist.new_commits", { count: delta.commits.count })
-            : t("watchlist.new_commits_approx", { count: delta.commits.count })}
+            ? t("developments.new_commits", { count: delta.commits.count })
+            : t("developments.new_commits_approx", {
+                count: delta.commits.count,
+              })}
         </span>
         <span className="text-muted-foreground">
-          {t("watchlist.since", { when: formatDate(delta.from_analyzed_at) })}
+          {t("developments.since", {
+            when: formatDate(delta.from_analyzed_at),
+          })}
         </span>
         <code className="font-mono text-xs text-muted-foreground">
           {delta.from_commit_sha.slice(0, 8)} →{" "}
@@ -308,7 +325,7 @@ function PendingDelta({
         <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
           {facts.map((f) => (
             <span key={f.field} className="text-muted-foreground">
-              {t(`watchlist.fact_${f.field}`)}:{" "}
+              {t(`developments.fact_${f.field}`)}:{" "}
               <span className="font-medium text-foreground">
                 {String(f.before ?? "–")} → {String(f.after ?? "–")}
               </span>
@@ -316,8 +333,6 @@ function PendingDelta({
           ))}
         </div>
       ) : null}
-
-      <DeltaNarrative repoId={repoId} delta={delta} />
     </div>
   );
 }
@@ -325,9 +340,11 @@ function PendingDelta({
 function DeltaNarrative({
   repoId,
   delta,
+  summaryPending,
 }: {
   repoId: string;
   delta: AnalysisDeltaOut;
+  summaryPending: boolean;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -336,9 +353,9 @@ function DeltaNarrative({
   const { track, isTracking } = useTrackedJob((job) => {
     queryClient.invalidateQueries({ queryKey: watchlistKeys.all });
     if (job.status === "succeeded") {
-      toast.success(t("watchlist.summary_done"));
+      toast.success(t("developments.summary_done"));
     } else {
-      toast.error(job.error ?? t("watchlist.summary_failed"));
+      toast.error(job.error ?? t("developments.summary_failed"));
     }
   });
   const busy = isQueueing || isTracking;
@@ -348,6 +365,17 @@ function DeltaNarrative({
       <div className="rounded-md border border-border bg-muted/30 p-3 text-sm leading-relaxed whitespace-pre-wrap">
         {delta.note}
       </div>
+    );
+  }
+
+  // Summaries auto-generate after a pull; while the engine writes one, show progress
+  // instead of the manual (fallback) button.
+  if (summaryPending || isTracking) {
+    return (
+      <p className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Loader2Icon className="size-3.5 animate-spin" />
+        {t("developments.summary_auto_pending")}
+      </p>
     );
   }
 
@@ -369,7 +397,7 @@ function DeltaNarrative({
         ) : (
           <SparklesIcon className="size-3.5" />
         )}
-        {busy ? t("watchlist.summarizing") : t("watchlist.summarize")}
+        {busy ? t("developments.summarizing") : t("developments.summarize")}
       </Button>
     </div>
   );

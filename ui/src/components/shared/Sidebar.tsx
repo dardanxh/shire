@@ -78,10 +78,10 @@ const WORKSPACE_ITEMS: NavItem[] = [
       p.startsWith("/repositories") || p.startsWith("/merge-reviews"),
   },
   {
-    to: "/watchlist",
-    labelKey: "common.nav.watchlist",
+    to: "/developments",
+    labelKey: "common.nav.developments",
     icon: EyeIcon,
-    match: (p) => p === "/watchlist",
+    match: (p) => p === "/developments",
   },
   {
     to: "/members",

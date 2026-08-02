@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { useSetWatchedMutation } from "@/features/watchlist";
+import { useSetWatchedMutation } from "@/features/developments";
 import { useRefreshRepositoryMutation } from "../api";
 import { DeleteRepositoryDialog } from "./DeleteRepositoryDialog";
 
@@ -64,8 +64,8 @@ export function RepositoryActions({
                 toast.success(
                   t(
                     repo.watched
-                      ? "watchlist.watch_toast"
-                      : "watchlist.unwatch_toast",
+                      ? "developments.watch_toast"
+                      : "developments.unwatch_toast",
                   ),
                 ),
             },
@@ -77,7 +77,7 @@ export function RepositoryActions({
         ) : (
           <EyeIcon className="size-3.5" />
         )}
-        {watched ? t("watchlist.unwatch") : t("watchlist.watch")}
+        {watched ? t("developments.unwatch") : t("developments.watch")}
       </Button>
       <Button
         size="sm"

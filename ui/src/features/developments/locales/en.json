@@ -1,12 +1,12 @@
 {
-  "watchlist": {
-    "title": "Watchlist",
-    "desc": "Your daily dose: what changed in the repositories you follow since you last looked. Pull latest, skim the deltas, mark them reviewed.",
+  "developments": {
+    "title": "Latest developments",
+    "desc": "What changed in the repositories you follow since you last looked. Pull latest, skim the summaries, mark them reviewed.",
     "pull_latest": "Pull latest",
     "refreshing": "Refreshing…",
     "refresh_toast_one": "Pulling {{count}} repository…",
     "refresh_toast_other": "Pulling {{count}} repositories…",
-    "empty": "No repositories on your watchlist yet. Add the ones you want a daily change digest for.",
+    "empty": "Nothing here yet. Add the repositories you want a daily change feed for.",
     "status_cloning": "Pulling…",
     "status_analyzing": "Analyzing…",
     "mark_reviewed": "Mark reviewed",
@@ -34,6 +34,7 @@
     "add_repos": "Add repositories",
     "add_search": "Search repositories…",
     "add_no_match": "No repositories match.",
-    "add_all_watched": "Every repository is already on the watchlist."
+    "add_all_watched": "Every repository is already on the watchlist.",
+    "summary_auto_pending": "Summarizing the changes…"
   }
 }

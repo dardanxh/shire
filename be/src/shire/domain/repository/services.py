@@ -437,6 +437,19 @@ class RepositoryService:
                 entity_id=repository.id,
                 repository_id=repository.id,
             )
+            if repository.watched:
+                # Watched repos auto-summarize their pending digest delta so the
+                # Developments feed fills in without a click. Best-effort — a summary
+                # failure must never fail the pull itself. (Local import: watchlist
+                # imports this module.)
+                from shire.domain.watchlist.services import WatchlistService
+
+                try:
+                    WatchlistService(self._session).enqueue_pending_summary(repository.id)
+                except Exception:
+                    logger.exception(
+                        "Could not auto-enqueue the change summary for %s", repository.id
+                    )
             self._session.commit()
         except Exception as exc:
             logger.exception("Ingestion failed for %s", url)

@@ -16,8 +16,8 @@ export function useWatchlistQuery() {
       return data;
     },
     refetchInterval: (query) =>
-      (query.state.data?.entries ?? []).some((e) =>
-        REFRESHING.has(e.repository.status),
+      (query.state.data?.entries ?? []).some(
+        (e) => REFRESHING.has(e.repository.status) || e.summary_pending,
       )
         ? 4000
         : false,
