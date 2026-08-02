@@ -34,6 +34,7 @@ def _to_domain(row: RepositoryRow) -> Repository:
         status=IngestionStatus(row.status),
         watched=row.watched,
         last_reviewed_commit_sha=row.last_reviewed_commit_sha,
+        prev_reviewed_commit_sha=row.prev_reviewed_commit_sha,
         last_analyzed_commit=row.last_analyzed_commit,
         last_analyzed_at=row.last_analyzed_at,
         error=row.error,
@@ -56,6 +57,7 @@ def _apply(row: RepositoryRow, repo: Repository) -> None:
     row.status = repo.status.value
     row.watched = repo.watched
     row.last_reviewed_commit_sha = repo.last_reviewed_commit_sha
+    row.prev_reviewed_commit_sha = repo.prev_reviewed_commit_sha
     row.last_analyzed_commit = repo.last_analyzed_commit
     row.last_analyzed_at = repo.last_analyzed_at
     row.error = repo.error

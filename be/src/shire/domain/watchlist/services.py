@@ -56,17 +56,34 @@ class WatchlistService:
             if delta.note is None:
                 summary_pending = self._summary_job_pending(repo.id, *pair)
 
+        up_to_date = bool(
+            latest is not None
+            and reviewed is not None
+            and reviewed.analysis_id == latest.analysis_id
+        )
+
+        # Up to date: still serve the window that was just reviewed (rendered collapsed) so
+        # marking reviewed closes the card without destroying what it showed.
+        reviewed_delta = None
+        if up_to_date:
+            prev = _resolve_cursor(history, repo.prev_reviewed_commit_sha)
+            if (
+                prev is not None
+                and reviewed is not None
+                and prev.analysis_id != reviewed.analysis_id
+            ):
+                reviewed_delta = self._analysis.analysis_delta(
+                    repo.id, prev.analysis_id, reviewed.analysis_id
+                )
+
         return WatchlistEntryResult(
             repository=RepositoryResult.of(repo),
             latest=latest,
             reviewed=reviewed,
             delta=delta,
+            reviewed_delta=reviewed_delta,
             summary_pending=summary_pending,
-            up_to_date=bool(
-                latest is not None
-                and reviewed is not None
-                and reviewed.analysis_id == latest.analysis_id
-            ),
+            up_to_date=up_to_date,
         )
 
     def enqueue_pending_summary(self, repository_id: uuid.UUID) -> None:
@@ -114,12 +131,20 @@ class WatchlistService:
         return RepositoryResult.of(repo)
 
     def mark_reviewed(self, repository_id: uuid.UUID) -> WatchlistEntryResult:
-        """Advance the review cursor to the latest snapshot — its commits are now 'seen'."""
+        """Advance the review cursor to the latest snapshot — its commits are now 'seen'.
+        The old cursor is kept as the previous cursor so the just-reviewed window stays
+        viewable (collapsed) on the card."""
         repo = self._require(repository_id)
         history = self._analysis.analysis_history(repository_id)
         if not history:
             raise ConflictError("No completed analysis to mark reviewed yet.")
-        repo.last_reviewed_commit_sha = history[-1].commit_sha
+        latest_sha = history[-1].commit_sha
+        if repo.last_reviewed_commit_sha != latest_sha:
+            # Never-reviewed windows start at the baseline — that's what the user just read.
+            repo.prev_reviewed_commit_sha = (
+                repo.last_reviewed_commit_sha or history[0].commit_sha
+            )
+        repo.last_reviewed_commit_sha = latest_sha
         self._repos.save(repo)
         return self._entry(repo)
 

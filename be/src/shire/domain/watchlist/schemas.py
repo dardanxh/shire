@@ -31,6 +31,10 @@ class WatchlistEntryResult(BaseModel):
     # None when never reviewed or the cursor's snapshot no longer exists.
     reviewed: AnalysisSnapshotSummary | None
     delta: AnalysisDeltaResult | None
+    # When up to date: the window that was just reviewed (previous cursor -> cursor),
+    # so the card can offer it collapsed instead of losing it. None when never reviewed
+    # or the previous cursor's snapshot no longer exists.
+    reviewed_delta: AnalysisDeltaResult | None = None
     # A change-summary job for the pending pair is queued/running (the UI shows
     # "Summarizing…" and polls until the narrative lands on `delta.note`).
     summary_pending: bool

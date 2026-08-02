@@ -133,6 +133,7 @@ class Repository(AggregateRoot):
     # Watchlist membership + the digest review cursor (see watchlist domain).
     watched: bool = False
     last_reviewed_commit_sha: str | None = None
+    prev_reviewed_commit_sha: str | None = None
     last_analyzed_commit: str | None = None
     last_analyzed_at: datetime | None = None
     error: str | None = None
