@@ -304,6 +304,19 @@ function PendingDelta({
             when: formatDate(delta.from_analyzed_at),
           })}
         </span>
+        {delta.commits.insertions + delta.commits.deletions > 0 ? (
+          <span className="font-mono text-xs">
+            <span className="text-green-600 dark:text-green-500">
+              +{delta.commits.insertions}
+            </span>{" "}
+            <span className="text-red-600 dark:text-red-500">
+              −{delta.commits.deletions}
+            </span>{" "}
+            <span className="text-muted-foreground">
+              {t("developments.lines")}
+            </span>
+          </span>
+        ) : null}
         <code className="font-mono text-xs text-muted-foreground">
           {delta.from_commit_sha.slice(0, 8)} →{" "}
           {delta.to_commit_sha.slice(0, 8)}

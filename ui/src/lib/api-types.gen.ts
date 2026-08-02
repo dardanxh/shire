@@ -5048,6 +5048,16 @@ export interface components {
         DeltaCommits: {
             /** Count */
             count: number;
+            /**
+             * Insertions
+             * @default 0
+             */
+            insertions: number;
+            /**
+             * Deletions
+             * @default 0
+             */
+            deletions: number;
             /** Authors */
             authors: components["schemas"]["DeltaCommitAuthor"][];
             /** Has Commit Data */

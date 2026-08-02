@@ -35,6 +35,7 @@
     "add_search": "Search repositories…",
     "add_no_match": "No repositories match.",
     "add_all_watched": "Every repository is already on the watchlist.",
-    "summary_auto_pending": "Summarizing the changes…"
+    "summary_auto_pending": "Summarizing the changes…",
+    "lines": "lines"
   }
 }

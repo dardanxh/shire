@@ -470,8 +470,13 @@ class AnalysisService:
             )
         new = {sha: email for sha, email in to_shas.items() if sha not in from_shas}
         counts = Counter(new.values())
+        line_stats = self._commit_records.sha_line_stats_for_analysis(after.id)
+        insertions = sum(line_stats[sha][0] for sha in new if sha in line_stats)
+        deletions = sum(line_stats[sha][1] for sha in new if sha in line_stats)
         return DeltaCommits(
             count=len(new),
+            insertions=insertions,
+            deletions=deletions,
             authors=[
                 DeltaCommitAuthor(email=email, commits=count)
                 for email, count in counts.most_common()

@@ -197,6 +197,9 @@ class DeltaCommits(BaseModel):
     """New commits between the snapshots (sha set difference of per-commit records)."""
 
     count: int
+    # Line churn summed over the new commits (0 when per-commit data is unavailable).
+    insertions: int = 0
+    deletions: int = 0
     authors: list[DeltaCommitAuthor]
     # False when either snapshot predates per-commit persistence — count falls back to the
     # commit_count fact difference and authors stay empty.
