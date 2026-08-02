@@ -373,7 +373,9 @@
         "zoom_out": "Zoom out",
         "zoom_reset": "Reset zoom",
         "toast_done": "Diagram generated.",
-        "toast_failed": "Diagram generation failed."
+        "toast_failed": "Diagram generation failed.",
+        "generate_all": "Generate all missing ({{count}})",
+        "generate_all_done": "All diagrams generated"
       },
       "ai_readiness": {
         "current_state": "Current state",
