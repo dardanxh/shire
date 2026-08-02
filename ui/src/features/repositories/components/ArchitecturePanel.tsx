@@ -6,7 +6,7 @@ import {
   Maximize2Icon,
   SparklesIcon,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -18,8 +18,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useTrackedJob } from "@/features/jobs";
-import type { ArchitectureDiagram } from "@/lib/api";
+import { isJobSettled, useJobQuery } from "@/features/jobs";
+import type { ArchitectureDiagram, JobDetailOut } from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
 import {
   useArchitectureQuery,
@@ -36,13 +36,37 @@ export function ArchitecturePanel({ repoId }: { repoId: string }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { data } = useArchitectureQuery(repoId);
-  const { mutate: generate, isPending: isQueueing } =
-    useGenerateArchitectureDiagramMutation(repoId);
-  // Which diagram kind the tracked engine job is generating (drives the per-card spinner).
-  const [generatingKind, setGeneratingKind] = useState<string | null>(null);
+  const { mutate: generate } = useGenerateArchitectureDiagramMutation(repoId);
+  // Per-kind in-flight state: kind -> engine job id (null while the enqueue request runs).
+  // Diagrams generate independently — one running job never blocks the other cards.
+  const [jobsByKind, setJobsByKind] = useState<Record<string, string | null>>(
+    {},
+  );
 
-  const { track, isTracking } = useTrackedJob((job) => {
-    setGeneratingKind(null);
+  const startGenerate = (diagram: ArchitectureDiagram) => {
+    if (diagram.kind in jobsByKind) return; // already queueing/generating
+    setJobsByKind((m) => ({ ...m, [diagram.kind]: null }));
+    generate(diagram.kind, {
+      onSuccess: (job) => {
+        toast.success(
+          t("repositories.view.architecture.toast", { title: diagram.title }),
+        );
+        setJobsByKind((m) => ({ ...m, [diagram.kind]: job.id }));
+      },
+      onError: () => {
+        setJobsByKind((m) => {
+          const { [diagram.kind]: _dropped, ...rest } = m;
+          return rest;
+        });
+      },
+    });
+  };
+
+  const onJobSettled = (kind: string, job: JobDetailOut) => {
+    setJobsByKind((m) => {
+      const { [kind]: _dropped, ...rest } = m;
+      return rest;
+    });
     queryClient.invalidateQueries({
       queryKey: repositoryKeys.architecture(repoId),
     });
@@ -53,8 +77,7 @@ export function ArchitecturePanel({ repoId }: { repoId: string }) {
         job.error ?? t("repositories.view.architecture.toast_failed"),
       );
     }
-  });
-  const isPending = isQueueing || isTracking;
+  };
 
   const grouped = useMemo(() => {
     const diagrams = data?.diagrams ?? [];
@@ -65,22 +88,45 @@ export function ArchitecturePanel({ repoId }: { repoId: string }) {
   }, [data]);
 
   const agentAvailable = data?.agent_available ?? true;
+  // "Generate all" targets diagrams that don't exist yet and aren't already in flight —
+  // regenerating existing ones stays a deliberate per-card action (it costs tokens).
+  const missing = (data?.diagrams ?? []).filter(
+    (d) => !d.generated && !(d.kind in jobsByKind),
+  );
 
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-lg font-semibold">
-          {t("repositories.view.tabs.architecture")}
-        </h2>
-        <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-          {t("repositories.view.architecture.desc")}
-        </p>
         {!agentAvailable ? (
-          <p className="mt-2 text-sm text-amber-600 dark:text-amber-500">
+          <p className="mb-2 text-sm text-amber-600 dark:text-amber-500">
             {t("repositories.view.architecture.unavailable")}
           </p>
         ) : null}
+        <div>
+          <Button
+            size="sm"
+            disabled={!agentAvailable || missing.length === 0}
+            onClick={() => missing.forEach(startGenerate)}
+          >
+            <SparklesIcon className="size-3.5" />
+            {missing.length > 0
+              ? t("repositories.view.architecture.generate_all", {
+                  count: missing.length,
+                })
+              : t("repositories.view.architecture.generate_all_done")}
+          </Button>
+        </div>
       </div>
+
+      {Object.entries(jobsByKind).map(([kind, jobId]) =>
+        jobId ? (
+          <DiagramJobWatcher
+            key={kind}
+            jobId={jobId}
+            onSettled={(job) => onJobSettled(kind, job)}
+          />
+        ) : null,
+      )}
 
       {grouped.map((group) => (
         <section key={group.category} className="flex flex-col gap-3">
@@ -95,22 +141,9 @@ export function ArchitecturePanel({ repoId }: { repoId: string }) {
                 key={diagram.kind}
                 repoId={repoId}
                 diagram={diagram}
-                busy={isPending && generatingKind === diagram.kind}
-                disabled={isPending || !agentAvailable}
-                onGenerate={() => {
-                  setGeneratingKind(diagram.kind);
-                  generate(diagram.kind, {
-                    onSuccess: (job) => {
-                      toast.success(
-                        t("repositories.view.architecture.toast", {
-                          title: diagram.title,
-                        }),
-                      );
-                      track(job.id);
-                    },
-                    onError: () => setGeneratingKind(null),
-                  });
-                }}
+                busy={diagram.kind in jobsByKind}
+                disabled={diagram.kind in jobsByKind || !agentAvailable}
+                onGenerate={() => startGenerate(diagram)}
               />
             ))}
           </div>
@@ -118,6 +151,29 @@ export function ArchitecturePanel({ repoId }: { repoId: string }) {
       ))}
     </div>
   );
+}
+
+/** Renderless: follows one diagram-generation job and reports back when it settles.
+ * Mounted once per in-flight kind so any number of generations run concurrently. */
+function DiagramJobWatcher({
+  jobId,
+  onSettled,
+}: {
+  jobId: string;
+  onSettled: (job: JobDetailOut) => void;
+}) {
+  const { data: job } = useJobQuery(jobId);
+  const settled = useRef(false);
+  const callback = useRef(onSettled);
+  callback.current = onSettled;
+  // Side effect: hand the settled job to the parent exactly once (the parent then unmounts us).
+  useEffect(() => {
+    if (!settled.current && job && job.id === jobId && isJobSettled(job)) {
+      settled.current = true;
+      callback.current(job);
+    }
+  }, [job, jobId]);
+  return null;
 }
 
 function DiagramCard({

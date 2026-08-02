@@ -350,7 +350,6 @@
         "hint": "Saved as an override — regenerating the analysis won't overwrite it. Reset restores the auto-generated context."
       },
       "architecture": {
-        "desc": "Architecture diagrams a hobit draws by exploring the actual code. Pick any diagram below and generate it on demand — each is rendered as Mermaid, with the source available to copy.",
         "cat_structural": "Structural",
         "cat_behavioral": "Behavioral",
         "cat_data": "Data",
@@ -373,7 +372,9 @@
         "zoom_out": "Zoom out",
         "zoom_reset": "Reset zoom",
         "toast_done": "Diagram generated.",
-        "toast_failed": "Diagram generation failed."
+        "toast_failed": "Diagram generation failed.",
+        "generate_all": "Generate all missing ({{count}})",
+        "generate_all_done": "All diagrams generated"
       },
       "ai_readiness": {
         "current_state": "Current state",
