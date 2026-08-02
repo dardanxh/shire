@@ -32,6 +32,8 @@ def _to_domain(row: RepositoryRow) -> Repository:
         current_branch=row.current_branch,
         clone_path=row.clone_path,
         status=IngestionStatus(row.status),
+        watched=row.watched,
+        last_reviewed_commit_sha=row.last_reviewed_commit_sha,
         last_analyzed_commit=row.last_analyzed_commit,
         last_analyzed_at=row.last_analyzed_at,
         error=row.error,
@@ -52,6 +54,8 @@ def _apply(row: RepositoryRow, repo: Repository) -> None:
     row.current_branch = repo.current_branch
     row.clone_path = repo.clone_path
     row.status = repo.status.value
+    row.watched = repo.watched
+    row.last_reviewed_commit_sha = repo.last_reviewed_commit_sha
     row.last_analyzed_commit = repo.last_analyzed_commit
     row.last_analyzed_at = repo.last_analyzed_at
     row.error = repo.error
@@ -90,6 +94,15 @@ class SqlRepositoryRepository:
         )
         row = self._session.scalars(stmt).first()
         return _to_domain(row) if row else None
+
+    def list_watched(self) -> list[Repository]:
+        """Watchlist members, oldest-onboarded first (stable digest order)."""
+        stmt = (
+            select(RepositoryRow)
+            .where(RepositoryRow.watched.is_(True))
+            .order_by(RepositoryRow.created_at.asc())
+        )
+        return [_to_domain(r) for r in self._session.scalars(stmt)]
 
     def list(self, *, limit: int | None = None, offset: int = 0) -> list[Repository]:
         stmt = select(RepositoryRow).order_by(RepositoryRow.created_at.desc()).offset(offset)

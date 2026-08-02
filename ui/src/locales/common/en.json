@@ -37,7 +37,8 @@
       "group_knowledge": "Knowledge",
       "group_workspace": "Workspace",
       "group_intelligence": "Intelligence",
-      "group_platform": "Platform"
+      "group_platform": "Platform",
+      "watchlist": "Watchlist"
     },
     "actions": {
       "add": "Add",

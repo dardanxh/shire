@@ -34,6 +34,12 @@ class RepositoryRow(Base):
     current_branch: Mapped[str | None] = mapped_column(String(255), nullable=True)
     clone_path: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     status: Mapped[str] = mapped_column(String(32))
+    # Watchlist: repos the user follows for the daily "what changed" digest.
+    watched: Mapped[bool] = mapped_column(default=False, server_default="false")
+    # Digest cursor: the snapshot commit the user last reviewed. The digest shows the delta
+    # from here to the latest snapshot; "mark reviewed" advances it. A sha (not analysis id)
+    # because re-analyzing the same commit replaces the snapshot row and its id.
+    last_reviewed_commit_sha: Mapped[str | None] = mapped_column(String(64), nullable=True)
     last_analyzed_commit: Mapped[str | None] = mapped_column(String(64), nullable=True)
     last_analyzed_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True

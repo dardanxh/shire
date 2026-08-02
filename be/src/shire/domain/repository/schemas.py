@@ -43,6 +43,7 @@ class RepositoryResult(BaseModel):
     # The branch all repository data currently reflects (falls back to default_branch).
     current_branch: str
     status: str
+    watched: bool
     last_analyzed_commit: str | None
     last_analyzed_at: datetime | None
     error: str | None
@@ -63,6 +64,7 @@ class RepositoryResult(BaseModel):
             default_branch=repo.default_branch,
             current_branch=repo.current_branch or repo.default_branch,
             status=repo.status.value,
+            watched=repo.watched,
             last_analyzed_commit=repo.last_analyzed_commit,
             last_analyzed_at=repo.last_analyzed_at,
             error=repo.error,

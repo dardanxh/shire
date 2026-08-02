@@ -4,6 +4,7 @@ import {
   ChevronDownIcon,
   CpuIcon,
   DatabaseIcon,
+  EyeIcon,
   FolderGitIcon,
   GaugeIcon,
   GlobeIcon,
@@ -75,6 +76,12 @@ const WORKSPACE_ITEMS: NavItem[] = [
     // pages keep this module highlighted.
     match: (p) =>
       p.startsWith("/repositories") || p.startsWith("/merge-reviews"),
+  },
+  {
+    to: "/watchlist",
+    labelKey: "common.nav.watchlist",
+    icon: EyeIcon,
+    match: (p) => p === "/watchlist",
   },
   {
     to: "/members",

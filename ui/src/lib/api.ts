@@ -16,6 +16,8 @@ export const api = createClient<paths>({ baseUrl: env.VITE_API_BASE_URL });
 // The backend result schemas are `*Result`; we keep the shorter `*Out` alias
 // names on the frontend so feature code stays stable.
 export type RepositoryOut = components["schemas"]["RepositoryResult"];
+export type WatchlistOut = components["schemas"]["WatchlistResult"];
+export type WatchlistEntryOut = components["schemas"]["WatchlistEntryResult"];
 export type AnalysisOut = components["schemas"]["AnalysisResult"];
 export type AnalysisSnapshotOut =
   components["schemas"]["AnalysisSnapshotSummary"];

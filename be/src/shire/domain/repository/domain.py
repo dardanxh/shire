@@ -130,6 +130,9 @@ class Repository(AggregateRoot):
     current_branch: str | None = None
     clone_path: str | None = None
     status: IngestionStatus = IngestionStatus.registered
+    # Watchlist membership + the digest review cursor (see watchlist domain).
+    watched: bool = False
+    last_reviewed_commit_sha: str | None = None
     last_analyzed_commit: str | None = None
     last_analyzed_at: datetime | None = None
     error: str | None = None

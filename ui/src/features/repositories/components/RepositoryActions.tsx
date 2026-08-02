@@ -1,9 +1,16 @@
 import { useNavigate } from "@tanstack/react-router";
-import { Loader2Icon, RefreshCwIcon, Trash2Icon } from "lucide-react";
+import {
+  EyeIcon,
+  EyeOffIcon,
+  Loader2Icon,
+  RefreshCwIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { useSetWatchedMutation } from "@/features/watchlist";
 import { useRefreshRepositoryMutation } from "../api";
 import { DeleteRepositoryDialog } from "./DeleteRepositoryDialog";
 
@@ -12,11 +19,21 @@ import { DeleteRepositoryDialog } from "./DeleteRepositoryDialog";
  * repo and everything derived from it). A blocking refresh can succeed with `status: "failed"`,
  * surfaced as an explicit error toast on the success path.
  */
-export function RepositoryActions({ id, slug }: { id: string; slug: string }) {
+export function RepositoryActions({
+  id,
+  slug,
+  watched,
+}: {
+  id: string;
+  slug: string;
+  watched: boolean;
+}) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { mutate: refresh, isPending: refreshing } =
     useRefreshRepositoryMutation(id);
+  const { mutate: setWatched, isPending: watchPending } =
+    useSetWatchedMutation();
 
   const handleRefresh = () => {
     refresh(undefined, {
@@ -35,6 +52,33 @@ export function RepositoryActions({ id, slug }: { id: string; slug: string }) {
 
   return (
     <div className="flex items-center gap-2">
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={watchPending}
+        onClick={() =>
+          setWatched(
+            { id, watched: !watched },
+            {
+              onSuccess: (repo) =>
+                toast.success(
+                  t(
+                    repo.watched
+                      ? "watchlist.watch_toast"
+                      : "watchlist.unwatch_toast",
+                  ),
+                ),
+            },
+          )
+        }
+      >
+        {watched ? (
+          <EyeOffIcon className="size-3.5" />
+        ) : (
+          <EyeIcon className="size-3.5" />
+        )}
+        {watched ? t("watchlist.unwatch") : t("watchlist.watch")}
+      </Button>
       <Button
         size="sm"
         variant="outline"
