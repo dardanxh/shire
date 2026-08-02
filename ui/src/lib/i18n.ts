@@ -6,6 +6,7 @@ import briefing from "@/features/briefing/locales/en.json";
 import compliance from "@/features/compliance/locales/en.json";
 import connectors from "@/features/connectors/locales/en.json";
 import council from "@/features/council/locales/en.json";
+import developments from "@/features/developments/locales/en.json";
 import hobits from "@/features/hobits/locales/en.json";
 import home from "@/features/home/locales/en.json";
 import jobs from "@/features/jobs/locales/en.json";
@@ -23,7 +24,6 @@ import sizing from "@/features/sizing/locales/en.json";
 import techchoice from "@/features/techchoice/locales/en.json";
 import technologies from "@/features/technologies/locales/en.json";
 import tools from "@/features/tools/locales/en.json";
-import watchlist from "@/features/watchlist/locales/en.json";
 import common from "@/locales/common/en.json";
 
 /**
@@ -56,7 +56,7 @@ const en = {
   ...techchoice,
   ...compliance,
   ...apps,
-  ...watchlist,
+  ...developments,
 };
 
 i18n.use(initReactI18next).init({

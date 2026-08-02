@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WatchlistRouteImport } from './routes/watchlist'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as TechnologiesRouteImport } from './routes/technologies'
 import { Route as TechChooserRouteImport } from './routes/tech-chooser'
@@ -24,6 +23,7 @@ import { Route as MergeReviewsRouteImport } from './routes/merge-reviews'
 import { Route as MembersRouteImport } from './routes/members'
 import { Route as JobsRouteImport } from './routes/jobs'
 import { Route as HobitsRouteImport } from './routes/hobits'
+import { Route as DevelopmentsRouteImport } from './routes/developments'
 import { Route as DataRouteImport } from './routes/data'
 import { Route as CouncilRouteImport } from './routes/council'
 import { Route as ConnectorsRouteImport } from './routes/connectors'
@@ -74,11 +74,6 @@ import { Route as DataIdEditRouteImport } from './routes/data/$id/edit'
 import { Route as ArchitecturesIdEditRouteImport } from './routes/architectures/$id/edit'
 import { Route as ArchitecturesIdDiagramRouteImport } from './routes/architectures/$id/diagram'
 
-const WatchlistRoute = WatchlistRouteImport.update({
-  id: '/watchlist',
-  path: '/watchlist',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
   path: '/tools',
@@ -147,6 +142,11 @@ const JobsRoute = JobsRouteImport.update({
 const HobitsRoute = HobitsRouteImport.update({
   id: '/hobits',
   path: '/hobits',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevelopmentsRoute = DevelopmentsRouteImport.update({
+  id: '/developments',
+  path: '/developments',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DataRoute = DataRouteImport.update({
@@ -405,6 +405,7 @@ export interface FileRoutesByFullPath {
   '/connectors': typeof ConnectorsRoute
   '/council': typeof CouncilRouteWithChildren
   '/data': typeof DataRouteWithChildren
+  '/developments': typeof DevelopmentsRoute
   '/hobits': typeof HobitsRouteWithChildren
   '/jobs': typeof JobsRouteWithChildren
   '/members': typeof MembersRouteWithChildren
@@ -419,7 +420,6 @@ export interface FileRoutesByFullPath {
   '/tech-chooser': typeof TechChooserRoute
   '/technologies': typeof TechnologiesRouteWithChildren
   '/tools': typeof ToolsRoute
-  '/watchlist': typeof WatchlistRoute
   '/architectures/advisor': typeof ArchitecturesAdvisorRoute
   '/architectures/compare': typeof ArchitecturesCompareRoute
   '/architectures/new': typeof ArchitecturesNewRoute
@@ -468,12 +468,12 @@ export interface FileRoutesByTo {
   '/capacity-planner': typeof CapacityPlannerRoute
   '/compliance': typeof ComplianceRoute
   '/connectors': typeof ConnectorsRoute
+  '/developments': typeof DevelopmentsRoute
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
   '/tech-chooser': typeof TechChooserRoute
   '/tools': typeof ToolsRoute
-  '/watchlist': typeof WatchlistRoute
   '/architectures/advisor': typeof ArchitecturesAdvisorRoute
   '/architectures/compare': typeof ArchitecturesCompareRoute
   '/architectures/new': typeof ArchitecturesNewRoute
@@ -526,6 +526,7 @@ export interface FileRoutesById {
   '/connectors': typeof ConnectorsRoute
   '/council': typeof CouncilRouteWithChildren
   '/data': typeof DataRouteWithChildren
+  '/developments': typeof DevelopmentsRoute
   '/hobits': typeof HobitsRouteWithChildren
   '/jobs': typeof JobsRouteWithChildren
   '/members': typeof MembersRouteWithChildren
@@ -540,7 +541,6 @@ export interface FileRoutesById {
   '/tech-chooser': typeof TechChooserRoute
   '/technologies': typeof TechnologiesRouteWithChildren
   '/tools': typeof ToolsRoute
-  '/watchlist': typeof WatchlistRoute
   '/architectures/advisor': typeof ArchitecturesAdvisorRoute
   '/architectures/compare': typeof ArchitecturesCompareRoute
   '/architectures/new': typeof ArchitecturesNewRoute
@@ -594,6 +594,7 @@ export interface FileRouteTypes {
     | '/connectors'
     | '/council'
     | '/data'
+    | '/developments'
     | '/hobits'
     | '/jobs'
     | '/members'
@@ -608,7 +609,6 @@ export interface FileRouteTypes {
     | '/tech-chooser'
     | '/technologies'
     | '/tools'
-    | '/watchlist'
     | '/architectures/advisor'
     | '/architectures/compare'
     | '/architectures/new'
@@ -657,12 +657,12 @@ export interface FileRouteTypes {
     | '/capacity-planner'
     | '/compliance'
     | '/connectors'
+    | '/developments'
     | '/merge-reviews'
     | '/news'
     | '/principles'
     | '/tech-chooser'
     | '/tools'
-    | '/watchlist'
     | '/architectures/advisor'
     | '/architectures/compare'
     | '/architectures/new'
@@ -714,6 +714,7 @@ export interface FileRouteTypes {
     | '/connectors'
     | '/council'
     | '/data'
+    | '/developments'
     | '/hobits'
     | '/jobs'
     | '/members'
@@ -728,7 +729,6 @@ export interface FileRouteTypes {
     | '/tech-chooser'
     | '/technologies'
     | '/tools'
-    | '/watchlist'
     | '/architectures/advisor'
     | '/architectures/compare'
     | '/architectures/new'
@@ -781,6 +781,7 @@ export interface RootRouteChildren {
   ConnectorsRoute: typeof ConnectorsRoute
   CouncilRoute: typeof CouncilRouteWithChildren
   DataRoute: typeof DataRouteWithChildren
+  DevelopmentsRoute: typeof DevelopmentsRoute
   HobitsRoute: typeof HobitsRouteWithChildren
   JobsRoute: typeof JobsRouteWithChildren
   MembersRoute: typeof MembersRouteWithChildren
@@ -795,19 +796,11 @@ export interface RootRouteChildren {
   TechChooserRoute: typeof TechChooserRoute
   TechnologiesRoute: typeof TechnologiesRouteWithChildren
   ToolsRoute: typeof ToolsRoute
-  WatchlistRoute: typeof WatchlistRoute
   DiagramRepoIdKindRoute: typeof DiagramRepoIdKindRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/watchlist': {
-      id: '/watchlist'
-      path: '/watchlist'
-      fullPath: '/watchlist'
-      preLoaderRoute: typeof WatchlistRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/tools': {
       id: '/tools'
       path: '/tools'
@@ -904,6 +897,13 @@ declare module '@tanstack/react-router' {
       path: '/hobits'
       fullPath: '/hobits'
       preLoaderRoute: typeof HobitsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developments': {
+      id: '/developments'
+      path: '/developments'
+      fullPath: '/developments'
+      preLoaderRoute: typeof DevelopmentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/data': {
@@ -1463,6 +1463,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConnectorsRoute: ConnectorsRoute,
   CouncilRoute: CouncilRouteWithChildren,
   DataRoute: DataRouteWithChildren,
+  DevelopmentsRoute: DevelopmentsRoute,
   HobitsRoute: HobitsRouteWithChildren,
   JobsRoute: JobsRouteWithChildren,
   MembersRoute: MembersRouteWithChildren,
@@ -1477,7 +1478,6 @@ const rootRouteChildren: RootRouteChildren = {
   TechChooserRoute: TechChooserRoute,
   TechnologiesRoute: TechnologiesRouteWithChildren,
   ToolsRoute: ToolsRoute,
-  WatchlistRoute: WatchlistRoute,
   DiagramRepoIdKindRoute: DiagramRepoIdKindRoute,
 }
 export const routeTree = rootRouteImport

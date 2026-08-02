@@ -455,6 +455,16 @@ class SqlCommitRecordRepository:
         )
         return dict(rows.all())
 
+    def sha_line_stats_for_analysis(self, analysis_id: uuid.UUID) -> dict[str, tuple[int, int]]:
+        """sha -> (insertions, deletions) for one analysis's history — sums the line churn
+        of the delta's new commits (the Developments feed's +added/-deleted)."""
+        rows = self._session.execute(
+            select(
+                CommitRecordRow.sha, CommitRecordRow.insertions, CommitRecordRow.deletions
+            ).where(CommitRecordRow.analysis_id == analysis_id)
+        )
+        return {sha: (ins, dels) for sha, ins, dels in rows.all()}
+
     def weekly_counts_by_email(
         self, analysis_ids: list[uuid.UUID], since: datetime
     ) -> dict[str, dict[datetime, int]]:

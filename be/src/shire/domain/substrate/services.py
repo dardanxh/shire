@@ -369,6 +369,11 @@ class AnalysisService:
             note_generated_at=note.created_at if note else None,
         )
 
+    def has_delta_note(self, from_id: uuid.UUID, to_id: uuid.UUID) -> bool:
+        """Whether a narrative already exists for this snapshot pair (digest auto-summary
+        idempotence check)."""
+        return self._delta_notes.get(from_id, to_id) is not None
+
     def enqueue_delta_note(
         self, repository_id: uuid.UUID, body: ExplainDelta
     ) -> JobResult:
@@ -388,6 +393,12 @@ class AnalysisService:
                 to_sha=delta.to_commit_sha,
                 from_date=delta.from_analyzed_at.date().isoformat(),
                 to_date=delta.to_analyzed_at.date().isoformat(),
+                commit_log=_commit_log_between(
+                    Path(repo.clone_path),
+                    delta.from_commit_sha,
+                    delta.to_commit_sha,
+                    repo.coordinates.subpath,
+                ),
                 diff_json=json.dumps(diff_json, indent=2),
             ),
             payload={
@@ -459,8 +470,13 @@ class AnalysisService:
             )
         new = {sha: email for sha, email in to_shas.items() if sha not in from_shas}
         counts = Counter(new.values())
+        line_stats = self._commit_records.sha_line_stats_for_analysis(after.id)
+        insertions = sum(line_stats[sha][0] for sha in new if sha in line_stats)
+        deletions = sum(line_stats[sha][1] for sha in new if sha in line_stats)
         return DeltaCommits(
             count=len(new),
+            insertions=insertions,
+            deletions=deletions,
             authors=[
                 DeltaCommitAuthor(email=email, commits=count)
                 for email, count in counts.most_common()
@@ -976,6 +992,26 @@ def _mtime(path: Path) -> datetime:
     return datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)
 
 
+_COMMIT_LOG_LIMIT = 100
+
+
+def _commit_log_between(clone_path: Path, from_sha: str, to_sha: str, subpath: str = "") -> str:
+    """One line per commit (`sha author subject`) between the snapshot pair, newest first —
+    embedded in the summary prompt because engine agents have no Bash to run git themselves.
+    Scoped to `subpath` for monorepo-focused records. Best-effort: '' when git can't answer
+    (shallow history, rewritten shas, local repo moved)."""
+    from git import GitCommandError, Repo  # local import: keep module import cost off routes
+
+    try:
+        repo = Repo(clone_path)
+        args = [f"{from_sha}..{to_sha}", f"--max-count={_COMMIT_LOG_LIMIT}", "--format=%h %an: %s"]
+        if subpath:
+            args += ["--", subpath]
+        return repo.git.log(*args).strip()
+    except (GitCommandError, OSError, ValueError):
+        return ""
+
+
 def _extract_mermaid_block(text: str) -> str | None:
     """Pull the Mermaid diagram out of the agent's text — the last ```mermaid fence, else a bare
     diagram that starts with a known Mermaid keyword."""
@@ -1146,25 +1182,34 @@ def _extract_json_object(text: str) -> str | None:
     return match.group(0) if match else None
 
 
-_EVOLUTION_NOTE_PROMPT = """You are reviewing what changed in repository {repo} between two \
-snapshots.
+_EVOLUTION_NOTE_PROMPT = """You are writing a quick-glance summary of what changed in \
+repository {repo} between two snapshots — for someone skimming a morning feed, not doing a \
+deep review.
 
 Snapshot A (baseline): commit {from_sha}, analyzed {from_date}
 Snapshot B (current):  commit {to_sha}, analyzed {to_date}
 
+The commits between the snapshots (newest first, `sha author: subject`):
+{commit_log}
+
 A deterministic diff of the two snapshots (metric changes, dependency moves, hotspot shifts, \
-contributors, new commits):
+contributors):
 {diff_json}
 
-Inspect the actual changes with `git log --stat {from_sha}..{to_sha}` (and \
-`git diff --stat {from_sha}..{to_sha}` where helpful). Read files only — do not modify anything.
+You may verify claims by reading files in the working tree (Read/Grep/Glob only — you cannot \
+run git, and you must not modify anything). The commit subjects above are your primary \
+evidence for classifying the work.
 
-Write a concise markdown summary (max ~300 words) of what happened since the last check:
-- the main themes of the change (features, refactors, fixes, dependency moves)
-- anything that changes the architecture or its risks
-- notable shifts in the metrics above and what likely caused them
+Write a compact markdown summary, at most ~120 words total:
+- Grouped bullets under bold category labels — **Features**, **Fixes**, **Refactoring**, \
+**Dependencies**, **Other** — including ONLY the categories that actually apply. One short \
+bullet per theme (merge related commits into one bullet), plain language, no shas.
+- If a metric shifted in a way worth knowing (vulnerabilities, health, LOC jump), fold it \
+into the relevant bullet rather than a separate section.
+- End with one line: `Contributors: <name> (<n> commits), …` from the commit list above.
 
-Plain markdown only, no preamble."""
+Plain markdown only. Begin your reply DIRECTLY with the first bold category label — no \
+preamble, no verification notes, no headings other than the bold labels."""
 
 
 # Scalar metrics compared between snapshots (facts + enrichment field names).

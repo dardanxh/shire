@@ -5048,6 +5048,16 @@ export interface components {
         DeltaCommits: {
             /** Count */
             count: number;
+            /**
+             * Insertions
+             * @default 0
+             */
+            insertions: number;
+            /**
+             * Deletions
+             * @default 0
+             */
+            deletions: number;
             /** Authors */
             authors: components["schemas"]["DeltaCommitAuthor"][];
             /** Has Commit Data */
@@ -8411,6 +8421,8 @@ export interface components {
             latest: components["schemas"]["AnalysisSnapshotSummary"] | null;
             reviewed: components["schemas"]["AnalysisSnapshotSummary"] | null;
             delta: components["schemas"]["AnalysisDeltaResult"] | null;
+            /** Summary Pending */
+            summary_pending: boolean;
             /** Up To Date */
             up_to_date: boolean;
         };

@@ -4,5 +4,5 @@ export {
   useSetWatchedMutation,
   useWatchlistQuery,
 } from "./api";
-export { WatchlistPage } from "./components/WatchlistPage";
+export { DevelopmentsPage } from "./components/DevelopmentsPage";
 export { watchlistKeys } from "./keys";

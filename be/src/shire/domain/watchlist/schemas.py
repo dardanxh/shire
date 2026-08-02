@@ -31,6 +31,9 @@ class WatchlistEntryResult(BaseModel):
     # None when never reviewed or the cursor's snapshot no longer exists.
     reviewed: AnalysisSnapshotSummary | None
     delta: AnalysisDeltaResult | None
+    # A change-summary job for the pending pair is queued/running (the UI shows
+    # "Summarizing…" and polls until the narrative lands on `delta.note`).
+    summary_pending: bool
     # True when the cursor sits on the latest snapshot — nothing new to inspect.
     up_to_date: bool
 
