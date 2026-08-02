@@ -46,7 +46,12 @@
       "toast_added": "Added {{slug}}",
       "toast_added_desc": "Initializing in the background — data appears as it lands.",
       "toast_failed": "Analysis failed for {{slug}}",
-      "toast_failed_desc": "The repository could not be analyzed."
+      "toast_failed_desc": "The repository could not be analyzed.",
+      "subpath": {
+        "label": "Subdirectory (optional — monorepos)",
+        "placeholder": "packages/ui",
+        "hint": "Focus analysis and agents on one folder of the repo. Add the same repo again with a different subdirectory for each sub-project."
+      }
     },
     "wizard": {
       "title": "Add a repository",
@@ -69,7 +74,8 @@
       "none": "None",
       "back": "Back",
       "next": "Next",
-      "finish": "Add & analyze"
+      "finish": "Add & analyze",
+      "sum_subpath": "Subdirectory"
     },
     "hobits": {
       "assigned_title": "Assigned hobits",

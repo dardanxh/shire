@@ -31,7 +31,7 @@ def ingest_repository(
 ) -> RepositoryResult:
     """Register a repository and start the clone→analyze pipeline in the background
     (non-blocking — the row is returned immediately; poll its `status`)."""
-    result = RepositoryService(session).ingest(body.url, body.connection_id)
+    result = RepositoryService(session).ingest(body.url, body.connection_id, body.subpath)
     background_tasks.add_task(run_ingest_pipeline, result.id, tool_ids=body.tool_ids)
     return result
 

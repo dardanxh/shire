@@ -18,6 +18,22 @@ class BranchNotFoundInCloneError(Exception):
     """The requested branch resolves to neither a remote-tracking nor a local ref."""
 
 
+def discover_git_root(path: Path) -> tuple[Path, str] | None:
+    """Walk up from `path` to the nearest ancestor containing a `.git`. Returns (root,
+    relative subpath) — subpath '' when `path` itself is the root — or None when nothing
+    upward is a git repository. Lets a user paste a monorepo *subdirectory* and have the
+    repo root + focus subpath figured out automatically."""
+    p = path.expanduser()
+    try:
+        p = p.resolve()
+    except OSError:
+        return None
+    for candidate in (p, *p.parents):
+        if (candidate / ".git").exists():
+            return candidate, "" if candidate == p else p.relative_to(candidate).as_posix()
+    return None
+
+
 class GitCloneService:
     """Clones a repository into `clone_root/<provider>/<owner>/<name>` (or updates it)."""
 

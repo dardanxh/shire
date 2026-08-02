@@ -20,6 +20,11 @@ class IngestRepositoryRequest(BaseModel):
     url: str
     connection_id: uuid.UUID | None = None
     tool_ids: list[str] | None = None
+    # Monorepo focus: scope analysis to this subdirectory of the repo (relative path, e.g.
+    # "packages/ui"). The same repo can be onboarded once per subdirectory. Empty/None = whole
+    # repo. For local paths, pasting the subdirectory itself works too — the git root is
+    # discovered upward automatically.
+    subpath: str | None = None
 
 
 class RepositoryResult(BaseModel):
@@ -29,6 +34,8 @@ class RepositoryResult(BaseModel):
     provider: str
     owner: str
     name: str
+    # Monorepo focus subdirectory ('' = whole repo); slug includes it (owner/name/subpath).
+    subpath: str
     slug: str
     url: str
     connection_id: uuid.UUID | None
@@ -49,6 +56,7 @@ class RepositoryResult(BaseModel):
             provider=repo.coordinates.provider.value,
             owner=repo.coordinates.owner,
             name=repo.coordinates.name,
+            subpath=repo.coordinates.subpath,
             slug=repo.coordinates.slug,
             url=repo.url.value,
             connection_id=repo.connection_id,

@@ -28,12 +28,24 @@ def _parse_numstat_line(line: str) -> FileChange | None:
     return FileChange(path=path, additions=added, deletions=deleted)
 
 
-def build_scan_context(clone_path: Path, head_sha: str, repo_url: str | None = None) -> ScanContext:
+def build_scan_context(
+    clone_path: Path,
+    head_sha: str,
+    repo_url: str | None = None,
+    subpath: str = "",
+) -> ScanContext:
+    """The scanners' world view. `clone_path` is the git root; with `subpath` (monorepo
+    focus) the context's `clone_path` becomes the subdirectory, history is limited to
+    commits touching it, and file paths are rewritten relative to it — so every scanner
+    scopes automatically without knowing monorepos exist."""
     repo = Repo(clone_path)
     commits: list[CommitInfo] = []
     try:
         # `--numstat` yields per-file added/deleted line counts, a superset of `--name-only`.
-        raw = repo.git.log("HEAD", f"--pretty=format:{_PRETTY}", "--numstat")
+        args = ["HEAD", f"--pretty=format:{_PRETTY}", "--numstat"]
+        if subpath:
+            args += ["--", subpath]
+        raw = repo.git.log(*args)
     except GitCommandError:
         raw = ""
 
@@ -49,6 +61,15 @@ def build_scan_context(clone_path: Path, head_sha: str, repo_url: str | None = N
         files = tuple(
             fc for line in body.splitlines() if (fc := _parse_numstat_line(line)) is not None
         )
+        if subpath:
+            # Paths come repo-root-relative; scanners resolve them against the (scoped)
+            # context clone_path, so rewrite them relative to the subdirectory.
+            prefix = subpath.rstrip("/") + "/"
+            files = tuple(
+                fc.model_copy(update={"path": fc.path[len(prefix) :]})
+                for fc in files
+                if fc.path.startswith(prefix)
+            )
         commits.append(
             CommitInfo(
                 sha=sha,
@@ -60,5 +81,8 @@ def build_scan_context(clone_path: Path, head_sha: str, repo_url: str | None = N
         )
 
     return ScanContext(
-        clone_path=clone_path, head_sha=head_sha, commits=tuple(commits), repo_url=repo_url
+        clone_path=clone_path / subpath if subpath else clone_path,
+        head_sha=head_sha,
+        commits=tuple(commits),
+        repo_url=repo_url,
     )

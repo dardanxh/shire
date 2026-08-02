@@ -13,12 +13,18 @@ from shire.core.db import Base
 
 class RepositoryRow(Base):
     __tablename__ = "repositories"
-    __table_args__ = (UniqueConstraint("provider", "owner", "name", name="uq_repo_coordinates"),)
+    __table_args__ = (
+        UniqueConstraint("provider", "owner", "name", "subpath", name="uq_repo_coordinates"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
     provider: Mapped[str] = mapped_column(String(32))
     owner: Mapped[str] = mapped_column(String(255))
     name: Mapped[str] = mapped_column(String(255))
+    # Monorepo focus: analysis is scoped to this subdirectory of the clone ('' = whole repo).
+    # Part of the natural key so the same repo can be onboarded once per subdirectory.
+    # Empty string (not NULL) because Postgres treats NULLs as distinct in unique constraints.
+    subpath: Mapped[str] = mapped_column(String(512), default="", server_default="")
     url: Mapped[str] = mapped_column(String(1024))
     connection_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("connections.id", ondelete="SET NULL"), nullable=True
@@ -35,3 +41,11 @@ class RepositoryRow(Base):
     error: Mapped[str | None] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    @property
+    def analysis_path(self) -> str | None:
+        """`clone_path` scoped to `subpath` (monorepo focus) — mirrors the domain aggregate's
+        `Repository.analysis_path` for services that read the row directly."""
+        if self.clone_path is None:
+            return None
+        return f"{self.clone_path.rstrip('/')}/{self.subpath}" if self.subpath else self.clone_path

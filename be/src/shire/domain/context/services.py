@@ -189,7 +189,9 @@ def _build_pack(
         default_branch=repo.default_branch,
         status=repo.status.value,
         commit_sha=a.commit_sha,
-        clone_path=repo.clone_path,
+        # The analysis root: monorepo-focused records point agents (hobits, MCP, drilldown)
+        # at their subdirectory, not the whole clone.
+        clone_path=repo.analysis_path,
         generated_at=datetime.now(UTC),
     )
 
@@ -276,7 +278,7 @@ def _build_pack(
     tool_coverage = _tool_coverage(a)
 
     drilldown = ContextDrilldown(
-        clone_path=repo.clone_path,
+        clone_path=repo.analysis_path,
         tools=list(_DRILLDOWN_TOOLS),
         suggested_entry_files=[h.path for h in top_hotspots[:5]],
     )

@@ -56,6 +56,7 @@ export function IngestRepositoryDialog({
   const setOpen = onOpenChange ?? setInternalOpen;
   const [step, setStep] = useState(0);
   const [url, setUrl] = useState("");
+  const [subpath, setSubpath] = useState("");
   const [urlError, setUrlError] = useState(false);
   const [connectionId, setConnectionId] = useState(NO_CONNECTION);
   const [tools, setTools] = useState<Set<string>>(new Set());
@@ -86,6 +87,7 @@ export function IngestRepositoryDialog({
   const reset = () => {
     setStep(0);
     setUrl("");
+    setSubpath("");
     setUrlError(false);
     setConnectionId(NO_CONNECTION);
     setTools(new Set());
@@ -108,6 +110,7 @@ export function IngestRepositoryDialog({
     ingest(
       {
         url: url.trim(),
+        subpath: subpath.trim() || null,
         connectionId: connectionId !== NO_CONNECTION ? connectionId : null,
         toolIds: [...tools],
       },
@@ -204,6 +207,21 @@ export function IngestRepositoryDialog({
                 ) : null}
               </div>
               <div className="space-y-1.5">
+                <Label htmlFor="wiz-subpath">
+                  {t("repositories.ingest.subpath.label")}
+                </Label>
+                <Input
+                  id="wiz-subpath"
+                  type="text"
+                  value={subpath}
+                  onChange={(e) => setSubpath(e.target.value)}
+                  placeholder={t("repositories.ingest.subpath.placeholder")}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t("repositories.ingest.subpath.hint")}
+                </p>
+              </div>
+              <div className="space-y-1.5">
                 <Label>{t("repositories.ingest.connection.label")}</Label>
                 <Select
                   value={connectionId}
@@ -254,6 +272,13 @@ export function IngestRepositoryDialog({
                 value={url}
                 mono
               />
+              {subpath.trim() ? (
+                <Summary
+                  label={t("repositories.wizard.sum_subpath")}
+                  value={subpath.trim()}
+                  mono
+                />
+              ) : null}
               <Summary
                 label={t("repositories.wizard.sum_tools")}
                 value={

@@ -36,6 +36,8 @@ attention — all running on your own machine.
   (gitleaks), OSSF Scorecard, dead code, git history & ownership. The detail view goes deep:
   **Ask** (free-form Q&A answered by an agent exploring the actual code), Claude-written
   architecture / tech-stack / overview artifacts, branches, dependencies, security, and more.
+  **Monorepos**: onboard the same repo once per subdirectory (e.g. `acme/mono/packages/ui`) —
+  each record gets its own scoped scorecard, history, artifacts, and agents, sharing one clone.
 - **Evolution** — every analysis refresh is kept as a snapshot: browse history, see deltas
   between runs, version every Claude artifact, and generate change narratives on demand.
 - **Merge reviews** — branch-pair analysis: changes, impact, risk.

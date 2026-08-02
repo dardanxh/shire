@@ -469,6 +469,10 @@ class HobitService:
         if hobit is None:
             raise NotFoundError(f"Unknown hobit: {slug}")
 
+        # NOTE: the gate is repo-level — for monorepo-focused records (subpath set) a commit
+        # anywhere in the repo re-runs the hobit even if the subdirectory didn't change.
+        # Over-triggering is safe (never misses a change); scoping it would need a fetch
+        # before the gate, defeating the cheap ls-remote design.
         repos = RepositoryService(self._session)
         remote_sha = repos.remote_head(repository_id)
         last = self._runs.latest_result_for(repository_id, slug)

@@ -48,15 +48,23 @@ _LOCAL_PATH_RE = re.compile(r"^(?:/|~/|[A-Za-z]:[\\/])")
 
 
 class RepoCoordinates(ValueObject):
-    """Natural key for a repository."""
+    """Natural key for a repository record.
+
+    `subpath` scopes a record to a subdirectory of the repo (monorepo support): the same
+    provider/owner/name can be onboarded once per subdirectory, each with its own scorecard,
+    artifacts, and agent runs. Empty string = the whole repository. The clone on disk is
+    keyed by provider/owner/name only, so sibling records share one clone.
+    """
 
     provider: GitProvider
     owner: str
     name: str
+    subpath: str = ""
 
     @property
     def slug(self) -> str:
-        return f"{self.owner}/{self.name}"
+        base = f"{self.owner}/{self.name}"
+        return f"{base}/{self.subpath}" if self.subpath else base
 
 
 class RepoUrl(ValueObject):
@@ -136,6 +144,16 @@ class Repository(AggregateRoot):
             self.updated_at = now
 
     # --- lifecycle transitions -------------------------------------------------
+    @property
+    def analysis_path(self) -> str | None:
+        """Where analysis and agent runs happen: the clone root, or the focused subdirectory
+        for monorepo records. Git-level operations (clone/refresh/branches/worktrees/history)
+        keep using `clone_path` — that's where `.git` lives."""
+        if self.clone_path is None:
+            return None
+        sub = self.coordinates.subpath
+        return f"{self.clone_path.rstrip('/')}/{sub}" if sub else self.clone_path
+
     def mark_cloning(self) -> None:
         self.status = IngestionStatus.cloning
         self.error = None

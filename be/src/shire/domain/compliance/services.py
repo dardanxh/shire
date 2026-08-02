@@ -59,7 +59,7 @@ class ComplianceService:
                     title=f"Compliance: {regulation.name} — {repo.coordinates.slug}",
                     prompt=build_check_prompt(regulation, repo.coordinates.slug),
                     payload={
-                        "cwd": repo.clone_path,
+                        "cwd": repo.analysis_path,
                         "model": model,
                         "timeout_seconds": timeout_seconds,
                         "repository_id": str(repository_id),
