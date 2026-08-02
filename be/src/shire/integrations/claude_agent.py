@@ -22,6 +22,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -151,6 +152,56 @@ class ClaudeAgent:
         return argv
 
 
+# --- cached availability probe ---------------------------------------------------------
+
+_PROBE_OK_TTL_SECONDS = 300.0  # the binary doesn't change under us
+_PROBE_FAIL_TTL_SECONDS = 15.0  # a cold container's first probe can fail — retry soon
+
+_probe_cache: tuple[float, str | None] = (0.0, None)
+_probe_lock = threading.Lock()
+
+
+def cached_claude_version() -> str | None:
+    """First line of `claude --version`, cached in-process.
+
+    A success is cached for 5 minutes; a failure for only 15 seconds — the very first probe in
+    a cold container can time out, and pinning "not installed" for the full TTL would leave the
+    UI claiming the CLI is missing long after it answers. When the CLI isn't on this process's
+    PATH at all (the containerized backend doesn't bundle it), falls back to the version the
+    engine published at startup (SHIRE_CLAUDE_VERSION_FILE on the shared /data volume).
+    """
+    global _probe_cache
+    from shire.core.settings import get_settings
+
+    settings = get_settings()
+    with _probe_lock:
+        cached_at, cached = _probe_cache
+        ttl = _PROBE_OK_TTL_SECONDS if cached is not None else _PROBE_FAIL_TTL_SECONDS
+        if time.monotonic() - cached_at < ttl:
+            return cached
+        version = ClaudeAgent(binary=settings.claude_binary).version()
+        if version is None:
+            version = _engine_reported_version(settings.claude_version_file)
+        _probe_cache = (time.monotonic(), version)
+        return version
+
+
+def claude_available() -> bool:
+    return cached_claude_version() is not None
+
+
+def _engine_reported_version(path: Path | None) -> str | None:
+    """The version marker the engine worker writes when it boots (containerized deploys keep
+    the CLI only in the engine image; backend and engine share the /data volume)."""
+    if path is None:
+        return None
+    try:
+        lines = path.read_text(encoding="utf-8").strip().splitlines()
+    except OSError:
+        return None
+    return lines[0] if lines else None
+
+
 def _claude_env(*, use_api_key: bool) -> dict[str, str]:
     """Env for the run. Unless API-key auth is opted into, `ANTHROPIC_API_KEY` is stripped so
     the CLI uses the logged-in session rather than silently switching to paid API-key auth."""
@@ -174,11 +225,18 @@ def _extract_text(raw_stdout: str) -> tuple[str, str | None]:
         # Not the expected JSON envelope — treat the whole stdout as the text.
         return raw, None
     if isinstance(envelope, dict):
-        if envelope.get("is_error") or envelope.get("subtype") not in (None, "success"):
-            return (
-                str(envelope.get("result") or raw),
-                f"claude error result: {envelope.get('subtype') or 'unknown'}",
-            )
+        subtype = envelope.get("subtype")
+        if envelope.get("is_error") or subtype not in (None, "success"):
+            # Keep the subtype for diagnosis but surface the human-readable result text too —
+            # the CLI reports auth failures as subtype "success" + is_error=true, where the
+            # subtype alone reads as nonsense ("error result: success") and the text ("Not
+            # logged in · Please run /login") is the actual story.
+            text = str(envelope.get("result") or "").strip()
+            if subtype in (None, "success"):
+                label = text or "unknown"
+            else:
+                label = f"{subtype}: {text}" if text else str(subtype)
+            return str(envelope.get("result") or raw), f"claude error result: {label}"
         result = envelope.get("result")
         if isinstance(result, str):
             return result, None

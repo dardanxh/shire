@@ -75,7 +75,14 @@ def test_extract_text_success_error_and_malformed() -> None:
 
     text, err = _extract_text({"is_error": True, "subtype": "error_max_turns", "result": "partial"})
     assert text == "partial"
-    assert err == "claude error result: error_max_turns"
+    assert err == "claude error result: error_max_turns: partial"
+
+    # Auth failures come back as subtype "success" + is_error — the result text is the story.
+    text, err = _extract_text(
+        {"is_error": True, "subtype": "success", "result": "Not logged in · Please run /login"}
+    )
+    assert text == "Not logged in · Please run /login"
+    assert err == "claude error result: Not logged in · Please run /login"
 
     text, err = _extract_text({"subtype": "success", "result": None})
     assert text == ""

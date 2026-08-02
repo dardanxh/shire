@@ -77,7 +77,7 @@ from shire.domain.substrate.schemas import (
     ToolLogResult,
 )
 from shire.integrations import pypi
-from shire.integrations.claude_agent import ClaudeAgent
+from shire.integrations.claude_agent import claude_available
 from shire.integrations.external_tools import tool_languages
 from shire.integrations.external_tools.code_maat import CodeMaatAdapter
 from shire.integrations.external_tools.codecharta import CodeChartaAdapter
@@ -783,7 +783,7 @@ class AnalysisService:
         return ArchitectureResult(
             repository_id=repository_id,
             diagrams=diagrams,
-            agent_available=_new_agent().available(),
+            agent_available=claude_available(),
         )
 
     def enqueue_architecture_diagram(
@@ -822,7 +822,7 @@ class AnalysisService:
             return CodebaseOverviewResult(
                 repository_id=repository_id,
                 generated=False,
-                agent_available=_new_agent().available(),
+                agent_available=claude_available(),
             )
         try:
             data = json.loads(cache.read_text())
@@ -870,7 +870,7 @@ class AnalysisService:
             return TechStackResult(
                 repository_id=repository_id,
                 generated=False,
-                agent_available=_new_agent().available(),
+                agent_available=claude_available(),
             )
         try:
             data = json.loads(cache.read_text())
@@ -968,18 +968,6 @@ class AnalysisService:
 
 def _mtime(path: Path) -> datetime:
     return datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)
-
-
-def _new_agent() -> ClaudeAgent:
-    """A ClaudeAgent configured from settings (read-only tools; subscription auth unless
-    SHIRE_USE_API_KEY opts into API-key auth)."""
-    settings = get_settings()
-    return ClaudeAgent(
-        binary=settings.claude_binary,
-        model=settings.claude_model,
-        timeout_seconds=settings.claude_timeout_seconds,
-        use_api_key=settings.use_api_key,
-    )
 
 
 def _extract_mermaid_block(text: str) -> str | None:

@@ -36,6 +36,10 @@ class EngineResult(BaseModel):
 class Engine(Protocol):
     def available(self) -> bool: ...
 
+    def version(self) -> str | None:
+        """The engine's version line (e.g. "2.1.0 (Claude Code)"), or None when unavailable."""
+        ...
+
     def run(
         self,
         request: EngineRequest,

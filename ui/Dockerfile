@@ -2,6 +2,8 @@
 # VITE_API_BASE_URL stays "" (same-origin), so nothing is baked in at build time.
 FROM node:22-alpine AS build
 WORKDIR /app
+# tsc + vite need more than Node's default old-space heap on some machines.
+ENV NODE_OPTIONS=--max-old-space-size=4096
 RUN npm install -g pnpm@9
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile

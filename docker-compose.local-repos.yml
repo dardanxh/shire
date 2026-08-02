@@ -1,0 +1,21 @@
+# Opt-in overlay: grant the stack access to ONE host directory so repositories under it can
+# be added in the UI by absolute path ("local" provider). Nothing on your machine is visible
+# to the containers unless you enable this deliberately. The directory is mounted into the
+# backend + engine at the SAME path it has on the host, so the path you type in the UI
+# resolves identically inside the containers.
+#
+# Easiest: SHIRE_LOCAL_REPOS_DIR=/path/to/your/repos ./setup.sh
+# (writes SHIRE_LOCAL_REPOS_DIR into .env and adds this file to COMPOSE_FILE)
+#
+# By hand: docker compose -f docker-compose.yml -f docker-compose.local-repos.yml up -d
+#
+# Note: paths inside the containers are case-sensitive even when your host filesystem
+# (macOS default) is not — type the path with its exact capitalization.
+services:
+  backend:
+    volumes:
+      - ${SHIRE_LOCAL_REPOS_DIR:?set SHIRE_LOCAL_REPOS_DIR in .env to use the local-repos mount}:${SHIRE_LOCAL_REPOS_DIR}
+  engine:
+    volumes:
+      # Same mount as the backend — agent jobs run with cwd inside local repos.
+      - ${SHIRE_LOCAL_REPOS_DIR}:${SHIRE_LOCAL_REPOS_DIR}

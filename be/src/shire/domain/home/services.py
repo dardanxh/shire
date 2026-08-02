@@ -2,20 +2,17 @@
 
 This is a pure reporting domain — it imports other domains' ORM entities strictly for
 read-only counts (the precedent is briefing/services.py) and never mutates anything. The
-Claude probe shells out, so its result is cached in-process with a short TTL: only a cold
-hit pays the subprocess, and the route runs sync in FastAPI's threadpool anyway.
+Claude probe shells out, so it goes through the shared in-process cache in
+integrations.claude_agent; the route runs sync in FastAPI's threadpool anyway.
 """
 
 from __future__ import annotations
 
-import threading
-import time
 from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import exists, func, select, text
 from sqlalchemy.orm import Session
 
-from shire.core.settings import get_settings
 from shire.domain.briefing.models import BriefingItemRow
 from shire.domain.connections.models import ConnectionRow
 from shire.domain.hobits.models import HobitRunRow
@@ -36,27 +33,11 @@ from shire.domain.roadmap.models import (
     RoadmapItemRow,
 )
 from shire.domain.substrate.models import RepositoryToolRow
-from shire.integrations.claude_agent import ClaudeAgent
-
-_CLAUDE_VERSION_TTL_SECONDS = 300.0
-_claude_cache: tuple[float, str | None] = (0.0, None)
-_claude_lock = threading.Lock()
+from shire.integrations.claude_agent import cached_claude_version
 
 # An engine that claimed a job this recently is treated as alive even when the LISTEN
 # backend isn't visible (e.g. the roles ever diverge and pg_stat_activity masks queries).
 _JOB_ACTIVITY_WINDOW = timedelta(minutes=2)
-
-
-def _claude_version() -> str | None:
-    """`claude --version`, cached for 5 minutes (the binary doesn't change under us)."""
-    global _claude_cache
-    with _claude_lock:
-        cached_at, cached = _claude_cache
-        if time.monotonic() - cached_at < _CLAUDE_VERSION_TTL_SECONDS:
-            return cached
-        version = ClaudeAgent(binary=get_settings().claude_binary).version()
-        _claude_cache = (time.monotonic(), version)
-        return version
 
 
 class HomeService:
@@ -74,7 +55,7 @@ class HomeService:
         )
 
     def _claude_status(self) -> ClaudeStatusResult:
-        version = _claude_version()
+        version = cached_claude_version()
         return ClaudeStatusResult(
             installed=version is not None,
             version=version or None,
