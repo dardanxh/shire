@@ -300,11 +300,18 @@ def _extract_text(envelope: dict) -> tuple[str, str | None]:
     envelope carries so the caller can still surface *something*.
     """
     result = envelope.get("result")
-    if envelope.get("is_error") or envelope.get("subtype") not in (None, "success"):
-        return (
-            str(result or ""),
-            f"claude error result: {envelope.get('subtype') or 'unknown'}",
-        )
+    subtype = envelope.get("subtype")
+    if envelope.get("is_error") or subtype not in (None, "success"):
+        # Keep the subtype for diagnosis but surface the human-readable result text too — the
+        # CLI reports auth failures as subtype "success" + is_error=true, where the subtype
+        # alone reads as nonsense ("error result: success") and the text ("Not logged in ·
+        # Please run /login") is the actual story.
+        text = str(result or "").strip()
+        if subtype in (None, "success"):
+            label = text or "unknown"
+        else:
+            label = f"{subtype}: {text}" if text else str(subtype)
+        return str(result or ""), f"claude error result: {label}"
     if isinstance(result, str):
         return result, None
     return "", "claude result envelope had no text"

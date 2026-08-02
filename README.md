@@ -141,7 +141,7 @@ file editing needed:
 
 | Method | How |
 | --- | --- |
-| **Claude subscription (token)** | Run `claude setup-token` on your machine, then `CLAUDE_CODE_OAUTH_TOKEN=<token> ./setup.sh`. Uses your Claude **Pro or Max** subscription — Max is recommended for heavy agent use, Pro works fine for trying things out. |
+| **Claude subscription (token)** | `setup.sh` offers this automatically when it finds the Claude CLI on your machine: answer Y, approve in the browser, paste the token — done. (Manual equivalent: `claude setup-token`, then `CLAUDE_CODE_OAUTH_TOKEN=<token> ./setup.sh`.) Uses your Claude **Pro or Max** subscription — Max is recommended for heavy agent use, Pro works fine for trying things out. |
 | **API key** | `ANTHROPIC_API_KEY=sk-ant-... ./setup.sh`. Pay-per-token via the [Claude API](https://console.anthropic.com/). |
 | **Claude subscription (mount, Linux only)** | If `~/.claude` exists on a Linux host, setup.sh mounts it into the engine container. Not offered on macOS: credentials live in the Keychain there, and the host CLI rewriting `~/.claude.json` corrupts reads through the mount — use the token method instead. |
 

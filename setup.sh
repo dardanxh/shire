@@ -22,6 +22,44 @@ upsert_env() { # upsert_env KEY VALUE — update or append KEY=VALUE in .env
     printf '%s=%s\n' "$1" "$2" >> .env
   fi
 }
+strip_claude_mount() { # token/key auth supersedes the ~/.claude mount overlay
+  if grep -q '^COMPOSE_FILE=.*docker-compose\.claude\.yml' .env; then
+    sed -i.bak 's|:docker-compose.claude.yml||; s|docker-compose.claude.yml:||' .env && rm -f .env.bak
+  fi
+}
+offer_claude_token() {
+  # Interactive: mint a subscription token via the host CLI so the containers can run agent
+  # jobs on the user's Claude login. The engine's CLI lives inside a container and cannot
+  # reach the host's session (macOS keeps it in the Keychain) — `claude setup-token` is the
+  # official way to carry a subscription into a headless environment.
+  [ -t 0 ] || return 0
+  command -v claude >/dev/null 2>&1 || return 0
+  bold "==> Claude authorization (optional — powers agent features)"
+  note "Shire runs Claude inside its own container, which can't use your desktop Claude"
+  note "login directly. Claude can mint a token tied to your subscription instead: one"
+  note "browser approval, no key handling, nothing billed beyond your existing plan."
+  note ""
+  note "Skipping is fine — ingest, scanners, and catalogs all work without it; agent"
+  note "features (hobits, ask, council…) stay off until you authorize (re-run ./setup.sh)."
+  printf '  Authorize now via `claude setup-token`? [Y/n] '
+  read -r reply || reply="n"
+  case "$reply" in ""|y|Y|yes|Yes|YES) ;; *) return 0 ;; esac
+  claude setup-token || { note "setup-token did not complete — skipping for now."; return 0; }
+  printf '  Paste the token it printed (sk-ant-oat01-...): '
+  read -r token || token=""
+  token="$(printf '%s' "$token" | tr -d '[:space:]')"
+  if [ -z "$token" ]; then
+    note "No token pasted — skipping for now (re-run ./setup.sh to try again)."
+    return 0
+  fi
+  case "$token" in
+    sk-ant-*) ;;
+    *) note "WARNING: that doesn't look like a Claude token (expected sk-ant-...) — saving anyway." ;;
+  esac
+  upsert_env CLAUDE_CODE_OAUTH_TOKEN "$token"
+  strip_claude_mount
+  note "Saved. Agent jobs will run on your Claude subscription."
+}
 
 # --- 1. prerequisites -------------------------------------------------------------------
 bold "==> Checking prerequisites"
@@ -52,17 +90,19 @@ if [ -f .env ]; then
     bold "==> Updating Claude auth in .env (API-key mode)"
     upsert_env ANTHROPIC_API_KEY "${ANTHROPIC_API_KEY}"
     upsert_env USE_API_KEY true
+    strip_claude_mount
   elif [ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
     bold "==> Updating Claude auth in .env (subscription-token mode)"
     upsert_env CLAUDE_CODE_OAUTH_TOKEN "${CLAUDE_CODE_OAUTH_TOKEN}"
-  fi
-  # Token/key auth supersedes the ~/.claude mount — drop the overlay so the engine stops
-  # reading the host's live .claude.json (rewritten by the host CLI mid-run; through a bind
-  # mount those writes appear torn and the engine errors with "configuration file corrupted").
-  if [ -n "${ANTHROPIC_API_KEY:-}${CLAUDE_CODE_OAUTH_TOKEN:-}" ] \
-     && grep -q '^COMPOSE_FILE=.*docker-compose\.claude\.yml' .env; then
-    note "Removing the ~/.claude mount (token/key auth replaces it)"
-    sed -i.bak 's|:docker-compose.claude.yml||; s|docker-compose.claude.yml:||' .env && rm -f .env.bak
+    strip_claude_mount
+  elif ! grep -q '^ANTHROPIC_API_KEY=\|^CLAUDE_CODE_OAUTH_TOKEN=' .env; then
+    # No usable auth in .env. The ~/.claude mount only counts on Linux — on macOS it can't
+    # work (Keychain credentials, torn reads of the live .claude.json), so offer the token
+    # flow even when the overlay is present and clean the overlay up on success.
+    if [ "$(uname -s)" = "Darwin" ] \
+       || ! grep -q '^COMPOSE_FILE=.*docker-compose\.claude\.yml' .env; then
+      offer_claude_token
+    fi
   fi
 else
   bold "==> Generating .env"
@@ -130,11 +170,15 @@ else
       note "  CLAUDE_CODE_OAUTH_TOKEN=<token> ./setup.sh"
       ;;
     none)
-      note "No Claude auth found — that's fine to start: ingest, scanners, scorecards, and"
-      note "catalogs all work without it. Agent features (hobits, ask, council…) stay off"
-      note "until you run ONE of these (no file editing needed):"
-      note "  claude setup-token   then   CLAUDE_CODE_OAUTH_TOKEN=<token> ./setup.sh"
-      note "  ANTHROPIC_API_KEY=sk-ant-... ./setup.sh   (paid API key)"
+      if [ -t 0 ] && command -v claude >/dev/null 2>&1; then
+        offer_claude_token
+      else
+        note "No Claude auth found — that's fine to start: ingest, scanners, scorecards, and"
+        note "catalogs all work without it. Agent features (hobits, ask, council…) stay off"
+        note "until you run ONE of these (no file editing needed):"
+        note "  claude setup-token   then   CLAUDE_CODE_OAUTH_TOKEN=<token> ./setup.sh"
+        note "  ANTHROPIC_API_KEY=sk-ant-... ./setup.sh   (paid API key)"
+      fi
       ;;
   esac
 fi
@@ -232,6 +276,12 @@ if grep -q '^SHIRE_LOCAL_REPOS_DIR=' .env; then
   note "Local repos: $(grep '^SHIRE_LOCAL_REPOS_DIR=' .env | cut -d= -f2-) is shared with Shire"
 else
   note "Local repos: no folder shared — repos by git URL only (re-run ./setup.sh to grant one)"
+fi
+if grep -q '^ANTHROPIC_API_KEY=\|^CLAUDE_CODE_OAUTH_TOKEN=' .env \
+   || grep -q '^COMPOSE_FILE=.*docker-compose\.claude\.yml' .env; then
+  note "Claude:    authorized — agent features (hobits, ask, council…) are on"
+else
+  note "Claude:    not authorized — agent features off (re-run ./setup.sh to authorize)"
 fi
 note ""
 note "Logs:      docker compose logs -f"

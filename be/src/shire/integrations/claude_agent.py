@@ -225,11 +225,18 @@ def _extract_text(raw_stdout: str) -> tuple[str, str | None]:
         # Not the expected JSON envelope — treat the whole stdout as the text.
         return raw, None
     if isinstance(envelope, dict):
-        if envelope.get("is_error") or envelope.get("subtype") not in (None, "success"):
-            return (
-                str(envelope.get("result") or raw),
-                f"claude error result: {envelope.get('subtype') or 'unknown'}",
-            )
+        subtype = envelope.get("subtype")
+        if envelope.get("is_error") or subtype not in (None, "success"):
+            # Keep the subtype for diagnosis but surface the human-readable result text too —
+            # the CLI reports auth failures as subtype "success" + is_error=true, where the
+            # subtype alone reads as nonsense ("error result: success") and the text ("Not
+            # logged in · Please run /login") is the actual story.
+            text = str(envelope.get("result") or "").strip()
+            if subtype in (None, "success"):
+                label = text or "unknown"
+            else:
+                label = f"{subtype}: {text}" if text else str(subtype)
+            return str(envelope.get("result") or raw), f"claude error result: {label}"
         result = envelope.get("result")
         if isinstance(result, str):
             return result, None
