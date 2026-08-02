@@ -2,171 +2,226 @@
 
 ## Project Overview
 
-Shire backend — repo-intelligence substrate. FastAPI + SQLAlchemy + PostgreSQL.
-(The generic conventions below come from a blueprint template; see "Project reality" at the
-bottom for how this repo differs.)
+Shire — the Hobits backend. A repo-intelligence substrate (clone/scan/analyze repositories) plus
+the engine that runs **hobits**: narrow-domain Claude agents that explore a repository and produce
+scored findings. FastAPI + SQLAlchemy (sync) + PostgreSQL/pgvector.
 
 ## Tech Stack
 
-- **Framework**: FastAPI
-- **ORM**: SQLAlchemy (sync)
-- **Database**: PostgreSQL (pgvector)
-- **Migrations**: Alembic
-- **Auth**: none (local-first; see Project reality)
-- **Python**: 3.13+
+- **Framework**: FastAPI, sync route handlers (run in threadpool)
+- **ORM**: SQLAlchemy 2.0 (sync), psycopg3
+- **Database**: PostgreSQL with pgvector (`docker-compose.yml`, host port 5433)
+- **Migrations**: Alembic (`migrations/`)
+- **Package/env**: `uv`, src-layout (`src/shire/`), Python 3.13+
+- **Scheduling**: Prefect (`orchestration/`), off by default (`SHIRE_SCHEDULER_ENABLED`)
+- **Agent engine**: the `claude -p` headless CLI (see "The hobit engine" below)
+- **Auth**: none — local-first, no Cognito/permissions/`current_user`
+- **Pagination**: two coexisting envelopes — see "Pagination" below
 
 ## Project Structure
 
-Backend is a **modular monolith**: code is grouped by domain first, then by
-layer inside each domain.
-
 ```
 be/
-├── main.py                  # FastAPI app entry point; wires routers from app/domain/*
-├── app/
-│   ├── core/                # Cross-cutting infrastructure
-│   │   ├── db.py            #   Base, mixins, prefixed_id_column, enum_column
-│   │   ├── exceptions.py    #   AppError + subclasses
-│   │   ├── enums.py         #   shared StrEnums (UserRole, ProjectPriority, ...)
-│   │   ├── permissions.py   #   Permission, ROLE_PERMISSIONS
-│   │   └── scope.py         #   per-request authorization scope
-│   ├── dependencies/        # FastAPI dependencies (auth, db session, file URLs, s3)
-│   ├── integrations/        # External SDK wrappers (Cognito, S3)
-│   ├── utils/               # Helpers (jwt verifier, etc.)
-│   └── domain/              # 15 feature packages — one per domain
-│       ├── __init__.py      # eager-imports every domain so Base.metadata is populated
-│       └── <domain>/
-│           ├── models.py        # SQLAlchemy entities
-│           ├── schemas.py       # Pydantic Create/Update/Result schemas
-│           ├── repositories.py  # Data access (entities in/out)
-│           ├── services.py      # Business logic (schemas in/out)
-│           └── routes.py        # FastAPI routers
-├── alembic/                 # Database migrations
-└── docs/                    # Conventions and documentation
+├── src/shire/
+│   ├── main.py               # FastAPI app assembly: routers, CORS, exception handlers,
+│   │                          #   static mounts for tool artifacts, lifespan (dispatcher + Prefect sync)
+│   ├── core/                 # Cross-cutting infrastructure
+│   │   ├── db.py             #   Base, engine, unit_of_work(), get_session()
+│   │   ├── settings.py       #   Settings (env prefix SHIRE_, pydantic-settings)
+│   │   ├── domain_base.py    #   ValueObject / Entity / AggregateRoot (shared-kernel DDD types)
+│   │   ├── exceptions.py     #   AppError + NotFoundError/ConflictError/ValidationError + handlers
+│   │   ├── pagination.py     #   PaginationParams + Page[T] (the original Shire pagination shape)
+│   │   └── metadata.py       #   imports shire.domain so Base.metadata is fully populated
+│   ├── domain/                # one package per bounded context — see "Domains" below
+│   │   ├── __init__.py        # eager-imports every domain's models.py (for Alembic autogenerate)
+│   │   └── <name>/
+│   │       ├── domain.py         # DDD aggregate + value objects + ports (no SQLAlchemy/httpx imports)
+│   │       ├── models.py         # SQLAlchemy ORM entities
+│   │       ├── schemas.py        # Pydantic Create*/Update*/*Result schemas
+│   │       ├── repositories.py   # data access — entities in/out, class `Sql<Name>Repository`
+│   │       ├── services.py       # business logic — schemas in/out, class `<Name>Service`
+│   │       └── routes.py         # FastAPI router
+│   ├── agent/
+│   │   └── mcp_server.py      # MCP server exposing repo context/search/read to a Claude agent
+│   ├── integrations/          # External adapters
+│   │   ├── claude_agent.py       #   ClaudeAgent — the `claude -p` CLI wrapper (the hobit engine)
+│   │   ├── git_clone.py, git_history.py, git_branches.py, git_diff.py, git_worktree.py
+│   │   ├── git_providers/        #   GitHub/GitLab/Bitbucket/local provider clients
+│   │   ├── scanners/              #   deterministic code/git scanners feeding substrate analysis
+│   │   └── external_tools/        #   wrappers for emerge, git-of-theseus, code-maat, CodeCharta,
+│   │                               #   ruff, bandit, vulture, osv, syft, scorecard, scc, gitleaks
+│   ├── orchestration/         # Prefect flows + schedule sync (Phase 2.5, opt-in)
+│   └── seeds/                 # Knowledge-catalog seed data + `shire-seed` CLI (see "Seeds" below)
+├── migrations/                # Alembic (env.py, script.py.mako, versions/)
+├── tests/                     # pytest, pythonpath=src
+└── .claude/skills/fastapi-best-practices/SKILL.md
 ```
 
-Active domains: `activity_log`, `analytics`, `attachment`, `customer`,
-`marketplace`, `organization`, `partner`, `project`, `tag`, `task`, `team`,
-`timeline`, `user`, `workflow`.
+## Domains
+
+`src/shire/domain/` currently holds 26 packages. Run `ls src/shire/domain` for the live list;
+as of this writing it is: `activity`, `blueprint`, `briefing`, `capacity`, `compliance`,
+`connections`, `context`, `council`, `hobits`, `home`, `jobs`, `members`, `merge_review`,
+`modelling`, `news`, `principles`, `qualities`, `readiness`, `repository`, `roadmap`, `security`,
+`substrate`, `techchoice`, `technology`, `tools`, `watchlist`.
+
+Two groups:
+- **Original Shire domains** — repository ingestion/analysis and the product logic built on it
+  (`repository`, `substrate`, `hobits`, `council`, `merge_review`, `briefing`, `context`,
+  `connections`, `jobs`, `activity`, `news`, `roadmap`, `readiness`, `capacity`, `compliance`,
+  `techchoice`, `principles`, `members`, `tools`, `home`, `watchlist`).
+- **Knowledge catalogs ported from Tuesdayta** — `archetype`(`blueprint`), `technology`,
+  `modelling`, `security`, `qualities`. Seeded reference data (architectures, tech, threat
+  models, quality attributes) that hobits and other domains draw on.
+
+Not every domain has every file: `home` and `watchlist` are read-model/aggregation domains — they
+have `schemas.py`/`services.py`/`routes.py` but no `models.py`/`domain.py`/`repositories.py` of
+their own; they compose other domains' services instead. Check `src/shire/domain/__init__.py` — it
+eager-imports every domain that owns ORM models.
 
 ## Architecture Conventions
 
 ### Layering (inside each domain)
 
-- **Routes** -> **Services** -> **Repositories** -> **Database**
-- Routes handle HTTP concerns (request/response, status codes, dependencies)
-- Services handle business logic, receive Pydantic schemas, return `*Result` schemas
-- Repositories handle data access, operate exclusively on SQLAlchemy entities
-- **Services must never return SQLAlchemy entities** — always map to result schemas
-- **Services call other services, never another domain's repository.** This
-  keeps domains extractable into separate services later.
+- **Routes** → **Services** → **Repositories** → **Database**
+- Routes handle HTTP concerns only (status codes, `Depends`, `response_model`)
+- Services hold business logic: take Pydantic schemas in, return `*Result` schemas out —
+  **never** SQLAlchemy entities
+- Repositories operate exclusively on SQLAlchemy entities (`Sql<Name>Repository`)
+- **Services call other services, not another domain's repository** — keeps domains extractable
+- Domains that follow strict hexagonal shape (e.g. `repository`) also have `domain.py`: a rich
+  Pydantic aggregate + value objects + ports, distinct from the `models.py` ORM rows; the domain
+  layer never imports SQLAlchemy, GitPython, or httpx
 
-### Bulk Operations
+### CRUD is single-item, not bulk
 
-- All CRUD methods (create, get, update, delete) operate in **bulk** (lists in, lists out)
-- Parameter names must be descriptive: `projects`, `users`, `organizations` — not `data`
+Despite older docs claiming bulk (`lists in, lists out`) CRUD, every real domain takes and returns
+one item at a time: `create(data: CreateX) -> XResult`, `get(id) -> XResult`,
+`update(id, data: UpdateX) -> XResult`, `delete(id) -> None`. Follow this shape for new
+endpoints; list endpoints return a `Page[XResult]` (see "Pagination"), not a bulk-create response.
 
 ### Schema Naming
 
 - Input: `Create*`, `Update*`
-- Output: `*Result` (not `*Response`)
+- Output: `*Result` (never `*Response`)
+
+### Errors
+
+- Raise `AppError` subclasses (`NotFoundError`, `ConflictError`, `ValidationError`) from
+  `shire.core.exceptions` in services — routes stay free of HTTP status plumbing
+- Every handled error serializes to `{"detail": ..., "code": ...}`; unexpected exceptions
+  collapse to a generic 500 and are never leaked to the client
+
+### Pagination
+
+Two envelopes coexist — match the one already used in the domain you're editing:
+
+- **Original Shire domains** use `shire.core.pagination`: `PaginationParams` (`?page=&page_size=`)
+  as a route dependency, `Page[T].create(items, total, params)` returning
+  `{items, total, page, page_size, total_pages}`.
+- **Knowledge-catalog domains** (`blueprint`, `technology`, `modelling`, `security`, `qualities`)
+  use `fastapi_pagination`: `Params` as the dependency, `Page[T]` returning
+  `{items, total, page, size, pages}`. `add_pagination(app)` is called once in `main.py`.
+
+Don't mix the two envelopes within one domain.
 
 ### Enum Values
 
 - Enum values must match database check constraints exactly (lowercase)
-- Always verify enum values against the migration files
+- Verify against the migration files when in doubt
+
+## The hobit engine
+
+A **hobit** is a narrow-domain Claude agent: a code template (charter + run logic) with
+user-editable config (model, charter, limits), defined in `src/shire/domain/hobits/`:
+
+- `domain.py` — `Hobit`, `HobitSpec`, run/self-score value objects
+- `registry.py` — `all_specs()` / `get_hobit(slug)`, backed by the seed roster
+- `roster.py` — the seed `HobitSpec` list: architecture/quality experts generated from the
+  knowledge-catalog seeds, hand-written technology experts, MR reviewers, and the foundational
+  `repo-onboarding` hobit
+- `repo_hobit.py` — the generic `RepoHobit` engine: explore a clone via `claude -p`, produce a
+  document, self-score it for the briefing feed
+- `jobs.py` — completion handlers (`handle_hobit_run`, `handle_feedback_distill`) that settle a
+  run and emit overlays (context-pack narrative, briefing item) once the engine call finishes
+- `models.py` / `schemas.py` / `repositories.py` / `services.py` / `routes.py` — the standard set
+
+The actual CLI wrapper lives in `src/shire/integrations/claude_agent.py`: `ClaudeAgent.run()`
+shells out to `claude -p ... --output-format json` in a repo clone with a read-only tool allowlist
+(`Read`, `Grep`, `Glob`; no Write/Edit/Bash), and never raises — failures come back as
+`AgentRun(ok=False, error=...)`. This is the primary, $0 engine (runs on the logged-in Max
+subscription; `ANTHROPIC_API_KEY` is stripped from the run env unless `SHIRE_USE_API_KEY=true`).
+The Claude Agent SDK is a documented paid alternative behind the same `run()` shape, not yet wired
+in.
+
+`src/shire/agent/mcp_server.py` is a separate piece: an MCP server (stdio, `FastMCP`) that exposes
+the context pack, keyword code search, and file reads to a Claude agent working against a Shire
+repo — `uv run python -m shire.agent.mcp_server`, registered via `claude mcp add shire -- ...`.
+
+Hobit runs, and other Claude-CLI calls across the codebase (MR classification, substrate
+architecture/overview/tech-stack narratives, council takes, roadmap generation, ...), go through
+the generic async job queue in `src/shire/domain/jobs/` (`kinds.py` enumerates every job kind).
+`main.py`'s lifespan starts a completion dispatcher thread (`jobs/dispatcher.py`) that LISTENs on
+Postgres for settled jobs and applies each one exactly once via its handler.
+
+## Visualization tools
+
+`external_tools/` wraps standalone repo-analysis tools surfaced via `GET /tools` for availability,
+each with its own `GET/POST /repositories/{id}/<kind>[/run]` endpoint — not part of the
+scanner/enrichment pipeline (`integrations/scanners/enrichment.py`):
+
+- **emerge** (`external_tools/emerge.py`) — interactive D3 codebase graph, served read-only under
+  `/api/v1/graph-artifacts`. Stale upstream (2024); on Python 3.13 install with
+  `uv tool install emerge-viz --with 'setuptools<81' --with pip --with 'networkx<3.4'` (the
+  `networkx<3.4` pin matters — 3.4 renamed `node_link_data`'s edge key `links`→`edges`, which
+  silently blanks the graph canvas).
+- **git-of-theseus** (`code-age`) — code survival/age SVG (`uv tool install git-of-theseus`).
+- **code-maat** (`coupling`) — temporal coupling, computed (not a static artifact): git log →
+  `code-maat-standalone.jar` → CSV → JSON, cached to disk. Needs `java` + the jar under
+  `~/.local/share/code-maat/` or `$SHIRE_CODE_MAAT_JAR`.
+- **CodeCharta** (`code-map`) — 3D code-city map (`ccsh unifiedparser`). The viewer is a separate
+  static SPA (`codecharta-visualization`) mounted at `/api/v1/cc-viewer`; resolved from
+  `$SHIRE_CODECHARTA_VIEWER` or the npm global root — `viewer_available` is reported separately
+  from `tool_available`.
+
+All four resolve their binaries from `~/.local/bin` directly (that's where `uv tool`/npm globals
+land, and it's often off a server's PATH).
+
+## Seeds
+
+`src/shire/seeds/` (console script `shire-seed`, run by `docker-entrypoint.sh` after migrations)
+upserts the knowledge-catalog JSON under `seeds/data/` by slug. Rows with `source='seed'` are
+refreshed on every run; rows with `source='user'` are left alone. Edit the JSON, not the database,
+to change catalog content — the hobit roster's architecture/quality experts are generated from
+this same data, so adding a catalog entry adds its expert automatically.
 
 ## Running the App
 
 ```bash
 cd be
-uvicorn main:app --reload
+uv run uvicorn shire.main:app --reload
 ```
+
+Postgres: `docker compose up -d` (starts `shire-db` on host port 5433).
 
 ## Useful Commands
 
 ```bash
-# Create a new migration
-alembic revision --autogenerate -m "description"
-
-# Run migrations
-alembic upgrade head
-
-# Rollback one migration
-alembic downgrade -1
+uv run pytest                                        # tests/ (pythonpath=src)
+uv run ruff check .                                   # lint
+uv run ruff format .                                  # format
+alembic revision --autogenerate -m "description"      # new migration
+alembic upgrade head                                  # apply migrations
+alembic downgrade -1                                   # rollback one migration
 ```
 
 ## Reference
 
-- API best practices: `.claude/skills/fastapi-best-practices/SKILL.md`
-- Service conventions: `docs/service/conventions.md`
-- Database models: `docs/database/models.md`
+- API design conventions: `.claude/skills/fastapi-best-practices/SKILL.md`
+- Scaffold a new domain: `/new-domain <name>` (`.claude/commands/new-domain.md`)
 
-## Project reality (how this repo differs from the generic conventions above)
+## Notes for future changes
 
-The conventions above are the source of truth for *how we build*. A few concrete facts about
-*this* repo (Shire — a repository-intelligence substrate, not a factory/CRM platform) differ from
-the generic template; follow these when they conflict:
-
-- **`src/shire/` package, not `app/` + `main.py`.** This is a `uv`-packaged src-layout project
-  (`pyproject.toml`, `shire.*` imports, `migrations/` via Alembic). Entry point is
-  `shire.main:app`; run with `uv run uvicorn shire.main:app --reload`.
-- **Layout is layer-per-domain inside `src/shire/`:**
-  - `core/` — `db.py`, `settings.py`, `domain_base.py` (DDD base types), `exceptions.py`
-    (`AppError` + subclasses + global handlers → `{detail, code}`), `pagination.py`
-    (`PaginationParams` + `Page[T]`), `metadata.py`.
-  - `domain/<ctx>/` — one folder per bounded context (`repository`, `substrate`) with
-    `models.py` (SQLAlchemy ORM entities), `domain.py` (the DDD aggregate + value objects +
-    ports — this repo is hexagonal, so domain models are rich Pydantic objects distinct from the
-    ORM rows), `schemas.py` (`Create*` / `*Result`), `repositories.py` (data access),
-    `services.py` (business logic, returns `*Result`), `routes.py` (FastAPI router).
-  - `integrations/` — external adapters (git clone, GitHub client, `git_history`, `scanners/`,
-    `external_tools/`).
-- **Two domains, not fifteen:** `repository` (ingest/clone/list/get/refresh) and `substrate`
-  (analysis snapshot, tools, on-demand tool runs). No customer/project/task/team/etc.
-- **Codebase graph (emerge) is an *artifact* tool, not a scanner.** `external_tools/emerge.py`
-  runs [emerge](https://github.com/glato/emerge) against a clone and produces an interactive D3
-  HTML app under `<graph_root>/<repo_id>/html/` — it does **not** contribute scalar metrics or
-  ratings, so it stays out of the scanner/enrichment pipeline (`tool_scanners()`). It's surfaced in
-  `GET /tools` for availability only; run it via `POST /repositories/{id}/graph/run` and read state
-  via `GET /repositories/{id}/graph`. The HTML is served read-only by a `StaticFiles` mount at
-  `/api/v1/graph-artifacts` (under `/api/v1` so the UI iframes it same-origin through the Vite
-  proxy). **Install caveat:** emerge is stale (2024) with dependency drift — on Python 3.13 it needs
-  `uv tool install emerge-viz --with 'setuptools<81' --with pip --with 'networkx<3.4'` (the
-  `networkx<3.4` pin matters: 3.4 flipped `node_link_data`'s edge key from `links`→`edges`, which
-  silently blanks emerge's graph canvas). Since `uv tool` installs to `~/.local/bin` (often off the
-  server's PATH) the adapter probes that path directly.
-- **Three more visualization tools follow the same artifact pattern** (own endpoint, not the scanner
-  flow; surfaced in `GET /tools` for availability only). Their artifacts live under
-  `<artifacts_root>/<tool>/<repo_id>/` served at `/api/v1/artifacts`; each has
-  `GET/POST /repositories/{id}/<kind>[/run]`:
-  - **git-of-theseus** (`code-age`) — code survival/age SVG. `uv tool install git-of-theseus`.
-    Resolves binaries from `~/.local/bin`. Serves `stack.svg` (shown as an `<img>`).
-  - **code-maat** (`coupling`) — temporal (change) coupling. *Data*, not an artifact: git log →
-    `java -jar code-maat …-standalone.jar -c git2 -a coupling` → CSV → JSON cached to disk. Needs
-    `java` + the jar in `~/.local/share/code-maat/` (or `$SHIRE_CODE_MAAT_JAR`).
-  - **CodeCharta** (`code-map`) — 3D code-city map. `ccsh unifiedparser` → `.cc.json` (we gunzip it
-    so static serving doesn't fight `Content-Encoding`). The **viewer is a separate static SPA**
-    (`codecharta-visualization`) mounted at `/api/v1/cc-viewer`; the map loads via
-    `…/cc-viewer/index.html?file=<map-url>`. `npm i -g codecharta-analysis codecharta-visualization`.
-    Viewer dir resolved from `$SHIRE_CODECHARTA_VIEWER` or the npm global root; `viewer_available`
-    is reported separately from `tool_available`.
-- **No auth.** There is no Cognito, no permissions/scope, no `current_user` dependency — the
-  shire backend is unauthenticated. Ignore the auth sections until auth is introduced.
-- **Bulk CRUD is N/A for the single-resource ingest** (`POST /api/v1/repositories` takes one
-  URL). Pagination *is* applied to the list endpoint (`Page[RepositoryResult]`).
-- Everything else — `/api/v1` prefix, `{detail, code}` errors via global handlers,
-  `Create*`/`*Result` schema naming, `response_model` + `tags` + status codes, routes → services
-  → repositories, services never returning ORM entities — is followed as written above.
-- **The `ui/` SPA consumes this API** (openapi-generated types). Changing a path or response shape
-  means regenerating UI types (`pnpm openapi:gen` in `ui/`) and updating the affected hook.
-- **Two pagination envelopes coexist.** The original Shire domains paginate via
-  `shire/core/pagination.py` (`PaginationParams`, `Page[T]` → `{items, total, page, page_size,
-  total_pages}`). The knowledge-catalog domains ported from Tuesdayta (`archetype`, `blueprint`,
-  `technology`, `modelling`, `security`, `qualities`) use `fastapi-pagination` (`Params`, `Page` →
-  `{items, total, page, size, pages}`; `add_pagination(app)` is called in `main.py`). Match the
-  style of the domain you're editing; don't mix them within a domain.
-- **Knowledge catalogs are seed data.** `src/shire/seeds/` (console script `shire-seed`, run by
-  `docker-entrypoint.sh` after migrations) upserts curated JSON catalogs by slug. Rows with
-  `source='seed'` are refreshed on every run; rows with `source='user'` are never touched. Edit
-  the JSON under `seeds/data/`, not the DB, for catalog content changes.
+- **The `ui/` SPA consumes this API** via openapi-generated types. Changing a route path or
+  response shape means regenerating UI types (`pnpm openapi:gen` in `ui/`) and updating the
+  affected hook.
