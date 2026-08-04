@@ -24,8 +24,10 @@ from shire.domain.substrate.repositories import (
 )
 from shire.domain.substrate.schemas import DependencyFreshnessItem
 from shire.domain.substrate.services import (
+    AnalysisService,
     _extract_mermaid_block,
     _parse_overview,
+    parse_ai_dependencies,
     parse_gains,
     parse_tech_stack,
 )
@@ -193,6 +195,27 @@ def handle_dependency_gains(job: JobRow) -> None:
         if item.name in gains:
             item.gain = gains[item.name]
     cache.write_text(json.dumps([i.model_dump() for i in items]))
+
+
+def handle_dependency_ai_scan(job: JobRow) -> None:
+    """Merge the engine's dependency inventory into the repo's latest snapshot."""
+    if not _branch_still_active(job):
+        _mark_failed(job.id, "The repository's active branch changed since this job was queued.")
+        return
+    if job.status != "succeeded":
+        return
+    deps = parse_ai_dependencies(job.result or "")
+    if deps is None:
+        _mark_failed(job.id, "The agent did not return a parseable dependency list.")
+        return
+    # An empty list is a legitimate answer (a repository that declares nothing) — only an
+    # unparseable one is a failure.
+    repository_id = uuid.UUID(job.payload["repository_id"])
+    with unit_of_work() as session:
+        inserted = AnalysisService(session).apply_ai_dependencies(repository_id, deps)
+    logger.info(
+        "AI dependency scan %s: %d of %d dependencies were new", job.id, inserted, len(deps)
+    )
 
 
 def _artifact_dir(tool: str, repository_id: str) -> Path:

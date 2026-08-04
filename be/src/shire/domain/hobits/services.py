@@ -67,6 +67,15 @@ _DISTILL_INPUT_LIMIT = 25
 # Statuses whose runs produced a response the user can rate.
 _RATABLE_STATUSES = (HobitRunStatus.completed.value, HobitRunStatus.parse_failed.value)
 
+# Hobits with a dedicated button in the repository view (CI/CD tab, Branches tab) are always
+# runnable ad hoc — requiring an assignment first would break that button.
+ALWAYS_AVAILABLE_SLUGS = frozenset({"repo-onboarding", "ci-cd", "git-branching"})
+
+# The branching hobit reasons about branch lifetimes and drift, which the platform already
+# measures; the numbers ride along in its prompt so it explains evidence instead of re-deriving it.
+_BRANCH_CONTEXT_SLUG = "git-branching"
+_BRANCH_CONTEXT_LIMIT = 25
+
 
 class HobitService:
     def __init__(self, session: Session) -> None:
@@ -391,9 +400,11 @@ class HobitService:
         hobit = self._resolve(slug)
         if hobit is None:
             raise NotFoundError(f"Unknown hobit: {slug}")
-        # Access gate: the foundational repo-onboarding hobit is always allowed; others must be
-        # assigned to the repository.
-        if slug != "repo-onboarding" and slug not in self._access.linked_slugs(repository_id):
+        # Access gate: hobits with a dedicated home in the repository view are always allowed;
+        # others must be assigned to the repository.
+        if slug not in ALWAYS_AVAILABLE_SLUGS and slug not in self._access.linked_slugs(
+            repository_id
+        ):
             raise ConflictError(f"Hobit '{slug}' is not assigned to this repository.")
         config = self._effective_config(hobit.spec)
 
@@ -402,6 +413,8 @@ class HobitService:
         if not pack.identity.clone_path:
             raise ConflictError("Repository has no local clone yet.")
         context_md = self._context.get_markdown(repository_id).effective
+        if slug == _BRANCH_CONTEXT_SLUG:
+            context_md = f"{context_md}\n\n{self._branch_context(repository_id)}"
 
         # The feedback cycle: distilled standing guidance + the newest raw ratings ride along
         # in the prompt so the hobit tunes itself on what the user said about past responses.
@@ -453,6 +466,38 @@ class HobitService:
             repository_id=repository_id,
         )
         return HobitRunResult.of(record)
+
+    def _branch_context(self, repository_id: uuid.UUID) -> str:
+        """The live branch inspection as Markdown, for the branching hobit's prompt.
+
+        Cheaper and far more reliable than asking the agent to derive ahead/behind and staleness
+        with Grep — it gets the platform's own measurements and spends its run explaining them.
+        """
+        try:
+            branches = RepositoryService(self._session).branches(repository_id)
+        except Exception:  # a broken clone must not block the run
+            return ""
+        lines = [
+            "## Branch inspection (measured by the platform)",
+            f"- default branch: `{branches.default_branch}`",
+            f"- {branches.total_branches} branches total; {branches.merged_count} merged into "
+            f"the default branch; {branches.stale_count} untouched for more than "
+            f"{branches.stale_days} days",
+            "",
+            "Most recently active branches:",
+        ]
+        for branch in branches.branches[:_BRANCH_CONTEXT_LIMIT]:
+            drift = ""
+            if branch.ahead is not None and branch.behind is not None:
+                drift = f", {branch.ahead} ahead / {branch.behind} behind"
+            lines.append(
+                f"- `{branch.name}` — {branch.status}, last commit "
+                f"{branch.last_commit_at:%Y-%m-%d} by {branch.author_name}{drift}"
+                f"{' (squash-merged)' if branch.squash_merged else ''}"
+            )
+        if branches.truncated:
+            lines.append("- (branch list truncated)")
+        return "\n".join(lines)
 
     def run_if_stale(
         self, repository_id: uuid.UUID, slug: str, *, force: bool = False

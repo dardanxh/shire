@@ -20,6 +20,7 @@ from shire.core.settings import get_settings
 from shire.domain.blueprint.routes import router as blueprints_router
 from shire.domain.briefing.routes import router as briefing_router
 from shire.domain.capacity.routes import router as capacity_router
+from shire.domain.cicd.routes import router as cicd_router
 from shire.domain.compliance.routes import router as compliance_router
 from shire.domain.connections.routes import router as connections_router
 from shire.domain.context.routes import router as context_router
@@ -145,6 +146,7 @@ app.include_router(qualities_router, prefix=API_V1_PREFIX)
 app.include_router(compliance_router, prefix=API_V1_PREFIX)
 app.include_router(capacity_router, prefix=API_V1_PREFIX)
 app.include_router(readiness_router, prefix=API_V1_PREFIX)
+app.include_router(cicd_router, prefix=API_V1_PREFIX)
 app.include_router(techchoice_router, prefix=API_V1_PREFIX)
 
 # fastapi-pagination wires its Params/Page plumbing for the catalog routers above.

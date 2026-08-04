@@ -95,7 +95,15 @@ class PrincipleResult(BaseModel):
 
 
 class RepoPrincipleStatusResult(BaseModel):
-    """One principle's standing against one repository — the repo tab's row shape."""
+    """One principle's standing against one repository — the repo tab's row shape.
+
+    Every principle a repository *could* hold itself to is returned; `assigned` says whether it
+    currently does. Audits run the assigned ones; the rest are the tab's pick-list.
+    """
 
     principle: PrincipleResult
     latest_check: PrincipleCheckResult | None
+    # Effective reach for this repository (default reach, flipped by any per-repo override).
+    assigned: bool = True
+    # What the reach would be with no override — lets the UI mark deliberate deviations.
+    default_assigned: bool = True

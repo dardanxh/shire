@@ -25,6 +25,7 @@ from shire.domain.principles.models import (
 from shire.domain.principles.repositories import (
     SqlPrincipleCheckRepository,
     SqlPrincipleRepository,
+    SqlRepositoryPrincipleRepository,
 )
 from shire.domain.principles.schemas import (
     CreatePrinciple,
@@ -44,6 +45,7 @@ class PrincipleService:
         self._session = session
         self._principles = SqlPrincipleRepository(session)
         self._checks = SqlPrincipleCheckRepository(session)
+        self._assignments = SqlRepositoryPrincipleRepository(session)
         self._repos = SqlRepositoryRepository(session)
 
     # --- CRUD -------------------------------------------------------------------
@@ -90,25 +92,55 @@ class PrincipleService:
 
     # --- per-repo standing + audits ----------------------------------------------
     def repo_status(self, repository_id: uuid.UUID) -> list[RepoPrincipleStatusResult]:
-        """Every principle applicable to this repo with its newest verdict (the repo tab)."""
+        """Every principle this repo could hold itself to, with its newest verdict (the repo tab).
+
+        Both the assigned and the unassigned ones come back — the tab audits the former and
+        offers the latter as the pick-list, so narrowing down and widening back up is one screen.
+        """
         repo = self._repos.get(repository_id)
         if repo is None:
             raise NotFoundError("Repository not found")
         techs = self._repo_techs(repo.clone_path)
         latest = self._checks.latest_for_repository(repository_id)
-        return [
-            RepoPrincipleStatusResult(
-                principle=PrincipleResult.of(row),
-                latest_check=(
-                    PrincipleCheckResult.of(latest[row.id]) if row.id in latest else None
-                ),
+        overrides = self._assignments.for_repository(repository_id)
+        out: list[RepoPrincipleStatusResult] = []
+        for row in self._principles.list_for_repository(repository_id):
+            default = self._default_assigned(row, techs, repository_id)
+            out.append(
+                RepoPrincipleStatusResult(
+                    principle=PrincipleResult.of(row),
+                    latest_check=(
+                        PrincipleCheckResult.of(latest[row.id]) if row.id in latest else None
+                    ),
+                    assigned=overrides.get(row.id, default),
+                    default_assigned=default,
+                )
             )
-            for row in self._principles.list_for_repository(repository_id)
-            if row.tech in techs
-        ]
+        return out
+
+    def set_assignment(
+        self, repository_id: uuid.UUID, principle_id: uuid.UUID, assigned: bool
+    ) -> list[RepoPrincipleStatusResult]:
+        """Assign or unassign one principle for one repository (the tab's narrow-down/widen-up).
+
+        An override that agrees with the principle's default reach is dropped rather than stored,
+        so a repo only carries rows for the choices the user actually made.
+        """
+        repo = self._repos.get(repository_id)
+        if repo is None:
+            raise NotFoundError("Repository not found")
+        row = self._require(principle_id)
+        if row.repository_id is not None and row.repository_id != repository_id:
+            raise ValidationError("This principle is scoped to another repository.")
+        default = self._default_assigned(row, self._repo_techs(repo.clone_path), repository_id)
+        if assigned == default:
+            self._assignments.clear(repository_id, principle_id)
+        else:
+            self._assignments.set(repository_id, principle_id, assigned)
+        return self.repo_status(repository_id)
 
     def audit_repository(self, repository_id: uuid.UUID) -> list[RepoPrincipleStatusResult]:
-        """Enqueue one audit job per applicable enabled principle (non-blocking; the repo tab
+        """Enqueue one audit job per assigned enabled principle (non-blocking; the repo tab
         polls). Skips principles that already have an unsettled check in flight."""
         repo = self._repos.get(repository_id)
         if repo is None:
@@ -117,13 +149,14 @@ class PrincipleService:
             raise ConflictError("Repository has not been cloned yet")
 
         techs = self._repo_techs(repo.clone_path)
+        overrides = self._assignments.for_repository(repository_id)
         applicable = [
             row
             for row in self._principles.list_for_repository(repository_id, enabled_only=True)
-            if row.tech in techs
+            if overrides.get(row.id, self._default_assigned(row, techs, repository_id))
         ]
         if not applicable:
-            raise ConflictError("No enabled principles apply to this repository.")
+            raise ConflictError("No enabled principles are assigned to this repository.")
 
         latest = self._checks.latest_for_repository(repository_id)
         jobs = JobService(self._session)
@@ -164,6 +197,14 @@ class PrincipleService:
         return self.repo_status(repository_id)
 
     # --- internals ----------------------------------------------------------------
+
+    @staticmethod
+    def _default_assigned(row: PrincipleRow, techs: set[str], repository_id: uuid.UUID) -> bool:
+        """A principle's reach before any per-repo override: a repo-scoped one covers its own
+        repository, a global one covers every repo whose stack matches its tech."""
+        if row.repository_id is not None:
+            return row.repository_id == repository_id
+        return row.tech in techs
 
     @staticmethod
     def _repo_techs(clone_path: str | None) -> set[str]:

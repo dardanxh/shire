@@ -38,9 +38,18 @@ class Ecosystem(StrEnum):
     generic = "generic"
 
 
+class DependencySource(StrEnum):
+    """How a dependency was found: parsed from a manifest we understand, or read out of the
+    repository by the engine when the deterministic parsers couldn't cover it."""
+
+    scan = "scan"
+    ai = "ai"
+
+
 class CiCdSystem(StrEnum):
     github_actions = "github_actions"
     gitlab_ci = "gitlab_ci"
+    bitbucket_pipelines = "bitbucket_pipelines"
     circleci = "circleci"
     jenkins = "jenkins"
     travis = "travis"
@@ -68,6 +77,11 @@ class Dependency(ValueObject):
     version: str | None = None
     manifest_file: str
     is_dev: bool = False
+    source: DependencySource = DependencySource.scan
+    # Latest published version as reported by whoever found the dependency. Registry lookups
+    # (PyPI) stay the authority for pip; this carries the engine's answer for the ecosystems
+    # and manifests no registry client covers.
+    latest_version: str | None = None
 
 
 class CiCdConfig(ValueObject):

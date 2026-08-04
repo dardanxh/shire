@@ -45,6 +45,16 @@ export type DependencyFreshnessOut =
   components["schemas"]["DependencyFreshnessResult"];
 export type DependencyFreshnessItem =
   components["schemas"]["DependencyFreshnessItem"];
+export type DependencyInventoryOut =
+  components["schemas"]["DependencyInventoryResult"];
+export type DependencyManifest = components["schemas"]["DependencyManifest"];
+export type CicdStatusOut = components["schemas"]["CicdStatusResult"];
+export type CicdAnalysisOut = components["schemas"]["CicdAnalysisResult"];
+export type CicdEnvironmentOut = components["schemas"]["CicdEnvironment"];
+export type CicdTransitionOut = components["schemas"]["CicdTransition"];
+export type CicdPipelineOut = components["schemas"]["CicdPipeline"];
+export type CicdSuggestionOut = components["schemas"]["CicdSuggestionResult"];
+export type CicdExecutionOut = components["schemas"]["CicdExecutionResult"];
 export type ArchitectureOut = components["schemas"]["ArchitectureResult"];
 export type ArchitectureDiagram = components["schemas"]["ArchitectureDiagram"];
 export type CodebaseOverviewOut =

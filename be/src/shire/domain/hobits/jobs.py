@@ -37,6 +37,9 @@ logger = logging.getLogger(__name__)
 # Neutral self-score used when the agent produced prose but no parseable structured block.
 _FALLBACK_SCORE = SelfScore(importance=50, confidence=20, urgency=30)
 
+# The one hobit whose output feeds another domain's cards (see `_harvest_suggestions`).
+CICD_HOBIT_SLUG = "ci-cd"
+
 
 def handle_hobit_run(job: JobRow) -> None:
     run_id = uuid.UUID(job.payload["run_id"])
@@ -60,6 +63,30 @@ def handle_hobit_run(job: JobRow) -> None:
         if job.payload.get("writes_narrative") and row.narrative is not None:
             ContextService(session).set_narrative(row.repository_id, row.narrative)
         BriefingService(session).create_from_run(_record_of(row))
+        _harvest_suggestions(session, row, job)
+
+
+def _harvest_suggestions(session, row: HobitRunRow, job: JobRow) -> None:
+    """Slug-keyed overlay: the `ci-cd` hobit's audit doubles as implementable cards.
+
+    Its instructions ask for an extra `suggestions` array inside the same final JSON block; the
+    hobit output contract itself is unchanged (Pydantic ignores the extra key), so a run that
+    returns only a narrative is still a good run and this simply finds nothing.
+    """
+    if job.payload.get("slug") != CICD_HOBIT_SLUG:
+        return
+    if row.status != HobitRunStatus.completed.value:
+        return
+    # Deferred import: the CI/CD service reads hobit runs for its status endpoint.
+    from shire.domain.cicd.services import CicdService
+
+    try:
+        found = CicdService(session).ingest_hobit_suggestions(row.repository_id, job.result or "")
+    except Exception:
+        logger.exception("Could not harvest CI/CD suggestions from hobit run %s", row.id)
+        return
+    if found:
+        logger.info("Hobit run %s contributed %d CI/CD suggestions", row.id, found)
 
 
 def _apply_output(session, row: HobitRunRow, job: JobRow) -> None:

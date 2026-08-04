@@ -19,6 +19,7 @@ from shire.domain.substrate.domain import (
     Contributor,
     DailyCommitCount,
     Dependency,
+    DependencySource,
     Ecosystem,
     Enrichment,
     HealthCheck,
@@ -47,6 +48,25 @@ from shire.domain.substrate.models import (
     ToolRunRow,
     VulnerabilityRow,
 )
+
+
+def _dependency_row(dep: Dependency) -> DependencyRow:
+    return DependencyRow(
+        ecosystem=dep.ecosystem.value,
+        name=dep.name,
+        version=dep.version,
+        manifest_file=dep.manifest_file,
+        is_dev=dep.is_dev,
+        source=dep.source.value,
+        latest_version=dep.latest_version,
+    )
+
+
+def _dependency_key(name: str, version: str | None) -> tuple[str, str]:
+    """Identity of a declared dependency: same package, same declared version — whatever
+    ecosystem or manifest it turned up in. Used to keep engine scans from re-adding what the
+    deterministic scanners already found."""
+    return name.strip().lower(), (version or "").strip()
 
 
 def _to_domain(row: AnalysisRow) -> Analysis:
@@ -97,6 +117,8 @@ def _to_domain(row: AnalysisRow) -> Analysis:
                 version=d.version,
                 manifest_file=d.manifest_file,
                 is_dev=d.is_dev,
+                source=DependencySource(d.source),
+                latest_version=d.latest_version,
             )
             for d in row.dependencies
         ],
@@ -250,16 +272,7 @@ def _build_row(analysis: Analysis) -> AnalysisRow:
         LanguageStatRow(language=x.language, loc=x.loc, files=x.files, pct=x.pct)
         for x in analysis.languages
     ]
-    row.dependencies = [
-        DependencyRow(
-            ecosystem=d.ecosystem.value,
-            name=d.name,
-            version=d.version,
-            manifest_file=d.manifest_file,
-            is_dev=d.is_dev,
-        )
-        for d in analysis.dependencies
-    ]
+    row.dependencies = [_dependency_row(d) for d in analysis.dependencies]
     row.cicd = [
         CiCdRow(system=c.system.value, config_files=list(c.config_files)) for c in analysis.cicd
     ]
@@ -368,6 +381,45 @@ class SqlAnalysisRepository:
             .order_by(AnalysisRow.analyzed_at.desc())
         )
         return [_to_domain(r) for r in self._session.scalars(stmt)]
+
+    def merge_dependencies(self, repository_id: uuid.UUID, deps: list[Dependency]) -> int:
+        """Fold externally discovered dependencies into the repo's latest complete snapshot.
+
+        Deduped on (name, declared version): the same package at the same version is never added
+        twice, whichever manifest or ecosystem it was found in — including within `deps` itself.
+        A row that already exists but has no known latest version inherits one from its incoming
+        duplicate, so an engine scan still improves what the parsers found. Returns the number of
+        rows inserted; 0 when the repo has no snapshot to merge into.
+        """
+        stmt = (
+            select(AnalysisRow)
+            .where(
+                AnalysisRow.repository_id == repository_id,
+                AnalysisRow.status == AnalysisStatus.complete.value,
+            )
+            .order_by(AnalysisRow.analyzed_at.desc())
+            .limit(1)
+        )
+        analysis = self._session.scalars(stmt).first()
+        if analysis is None:
+            return 0
+
+        existing = {_dependency_key(r.name, r.version): r for r in analysis.dependencies}
+        inserted = 0
+        for dep in deps:
+            key = _dependency_key(dep.name, dep.version)
+            current = existing.get(key)
+            if current is not None:
+                if dep.latest_version and not current.latest_version:
+                    current.latest_version = dep.latest_version
+                continue
+            row = _dependency_row(dep)
+            analysis.dependencies.append(row)
+            existing[key] = row
+            inserted += 1
+        analysis.dependency_count = len(analysis.dependencies)
+        self._session.flush()
+        return inserted
 
     def dependency_usage(self, name: str) -> list[tuple[uuid.UUID, str | None]]:
         """Cross-repo: which repositories depend on `name` (and at what versions)."""

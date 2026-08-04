@@ -473,6 +473,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/repositories/{repository_id}/dependencies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dependency Inventory
+         * @description Declared dependencies plus manifest coverage — whether the deterministic parsers got all
+         *     of this repository, or the engine fallback is needed (`ai_recommended`).
+         */
+        get: operations["dependency_inventory_api_v1_repositories__repository_id__dependencies_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/dependencies/ai-scan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Scan Dependencies With Ai
+         * @description Have the engine read every dependency out of the repository (monorepos and manifest
+         *     formats the parsers don't cover). Non-blocking — poll the GET while `ai_pending` is true.
+         */
+        post: operations["scan_dependencies_with_ai_api_v1_repositories__repository_id__dependencies_ai_scan_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/repositories/{repository_id}/dependency-freshness": {
         parameters: {
             query?: never;
@@ -1642,11 +1684,35 @@ export interface paths {
         put?: never;
         /**
          * Audit Repository Principles
-         * @description Audit the repository against every applicable enabled principle (one engine job per
+         * @description Audit the repository against every assigned enabled principle (one engine job per
          *     principle, non-blocking — poll the GET).
          */
         post: operations["audit_repository_principles_api_v1_repositories__repository_id__principles_audit_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/principles/{principle_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Assign Principle
+         * @description Assign a principle to this repository (audited from the next run on).
+         */
+        post: operations["assign_principle_api_v1_repositories__repository_id__principles__principle_id__post"];
+        /**
+         * Unassign Principle
+         * @description Unassign a principle from this repository (kept in the pick-list; past verdicts stand).
+         */
+        delete: operations["unassign_principle_api_v1_repositories__repository_id__principles__principle_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3068,6 +3134,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/repositories/{repository_id}/cicd": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Cicd Status
+         * @description Detected pipeline files plus the persisted CI/CD map, suggestions and implement runs.
+         */
+        get: operations["cicd_status_api_v1_repositories__repository_id__cicd_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/cicd/scan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Scan Cicd
+         * @description Enqueue the engine scan (non-blocking — poll the GET while `scan_pending` is true).
+         */
+        post: operations["scan_cicd_api_v1_repositories__repository_id__cicd_scan_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/cicd/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Apply Cicd Suggestions
+         * @description Implement the selected suggestions on a fresh local `cicd/*` branch.
+         */
+        post: operations["apply_cicd_suggestions_api_v1_repositories__repository_id__cicd_apply_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tech-decisions": {
         parameters: {
             query?: never;
@@ -3292,6 +3418,11 @@ export interface components {
             rating_security: string;
             /** Rating Health */
             rating_health: string;
+        };
+        /** ApplyCicdSuggestions */
+        ApplyCicdSuggestions: {
+            /** Suggestion Ids */
+            suggestion_ids: string[];
         };
         /** ApplySuggestions */
         ApplySuggestions: {
@@ -3841,7 +3972,297 @@ export interface components {
          * CiCdSystem
          * @enum {string}
          */
-        CiCdSystem: "github_actions" | "gitlab_ci" | "circleci" | "jenkins" | "travis" | "azure_pipelines" | "drone" | "other";
+        CiCdSystem: "github_actions" | "gitlab_ci" | "bitbucket_pipelines" | "circleci" | "jenkins" | "travis" | "azure_pipelines" | "drone" | "other";
+        /** CicdAnalysisResult */
+        CicdAnalysisResult: {
+            /** Platforms */
+            platforms: string[];
+            /** Config Files */
+            config_files: string[];
+            /** Summary */
+            summary: string;
+            /** Environments */
+            environments: components["schemas"]["CicdEnvironment"][];
+            /** Transitions */
+            transitions: components["schemas"]["CicdTransition"][];
+            /** Pipelines */
+            pipelines: components["schemas"]["CicdPipeline"][];
+            /** Branch */
+            branch: string;
+            /** Commit Sha */
+            commit_sha: string;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+        };
+        /**
+         * CicdEnvironment
+         * @description A long-living environment the pipeline deploys to.
+         *
+         *     Everything above `branch_exists` comes from the pipeline config (the engine); the fields
+         *     below it are live git facts filled in server-side from the branch inspection, so a
+         *     "qa is 41 days stale" signal costs no extra AI call.
+         */
+        CicdEnvironment: {
+            /** Key */
+            key: string;
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @default other
+             */
+            kind: string;
+            /**
+             * Branch
+             * @default
+             */
+            branch: string;
+            /**
+             * Deploy Target
+             * @default
+             */
+            deploy_target: string;
+            /**
+             * Trigger
+             * @default
+             */
+            trigger: string;
+            /**
+             * Gates
+             * @default []
+             */
+            gates: string[];
+            /**
+             * Auto Deploy
+             * @default false
+             */
+            auto_deploy: boolean;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /**
+             * Source File
+             * @default
+             */
+            source_file: string;
+            /** Branch Exists */
+            branch_exists?: boolean | null;
+            /** Last Commit At */
+            last_commit_at?: string | null;
+            /** Last Commit Author */
+            last_commit_author?: string | null;
+            /** Ahead */
+            ahead?: number | null;
+            /** Behind */
+            behind?: number | null;
+        };
+        /** CicdExecutionResult */
+        CicdExecutionResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Status */
+            status: string;
+            /** Branch */
+            branch: string;
+            /** Base Sha */
+            base_sha: string;
+            /** Commit Sha */
+            commit_sha: string | null;
+            /** Agent Summary */
+            agent_summary: string;
+            /** Changed Files */
+            changed_files: string[];
+            /** Suggestion Ids */
+            suggestion_ids: string[];
+            /** Error */
+            error: string | null;
+            /** Job Id */
+            job_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /**
+         * CicdHobitRun
+         * @description The latest `ci-cd` hobit run, so the tab can show its verdict next to the scan's.
+         */
+        CicdHobitRun: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Status */
+            status: string;
+            /** Headline */
+            headline?: string | null;
+            /** Tier */
+            tier?: string | null;
+            /** Finished At */
+            finished_at?: string | null;
+        };
+        /** CicdPipeline */
+        CicdPipeline: {
+            /** File */
+            file: string;
+            /**
+             * Name
+             * @default
+             */
+            name: string;
+            /**
+             * Triggers
+             * @default []
+             */
+            triggers: string[];
+            /**
+             * Jobs
+             * @default []
+             */
+            jobs: string[];
+        };
+        /** CicdPipelineFile */
+        CicdPipelineFile: {
+            /** Path */
+            path: string;
+            /** System */
+            system: string;
+        };
+        /** CicdStatusResult */
+        CicdStatusResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /**
+             * Cloned
+             * @default false
+             */
+            cloned: boolean;
+            /**
+             * Detected Files
+             * @default []
+             */
+            detected_files: components["schemas"]["CicdPipelineFile"][];
+            /**
+             * Platforms
+             * @default []
+             */
+            platforms: string[];
+            analysis?: components["schemas"]["CicdAnalysisResult"] | null;
+            /**
+             * Suggestions
+             * @default []
+             */
+            suggestions: components["schemas"]["CicdSuggestionResult"][];
+            /**
+             * Executions
+             * @default []
+             */
+            executions: components["schemas"]["CicdExecutionResult"][];
+            /**
+             * Scan Pending
+             * @default false
+             */
+            scan_pending: boolean;
+            /** Scan Job Id */
+            scan_job_id?: string | null;
+            /**
+             * Hobit Pending
+             * @default false
+             */
+            hobit_pending: boolean;
+            hobit_run?: components["schemas"]["CicdHobitRun"] | null;
+            /**
+             * Agent Available
+             * @default true
+             */
+            agent_available: boolean;
+        };
+        /** CicdSuggestionResult */
+        CicdSuggestionResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Source */
+            source: string;
+            /** Category */
+            category: string;
+            /** Impact */
+            impact: string;
+            /** Effort */
+            effort: string;
+            /** Title */
+            title: string;
+            /** Detail */
+            detail: string;
+            /** Paths */
+            paths: string[];
+            /** Status */
+            status: string;
+            /** Execution Id */
+            execution_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * CicdTransition
+         * @description How a change is promoted from one environment to the next.
+         */
+        CicdTransition: {
+            /** From Env */
+            from_env: string;
+            /** To Env */
+            to_env: string;
+            /**
+             * Trigger
+             * @default
+             */
+            trigger: string;
+            /**
+             * Steps
+             * @default []
+             */
+            steps: string[];
+            /**
+             * Gates
+             * @default []
+             */
+            gates: string[];
+            /**
+             * Source File
+             * @default
+             */
+            source_file: string;
+        };
         /**
          * ClassificationLabel
          * @description One label of the multi-label classification, with its rough share of the MR.
@@ -5170,6 +5591,10 @@ export interface components {
              * @default false
              */
             is_dev: boolean;
+            /** @default scan */
+            source: components["schemas"]["DependencySource"];
+            /** Latest Version */
+            latest_version?: string | null;
         };
         /** DependencyChange */
         DependencyChange: {
@@ -5228,6 +5653,76 @@ export interface components {
             /** Gains Job Id */
             gains_job_id?: string | null;
         };
+        /**
+         * DependencyInventoryResult
+         * @description The Dependencies tab's dataset: what the repo declares, and how completely we know it.
+         *
+         *     The deterministic scanners handle the manifests they understand — at the root and in every
+         *     app of a monorepo. When that leaves gaps (no readable root manifest, or manifests in formats
+         *     no parser covers), `ai_recommended` is true and the engine scan fills the rest in.
+         */
+        DependencyInventoryResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Dependencies */
+            dependencies: components["schemas"]["Dependency"][];
+            /** Manifests */
+            manifests: components["schemas"]["DependencyManifest"][];
+            /** Root Manifest */
+            root_manifest?: string | null;
+            /**
+             * Root Covered
+             * @default false
+             */
+            root_covered: boolean;
+            /**
+             * Scanned Count
+             * @default 0
+             */
+            scanned_count: number;
+            /**
+             * Ai Count
+             * @default 0
+             */
+            ai_count: number;
+            /**
+             * Ai Recommended
+             * @default false
+             */
+            ai_recommended: boolean;
+            /**
+             * Ai Pending
+             * @default false
+             */
+            ai_pending: boolean;
+            /** Ai Job Id */
+            ai_job_id?: string | null;
+        };
+        /**
+         * DependencyManifest
+         * @description One dependency manifest found in the clone. `parsed` is false for formats the
+         *     deterministic scanner can see but not read (pom.xml, build.gradle, Pipfile, *.csproj, ...).
+         */
+        DependencyManifest: {
+            /** Path */
+            path: string;
+            /** Kind */
+            kind: string;
+            /** Parsed */
+            parsed: boolean;
+            /** At Root */
+            at_root: boolean;
+        };
+        /**
+         * DependencySource
+         * @description How a dependency was found: parsed from a manifest we understand, or read out of the
+         *     repository by the engine when the deterministic parsers couldn't cover it.
+         * @enum {string}
+         */
+        DependencySource: "scan" | "ai";
         /** DependencyUsageResult */
         DependencyUsageResult: {
             /**
@@ -7360,10 +7855,23 @@ export interface components {
         /**
          * RepoPrincipleStatusResult
          * @description One principle's standing against one repository — the repo tab's row shape.
+         *
+         *     Every principle a repository *could* hold itself to is returned; `assigned` says whether it
+         *     currently does. Audits run the assigned ones; the rest are the tab's pick-list.
          */
         RepoPrincipleStatusResult: {
             principle: components["schemas"]["PrincipleResult"];
             latest_check: components["schemas"]["PrincipleCheckResult"] | null;
+            /**
+             * Assigned
+             * @default true
+             */
+            assigned: boolean;
+            /**
+             * Default Assigned
+             * @default true
+             */
+            default_assigned: boolean;
         };
         /**
          * RepoRoadmapSliceResult
@@ -9451,6 +9959,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CouplingResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dependency_inventory_api_v1_repositories__repository_id__dependencies_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DependencyInventoryResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    scan_dependencies_with_ai_api_v1_repositories__repository_id__dependencies_ai_scan_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DependencyInventoryResult"];
                 };
             };
             /** @description Validation Error */
@@ -11716,6 +12286,70 @@ export interface operations {
         responses: {
             /** @description Successful Response */
             202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepoPrincipleStatusResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    assign_principle_api_v1_repositories__repository_id__principles__principle_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+                principle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepoPrincipleStatusResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unassign_principle_api_v1_repositories__repository_id__principles__principle_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+                principle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -14740,6 +15374,103 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReadinessExecutionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cicd_status_api_v1_repositories__repository_id__cicd_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CicdStatusResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    scan_cicd_api_v1_repositories__repository_id__cicd_scan_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CicdStatusResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    apply_cicd_suggestions_api_v1_repositories__repository_id__cicd_apply_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplyCicdSuggestions"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CicdExecutionResult"];
                 };
             };
             /** @description Validation Error */

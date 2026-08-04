@@ -378,8 +378,17 @@ const GROUP_COLORS: Record<string, string> = {
   technology: "#0ea5e9", // sky
   "mr review": "#f59e0b", // amber
   onboarding: "#64748b", // slate
+  // Listed last so a technology expert that also carries it (Terraform) still groups as technology.
+  infrastructure: "#14b8a6", // teal
 };
 const GROUPS = Object.keys(GROUP_COLORS);
+
+/** Discipline tags — they say which craft a hobit belongs to, which the card already implies. */
+const DISCIPLINE_TAGS = new Set([
+  "data engineering",
+  "software engineering",
+  "platform engineering",
+]);
 
 const groupOf = (hobit: HobitOut) => GROUPS.find((g) => hobit.tags.includes(g));
 
@@ -503,7 +512,7 @@ function HobitCard({
           </Badge>
         ) : null}
         {hobit.tags
-          .filter((tag) => tag !== group && tag !== "data engineering")
+          .filter((tag) => tag !== group && !DISCIPLINE_TAGS.has(tag))
           .map((tag) => (
             <Badge key={tag} variant="secondary" className="text-[10px]">
               {tag}

@@ -233,6 +233,11 @@ class DependencyRow(Base):
     version: Mapped[str | None] = mapped_column(String(128), nullable=True)
     manifest_file: Mapped[str] = mapped_column(String(255))
     is_dev: Mapped[bool] = mapped_column(Boolean, default=False)
+    # "scan" = parsed from a manifest by the deterministic scanner; "ai" = read out of the repo
+    # by the engine for manifests/monorepo layouts the parsers don't cover.
+    source: Mapped[str] = mapped_column(String(8), default="scan", server_default="scan")
+    # Latest published version, when whoever found the dependency also knew it (engine scans).
+    latest_version: Mapped[str | None] = mapped_column(String(128), nullable=True)
 
 
 class CiCdRow(Base):

@@ -4,9 +4,15 @@ import {
   MinusIcon,
   PlusIcon,
   RotateCcwIcon,
+  ScanIcon,
 } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
+import {
+  type ReactZoomPanPinchRef,
+  TransformComponent,
+  TransformWrapper,
+} from "react-zoom-pan-pinch";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -24,9 +30,24 @@ export function DiagramViewPage({
   const { data, isPending } = useArchitectureQuery(repoId);
   const diagram = data?.diagrams.find((d) => d.kind === kind);
   const mermaid = diagram?.mermaid;
+  const apiRef = useRef<ReactZoomPanPinchRef>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  // Zoom-out floor = the scale where the whole diagram fits, so zooming out
+  // stops at the full-diagram view instead of shrinking forever.
+  const [minScale, setMinScale] = useState(0.05);
+
+  // Fit the whole diagram into the canvas — the default view on open, and the
+  // fit button. Floors zoom-out at the fit scale (capped at 1 so the reset
+  // button's 100% is always reachable).
+  const fit = useCallback(() => {
+    if (!contentRef.current?.querySelector("svg")) return;
+    apiRef.current?.zoomToElement(contentRef.current, undefined, 0);
+    const scale = apiRef.current?.instance.state.scale;
+    if (scale) setMinScale(Math.min(scale, 1));
+  }, []);
 
   return (
-    <div className="flex h-[calc(100vh-7rem)] flex-col gap-4">
+    <div className="flex h-[calc(100dvh-5rem)] flex-col gap-3">
       <div className="flex items-center gap-3">
         <Link
           to="/repositories/$id"
@@ -49,12 +70,12 @@ export function DiagramViewPage({
 
       {mermaid ? (
         <TransformWrapper
-          minScale={0.2}
+          ref={apiRef}
+          minScale={minScale}
           maxScale={8}
           centerOnInit
           limitToBounds={false}
           wheel={{ step: 0.15 }}
-          doubleClick={{ mode: "reset" }}
         >
           {({ zoomIn, zoomOut, resetTransform }) => (
             <div className="relative flex-1 overflow-hidden rounded-lg border border-border bg-muted/20">
@@ -83,15 +104,29 @@ export function DiagramViewPage({
                 >
                   <RotateCcwIcon className="size-4" />
                 </Button>
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  aria-label={t("repositories.view.architecture.zoom_fit")}
+                  onClick={fit}
+                >
+                  <ScanIcon className="size-4" />
+                </Button>
               </div>
+              {/* Absolutely positioned so the diagram's natural width never
+                  contributes to intrinsic sizing (overflow-hidden clips paint,
+                  not min-content) — otherwise the page scrolls sideways. */}
               <TransformComponent
-                wrapperClass="!h-full !w-full cursor-grab active:cursor-grabbing"
-                contentClass="!h-full !w-full items-center justify-center"
+                wrapperClass="!absolute !inset-0 !h-full !w-full cursor-grab active:cursor-grabbing"
+                contentClass="p-6"
               >
-                <MermaidDiagram
-                  code={mermaid}
-                  className="overflow-visible p-8 [&_svg]:max-w-none"
-                />
+                <div ref={contentRef}>
+                  <MermaidDiagram
+                    code={mermaid}
+                    className="overflow-visible [&_svg]:max-w-none"
+                    onRendered={fit}
+                  />
+                </div>
               </TransformComponent>
             </div>
           )}

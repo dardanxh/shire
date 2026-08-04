@@ -10,12 +10,15 @@ import {
   api,
   type BranchesOut,
   type BranchNamesOut,
+  type CicdExecutionOut,
+  type CicdStatusOut,
   type CodeAgeOut,
   type CodebaseOverviewOut,
   type CodeMapOut,
   type ContextMarkdownOut,
   type CouplingOut,
   type DependencyFreshnessOut,
+  type DependencyInventoryOut,
   type GraphOut,
   type HobitOut,
   type HobitRunOut,
@@ -334,6 +337,9 @@ export function useRunRepoHobitMutation(id: string) {
       queryClient.invalidateQueries({ queryKey: repositoryKeys.hobitRuns(id) });
       queryClient.invalidateQueries({ queryKey: ["hobits"] });
       queryClient.invalidateQueries({ queryKey: ["briefing"] });
+      // The CI/CD tab reports its own hobit's pendingness (and harvests its suggestions), so it
+      // has to learn about a fresh run before its poll can start.
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.cicd(id) });
     },
   });
 }
@@ -640,6 +646,113 @@ export function useGenerateCouplingMutation(id: string) {
     },
     onSuccess: (data) =>
       queryClient.setQueryData(repositoryKeys.coupling(id), data),
+  });
+}
+
+/**
+ * The Dependencies tab's dataset: declared dependencies plus manifest coverage. Polls while an
+ * AI dependency scan is in flight so its findings appear as soon as the job settles.
+ */
+export function useDependencyInventoryQuery(id: string) {
+  return useQuery<DependencyInventoryOut>({
+    queryKey: repositoryKeys.dependencies(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/dependencies",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+    refetchInterval: (query) => (query.state.data?.ai_pending ? 3000 : false),
+  });
+}
+
+/** Have the engine read the dependencies out of the repo (monorepos, unparsed manifests). */
+export function useAiDependencyScanMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (): Promise<DependencyInventoryOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/dependencies/ai-scan",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) =>
+      queryClient.setQueryData(repositoryKeys.dependencies(id), data),
+  });
+}
+
+/**
+ * The CI/CD tab's dataset: detected pipeline files, the engine's map of environments and
+ * promotion flow, its suggestions, and the implement-with-AI runs. Polls while any of the three
+ * engines is working — the scan, the ci-cd hobit, or an implement run. Pendingness is reported by
+ * the resource (derived from unsettled job rows), so it survives a reload.
+ */
+export function useCicdStatusQuery(id: string) {
+  return useQuery<CicdStatusOut>({
+    queryKey: repositoryKeys.cicd(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/cicd",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+    refetchInterval: (query) => {
+      const status = query.state.data;
+      if (!status) return false;
+      const working =
+        status.scan_pending ||
+        status.hobit_pending ||
+        status.executions.some((execution) => execution.status === "pending");
+      return working ? 3000 : false;
+    },
+  });
+}
+
+/** Map the delivery pipeline with the engine. Returns the full status (already `scan_pending`),
+ * so writing it into the cache starts the poll without a second request. */
+export function useCicdScanMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (): Promise<CicdStatusOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/cicd/scan",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) =>
+      queryClient.setQueryData(repositoryKeys.cicd(id), data),
+  });
+}
+
+/** Implement the chosen suggestions on a fresh local `cicd/*` branch. The execution row carries
+ * pendingness, so invalidating the status is enough to start the poll. */
+export function useApplyCicdSuggestionsMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (suggestionIds: string[]): Promise<CicdExecutionOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/cicd/apply",
+        {
+          params: { path: { repository_id: id } },
+          body: { suggestion_ids: suggestionIds },
+        },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.cicd(id) });
+    },
   });
 }
 

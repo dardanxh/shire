@@ -92,7 +92,46 @@ export function useRepoPrinciplesQuery(repositoryId: string) {
   });
 }
 
-/** Audit the repository against every applicable enabled principle (one job each). */
+/**
+ * Assign or unassign one principle for one repository — the repo tab's narrow-down / widen-up.
+ * Returns the full standing list, so the tab updates in one write.
+ */
+export function useSetPrincipleAssignmentMutation(repositoryId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      principleId,
+      assigned,
+    }: {
+      principleId: string;
+      assigned: boolean;
+    }): Promise<RepoPrincipleStatusOut[]> => {
+      const params = {
+        path: { repository_id: repositoryId, principle_id: principleId },
+      };
+      if (assigned) {
+        const { data, error } = await api.POST(
+          "/api/v1/repositories/{repository_id}/principles/{principle_id}",
+          { params },
+        );
+        if (error) throw error;
+        return data;
+      }
+      const { data, error } = await api.DELETE(
+        "/api/v1/repositories/{repository_id}/principles/{principle_id}",
+        { params },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(principleKeys.repo(repositoryId), data);
+      queryClient.invalidateQueries({ queryKey: principleKeys.lists() });
+    },
+  });
+}
+
+/** Audit the repository against every assigned enabled principle (one job each). */
 export function useAuditRepositoryMutation(repositoryId: string) {
   const queryClient = useQueryClient();
   return useMutation({

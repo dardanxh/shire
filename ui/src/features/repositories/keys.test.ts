@@ -18,6 +18,7 @@ describe("repositoryKeys", () => {
     expect(detail).toEqual(["repositories", "detail", "r1"]);
     // Nested keys must extend detail(id) — TanStack prefix matching relies on it.
     expect(repositoryKeys.analysis("r1")).toEqual([...detail, "analysis"]);
+    expect(repositoryKeys.cicd("r1")).toEqual([...detail, "cicd"]);
     expect(repositoryKeys.toolLog("r1", "scc")).toEqual([
       ...detail,
       "tool-log",

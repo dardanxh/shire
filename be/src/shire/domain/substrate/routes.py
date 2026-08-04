@@ -20,6 +20,7 @@ from shire.domain.substrate.schemas import (
     CodeMapResult,
     CouplingResult,
     DependencyFreshnessResult,
+    DependencyInventoryResult,
     DependencyUsageResult,
     ExplainDelta,
     GraphResult,
@@ -177,6 +178,31 @@ def generate_coupling(
 ) -> CouplingResult:
     """(Re)compute temporal coupling (code-maat) from the current clone's git history."""
     return AnalysisService(session).generate_coupling(repository_id)
+
+
+@router.get(
+    "/repositories/{repository_id}/dependencies",
+    response_model=DependencyInventoryResult,
+)
+def dependency_inventory(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> DependencyInventoryResult:
+    """Declared dependencies plus manifest coverage — whether the deterministic parsers got all
+    of this repository, or the engine fallback is needed (`ai_recommended`)."""
+    return AnalysisService(session).dependency_inventory(repository_id)
+
+
+@router.post(
+    "/repositories/{repository_id}/dependencies/ai-scan",
+    response_model=DependencyInventoryResult,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+def scan_dependencies_with_ai(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> DependencyInventoryResult:
+    """Have the engine read every dependency out of the repository (monorepos and manifest
+    formats the parsers don't cover). Non-blocking — poll the GET while `ai_pending` is true."""
+    return AnalysisService(session).enqueue_ai_dependency_scan(repository_id)
 
 
 @router.get(

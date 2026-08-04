@@ -8,6 +8,7 @@ squash detection) runs only for the top `limit` rows.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -132,6 +133,67 @@ def inspect_branches(
         as_of=now,
         branches=branches,
     )
+
+
+def inspect_named_branches(
+    clone_path: Path,
+    default_branch: str,
+    names: Iterable[str],
+    *,
+    stale_days: int = 90,
+) -> dict[str, BranchTip]:
+    """Tips for a handful of specifically-named branches, keyed by name.
+
+    Deliberately cheaper than `inspect_branches`: **no fetch** and no whole-repo plumbing, because
+    the CI/CD tab enriches its environment cards with this on every read (including while it polls
+    a running scan). One `for-each-ref` plus one `rev-list` per requested branch. Names that don't
+    exist locally are simply absent from the result — that IS the "branch is gone" signal.
+    Squash-merge detection is skipped; `merged`/`squash_merged` come back None.
+    """
+    wanted = {name for name in names if name}
+    if not wanted:
+        return {}
+    repo = Repo(clone_path)
+    use_remote = any(r.name == "origin" for r in repo.remotes)
+    entries = [tip for tip in _enumerate(repo, use_remote) if tip.name in wanted]
+    if not entries and use_remote:
+        use_remote = False
+        entries = [tip for tip in _enumerate(repo, use_remote) if tip.name in wanted]
+    if not entries:
+        return {}
+
+    default_ref = _resolve_default_ref(repo, default_branch, use_remote)
+    ref_prefix = "refs/remotes/origin/" if use_remote else "refs/heads/"
+    stale_cutoff = datetime.now(UTC) - timedelta(days=stale_days)
+    display_authors = _canonical_authors(entries)
+
+    out: dict[str, BranchTip] = {}
+    for tip, (author_name, author_email) in zip(entries, display_authors, strict=True):
+        is_default = tip.name == default_branch
+        ahead: int | None = None
+        behind: int | None = None
+        if default_ref is not None:
+            ahead, behind = _ahead_behind(repo, default_ref, ref_prefix + tip.name)
+        if is_default:
+            status = BranchStatus.default
+        elif tip.committed_at < stale_cutoff:
+            status = BranchStatus.stale
+        else:
+            status = BranchStatus.active
+        out[tip.name] = BranchTip(
+            name=tip.name,
+            is_default=is_default,
+            last_commit_sha=tip.sha,
+            last_commit_at=tip.committed_at,
+            author_name=author_name,
+            author_email=author_email,
+            ahead=ahead,
+            behind=behind,
+            merged=None,
+            squash_merged=None,
+            status=status,
+        )
+    return out
 
 
 def list_branch_names(clone_path: Path, *, provider_is_local: bool) -> list[str]:

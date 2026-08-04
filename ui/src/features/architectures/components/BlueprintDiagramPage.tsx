@@ -33,7 +33,7 @@ export function BlueprintDiagramPage() {
   const current = blueprint.diagrams.find((d) => d.kind === active);
 
   return (
-    <div className="flex h-[calc(100dvh-7rem)] flex-col gap-3">
+    <div className="flex h-[calc(100dvh-5rem)] flex-col gap-3">
       <div className="flex flex-wrap items-center gap-3">
         <Button
           variant="outline"

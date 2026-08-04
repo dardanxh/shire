@@ -272,6 +272,39 @@ class DependencyUsageResult(BaseModel):
     versions: list[str]
 
 
+class DependencyManifest(BaseModel):
+    """One dependency manifest found in the clone. `parsed` is false for formats the
+    deterministic scanner can see but not read (pom.xml, build.gradle, Pipfile, *.csproj, ...)."""
+
+    path: str
+    kind: str
+    parsed: bool
+    at_root: bool
+
+
+class DependencyInventoryResult(BaseModel):
+    """The Dependencies tab's dataset: what the repo declares, and how completely we know it.
+
+    The deterministic scanners handle the manifests they understand — at the root and in every
+    app of a monorepo. When that leaves gaps (no readable root manifest, or manifests in formats
+    no parser covers), `ai_recommended` is true and the engine scan fills the rest in.
+    """
+
+    repository_id: uuid.UUID
+    dependencies: list[Dependency]
+    manifests: list[DependencyManifest]
+    # The readable manifest at the repository root, if there is one (e.g. "pyproject.toml").
+    root_manifest: str | None = None
+    # True when a root manifest was parsed and actually yielded dependencies.
+    root_covered: bool = False
+    scanned_count: int = 0
+    ai_count: int = 0
+    # Something is demonstrably missing: a manifest no parser reads, or nothing declared anywhere.
+    ai_recommended: bool = False
+    ai_pending: bool = False
+    ai_job_id: uuid.UUID | None = None
+
+
 class DependencyFreshnessItem(BaseModel):
     name: str
     ecosystem: str
