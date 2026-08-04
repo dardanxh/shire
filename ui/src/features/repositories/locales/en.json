@@ -46,12 +46,17 @@
       },
       "toast_added": "Added {{slug}}",
       "toast_added_desc": "Initializing in the background — data appears as it lands.",
+      "toast_added_many_one": "Added {{count}} repository",
+      "toast_added_many_other": "Added {{count}} repositories",
+      "toast_partial_desc": "Couldn't add: {{paths}}",
       "toast_failed": "Analysis failed for {{slug}}",
       "toast_failed_desc": "The repository could not be analyzed.",
       "subpath": {
-        "label": "Subdirectory (optional — monorepos)",
+        "label": "Subdirectories",
         "placeholder": "packages/ui",
-        "hint": "Focus analysis and agents on one folder of the repo. Add the same repo again with a different subdirectory for each sub-project."
+        "add": "Add",
+        "remove": "Remove {{path}}",
+        "hint": "Focus analysis and agents on one folder of the repo. Add several — one per sub-project — and each becomes its own repository. Leave empty to analyze the whole repo."
       }
     },
     "wizard": {
@@ -66,6 +71,7 @@
       "hobits_empty": "No hobits available.",
       "tool_missing": "not installed",
       "analyzing": "Starting…",
+      "analyzing_many": "Starting… {{done}} of {{total}}",
       "tools_filter": "Category",
       "tools_select_all": "Select all",
       "sum_url": "Repository",
@@ -76,7 +82,7 @@
       "back": "Back",
       "next": "Next",
       "finish": "Add & analyze",
-      "sum_subpath": "Subdirectory"
+      "sum_subpath": "Subdirectories"
     },
     "hobits": {
       "assigned_title": "Assigned hobits",

@@ -2,7 +2,15 @@ import type * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-function Label({ className, ...props }: React.ComponentProps<"label">) {
+function Label({
+  className,
+  required,
+  children,
+  ...props
+}: React.ComponentProps<"label"> & {
+  /** Appends the conventional `*` marker for a field that must be filled in. */
+  required?: boolean;
+}) {
   return (
     // biome-ignore lint/a11y/noLabelWithoutControl: htmlFor is supplied by FormLabel/consumers.
     <label
@@ -12,7 +20,15 @@ function Label({ className, ...props }: React.ComponentProps<"label">) {
         className,
       )}
       {...props}
-    />
+    >
+      {children}
+      {required ? (
+        // Decorative: the control itself carries `required` for assistive tech.
+        <span aria-hidden="true" className="-ml-1 text-destructive">
+          *
+        </span>
+      ) : null}
+    </label>
   );
 }
 
