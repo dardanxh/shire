@@ -373,14 +373,15 @@ class AnalysisService:
         )
 
     def commit_activity_since(
-        self, repository_id: uuid.UUID, since: datetime
+        self, repository_id: uuid.UUID, since: datetime, until: datetime | None = None
     ) -> CommitActivityResult | None:
-        """Aggregate the latest analysis's commit records from `since` on (Pulse window).
-        None when the repository has no completed analysis yet."""
+        """Aggregate the latest analysis's commit records from `since` on, optionally up to
+        (excluding) `until` — the Pulse window. None when the repository has no completed
+        analysis yet."""
         analysis = self._analyses.get_latest_for_repository(repository_id)
         if analysis is None:
             return None
-        rows = self._commit_records.records_since(analysis.id, since)
+        rows = self._commit_records.records_since(analysis.id, since, until)
         authors: Counter[str] = Counter()
         daily: Counter[date] = Counter()
         insertions = deletions = files_changed = 0

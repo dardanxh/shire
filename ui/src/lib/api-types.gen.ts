@@ -2497,7 +2497,8 @@ export interface paths {
         };
         /**
          * Get Pulse
-         * @description Cross-repo activity comparison from `since` on (all repos when `repos` is omitted).
+         * @description Cross-repo activity comparison from `since` on — up to (excluding) `until` when
+         *     given, otherwise open-ended (all repos when `repos` is omitted).
          */
         get: operations["get_pulse_api_v1_watchlist_pulse_get"];
         put?: never;
@@ -7037,6 +7038,8 @@ export interface components {
              * Format: date-time
              */
             since: string;
+            /** Until */
+            until?: string | null;
             /** Entries */
             entries: components["schemas"]["PulseEntryResult"][];
         };
@@ -7051,6 +7054,8 @@ export interface components {
              * Format: date-time
              */
             since: string;
+            /** Until */
+            until?: string | null;
             /** Repository Ids */
             repository_ids?: string[] | null;
         };
@@ -13340,6 +13345,7 @@ export interface operations {
         parameters: {
             query: {
                 since: string;
+                until?: string | null;
                 repos?: string[] | null;
             };
             header?: never;

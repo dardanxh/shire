@@ -9,7 +9,7 @@ so the next digest only shows commits that haven't been inspected yet.
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from sqlalchemy.orm import Session
@@ -45,9 +45,7 @@ class WatchlistService:
         self._analysis = AnalysisService(session)
 
     def digest(self) -> WatchlistResult:
-        return WatchlistResult(
-            entries=[self._entry(repo) for repo in self._repos.list_watched()]
-        )
+        return WatchlistResult(entries=[self._entry(repo) for repo in self._repos.list_watched()])
 
     def _entry(self, repo: Repository) -> WatchlistEntryResult:
         history = self._analysis.analysis_history(repo.id)  # oldest first
@@ -108,9 +106,7 @@ class WatchlistService:
             return
         if self._summary_job_pending(repository_id, from_id, to_id):
             return
-        self._analysis.enqueue_delta_note(
-            repository_id, ExplainDelta(from_id=from_id, to_id=to_id)
-        )
+        self._analysis.enqueue_delta_note(repository_id, ExplainDelta(from_id=from_id, to_id=to_id))
 
     def _summary_job_pending(
         self, repository_id: uuid.UUID, from_id: uuid.UUID, to_id: uuid.UUID
@@ -147,9 +143,7 @@ class WatchlistService:
         latest_sha = history[-1].commit_sha
         if repo.last_reviewed_commit_sha != latest_sha:
             # Never-reviewed windows start at the baseline — that's what the user just read.
-            repo.prev_reviewed_commit_sha = (
-                repo.last_reviewed_commit_sha or history[0].commit_sha
-            )
+            repo.prev_reviewed_commit_sha = repo.last_reviewed_commit_sha or history[0].commit_sha
         repo.last_reviewed_commit_sha = latest_sha
         self._repos.save(repo)
         return self._entry(repo)
@@ -168,27 +162,34 @@ class WatchlistService:
 
     # --- pulse (cross-repo activity comparison) --------------------------------
     def pulse(
-        self, since: datetime, repository_ids: list[uuid.UUID] | None = None
+        self,
+        since: datetime,
+        repository_ids: list[uuid.UUID] | None = None,
+        until: datetime | None = None,
     ) -> PulseResult:
-        """Activity of the selected repos (all repos when unselected) from `since` on:
-        commit totals, contributors, per-day counts, and the cached accomplishment
-        summary for the window."""
+        """Activity of the selected repos (all repos when unselected) from `since` on,
+        up to (excluding) `until` when given: commit totals, contributors, per-day
+        counts, and the cached accomplishment summary for the window."""
         repos = self._pulse_targets(repository_ids)
         return PulseResult(
             since=since,
-            entries=[self._pulse_entry(repo, since) for repo in repos],
+            until=until,
+            entries=[self._pulse_entry(repo, since, until) for repo in repos],
         )
 
-    def _pulse_entry(self, repo: Repository, since: datetime) -> PulseEntryResult:
-        activity = self._analysis.commit_activity_since(repo.id, since)
+    def _pulse_entry(
+        self, repo: Repository, since: datetime, until: datetime | None
+    ) -> PulseEntryResult:
+        activity = self._analysis.commit_activity_since(repo.id, since, until)
+        until_date = until.date() if until else None
         summary_row = None
         summary_pending = False
         if repo.last_analyzed_commit:
             summary_row = self._get_pulse_summary(
-                repo.id, since.date(), repo.last_analyzed_commit
+                repo.id, since.date(), until_date, repo.last_analyzed_commit
             )
             if summary_row is None:
-                summary_pending = self._pulse_job_pending(repo.id, since.date())
+                summary_pending = self._pulse_job_pending(repo.id, since.date(), until_date)
         return PulseEntryResult(
             repository=RepositoryResult.of(repo),
             activity=activity,
@@ -201,23 +202,31 @@ class WatchlistService:
         """Queue one accomplishment-summary job per selected repo that has activity in the
         window and no cached narrative for it. Returns the repo ids actually queued."""
         since = body.since
+        until = body.until
+        until_date = until.date() if until else None
         queued: list[uuid.UUID] = []
         for repo in self._pulse_targets(body.repository_ids):
             if not repo.clone_path or not repo.last_analyzed_commit:
                 continue
-            activity = self._analysis.commit_activity_since(repo.id, since)
+            activity = self._analysis.commit_activity_since(repo.id, since, until)
             if activity is None or activity.commits == 0:
                 continue
-            if self._get_pulse_summary(repo.id, since.date(), repo.last_analyzed_commit):
+            if self._get_pulse_summary(
+                repo.id, since.date(), until_date, repo.last_analyzed_commit
+            ):
                 continue
-            if self._pulse_job_pending(repo.id, since.date()):
+            if self._pulse_job_pending(repo.id, since.date(), until_date):
                 continue
-            self._enqueue_pulse_summary(repo, since, activity.commits)
+            self._enqueue_pulse_summary(repo, since, activity.commits, until)
             queued.append(repo.id)
         return queued
 
     def _enqueue_pulse_summary(
-        self, repo: Repository, since: datetime, commit_count: int
+        self,
+        repo: Repository,
+        since: datetime,
+        commit_count: int,
+        until: datetime | None,
     ) -> None:
         from shire.domain.jobs.services import JobService
         from shire.integrations.git_history import commit_subjects_since
@@ -225,14 +234,14 @@ class WatchlistService:
         jobs = JobService(self._session)
         model, timeout_seconds = jobs.engine_defaults()
         commit_log = commit_subjects_since(
-            Path(repo.clone_path or ""), since, repo.coordinates.subpath
+            Path(repo.clone_path or ""), since, repo.coordinates.subpath, until
         )
         jobs.enqueue(
             kind=job_kinds.PULSE_SUMMARY,
             title=f"Pulse summary — {repo.coordinates.slug}",
             prompt=_PULSE_SUMMARY_PROMPT.format(
                 repo=repo.coordinates.slug,
-                since_date=since.date().isoformat(),
+                window=_window_description(since, until),
                 commit_log=commit_log or "(commit subjects unavailable)",
                 commit_count=commit_count,
             ),
@@ -242,6 +251,7 @@ class WatchlistService:
                 "timeout_seconds": timeout_seconds,
                 "repository_id": str(repo.id),
                 "since_date": since.date().isoformat(),
+                "until_date": until.date().isoformat() if until else None,
                 "head_sha": repo.last_analyzed_commit or "",
             },
             repository_id=repo.id,
@@ -254,7 +264,11 @@ class WatchlistService:
         return self._repos.list()
 
     def _get_pulse_summary(
-        self, repository_id: uuid.UUID, since_date: date, head_sha: str
+        self,
+        repository_id: uuid.UUID,
+        since_date: date,
+        until_date: date | None,
+        head_sha: str,
     ) -> PulseSummaryRow | None:
         from sqlalchemy import select
 
@@ -262,11 +276,16 @@ class WatchlistService:
             select(PulseSummaryRow).where(
                 PulseSummaryRow.repository_id == repository_id,
                 PulseSummaryRow.since_date == since_date,
+                PulseSummaryRow.until_date.is_(None)
+                if until_date is None
+                else PulseSummaryRow.until_date == until_date,
                 PulseSummaryRow.head_sha == head_sha,
             )
         ).first()
 
-    def _pulse_job_pending(self, repository_id: uuid.UUID, since_date: date) -> bool:
+    def _pulse_job_pending(
+        self, repository_id: uuid.UUID, since_date: date, until_date: date | None
+    ) -> bool:
         rows = SqlJobRepository(self._session).list(
             status=None,
             repository_id=repository_id,
@@ -277,6 +296,8 @@ class WatchlistService:
         return any(
             row.status in ("queued", "running")
             and (row.payload or {}).get("since_date") == since_date.isoformat()
+            and (row.payload or {}).get("until_date")
+            == (until_date.isoformat() if until_date else None)
             for row in rows
         )
 
@@ -312,8 +333,17 @@ def _pending_pair(
     return None
 
 
+def _window_description(since: datetime, until: datetime | None) -> str:
+    """Human phrasing of the Pulse window for the summary prompt. `until` is an exclusive
+    midnight bound, so the last covered day is the moment just before it."""
+    if until is None:
+        return f"since {since.date().isoformat()}"
+    last_day = (until - timedelta(seconds=1)).date()
+    return f"between {since.date().isoformat()} and {last_day.isoformat()}"
+
+
 _PULSE_SUMMARY_PROMPT = """You are writing a quick "what has been accomplished" note for \
-repository {repo}, covering the work landed since {since_date} — one panel of a \
+repository {repo}, covering the work landed {window} — one panel of a \
 cross-repository activity comparison.
 
 The commits in this window (newest first, `sha author: subject`), {commit_count} total:

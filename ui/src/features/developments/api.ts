@@ -90,14 +90,21 @@ export function useMarkReviewedMutation() {
   });
 }
 
-/** Cross-repo activity comparison. Polls while any summary job is running. */
-export function usePulseQuery(since: string, repos: string[]) {
+/** Cross-repo activity comparison. Polls while any summary job is running.
+ * `until` is the exclusive upper bound of the window; omit for "until now". */
+export function usePulseQuery(
+  since: string,
+  until: string | undefined,
+  repos: string[],
+  enabled = true,
+) {
   return useQuery<PulseOut>({
-    queryKey: watchlistKeys.pulse(since, repos),
+    queryKey: watchlistKeys.pulse(since, until, repos),
+    enabled,
     queryFn: async () => {
       const { data, error } = await api.GET("/api/v1/watchlist/pulse", {
         params: {
-          query: { since, repos: repos.length > 0 ? repos : undefined },
+          query: { since, until, repos: repos.length > 0 ? repos : undefined },
         },
       });
       if (error) throw error;
@@ -116,6 +123,7 @@ export function useSummarizePulseMutation() {
   return useMutation({
     mutationFn: async (body: {
       since: string;
+      until: string | null;
       repository_ids: string[] | null;
     }): Promise<string[]> => {
       const { data, error } = await api.POST(

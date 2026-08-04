@@ -77,8 +77,17 @@ export function DevelopmentsPage() {
         <PulseTab
           repos={search.repos}
           range={search.range}
+          from={search.from}
+          to={search.to}
           onReposChange={(repos) => navigate({ search: { ...search, repos } })}
-          onRangeChange={(range) => navigate({ search: { ...search, range } })}
+          onRangeChange={(range) =>
+            navigate({
+              search: { ...search, range, from: undefined, to: undefined },
+            })
+          }
+          onCustomDatesChange={(from, to) =>
+            navigate({ search: { ...search, range: "custom", from, to } })
+          }
         />
       </TabsContent>
     </Tabs>
