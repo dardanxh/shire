@@ -115,6 +115,48 @@ class SqlRepositoryRepository:
     def count(self) -> int:
         return self._session.scalar(select(func.count()).select_from(RepositoryRow)) or 0
 
+    def list_families(self, *, limit: int, offset: int) -> list[Repository]:
+        """One page of repository *families* — rows sharing provider/owner/name (a monorepo's
+        whole-repo record plus its subpath records). Families are ordered newest-onboarded
+        first; inside a family the whole-repo record ('' subpath) precedes its subdirectories.
+        Paginating by family is what keeps a parent and its subrepos on the same page."""
+        newest = func.max(RepositoryRow.created_at).label("newest")
+        families = (
+            select(RepositoryRow.provider, RepositoryRow.owner, RepositoryRow.name, newest)
+            .group_by(RepositoryRow.provider, RepositoryRow.owner, RepositoryRow.name)
+            # The owner/name tie-breakers give the families a total order — without one,
+            # LIMIT/OFFSET can repeat or skip a family when several share a timestamp.
+            .order_by(newest.desc(), RepositoryRow.owner, RepositoryRow.name)
+            .limit(limit)
+            .offset(offset)
+            .subquery("families")
+        )
+        stmt = (
+            select(RepositoryRow)
+            .join(
+                families,
+                (RepositoryRow.provider == families.c.provider)
+                & (RepositoryRow.owner == families.c.owner)
+                & (RepositoryRow.name == families.c.name),
+            )
+            .order_by(
+                families.c.newest.desc(),
+                families.c.owner,
+                families.c.name,
+                RepositoryRow.subpath,
+            )
+        )
+        return [_to_domain(r) for r in self._session.scalars(stmt)]
+
+    def count_families(self) -> int:
+        """Distinct provider/owner/name groups — the page unit for `list_families`."""
+        families = (
+            select(RepositoryRow.provider, RepositoryRow.owner, RepositoryRow.name)
+            .distinct()
+            .subquery()
+        )
+        return self._session.scalar(select(func.count()).select_from(families)) or 0
+
     def count_clone_sharers(self, coordinates: RepoCoordinates, exclude_id: uuid.UUID) -> int:
         """How many OTHER records point at the same clone on disk (same provider/owner/name,
         any subpath). Guards clone deletion — sibling monorepo records share one clone."""

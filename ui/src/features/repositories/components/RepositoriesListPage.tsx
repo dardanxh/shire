@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   ActivityIcon,
+  ChevronDownIcon,
   ChevronRightIcon,
   GitBranchIcon,
   RefreshCwIcon,
@@ -27,14 +28,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { RepositoryOut } from "@/lib/api";
 import { extractErrorMessage } from "@/lib/api";
 import { formatDate, formatTimeAgo } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import {
   useDeleteRepositoryMutation,
   useRefreshRepositoriesMutation,
   useRepositoriesQuery,
 } from "../api";
+import { buildRepositoryTree, type RepositoryTreeRow } from "../grouping";
 import { StatusBadge } from "./StatusBadge";
 
 export function RepositoriesListPage({
@@ -55,8 +57,11 @@ export function RepositoriesListPage({
     page_size: size,
   });
 
+  // The page is a flat list of repository records; `total` counts parent repos, since the
+  // backend pages by family so a monorepo's subdirectory records always arrive with it.
   const pageRows = data?.items ?? [];
   const total = data?.total ?? 0;
+  const rows = useMemo(() => buildRepositoryTree(pageRows), [pageRows]);
 
   // Ticked repositories for the bulk actions — transient UI state.
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -118,7 +123,7 @@ export function RepositoriesListPage({
     });
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: toggle helpers are recreated per render; the memo keys on the state they close over
-  const columns = useMemo<ColumnDef<RepositoryOut>[]>(
+  const columns = useMemo<ColumnDef<RepositoryTreeRow>[]>(
     () => [
       {
         id: "select",
@@ -142,18 +147,63 @@ export function RepositoriesListPage({
         ),
       },
       {
+        // The toggle for a repository's subrepo rows. Empty for rows without children —
+        // including subdirectory records onboarded without their whole-repo record.
+        id: "expander",
+        enableSorting: false,
+        meta: { isAction: true, className: "w-8" },
+        header: () => null,
+        cell: ({ row }) =>
+          row.getCanExpand() ? (
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              aria-expanded={row.getIsExpanded()}
+              aria-label={t(
+                row.getIsExpanded()
+                  ? "repositories.list.hide_subrepos"
+                  : "repositories.list.show_subrepos",
+                { name: row.original.slug },
+              )}
+              onClick={row.getToggleExpandedHandler()}
+            >
+              {row.getIsExpanded() ? <ChevronDownIcon /> : <ChevronRightIcon />}
+            </Button>
+          ) : null,
+      },
+      {
         accessorKey: "slug",
         header: t("repositories.list.col_repository"),
-        cell: ({ row }) => (
-          <div>
-            <span className="font-medium">{row.original.slug}</span>
-            {row.original.status === "failed" && row.original.error ? (
-              <p className="mt-0.5 max-w-md truncate text-xs text-destructive">
-                {row.original.error}
-              </p>
-            ) : null}
-          </div>
-        ),
+        cell: ({ row }) => {
+          const subrepoCount = row.original.subrepos?.length ?? 0;
+          // A nested row shows just its subdirectory — the owner/name half is the row above.
+          const isSubrepo = row.depth > 0;
+          return (
+            <div className={cn(isSubrepo && "pl-4")}>
+              <span
+                className={cn(
+                  isSubrepo
+                    ? "font-mono text-xs text-muted-foreground"
+                    : "font-medium",
+                )}
+              >
+                {isSubrepo ? row.original.subpath : row.original.slug}
+              </span>
+              {subrepoCount > 0 ? (
+                <span className="ml-2 text-xs text-muted-foreground">
+                  {t("repositories.list.subrepo_count", {
+                    count: subrepoCount,
+                  })}
+                </span>
+              ) : null}
+              {row.original.status === "failed" && row.original.error ? (
+                <p className="mt-0.5 max-w-md truncate text-xs text-destructive">
+                  {row.original.error}
+                </p>
+              ) : null}
+            </div>
+          );
+        },
       },
       {
         accessorKey: "provider",
@@ -248,7 +298,9 @@ export function RepositoriesListPage({
       <Card className="overflow-hidden p-0">
         <DataTable
           columns={columns}
-          data={pageRows}
+          data={rows}
+          getSubRows={(row) => row.subrepos}
+          getRowId={(row) => row.id}
           isPending={isPending}
           isError={isError}
           errorMessage={t("common.states.api_unreachable", {

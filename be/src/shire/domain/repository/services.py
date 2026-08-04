@@ -122,8 +122,11 @@ class RepositoryService:
 
     # --- reads ----------------------------------------------------------------
     def list(self, params: PaginationParams) -> Page[RepositoryResult]:
-        total = self._repos.count()
-        repos = self._repos.list(limit=params.limit, offset=params.offset)
+        """Paginated by *family*: `total` counts repositories-as-parents (a monorepo and its
+        subdirectory records count once) and every subrepo ships alongside its parent, so the
+        list can nest them. Page size therefore bounds parent repos, not rows."""
+        total = self._repos.count_families()
+        repos = self._repos.list_families(limit=params.limit, offset=params.offset)
         items = [RepositoryResult.of(r) for r in repos]
         return Page.create(items, total, params)
 

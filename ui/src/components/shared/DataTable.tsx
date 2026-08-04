@@ -1,7 +1,9 @@
 import {
   type ColumnDef,
+  type ExpandedState,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
   getSortedRowModel,
   type SortingState,
   useReactTable,
@@ -44,6 +46,12 @@ interface DataTableProps<TData> {
   emptyState?: ReactNode;
   onRowClick?: (row: TData) => void;
   skeletonRows?: number;
+  /** Return a row's children to render them as collapsible sub-rows (default: flat). The
+   * toggle is the consumer's job: a cell calls `row.getToggleExpandedHandler()`. */
+  getSubRows?: (row: TData) => TData[] | undefined;
+  /** Stable row identity. Pass it alongside `getSubRows` — the default index-path ids move
+   * expansion onto the wrong row when a poll reorders the data. */
+  getRowId?: (row: TData) => string;
 }
 
 export function DataTable<TData>({
@@ -55,15 +63,23 @@ export function DataTable<TData>({
   emptyState,
   onRowClick,
   skeletonRows = 6,
+  getSubRows,
+  getRowId,
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const table = useReactTable({
+  const [expanded, setExpanded] = useState<ExpandedState>({});
+  // Explicit generic: with `getSubRows` in the options object TData no longer infers.
+  const table = useReactTable<TData>({
     data,
     columns,
-    state: { sorting },
+    state: { sorting, expanded },
     onSortingChange: setSorting,
+    onExpandedChange: setExpanded,
+    getSubRows,
+    getRowId: getRowId && ((row) => getRowId(row)),
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
   });
 
   return (
@@ -129,7 +145,11 @@ export function DataTable<TData>({
           table.getRowModel().rows.map((row) => (
             <TableRow
               key={row.id}
-              className={cn(onRowClick && "group cursor-pointer")}
+              className={cn(
+                onRowClick && "group cursor-pointer",
+                // Nested rows read as belonging to the row above them.
+                row.depth > 0 && "bg-muted/20",
+              )}
               onClick={() => onRowClick?.(row.original)}
             >
               {row.getVisibleCells().map((cell) => (
