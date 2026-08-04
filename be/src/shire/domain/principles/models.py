@@ -63,6 +63,29 @@ class PrincipleRow(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
+class RepositoryPrincipleRow(Base):
+    """A per-repository override of a principle's default reach.
+
+    Without a row, reach is the default: a global principle applies to every repository whose
+    stack matches its `tech`, and a repo-scoped one applies to its own repository. A row flips
+    that decision for one repository — `assigned=False` narrows a default-applicable principle
+    away, `assigned=True` widens one in (e.g. a Python principle on a repo we only just started
+    writing Python in). Rows whose state matches the default are deleted, not stored, so the
+    override table only ever holds deliberate deviations.
+    """
+
+    __tablename__ = "repository_principles"
+
+    repository_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("repositories.id", ondelete="CASCADE"), primary_key=True
+    )
+    principle_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("principles.id", ondelete="CASCADE"), primary_key=True
+    )
+    assigned: Mapped[bool] = mapped_column(Boolean)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
 class PrincipleCheckRow(Base):
     """One audit verdict for one principle against one repository (append-only history;
     the newest row per pair is the current compliance state)."""

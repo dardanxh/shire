@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 import tomllib
+from collections.abc import Callable
 from pathlib import Path
 from typing import ClassVar
 
@@ -77,25 +78,12 @@ class DependencyScanner:
     def scan(self, ctx: ScanContext) -> ScanContribution:
         deps: list[Dependency] = []
         for path in walk_files(ctx.clone_path):
+            parser = _PARSERS.get(manifest_kind(path.name) or "")
+            if parser is None:
+                continue
             rel = str(path.relative_to(ctx.clone_path))
-            name = path.name
             try:
-                if name == "requirements.txt" or (
-                    name.startswith("requirements") and name.endswith(".txt")
-                ):
-                    deps += _pip_requirements(path, rel)
-                elif name == "pyproject.toml":
-                    deps += _pyproject(path, rel)
-                elif name == "package.json":
-                    deps += _package_json(path, rel)
-                elif name == "Cargo.toml":
-                    deps += _cargo(path, rel)
-                elif name == "go.mod":
-                    deps += _go_mod(path, rel)
-                elif name == "Gemfile":
-                    deps += _gemfile(path, rel)
-                elif name == "composer.json":
-                    deps += _composer(path, rel)
+                deps += parser(path, rel)
             except (OSError, ValueError, tomllib.TOMLDecodeError, json.JSONDecodeError):
                 continue
         return ScanContribution(dependencies=deps)
@@ -119,7 +107,11 @@ class CiCdScanner:
                 )
 
         singles = {
-            CiCdSystem.gitlab_ci: [".gitlab-ci.yml"],
+            CiCdSystem.gitlab_ci: [".gitlab-ci.yml", ".gitlab-ci.yaml"],
+            CiCdSystem.bitbucket_pipelines: [
+                "bitbucket-pipelines.yml",
+                "bitbucket-pipelines.yaml",
+            ],
             CiCdSystem.circleci: [".circleci/config.yml"],
             CiCdSystem.jenkins: ["Jenkinsfile"],
             CiCdSystem.travis: [".travis.yml"],
@@ -170,6 +162,103 @@ class TestPresenceScanner:
             if any(p.match(path.name) for p in self._PATTERNS):
                 return ScanContribution(has_tests=True)
         return ScanContribution(has_tests=False)
+
+
+# --- manifest recognition -----------------------------------------------------
+
+# Manifests we can see but not parse. Their dependencies exist; nothing here reads them — which
+# is exactly the case the engine fallback covers (see the substrate service's AI dependency scan).
+_UNPARSED_MANIFEST_NAMES = frozenset(
+    {
+        "pom.xml",
+        "build.gradle",
+        "build.gradle.kts",
+        "build.sbt",
+        "ivy.xml",
+        "Pipfile",
+        "setup.py",
+        "setup.cfg",
+        "environment.yml",
+        "environment.yaml",
+        "conda.yml",
+        "conda.yaml",
+        "mix.exs",
+        "pubspec.yaml",
+        "Package.swift",
+        "Podfile",
+        "packages.config",
+        "conanfile.txt",
+        "conanfile.py",
+        "cpanfile",
+        "DESCRIPTION",
+        "renv.lock",
+    }
+)
+# .NET project files carry their PackageReference items; matched by suffix, not by name.
+_UNPARSED_MANIFEST_SUFFIXES = frozenset({".csproj", ".fsproj", ".vbproj"})
+
+
+def manifest_kind(filename: str) -> str | None:
+    """The manifest kind a filename denotes ("pyproject.toml", "pom.xml", "*.csproj", ...), or
+    None when it isn't a dependency manifest. Kinds present in `_PARSERS` are the ones the
+    deterministic scanner understands; the rest are detection-only."""
+    if filename.startswith("requirements") and filename.endswith(".txt"):
+        return "requirements.txt"
+    if filename in _PARSERS or filename in _UNPARSED_MANIFEST_NAMES:
+        return filename
+    suffix = Path(filename).suffix.lower()
+    if suffix in _UNPARSED_MANIFEST_SUFFIXES:
+        return f"*{suffix}"
+    return None
+
+
+def manifest_inventory(root: Path) -> list[tuple[str, str, bool]]:
+    """Every dependency manifest under `root` as (repo-relative path, kind, parsed), root
+    manifests first and shallower paths before deeper ones. The parsed flag says whether the
+    deterministic scanner can read that format — a monorepo of `pom.xml` files reports twenty
+    manifests and nothing parsed."""
+    found: list[tuple[str, str, bool]] = []
+    for path in walk_files(root):
+        kind = manifest_kind(path.name)
+        if kind is None:
+            continue
+        rel = path.relative_to(root)
+        found.append((str(rel), kind, kind in _PARSERS))
+    return sorted(found, key=lambda entry: (entry[0].count("/"), entry[0]))
+
+
+# Pipeline files for the three platforms the CI/CD analysis covers. Other systems
+# (Jenkins, CircleCI, Azure, Drone, Travis) are still *detected* by CiCdScanner — the
+# AI analysis deliberately stays focused on these three.
+_CICD_GLOBS: tuple[tuple[str, CiCdSystem], ...] = (
+    (".github/workflows/*.yml", CiCdSystem.github_actions),
+    (".github/workflows/*.yaml", CiCdSystem.github_actions),
+    (".github/actions/*/action.yml", CiCdSystem.github_actions),
+    (".github/actions/*/action.yaml", CiCdSystem.github_actions),
+    (".gitlab-ci.yml", CiCdSystem.gitlab_ci),
+    (".gitlab-ci.yaml", CiCdSystem.gitlab_ci),
+    # Included templates conventionally live here; `include: local:` can point anywhere,
+    # which is one of the reasons the engine is told to look beyond this list.
+    (".gitlab/**/*.yml", CiCdSystem.gitlab_ci),
+    (".gitlab/**/*.yaml", CiCdSystem.gitlab_ci),
+    ("bitbucket-pipelines.yml", CiCdSystem.bitbucket_pipelines),
+    ("bitbucket-pipelines.yaml", CiCdSystem.bitbucket_pipelines),
+)
+
+
+def cicd_inventory(root: Path) -> list[tuple[str, str]]:
+    """Every GitHub Actions / GitLab CI / Bitbucket Pipelines file under `root` as
+    (repo-relative path, system), shallowest first.
+
+    This is the *hint list* handed to the engine, not the data: reusable workflows,
+    `extends` templates and `include: project:` indirection are exactly what a filename
+    walk cannot resolve, so the prompt tells the agent to go beyond it."""
+    found: dict[str, str] = {}
+    for pattern, system in _CICD_GLOBS:
+        for path in root.glob(pattern):
+            if path.is_file():
+                found[str(path.relative_to(root))] = system.value
+    return sorted(found.items(), key=lambda entry: (entry[0].count("/"), entry[0]))
 
 
 # --- dependency manifest parsers ---------------------------------------------
@@ -344,6 +433,19 @@ def _composer(path: Path, rel: str) -> list[Dependency]:
     out = _from_dict(data.get("require", {}), Ecosystem.composer, rel, False)
     out += _from_dict(data.get("require-dev", {}), Ecosystem.composer, rel, True)
     return out
+
+
+# Manifest kind -> parser. The single source of truth for "we can read this format"; both the
+# scanner's dispatch and `manifest_kind`'s parsed flag come off this dict.
+_PARSERS: dict[str, Callable[[Path, str], list[Dependency]]] = {
+    "requirements.txt": _pip_requirements,
+    "pyproject.toml": _pyproject,
+    "package.json": _package_json,
+    "Cargo.toml": _cargo,
+    "go.mod": _go_mod,
+    "Gemfile": _gemfile,
+    "composer.json": _composer,
+}
 
 
 _SPDX_RULES = [

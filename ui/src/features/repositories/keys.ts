@@ -39,6 +39,9 @@ export const repositoryKeys = {
   coupling: (id: string) => [...repositoryKeys.detail(id), "coupling"] as const,
   dependencyFreshness: (id: string) =>
     [...repositoryKeys.detail(id), "dependency-freshness"] as const,
+  dependencies: (id: string) =>
+    [...repositoryKeys.detail(id), "dependencies"] as const,
+  cicd: (id: string) => [...repositoryKeys.detail(id), "cicd"] as const,
   architecture: (id: string) =>
     [...repositoryKeys.detail(id), "architecture"] as const,
   codebaseOverview: (id: string) =>

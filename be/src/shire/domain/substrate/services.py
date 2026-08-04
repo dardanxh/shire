@@ -29,6 +29,8 @@ from shire.domain.substrate import architecture
 from shire.domain.substrate.domain import (
     Analysis,
     AnalysisStatus,
+    Dependency,
+    DependencySource,
     Ecosystem,
     Enrichment,
     Rating,
@@ -68,6 +70,8 @@ from shire.domain.substrate.schemas import (
     DependencyChange,
     DependencyFreshnessItem,
     DependencyFreshnessResult,
+    DependencyInventoryResult,
+    DependencyManifest,
     DependencyUsageResult,
     ExplainDelta,
     FactDelta,
@@ -88,10 +92,15 @@ from shire.integrations.external_tools.emerge import EmergeAdapter
 from shire.integrations.external_tools.git_of_theseus import GitOfTheseusAdapter
 from shire.integrations.git_history import build_scan_context
 from shire.integrations.scanners import base_scanners, tool_scanners
+from shire.integrations.scanners.code import manifest_inventory
 
 # Visualization/artifact tools: their "data" is a generated file tree (not analysis scalars), so
 # unlinking clears the artifact directory rather than analysis fields.
 _VIZ_TOOLS = {"emerge", "git-of-theseus", "code-maat", "codecharta"}
+
+# How many manifests the dependency inventory reports. A big monorepo has hundreds; the list is
+# context for the reader, not data to page through.
+_MANIFEST_LIMIT = 100
 
 # Public URL prefixes for statically-served artifacts (static mounts in main.py).
 # - emerge graph output:        <graph_root>/<repo_id>/html/emerge.html
@@ -725,6 +734,135 @@ class AnalysisService:
         (out_dir / "coupling.json").write_text(json.dumps(rows))
         return self.coupling_status(repository_id)
 
+    # --- dependency inventory (deterministic parse + engine fallback) ---------
+    def dependency_inventory(self, repository_id: uuid.UUID) -> DependencyInventoryResult:
+        """The Dependencies tab's dataset: declared dependencies plus how completely the
+        deterministic parsers covered this repository's manifests."""
+        analysis = self.latest_result(repository_id)  # raises if the repo has no analysis
+        deps = analysis.dependencies
+        ai_job = SqlJobRepository(self._session).latest_unsettled(
+            job_kinds.SUBSTRATE_DEPENDENCY_AI_SCAN, repository_id
+        )
+
+        repo = self._repos.get(repository_id)
+        root = Path(repo.analysis_path) if repo and repo.analysis_path else None
+        found = manifest_inventory(root) if root and root.is_dir() else []
+        root_kinds = {kind for rel, kind, parsed in found if "/" not in rel and parsed}
+        # A root manifest only counts as covering the repo if it actually yielded dependencies —
+        # a `pyproject.toml` that only configures ruff parses fine and declares nothing.
+        root_deps = any("/" not in d.manifest_file for d in deps)
+        # The engine is worth calling when something is demonstrably missing: a manifest no parser
+        # reads, or nothing declared anywhere. A monorepo whose apps all use readable manifests is
+        # already covered, root manifest or not.
+        unparsed_present = any(not parsed for _rel, _kind, parsed in found)
+        return DependencyInventoryResult(
+            repository_id=repository_id,
+            dependencies=deps,
+            manifests=[
+                DependencyManifest(path=rel, kind=kind, parsed=parsed, at_root="/" not in rel)
+                for rel, kind, parsed in found[:_MANIFEST_LIMIT]
+            ],
+            root_manifest=sorted(root_kinds)[0] if root_kinds else None,
+            root_covered=bool(root_kinds) and root_deps,
+            scanned_count=sum(1 for d in deps if d.source == DependencySource.scan),
+            ai_count=sum(1 for d in deps if d.source == DependencySource.ai),
+            ai_recommended=unparsed_present or not deps,
+            ai_pending=ai_job is not None,
+            ai_job_id=ai_job.id if ai_job else None,
+        )
+
+    def enqueue_ai_dependency_scan(self, repository_id: uuid.UUID) -> DependencyInventoryResult:
+        """Have the engine read this repository's dependencies out of the code itself.
+
+        The fallback for everything the parsers can't do: manifest formats they don't read, and
+        monorepos whose apps each manage their own packages. The completion handler merges what
+        comes back into the latest snapshot, skipping anything already known.
+        """
+        repo = self._require_cloned_repo(repository_id)
+        if SqlJobRepository(self._session).latest_unsettled(
+            job_kinds.SUBSTRATE_DEPENDENCY_AI_SCAN, repository_id
+        ):
+            raise ConflictError("An AI dependency scan is already running for this repository.")
+        root = Path(repo.analysis_path) if repo.analysis_path else None
+        found = manifest_inventory(root) if root and root.is_dir() else []
+        jobs = JobService(self._session)
+        model, timeout_seconds = jobs.engine_defaults()
+        jobs.enqueue(
+            kind=job_kinds.SUBSTRATE_DEPENDENCY_AI_SCAN,
+            title=f"AI dependency scan — {repo.coordinates.slug}",
+            prompt=_AI_DEPENDENCIES_PROMPT.format(
+                repo=repo.coordinates.slug,
+                manifests="\n".join(f"- {rel} ({kind})" for rel, kind, _p in found[:60])
+                or "- (none detected by filename — search for them yourself)",
+            ),
+            payload={
+                "cwd": repo.analysis_path,
+                "model": model,
+                "timeout_seconds": timeout_seconds,
+                "repository_id": str(repository_id),
+                "branch": repo.current_branch or repo.default_branch,
+                "commit_sha": repo.last_analyzed_commit or "",
+            },
+            repository_id=repository_id,
+        )
+        return self.dependency_inventory(repository_id)
+
+    def enqueue_ai_dependency_scan_if_needed(self, repository_id: uuid.UUID) -> bool:
+        """Queue the engine fallback when the deterministic parse didn't cover this repository.
+
+        Run right after an analysis, so "if the parsers can't read it, the engine does" needs no
+        click — and so a re-analysis (which replaces the snapshot, AI rows included) restores what
+        the parsers can't see. Returns whether a job was queued.
+        """
+        inventory = self.dependency_inventory(repository_id)
+        if not inventory.ai_recommended or inventory.ai_pending:
+            return False
+        self.enqueue_ai_dependency_scan(repository_id)
+        return True
+
+    def apply_ai_dependencies(
+        self, repository_id: uuid.UUID, deps: list[Dependency]
+    ) -> int:
+        """Merge an engine scan's findings into the latest snapshot (completion-handler seam).
+
+        Returns how many were new; duplicates of what the parsers already found are dropped, and
+        the latest versions the engine knew are folded into the rows that lacked them.
+        """
+        inserted = self._analyses.merge_dependencies(repository_id, deps)
+        self._apply_ai_freshness(repository_id, deps)
+        return inserted
+
+    def _apply_ai_freshness(self, repository_id: uuid.UUID, deps: list[Dependency]) -> None:
+        """Fold engine-known latest versions into the freshness cache, if one has been built.
+        Registry answers already in the file win — this only fills empty `latest` cells."""
+        cache = self._artifact_dir("dependency-freshness", repository_id) / "freshness.json"
+        if not cache.is_file():
+            return
+        try:
+            items = [DependencyFreshnessItem(**i) for i in json.loads(cache.read_text())]
+        except (OSError, json.JSONDecodeError, ValueError, TypeError):
+            return
+        known = {i.name.lower(): i for i in items}
+        for dep in deps:
+            if not dep.latest_version:
+                continue
+            item = known.get(dep.name.lower())
+            if item is None:
+                item = DependencyFreshnessItem(
+                    name=dep.name,
+                    ecosystem=dep.ecosystem.value,
+                    current=dep.version,
+                    latest=dep.latest_version,
+                    latest_released_at=None,
+                    gap=pypi.compute_gap(pypi.base_version(dep.version), dep.latest_version),
+                )
+                items.append(item)
+                known[dep.name.lower()] = item
+            elif not item.latest:
+                item.latest = dep.latest_version
+                item.gap = pypi.compute_gap(pypi.base_version(item.current), dep.latest_version)
+        cache.write_text(json.dumps([i.model_dump() for i in items]))
+
     # --- dependency freshness (PyPI latest vs. declared) ----------------------
     def dependency_freshness_status(
         self, repository_id: uuid.UUID
@@ -768,15 +906,20 @@ class AnalysisService:
         items: list[DependencyFreshnessItem] = []
         for dep in analysis.dependencies:
             if dep.ecosystem != Ecosystem.pip:
+                # No registry client for this ecosystem — fall back to the latest version the
+                # engine scan recorded, when it had one.
                 items.append(
                     DependencyFreshnessItem(
                         name=dep.name, ecosystem=dep.ecosystem.value, current=dep.version,
-                        latest=None, latest_released_at=None, gap="unknown",
+                        latest=dep.latest_version, latest_released_at=None,
+                        gap=pypi.compute_gap(
+                            pypi.base_version(dep.version), dep.latest_version
+                        ),
                     )
                 )
                 continue
             found = latest_map.get(dep.name)
-            latest_v, released, url = found if found else (None, None, None)
+            latest_v, released, url = found if found else (dep.latest_version, None, None)
             base = pypi.base_version(dep.version)
             items.append(
                 DependencyFreshnessItem(
@@ -1178,13 +1321,145 @@ def _parse_overview(text: str) -> dict | None:
     }
 
 
+_AI_DEPENDENCIES_PROMPT = """\
+You are taking a complete inventory of the third-party dependencies declared by repository \
+**{repo}**. The deterministic parsers could not cover this repository — either there is no \
+readable manifest at the root, or it is a monorepo whose apps manage their own packages, or the \
+manifests are in formats the parsers don't read (pom.xml, build.gradle, Pipfile, setup.py, \
+setup.cfg, environment.yml, *.csproj, mix.exs, pubspec.yaml, Package.swift, ...).
+
+Manifests detected by filename (there may be more — verify and go beyond this list):
+{manifests}
+
+Work with Glob, Grep and Read:
+1. Find EVERY dependency manifest in the repository, including one per app/package/service in a \
+monorepo and per language in a polyglot repo. Lockfiles are evidence of resolved versions; \
+prefer the declared constraint from the manifest itself.
+2. For each declared third-party dependency, record: its package name exactly as the ecosystem \
+spells it, the declared version (verbatim constraint, or null when the manifest pins nothing), \
+the repo-relative manifest path, the ecosystem, and whether it is a dev/test-only dependency.
+3. Add the latest published version you know of for that package. Use null when you genuinely \
+don't know — do not guess a number.
+
+Rules:
+- Only dependencies the repository actually declares. Never invent a package, a version, or a \
+manifest path.
+- Skip the repository's own internal packages (workspace members referencing each other) and the \
+language runtime itself (e.g. a `python` or `node` version pin).
+- List a package once per (name, declared version) pair — if ten apps declare the same version, \
+one entry is enough; if two apps declare different versions, list both.
+- `ecosystem` must be one of: pip, npm, cargo, go, maven, gem, composer, generic. Use `generic` \
+for anything else (NuGet, Hex, Pub, SwiftPM, CRAN, Conan, ...).
+
+Return ONLY a single fenced json object as the very last thing, nothing else:
+```json
+{{
+  "dependencies": [
+    {{
+      "name": "org.apache.kafka:kafka-clients",
+      "version": "3.6.1",
+      "latest_version": "3.9.0",
+      "ecosystem": "maven",
+      "manifest_file": "apps/ingest/pom.xml",
+      "is_dev": false
+    }}
+  ]
+}}
+```"""
+
+# Ecosystem names the engine may answer with, mapped onto the enum we store.
+_ECOSYSTEM_ALIASES = {
+    "python": Ecosystem.pip,
+    "pypi": Ecosystem.pip,
+    "pip": Ecosystem.pip,
+    "poetry": Ecosystem.pip,
+    "uv": Ecosystem.pip,
+    "conda": Ecosystem.pip,
+    "npm": Ecosystem.npm,
+    "node": Ecosystem.npm,
+    "yarn": Ecosystem.npm,
+    "pnpm": Ecosystem.npm,
+    "cargo": Ecosystem.cargo,
+    "crates": Ecosystem.cargo,
+    "rust": Ecosystem.cargo,
+    "go": Ecosystem.go,
+    "golang": Ecosystem.go,
+    "gomod": Ecosystem.go,
+    "maven": Ecosystem.maven,
+    "gradle": Ecosystem.maven,
+    "java": Ecosystem.maven,
+    "sbt": Ecosystem.maven,
+    "gem": Ecosystem.gem,
+    "rubygems": Ecosystem.gem,
+    "ruby": Ecosystem.gem,
+    "bundler": Ecosystem.gem,
+    "composer": Ecosystem.composer,
+    "packagist": Ecosystem.composer,
+    "php": Ecosystem.composer,
+}
+
+
+def parse_ai_dependencies(text: str) -> list[Dependency] | None:
+    """Parse the AI dependency scan's fenced json into domain dependencies, or None if the whole
+    result is unusable. Individual malformed entries are skipped rather than failing the run;
+    duplicate (name, version) pairs inside the answer collapse to one."""
+    block = _extract_json_object(text)
+    if block is None:
+        return None
+    try:
+        data = json.loads(block)
+    except (json.JSONDecodeError, ValueError):
+        return None
+    raw_items = data.get("dependencies") if isinstance(data, dict) else None
+    if not isinstance(raw_items, list):
+        return None
+
+    out: list[Dependency] = []
+    seen: set[tuple[str, str]] = set()
+    for raw in raw_items:
+        if not isinstance(raw, dict):
+            continue
+        name = str(raw.get("name") or "").strip()
+        if not name or len(name) > 255:
+            continue
+        version = _clean_version(raw.get("version"))
+        key = (name.lower(), version or "")
+        if key in seen:
+            continue
+        seen.add(key)
+        eco = str(raw.get("ecosystem") or "").strip().lower()
+        manifest = str(raw.get("manifest_file") or "").strip() or "unknown"
+        out.append(
+            Dependency(
+                ecosystem=_ECOSYSTEM_ALIASES.get(eco, Ecosystem.generic),
+                name=name,
+                version=version,
+                manifest_file=manifest[:255],
+                is_dev=bool(raw.get("is_dev")),
+                source=DependencySource.ai,
+                latest_version=_clean_version(raw.get("latest_version")),
+            )
+        )
+    return out
+
+
+def _clean_version(value: object) -> str | None:
+    """A version/constraint string, or None for anything empty or non-scalar."""
+    if isinstance(value, bool) or not isinstance(value, (str, int, float)):
+        return None
+    text = str(value).strip()
+    if not text or text.lower() in {"null", "none", "unknown", "n/a", "-"}:
+        return None
+    return text[:128]
+
+
 def _gains_prompt(outdated: list[DependencyFreshnessItem]) -> str:
     """The one-call prompt: {package: one-line 'what you gain by upgrading'} as fenced json."""
     listing = "\n".join(
-        f"- {i.name}: {i.current} -> {i.latest} ({i.gap})" for i in outdated
+        f"- {i.name} [{i.ecosystem}]: {i.current} -> {i.latest} ({i.gap})" for i in outdated
     )
     return (
-        "These Python packages are behind their latest release. For each, give ONE concise line on "
+        "These packages are behind their latest release. For each, give ONE concise line on "
         "the most notable reasons to upgrade to the latest version (key fixes, features, security, "
         "performance) from your knowledge. Be specific but brief; if unsure, say 'general fixes "
         "and improvements'.\n\n"

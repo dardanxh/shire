@@ -21,10 +21,10 @@ import {
   ShieldCheckIcon,
   ShieldIcon,
   SparklesIcon,
+  WorkflowIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -55,6 +55,7 @@ import { ArchitecturePanel } from "./ArchitecturePanel";
 import { AskPanel } from "./AskPanel";
 import { BranchesPanel } from "./BranchesPanel";
 import { BranchSwitcher } from "./BranchSwitcher";
+import { CicdPanel } from "./CicdPanel";
 import { CodebaseOverviewPanel } from "./CodebaseOverviewPanel";
 import { CommitsChart } from "./CommitsChart";
 import { ContextPanel } from "./ContextPanel";
@@ -197,6 +198,10 @@ export function RepositoryViewPage({
           <TabsTrigger value="mrs">
             <GitPullRequestIcon />
             {t("repositories.view.tabs.mrs")}
+          </TabsTrigger>
+          <TabsTrigger value="cicd">
+            <WorkflowIcon />
+            {t("repositories.view.tabs.cicd")}
           </TabsTrigger>
           <TabsTrigger value="dependencies">
             <PackageIcon />
@@ -429,72 +434,37 @@ export function RepositoryViewPage({
                 </CardContent>
               </Card>
 
-              <div className="grid gap-6 lg:grid-cols-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>
-                      {t("repositories.view.contributors_title")}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {analysis.contributors.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">
-                        {t("repositories.view.contributors_empty")}
-                      </p>
-                    ) : (
-                      <ul className="space-y-3">
-                        {analysis.contributors.slice(0, 8).map((c) => (
-                          <li
-                            key={c.id}
-                            className="flex items-center justify-between gap-2 text-sm"
-                          >
-                            <span className="truncate font-medium">
-                              {c.name}
-                            </span>
-                            <span className="shrink-0 tabular-nums text-muted-foreground">
-                              {t("repositories.view.contributor_commits", {
-                                count: c.commits,
-                              })}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{t("repositories.view.cicd_title")}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {analysis.cicd.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">
-                        {t("repositories.view.cicd_empty")}
-                      </p>
-                    ) : (
-                      <div className="space-y-3">
-                        {analysis.cicd.map((c) => (
-                          <div
-                            key={c.system}
-                            className="flex flex-wrap items-center gap-2"
-                          >
-                            <Badge className="capitalize">{c.system}</Badge>
-                            {c.config_files.map((f) => (
-                              <span
-                                key={f}
-                                className="font-mono text-xs text-muted-foreground"
-                              >
-                                {f}
-                              </span>
-                            ))}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
+              {/* CI/CD used to sit beside this as a card; the CI/CD tab supersedes it. */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    {t("repositories.view.contributors_title")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {analysis.contributors.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      {t("repositories.view.contributors_empty")}
+                    </p>
+                  ) : (
+                    <ul className="space-y-3">
+                      {analysis.contributors.slice(0, 8).map((c) => (
+                        <li
+                          key={c.id}
+                          className="flex items-center justify-between gap-2 text-sm"
+                        >
+                          <span className="truncate font-medium">{c.name}</span>
+                          <span className="shrink-0 tabular-nums text-muted-foreground">
+                            {t("repositories.view.contributor_commits", {
+                              count: c.commits,
+                            })}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
 
             {/* Branches — live view against the clone, independent of the analysis snapshot */}
@@ -507,12 +477,14 @@ export function RepositoryViewPage({
               <RepoMergeReviewsPanel repoId={repo.id} />
             </TabsContent>
 
+            {/* CI/CD — how a change gets from a branch to an environment */}
+            <TabsContent value="cicd">
+              <CicdPanel repoId={repo.id} />
+            </TabsContent>
+
             {/* Dependencies */}
             <TabsContent value="dependencies">
-              <DependenciesPanel
-                repoId={repo.id}
-                dependencies={analysis.dependencies}
-              />
+              <DependenciesPanel repoId={repo.id} />
             </TabsContent>
 
             {/* Security — secrets, vulnerabilities, health */}

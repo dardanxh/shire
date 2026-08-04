@@ -10,6 +10,7 @@ from shire.domain.activity import models as _activity_models  # noqa: F401
 from shire.domain.blueprint import models as _blueprint_models  # noqa: F401
 from shire.domain.briefing import models as _briefing_models  # noqa: F401
 from shire.domain.capacity import models as _capacity_models  # noqa: F401
+from shire.domain.cicd import models as _cicd_models  # noqa: F401
 from shire.domain.compliance import models as _compliance_models  # noqa: F401
 from shire.domain.connections import models as _connections_models  # noqa: F401
 from shire.domain.context import models as _context_models  # noqa: F401

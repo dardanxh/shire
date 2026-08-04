@@ -18,6 +18,7 @@ export const REPOSITORY_TAB_VALUES = [
   "evolution",
   "branches",
   "mrs",
+  "cicd",
   "dependencies",
   "security",
   "integrations",

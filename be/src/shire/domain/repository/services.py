@@ -437,6 +437,15 @@ class RepositoryService:
                 entity_id=repository.id,
                 repository_id=repository.id,
             )
+            # Manifests the deterministic parsers can't read (a pom.xml monorepo, a Pipfile app)
+            # leave the dependency inventory incomplete — hand what's left to the engine.
+            # Best-effort: a queueing failure must never fail the pull.
+            try:
+                self._analysis.enqueue_ai_dependency_scan_if_needed(repository.id)
+            except Exception:
+                logger.exception(
+                    "Could not auto-enqueue the AI dependency scan for %s", repository.id
+                )
             if repository.watched:
                 # Watched repos auto-summarize their pending digest delta so the
                 # Developments feed fills in without a click. Best-effort — a summary

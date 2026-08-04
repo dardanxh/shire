@@ -3,11 +3,16 @@
 from __future__ import annotations
 
 import uuid
+from datetime import UTC, datetime
 
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
-from shire.domain.principles.models import PrincipleCheckRow, PrincipleRow
+from shire.domain.principles.models import (
+    PrincipleCheckRow,
+    PrincipleRow,
+    RepositoryPrincipleRow,
+)
 
 
 class SqlPrincipleRepository:
@@ -45,6 +50,42 @@ class SqlPrincipleRepository:
 
     def delete(self, principle_id: uuid.UUID) -> None:
         row = self.get(principle_id)
+        if row is not None:
+            self._session.delete(row)
+            self._session.flush()
+
+
+class SqlRepositoryPrincipleRepository:
+    """Per-repo assignment overrides (only deliberate deviations from the default reach)."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def for_repository(self, repository_id: uuid.UUID) -> dict[uuid.UUID, bool]:
+        """principle_id -> assigned, for every override this repository carries."""
+        stmt = select(RepositoryPrincipleRow).where(
+            RepositoryPrincipleRow.repository_id == repository_id
+        )
+        return {row.principle_id: row.assigned for row in self._session.scalars(stmt)}
+
+    def set(self, repository_id: uuid.UUID, principle_id: uuid.UUID, assigned: bool) -> None:
+        row = self._session.get(RepositoryPrincipleRow, (repository_id, principle_id))
+        if row is None:
+            row = RepositoryPrincipleRow(
+                repository_id=repository_id,
+                principle_id=principle_id,
+                assigned=assigned,
+                updated_at=datetime.now(UTC),
+            )
+            self._session.add(row)
+        else:
+            row.assigned = assigned
+            row.updated_at = datetime.now(UTC)
+        self._session.flush()
+
+    def clear(self, repository_id: uuid.UUID, principle_id: uuid.UUID) -> None:
+        """Drop the override so the principle's default reach applies again."""
+        row = self._session.get(RepositoryPrincipleRow, (repository_id, principle_id))
         if row is not None:
             self._session.delete(row)
             self._session.flush()

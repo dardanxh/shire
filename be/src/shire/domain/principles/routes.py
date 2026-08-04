@@ -67,6 +67,33 @@ def repository_principles(
 def audit_repository_principles(
     repository_id: uuid.UUID, session: Session = Depends(get_session)
 ) -> list[RepoPrincipleStatusResult]:
-    """Audit the repository against every applicable enabled principle (one engine job per
+    """Audit the repository against every assigned enabled principle (one engine job per
     principle, non-blocking — poll the GET)."""
     return PrincipleService(session).audit_repository(repository_id)
+
+
+# Registered after /principles/audit so the literal path wins over this uuid placeholder.
+@router.post(
+    "/repositories/{repository_id}/principles/{principle_id}",
+    response_model=list[RepoPrincipleStatusResult],
+)
+def assign_principle(
+    repository_id: uuid.UUID,
+    principle_id: uuid.UUID,
+    session: Session = Depends(get_session),
+) -> list[RepoPrincipleStatusResult]:
+    """Assign a principle to this repository (audited from the next run on)."""
+    return PrincipleService(session).set_assignment(repository_id, principle_id, True)
+
+
+@router.delete(
+    "/repositories/{repository_id}/principles/{principle_id}",
+    response_model=list[RepoPrincipleStatusResult],
+)
+def unassign_principle(
+    repository_id: uuid.UUID,
+    principle_id: uuid.UUID,
+    session: Session = Depends(get_session),
+) -> list[RepoPrincipleStatusResult]:
+    """Unassign a principle from this repository (kept in the pick-list; past verdicts stand)."""
+    return PrincipleService(session).set_assignment(repository_id, principle_id, False)
