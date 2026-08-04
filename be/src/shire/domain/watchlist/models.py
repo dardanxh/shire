@@ -14,14 +14,20 @@ from shire.core.db import Base
 class PulseSummaryRow(Base):
     """A cached Pulse "what has been accomplished" narrative.
 
-    Keyed by (repository, window start date, head commit): the same window re-viewed costs
-    zero tokens, and any new commit (head moves) naturally invalidates the cache.
+    Keyed by (repository, window start date, window end date, head commit): the same
+    window re-viewed costs zero tokens, and any new commit (head moves) naturally
+    invalidates open-ended windows. `until_date` is NULL for open-ended windows
+    ("since X until now") and set for custom intervals.
     """
 
     __tablename__ = "pulse_summaries"
     __table_args__ = (
         UniqueConstraint(
-            "repository_id", "since_date", "head_sha", name="uq_pulse_summary_window"
+            "repository_id",
+            "since_date",
+            "until_date",
+            "head_sha",
+            name="uq_pulse_summary_window",
         ),
     )
 
@@ -30,6 +36,7 @@ class PulseSummaryRow(Base):
         ForeignKey("repositories.id", ondelete="CASCADE"), index=True
     )
     since_date: Mapped[date] = mapped_column(Date)
+    until_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     head_sha: Mapped[str] = mapped_column(String(64))
     narrative: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

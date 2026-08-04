@@ -456,10 +456,17 @@ class SqlCommitRecordRepository:
         return dict(rows.all())
 
     def records_since(
-        self, analysis_id: uuid.UUID, since: datetime
+        self, analysis_id: uuid.UUID, since: datetime, until: datetime | None = None
     ) -> list[tuple[str, datetime, int, int, int]]:
         """(author_email, committed_at, insertions, deletions, files_changed) rows of one
-        analysis's history from `since` on — the Pulse interval aggregation."""
+        analysis's history from `since` on (up to but excluding `until` when given) — the
+        Pulse interval aggregation."""
+        conditions = [
+            CommitRecordRow.analysis_id == analysis_id,
+            CommitRecordRow.committed_at >= since,
+        ]
+        if until is not None:
+            conditions.append(CommitRecordRow.committed_at < until)
         rows = self._session.execute(
             select(
                 CommitRecordRow.author_email,
@@ -467,10 +474,7 @@ class SqlCommitRecordRepository:
                 CommitRecordRow.insertions,
                 CommitRecordRow.deletions,
                 CommitRecordRow.files_changed,
-            ).where(
-                CommitRecordRow.analysis_id == analysis_id,
-                CommitRecordRow.committed_at >= since,
-            )
+            ).where(*conditions)
         )
         return [tuple(r) for r in rows.all()]
 

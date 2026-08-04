@@ -91,10 +91,16 @@ def build_scan_context(
 _SUBJECT_LIMIT = 200
 
 
-def commit_subjects_since(clone_path: Path, since: datetime, subpath: str = "") -> str:
+def commit_subjects_since(
+    clone_path: Path,
+    since: datetime,
+    subpath: str = "",
+    until: datetime | None = None,
+) -> str:
     """One line per commit (`sha author: subject`) since a timestamp, newest first — embedded
-    in Pulse summary prompts because engine agents cannot run git themselves. Scoped to
-    `subpath` for monorepo-focused records. Best-effort: '' when git can't answer."""
+    in Pulse summary prompts because engine agents cannot run git themselves. Bounded above
+    by `until` (exclusive) when given. Scoped to `subpath` for monorepo-focused records.
+    Best-effort: '' when git can't answer."""
     try:
         repo = Repo(clone_path)
         args = [
@@ -102,6 +108,8 @@ def commit_subjects_since(clone_path: Path, since: datetime, subpath: str = "") 
             f"--max-count={_SUBJECT_LIMIT}",
             "--format=%h %an: %s",
         ]
+        if until is not None:
+            args.append(f"--until={until.isoformat()}")
         if subpath:
             args += ["--", subpath]
         return repo.git.log(*args).strip()

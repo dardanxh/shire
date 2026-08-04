@@ -71,6 +71,8 @@ class PulseEntryResult(BaseModel):
 
 class PulseResult(BaseModel):
     since: datetime
+    # Exclusive upper bound of the window; None = open-ended ("until now").
+    until: datetime | None = None
     entries: list[PulseEntryResult]
 
 
@@ -79,4 +81,6 @@ class PulseSummarizeRequest(BaseModel):
     Empty/None repository_ids = every repository in the comparison (all repos)."""
 
     since: datetime
+    # Exclusive upper bound of the window; None = open-ended ("until now").
+    until: datetime | None = None
     repository_ids: list[uuid.UUID] | None = None

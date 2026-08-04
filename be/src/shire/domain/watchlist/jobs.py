@@ -23,12 +23,17 @@ def handle_pulse_summary(job: JobRow) -> None:
     payload = job.payload or {}
     repository_id = uuid.UUID(payload["repository_id"])
     since_date = date.fromisoformat(payload["since_date"])
+    until_raw = payload.get("until_date")
+    until_date = date.fromisoformat(until_raw) if until_raw else None
     head_sha = str(payload.get("head_sha") or "")
     with unit_of_work() as session:
         existing = session.scalars(
             select(PulseSummaryRow).where(
                 PulseSummaryRow.repository_id == repository_id,
                 PulseSummaryRow.since_date == since_date,
+                PulseSummaryRow.until_date.is_(None)
+                if until_date is None
+                else PulseSummaryRow.until_date == until_date,
                 PulseSummaryRow.head_sha == head_sha,
             )
         ).first()
@@ -40,6 +45,7 @@ def handle_pulse_summary(job: JobRow) -> None:
                 PulseSummaryRow(
                     repository_id=repository_id,
                     since_date=since_date,
+                    until_date=until_date,
                     head_sha=head_sha,
                     narrative=narrative,
                     created_at=datetime.now(UTC),

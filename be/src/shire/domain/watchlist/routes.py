@@ -46,11 +46,13 @@ def refresh_watchlist(
 @router.get("/pulse", response_model=PulseResult)
 def get_pulse(
     since: datetime,
+    until: datetime | None = None,
     repos: Annotated[list[uuid.UUID] | None, Query()] = None,
     session: Session = Depends(get_session),
 ) -> PulseResult:
-    """Cross-repo activity comparison from `since` on (all repos when `repos` is omitted)."""
-    return WatchlistService(session).pulse(since, repos)
+    """Cross-repo activity comparison from `since` on — up to (excluding) `until` when
+    given, otherwise open-ended (all repos when `repos` is omitted)."""
+    return WatchlistService(session).pulse(since, repos, until)
 
 
 @router.post("/pulse/summarize", response_model=list[uuid.UUID])
