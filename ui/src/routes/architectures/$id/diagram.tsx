@@ -11,5 +11,5 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/architectures/$id/diagram")({
   component: BlueprintDiagramPage,
   validateSearch: searchSchema,
-  staticData: { crumb: "blueprints.diagram.crumb" },
+  staticData: { crumb: "blueprints.diagram.crumb", fullBleed: true },
 });

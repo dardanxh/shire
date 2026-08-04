@@ -24,9 +24,12 @@ function ensureInitialized() {
 export function MermaidDiagram({
   code,
   className,
+  onRendered,
 }: {
   code: string;
   className?: string;
+  /** Fires after the SVG is in the DOM — e.g. to fit it into a pan/zoom viewport. */
+  onRendered?: () => void;
 }) {
   const { t } = useTranslation();
   // Mermaid needs a DOM-id-safe handle; React's useId yields colons we must strip.
@@ -53,6 +56,11 @@ export function MermaidDiagram({
       cancelled = true;
     };
   }, [code, domId]);
+
+  // Genuine side effect: notify consumers once the SVG is committed to the DOM.
+  useEffect(() => {
+    if (svg) onRendered?.();
+  }, [svg, onRendered]);
 
   if (failed) {
     return (

@@ -3,7 +3,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { DiagramViewPage } from "@/features/repositories";
 
 export const Route = createFileRoute("/diagram/$repoId/$kind")({
-  staticData: { crumb: "repositories.view.architecture.crumb" },
+  staticData: {
+    crumb: "repositories.view.architecture.crumb",
+    fullBleed: true,
+  },
   component: RouteComponent,
 });
 
