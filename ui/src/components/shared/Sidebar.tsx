@@ -81,6 +81,7 @@ const WORKSPACE_ITEMS: NavItem[] = [
     to: "/developments",
     labelKey: "common.nav.developments",
     icon: NewspaperIcon,
+    search: { tab: "feed" },
     match: (p) => p === "/developments",
   },
   {

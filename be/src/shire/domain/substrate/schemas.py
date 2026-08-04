@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel
 
@@ -186,6 +186,27 @@ class LanguageShift(BaseModel):
 class DeltaContributors(BaseModel):
     joined: list[str]
     departed: list[str]
+
+
+class CommitActivityAuthor(BaseModel):
+    email: str
+    commits: int
+
+
+class CommitActivityDay(BaseModel):
+    day: date
+    commits: int
+
+
+class CommitActivityResult(BaseModel):
+    """Aggregated commit activity of one repository within a time window (Pulse)."""
+
+    commits: int
+    insertions: int
+    deletions: int
+    files_changed: int
+    authors: list[CommitActivityAuthor]
+    daily: list[CommitActivityDay]
 
 
 class DeltaCommitAuthor(BaseModel):

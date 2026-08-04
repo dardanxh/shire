@@ -30,3 +30,4 @@ from shire.domain.substrate import models as _substrate_models  # noqa: F401
 from shire.domain.techchoice import models as _techchoice_models  # noqa: F401
 from shire.domain.technology import models as _technology_models  # noqa: F401
 from shire.domain.tools import models as _tools_models  # noqa: F401
+from shire.domain.watchlist import models as _watchlist_models  # noqa: F401

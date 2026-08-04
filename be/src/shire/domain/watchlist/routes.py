@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
+from typing import Annotated
 
-from fastapi import APIRouter, BackgroundTasks, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends, Query
 from sqlalchemy.orm import Session
 
 from shire.core.db import get_session
 from shire.domain.repository.schemas import RepositoryResult
 from shire.domain.repository.services import run_ingest_pipeline
 from shire.domain.watchlist.schemas import (
+    PulseResult,
+    PulseSummarizeRequest,
     WatchlistEntryResult,
     WatchlistRefreshResult,
     WatchlistResult,
@@ -37,6 +41,26 @@ def refresh_watchlist(
     for repository_id in result.queued_repository_ids:
         background_tasks.add_task(run_ingest_pipeline, repository_id)
     return result
+
+
+@router.get("/pulse", response_model=PulseResult)
+def get_pulse(
+    since: datetime,
+    repos: Annotated[list[uuid.UUID] | None, Query()] = None,
+    session: Session = Depends(get_session),
+) -> PulseResult:
+    """Cross-repo activity comparison from `since` on (all repos when `repos` is omitted)."""
+    return WatchlistService(session).pulse(since, repos)
+
+
+@router.post("/pulse/summarize", response_model=list[uuid.UUID])
+def summarize_pulse(
+    body: PulseSummarizeRequest,
+    session: Session = Depends(get_session),
+) -> list[uuid.UUID]:
+    """Queue accomplishment summaries for the window (skips cached/pending/idle repos);
+    returns the repository ids actually queued."""
+    return WatchlistService(session).enqueue_pulse_summaries(body)
 
 
 @router.put("/{repository_id}", response_model=RepositoryResult)

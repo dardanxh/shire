@@ -9,6 +9,8 @@ so the next digest only shows commits that haven't been inspected yet.
 from __future__ import annotations
 
 import uuid
+from datetime import date, datetime
+from pathlib import Path
 
 from sqlalchemy.orm import Session
 
@@ -21,7 +23,11 @@ from shire.domain.repository.schemas import RepositoryResult
 from shire.domain.repository.services import RepositoryService
 from shire.domain.substrate.schemas import AnalysisSnapshotSummary, ExplainDelta
 from shire.domain.substrate.services import AnalysisService
+from shire.domain.watchlist.models import PulseSummaryRow
 from shire.domain.watchlist.schemas import (
+    PulseEntryResult,
+    PulseResult,
+    PulseSummarizeRequest,
     WatchlistEntryResult,
     WatchlistRefreshResult,
     WatchlistResult,
@@ -160,6 +166,120 @@ class WatchlistService:
             queued.append(repo.id)
         return WatchlistRefreshResult(queued_repository_ids=queued)
 
+    # --- pulse (cross-repo activity comparison) --------------------------------
+    def pulse(
+        self, since: datetime, repository_ids: list[uuid.UUID] | None = None
+    ) -> PulseResult:
+        """Activity of the selected repos (all repos when unselected) from `since` on:
+        commit totals, contributors, per-day counts, and the cached accomplishment
+        summary for the window."""
+        repos = self._pulse_targets(repository_ids)
+        return PulseResult(
+            since=since,
+            entries=[self._pulse_entry(repo, since) for repo in repos],
+        )
+
+    def _pulse_entry(self, repo: Repository, since: datetime) -> PulseEntryResult:
+        activity = self._analysis.commit_activity_since(repo.id, since)
+        summary_row = None
+        summary_pending = False
+        if repo.last_analyzed_commit:
+            summary_row = self._get_pulse_summary(
+                repo.id, since.date(), repo.last_analyzed_commit
+            )
+            if summary_row is None:
+                summary_pending = self._pulse_job_pending(repo.id, since.date())
+        return PulseEntryResult(
+            repository=RepositoryResult.of(repo),
+            activity=activity,
+            summary=summary_row.narrative if summary_row else None,
+            summary_generated_at=summary_row.created_at if summary_row else None,
+            summary_pending=summary_pending,
+        )
+
+    def enqueue_pulse_summaries(self, body: PulseSummarizeRequest) -> list[uuid.UUID]:
+        """Queue one accomplishment-summary job per selected repo that has activity in the
+        window and no cached narrative for it. Returns the repo ids actually queued."""
+        since = body.since
+        queued: list[uuid.UUID] = []
+        for repo in self._pulse_targets(body.repository_ids):
+            if not repo.clone_path or not repo.last_analyzed_commit:
+                continue
+            activity = self._analysis.commit_activity_since(repo.id, since)
+            if activity is None or activity.commits == 0:
+                continue
+            if self._get_pulse_summary(repo.id, since.date(), repo.last_analyzed_commit):
+                continue
+            if self._pulse_job_pending(repo.id, since.date()):
+                continue
+            self._enqueue_pulse_summary(repo, since, activity.commits)
+            queued.append(repo.id)
+        return queued
+
+    def _enqueue_pulse_summary(
+        self, repo: Repository, since: datetime, commit_count: int
+    ) -> None:
+        from shire.domain.jobs.services import JobService
+        from shire.integrations.git_history import commit_subjects_since
+
+        jobs = JobService(self._session)
+        model, timeout_seconds = jobs.engine_defaults()
+        commit_log = commit_subjects_since(
+            Path(repo.clone_path or ""), since, repo.coordinates.subpath
+        )
+        jobs.enqueue(
+            kind=job_kinds.PULSE_SUMMARY,
+            title=f"Pulse summary — {repo.coordinates.slug}",
+            prompt=_PULSE_SUMMARY_PROMPT.format(
+                repo=repo.coordinates.slug,
+                since_date=since.date().isoformat(),
+                commit_log=commit_log or "(commit subjects unavailable)",
+                commit_count=commit_count,
+            ),
+            payload={
+                "cwd": repo.analysis_path,
+                "model": model,
+                "timeout_seconds": timeout_seconds,
+                "repository_id": str(repo.id),
+                "since_date": since.date().isoformat(),
+                "head_sha": repo.last_analyzed_commit or "",
+            },
+            repository_id=repo.id,
+        )
+
+    def _pulse_targets(self, repository_ids: list[uuid.UUID] | None) -> list[Repository]:
+        if repository_ids:
+            wanted = set(repository_ids)
+            return [r for r in self._repos.list() if r.id in wanted]
+        return self._repos.list()
+
+    def _get_pulse_summary(
+        self, repository_id: uuid.UUID, since_date: date, head_sha: str
+    ) -> PulseSummaryRow | None:
+        from sqlalchemy import select
+
+        return self._session.scalars(
+            select(PulseSummaryRow).where(
+                PulseSummaryRow.repository_id == repository_id,
+                PulseSummaryRow.since_date == since_date,
+                PulseSummaryRow.head_sha == head_sha,
+            )
+        ).first()
+
+    def _pulse_job_pending(self, repository_id: uuid.UUID, since_date: date) -> bool:
+        rows = SqlJobRepository(self._session).list(
+            status=None,
+            repository_id=repository_id,
+            kind=job_kinds.PULSE_SUMMARY,
+            limit=10,
+            offset=0,
+        )
+        return any(
+            row.status in ("queued", "running")
+            and (row.payload or {}).get("since_date") == since_date.isoformat()
+            for row in rows
+        )
+
     def _require(self, repository_id: uuid.UUID) -> Repository:
         repo = self._repos.get(repository_id)
         if repo is None:
@@ -190,3 +310,21 @@ def _pending_pair(
     if reviewed is None and len(history) >= 2:
         return history[0].analysis_id, latest.analysis_id
     return None
+
+
+_PULSE_SUMMARY_PROMPT = """You are writing a quick "what has been accomplished" note for \
+repository {repo}, covering the work landed since {since_date} — one panel of a \
+cross-repository activity comparison.
+
+The commits in this window (newest first, `sha author: subject`), {commit_count} total:
+{commit_log}
+
+You may verify claims by reading files in the working tree (Read/Grep/Glob only — you \
+cannot run git, and you must not modify anything). The commit subjects are your primary \
+evidence.
+
+Write at most ~80 words of plain markdown: 2-4 bullets describing what got DONE, in \
+outcome language (features shipped, fixes landed, refactors completed, docs written). \
+Merge related commits into one bullet. No headings, no shas, no contributor names (shown \
+separately). Begin your reply DIRECTLY with the first bullet — any text before it will be \
+discarded. If the window holds no meaningful work, reply with a single short line saying so."""

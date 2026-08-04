@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
+  ActivityIcon,
   ChevronRightIcon,
   GitBranchIcon,
   RefreshCwIcon,
@@ -103,6 +104,12 @@ export function RepositoriesListPage({
       // Global handler toasts the failure; refreshed rows update on invalidation.
     }
   };
+
+  const handleCompare = () =>
+    navigate({
+      to: "/developments",
+      search: { tab: "pulse", repos: selectedIds, range: "today" },
+    });
 
   const handleRunCompliance = () =>
     navigate({
@@ -218,6 +225,10 @@ export function RepositoriesListPage({
               className={isRefreshing ? "animate-spin" : undefined}
             />
             {t("repositories.list.refresh_selected")}
+          </Button>
+          <Button size="sm" variant="outline" onClick={handleCompare}>
+            <ActivityIcon />
+            {t("repositories.list.compare_selected")}
           </Button>
           <Button size="sm" variant="outline" onClick={handleRunCompliance}>
             <ShieldCheckIcon />

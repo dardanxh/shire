@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import {
   CheckIcon,
   ChevronDownIcon,
@@ -32,6 +32,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTrackedJob } from "@/features/jobs";
 import {
   useExplainDeltaMutation,
@@ -46,8 +47,43 @@ import {
   useWatchlistQuery,
 } from "../api";
 import { watchlistKeys } from "../keys";
+import { PulseTab } from "./PulseTab";
 
 const REFRESHING = new Set(["cloning", "analyzing"]);
+
+export function DevelopmentsPage() {
+  const { t } = useTranslation();
+  const navigate = useNavigate({ from: "/developments" });
+  const search = useSearch({ from: "/developments" });
+
+  return (
+    <Tabs
+      value={search.tab}
+      onValueChange={(value) =>
+        navigate({
+          search: { ...search, tab: (value ?? "feed") as "feed" | "pulse" },
+        })
+      }
+      className="flex flex-col gap-4"
+    >
+      <TabsList>
+        <TabsTrigger value="feed">{t("developments.tab_feed")}</TabsTrigger>
+        <TabsTrigger value="pulse">{t("developments.tab_pulse")}</TabsTrigger>
+      </TabsList>
+      <TabsContent value="feed">
+        <FeedTab />
+      </TabsContent>
+      <TabsContent value="pulse">
+        <PulseTab
+          repos={search.repos}
+          range={search.range}
+          onReposChange={(repos) => navigate({ search: { ...search, repos } })}
+          onRangeChange={(range) => navigate({ search: { ...search, range } })}
+        />
+      </TabsContent>
+    </Tabs>
+  );
+}
 
 // Digest-worthy scalar facts, in display order (the delta carries many more).
 const DIGEST_FACTS = new Set([
@@ -58,7 +94,7 @@ const DIGEST_FACTS = new Set([
   "test_count",
 ]);
 
-export function DevelopmentsPage() {
+function FeedTab() {
   const { t } = useTranslation();
   const { data, isPending } = useWatchlistQuery();
   const { mutate: refreshAll, isPending: isRefreshQueueing } =

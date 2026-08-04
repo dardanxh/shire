@@ -3,11 +3,16 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 
 from pydantic import BaseModel
 
 from shire.domain.repository.schemas import RepositoryResult
-from shire.domain.substrate.schemas import AnalysisDeltaResult, AnalysisSnapshotSummary
+from shire.domain.substrate.schemas import (
+    AnalysisDeltaResult,
+    AnalysisSnapshotSummary,
+    CommitActivityResult,
+)
 
 
 class WatchRequest(BaseModel):
@@ -50,3 +55,28 @@ class WatchlistRefreshResult(BaseModel):
     """Repositories queued for a pull + re-analysis (busy ones are skipped)."""
 
     queued_repository_ids: list[uuid.UUID]
+
+
+class PulseEntryResult(BaseModel):
+    """One repository's activity within the Pulse window."""
+
+    repository: RepositoryResult
+    # None when the repository has no completed analysis yet (nothing to aggregate).
+    activity: CommitActivityResult | None
+    # Cached "what has been accomplished" narrative for (repo, window start, head commit).
+    summary: str | None
+    summary_generated_at: datetime | None
+    summary_pending: bool
+
+
+class PulseResult(BaseModel):
+    since: datetime
+    entries: list[PulseEntryResult]
+
+
+class PulseSummarizeRequest(BaseModel):
+    """Generate accomplishment summaries for the given repos' current Pulse window.
+    Empty/None repository_ids = every repository in the comparison (all repos)."""
+
+    since: datetime
+    repository_ids: list[uuid.UUID] | None = None

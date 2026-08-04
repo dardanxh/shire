@@ -55,6 +55,9 @@ from shire.domain.substrate.schemas import (
     CodeAgeResult,
     CodebaseOverviewResult,
     CodeMapResult,
+    CommitActivityAuthor,
+    CommitActivityDay,
+    CommitActivityResult,
     CommitRecordResult,
     CouplingPair,
     CouplingResult,
@@ -367,6 +370,39 @@ class AnalysisService:
             commits=self._commit_deltas(before, after),
             note=note.narrative if note else None,
             note_generated_at=note.created_at if note else None,
+        )
+
+    def commit_activity_since(
+        self, repository_id: uuid.UUID, since: datetime
+    ) -> CommitActivityResult | None:
+        """Aggregate the latest analysis's commit records from `since` on (Pulse window).
+        None when the repository has no completed analysis yet."""
+        analysis = self._analyses.get_latest_for_repository(repository_id)
+        if analysis is None:
+            return None
+        rows = self._commit_records.records_since(analysis.id, since)
+        authors: Counter[str] = Counter()
+        daily: Counter[date] = Counter()
+        insertions = deletions = files_changed = 0
+        for email, committed_at, ins, dels, files in rows:
+            authors[email] += 1
+            daily[committed_at.date()] += 1
+            insertions += ins
+            deletions += dels
+            files_changed += files
+        return CommitActivityResult(
+            commits=len(rows),
+            insertions=insertions,
+            deletions=deletions,
+            files_changed=files_changed,
+            authors=[
+                CommitActivityAuthor(email=email, commits=count)
+                for email, count in authors.most_common()
+            ],
+            daily=[
+                CommitActivityDay(day=day, commits=count)
+                for day, count in sorted(daily.items())
+            ],
         )
 
     def has_delta_note(self, from_id: uuid.UUID, to_id: uuid.UUID) -> bool:
