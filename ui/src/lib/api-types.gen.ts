@@ -3194,6 +3194,68 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/inspections/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Inspections Overview
+         * @description Completion counts + recent commit activity per repository (all repos when `repos` is
+         *     omitted) — the repositories table's Activity and Checks columns in one read.
+         */
+        get: operations["inspections_overview_api_v1_inspections_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/inspections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Repository Inspections
+         * @description Every inspection's state for one repository — the Suggested Actions checklist.
+         */
+        get: operations["repository_inspections_api_v1_repositories__repository_id__inspections_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/inspections/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Repository Inspections
+         * @description Start inspections (non-blocking). Omit `keys` to run every bulk-eligible inspection
+         *     that hasn't been done yet; hobits and principles are never included.
+         */
+        post: operations["run_repository_inspections_api_v1_repositories__repository_id__inspections_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tech-decisions": {
         parameters: {
             query?: never;
@@ -6356,6 +6418,68 @@ export interface components {
             /** Subpath */
             subpath?: string | null;
         };
+        /** InspectionDetailResult */
+        InspectionDetailResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Completed */
+            completed: number;
+            /** Total */
+            total: number;
+            /** Items */
+            items: components["schemas"]["InspectionItemResult"][];
+        };
+        /**
+         * InspectionItemResult
+         * @description One inspection's state for a single repository.
+         */
+        InspectionItemResult: {
+            /** Key */
+            key: string;
+            /** Group */
+            group: string;
+            /** Done */
+            done: boolean;
+            /** Generated At */
+            generated_at?: string | null;
+            /**
+             * Runnable
+             * @default true
+             */
+            runnable: boolean;
+            /** Unavailable Reason */
+            unavailable_reason?: string | null;
+            /**
+             * In Flight
+             * @default false
+             */
+            in_flight: boolean;
+        };
+        /**
+         * InspectionOverviewItem
+         * @description Per-repository row for the repositories table's derived columns.
+         *
+         *     Commit activity rides along with the counts so the table needs one request (and one
+         *     poll) for both new columns; both are derived from the same latest-analysis snapshot.
+         */
+        InspectionOverviewItem: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Slug */
+            slug: string;
+            /** Completed */
+            completed: number;
+            /** Total */
+            total: number;
+            /** Daily Commits */
+            daily_commits: number[];
+        };
         /**
          * JobDetailResult
          * @description Detail shape: adds the exact prompt sent to the engine, the raw result, the live
@@ -8313,6 +8437,23 @@ export interface components {
             /** Finished At */
             finished_at: string | null;
         };
+        /** RunInspectionsRequest */
+        RunInspectionsRequest: {
+            /** Keys */
+            keys?: string[] | null;
+        };
+        /** RunInspectionsResult */
+        RunInspectionsResult: {
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Queued */
+            queued?: string[];
+            /** Skipped */
+            skipped?: components["schemas"]["SkippedInspection"][];
+        };
         /** SelfScoreResult */
         SelfScoreResult: {
             /** Importance */
@@ -8337,6 +8478,15 @@ export interface components {
         SetRepoHobitsRequest: {
             /** Slugs */
             slugs: string[];
+        };
+        /** SkippedInspection */
+        SkippedInspection: {
+            /** Key */
+            key: string;
+            /** Reason */
+            reason: string;
+            /** Detail */
+            detail?: string | null;
         };
         /**
          * SwitchBranchRequest
@@ -15471,6 +15621,104 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CicdExecutionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    inspections_overview_api_v1_inspections_overview_get: {
+        parameters: {
+            query?: {
+                repos?: string[] | null;
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InspectionOverviewItem"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    repository_inspections_api_v1_repositories__repository_id__inspections_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InspectionDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_repository_inspections_api_v1_repositories__repository_id__inspections_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunInspectionsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunInspectionsResult"];
                 };
             };
             /** @description Validation Error */

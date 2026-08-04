@@ -61,6 +61,12 @@ export type CodebaseOverviewOut =
   components["schemas"]["CodebaseOverviewResult"];
 export type TechStackOut = components["schemas"]["TechStackResult"];
 export type TechStackItemOut = components["schemas"]["TechStackItem"];
+export type InspectionOverviewOut =
+  components["schemas"]["InspectionOverviewItem"];
+export type InspectionDetailOut =
+  components["schemas"]["InspectionDetailResult"];
+export type InspectionItemOut = components["schemas"]["InspectionItemResult"];
+export type RunInspectionsOut = components["schemas"]["RunInspectionsResult"];
 export type ReadinessStatusOut = components["schemas"]["ReadinessStatusResult"];
 export type ReadinessAssistantOut = components["schemas"]["AssistantState"];
 export type ReadinessArtifactOut = components["schemas"]["ArtifactState"];

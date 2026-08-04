@@ -374,6 +374,20 @@ class SqlAnalysisRepository:
         )
         return [(rid, aid, count) for rid, aid, count in self._session.execute(stmt)]
 
+    def latest_complete_stamps(self) -> list[tuple[uuid.UUID, uuid.UUID, datetime]]:
+        """(repository_id, analysis_id, analyzed_at) of each repo's latest complete analysis.
+
+        Sibling of `latest_complete_meta` for callers that need *when* rather than how many
+        commits — same DISTINCT ON, same "don't materialize the aggregate" reason.
+        """
+        stmt = (
+            select(AnalysisRow.repository_id, AnalysisRow.id, AnalysisRow.analyzed_at)
+            .where(AnalysisRow.status == AnalysisStatus.complete.value)
+            .order_by(AnalysisRow.repository_id, AnalysisRow.analyzed_at.desc())
+            .distinct(AnalysisRow.repository_id)
+        )
+        return [(rid, aid, at) for rid, aid, at in self._session.execute(stmt)]
+
     def list_for_repository(self, repository_id: uuid.UUID) -> list[Analysis]:
         stmt = (
             select(AnalysisRow)
@@ -539,6 +553,29 @@ class SqlCommitRecordRepository:
             ).where(CommitRecordRow.analysis_id == analysis_id)
         )
         return {sha: (ins, dels) for sha, ins, dels in rows.all()}
+
+    def daily_counts_by_analysis(
+        self, analysis_ids: list[uuid.UUID], since: datetime
+    ) -> dict[uuid.UUID, dict[datetime, int]]:
+        """analysis_id -> day (date_trunc) -> commits, across the given analyses.
+
+        One grouped read for the whole repositories table's activity sparklines.
+        """
+        if not analysis_ids:
+            return {}
+        day = func.date_trunc("day", CommitRecordRow.committed_at)
+        rows = self._session.execute(
+            select(CommitRecordRow.analysis_id, day, func.count())
+            .where(
+                CommitRecordRow.analysis_id.in_(analysis_ids),
+                CommitRecordRow.committed_at >= since,
+            )
+            .group_by(CommitRecordRow.analysis_id, day)
+        )
+        grouped: dict[uuid.UUID, dict[datetime, int]] = {}
+        for analysis_id, bucket, count in rows:
+            grouped.setdefault(analysis_id, {})[bucket] = count
+        return grouped
 
     def weekly_counts_by_email(
         self, analysis_ids: list[uuid.UUID], since: datetime

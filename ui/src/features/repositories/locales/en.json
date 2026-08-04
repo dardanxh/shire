@@ -6,10 +6,19 @@
       "empty_title": "No repositories yet",
       "empty_body": "Add a git repository to clone and analyze it.",
       "col_repository": "Repository",
-      "col_provider": "Provider",
       "col_status": "Status",
-      "col_branch": "Branch",
       "col_last_polled": "Last polled",
+      "col_activity": "Activity",
+      "col_checks": "Actions",
+      "activity_hint_one": "{{count}} commit in the last {{days}} days",
+      "activity_hint_other": "{{count}} commits in the last {{days}} days",
+      "run_ai_analysis": "Run AI analysis",
+      "run_ai_analysis_title": "Run the AI analysis set?",
+      "run_ai_analysis_description_one": "This starts every AI analysis that hasn't run yet — codebase overview, all architecture diagrams, tech stack, CI/CD and dependencies — for {{count}} repository. Hobits and principles are not included. Anything already done or already running is skipped.",
+      "run_ai_analysis_description_other": "This starts every AI analysis that hasn't run yet — codebase overview, all architecture diagrams, tech stack, CI/CD and dependencies — for {{count}} repositories. Hobits and principles are not included. Anything already done or already running is skipped.",
+      "run_ai_analysis_confirm": "Start analyses",
+      "run_ai_analysis_success_one": "{{count}} analysis started ({{skipped}} skipped)",
+      "run_ai_analysis_success_other": "{{count}} analyses started ({{skipped}} skipped)",
       "subrepo_count_one": "{{count}} subrepo",
       "subrepo_count_other": "{{count}} subrepos",
       "show_subrepos": "Show subrepositories of {{name}}",
@@ -21,7 +30,6 @@
       "refresh_selected": "Pull latest",
       "refresh_selected_success_one": "Refresh started for {{count}} repository",
       "refresh_selected_success_other": "Refresh started for {{count}} repositories",
-      "run_compliance": "Run compliance",
       "delete_selected": "Delete",
       "delete_selected_title": "Delete selected repositories?",
       "delete_selected_description_one": "This permanently removes {{count}} repository and everything derived from it (analysis, artifacts, runs). Local files are left untouched.",
@@ -57,10 +65,10 @@
       "toast_failed_desc": "The repository could not be analyzed.",
       "subpath": {
         "label": "Subdirectories",
-        "placeholder": "packages/ui",
+        "placeholder": "packages/api\npackages/ui\nservices/worker",
         "add": "Add",
         "remove": "Remove {{path}}",
-        "hint": "Focus analysis and agents on one folder of the repo. Add several — one per sub-project — and each becomes its own repository. Leave empty to analyze the whole repo."
+        "hint": "Focus analysis and agents on one folder of the repo. Add several — one per line, or comma-separated — and each becomes its own repository. Leave empty to analyze the whole repo."
       }
     },
     "wizard": {
@@ -345,7 +353,8 @@
         "roadmaps": "Roadmaps",
         "tech_stack": "Tech stack",
         "ai_readiness": "AI readiness",
-        "evolution": "Evolution"
+        "evolution": "Evolution",
+        "actions": "Actions"
       },
       "branching": {
         "ask": "Ask the Branching Hobit",
@@ -533,6 +542,49 @@
         "placeholder": "View a previous version…",
         "current": "current",
         "viewing": "Version from {{when}}"
+      },
+      "actions": {
+        "title": "Actions",
+        "subtitle": "Every inspection this repository can have run. Hobits and principles are assigned on their own tabs.",
+        "progress": "{{done}} of {{total}} done",
+        "run_all_one": "Run remaining ({{count}})",
+        "run_all_other": "Run remaining ({{count}})",
+        "all_done": "Everything has been run",
+        "run": "Run",
+        "rerun": "Re-run",
+        "running": "Running",
+        "started_one": "{{count}} inspection started",
+        "started_other": "{{count}} inspections started",
+        "none_started": "Nothing to start — those inspections are already done or running.",
+        "groups": {
+          "ai": "AI analyses",
+          "integration": "Integrations"
+        },
+        "reasons": {
+          "not_cloned": "The repository has not been cloned yet",
+          "tool_unavailable": "This tool is not installed on the server",
+          "no_analysis": "Waiting for the first analysis to finish",
+          "in_flight": "Already running",
+          "already_done": "Already done",
+          "unknown_key": "Unknown inspection",
+          "not_runnable": "Cannot run yet"
+        },
+        "items": {
+          "codebase-overview": "Codebase overview for humans",
+          "tech-stack": "Tech stack analysis",
+          "cicd": "CI/CD analysis",
+          "dependencies-ai": "Dependency AI scan",
+          "dependency-freshness": "Dependency freshness check",
+          "ai-readiness": "AI readiness suggestions",
+          "architecture_component": "Architecture · component map",
+          "architecture_module-deps": "Architecture · module dependency graph",
+          "architecture_layers": "Architecture · layered architecture",
+          "architecture_sequence": "Architecture · key sequence flow",
+          "architecture_state": "Architecture · state machine",
+          "architecture_dataflow": "Architecture · data flow",
+          "architecture_er": "Architecture · entity-relationship model",
+          "architecture_class": "Architecture · domain class model"
+        }
       }
     },
     "integrations": {

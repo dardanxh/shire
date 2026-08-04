@@ -5,8 +5,9 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   GitBranchIcon,
+  Loader2Icon,
   RefreshCwIcon,
-  ShieldCheckIcon,
+  SparklesIcon,
   Trash2Icon,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -15,6 +16,7 @@ import { toast } from "sonner";
 
 import { DataTable } from "@/components/shared/DataTable";
 import { DataTablePagination } from "@/components/shared/DataTablePagination";
+import { Sparkline } from "@/components/shared/Sparkline";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,10 +35,13 @@ import { formatDate, formatTimeAgo } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
   useDeleteRepositoryMutation,
+  useInspectionsOverviewQuery,
   useRefreshRepositoriesMutation,
   useRepositoriesQuery,
+  useRunInspectionsMutation,
 } from "../api";
 import { buildRepositoryTree, type RepositoryTreeRow } from "../grouping";
+import { completionToneClass } from "../inspections";
 import { StatusBadge } from "./StatusBadge";
 
 export function RepositoriesListPage({
@@ -75,10 +80,21 @@ export function RepositoriesListPage({
   const toggleSelectAll = () => setSelectedIds(allPageSelected ? [] : pageIds);
 
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [confirmAnalyzeOpen, setConfirmAnalyzeOpen] = useState(false);
   const { mutateAsync: deleteRepository, isPending: isDeleting } =
     useDeleteRepositoryMutation();
   const { mutateAsync: refreshRepository, isPending: isRefreshing } =
     useRefreshRepositoriesMutation();
+  const { mutateAsync: runInspections, isPending: isAnalyzing } =
+    useRunInspectionsMutation();
+
+  // Inspection counts + commit activity for the two derived columns, keyed by repo id.
+  const { data: inspections } = useInspectionsOverviewQuery();
+  const inspectionsById = useMemo(
+    () =>
+      new Map((inspections ?? []).map((item) => [item.repository_id, item])),
+    [inspections],
+  );
 
   const handleBulkDelete = async () => {
     try {
@@ -116,11 +132,31 @@ export function RepositoriesListPage({
       search: { tab: "pulse", repos: selectedIds, range: "today" },
     });
 
-  const handleRunCompliance = () =>
-    navigate({
-      to: "/compliance",
-      search: { tab: "checker", page: 1, size: 20, repos: selectedIds },
-    });
+  /** Start the whole AI analysis set for every selected repo — one request each (the
+   * endpoint fans out to the ~13 jobs server-side). Anything already done or already
+   * running comes back as a skip rather than a duplicate engine run. */
+  const handleBulkAnalyze = async () => {
+    let queued = 0;
+    let skipped = 0;
+    try {
+      for (const id of selectedIds) {
+        const result = await runInspections({ repositoryId: id });
+        // Both default server-side, so the generated types have them optional.
+        queued += result.queued?.length ?? 0;
+        skipped += result.skipped?.length ?? 0;
+      }
+      toast.success(
+        t("repositories.list.run_ai_analysis_success", {
+          count: queued,
+          skipped,
+        }),
+      );
+      setSelectedIds([]);
+      setConfirmAnalyzeOpen(false);
+    } catch {
+      // Global handler toasts the failure; the counts above cover partial progress.
+    }
+  };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: toggle helpers are recreated per render; the memo keys on the state they close over
   const columns = useMemo<ColumnDef<RepositoryTreeRow>[]>(
@@ -206,27 +242,69 @@ export function RepositoriesListPage({
         },
       },
       {
-        accessorKey: "provider",
-        header: t("repositories.list.col_provider"),
-        cell: ({ row }) => (
-          <span className="capitalize text-muted-foreground">
-            {row.original.provider}
-          </span>
-        ),
-      },
-      {
         accessorKey: "status",
         header: t("repositories.list.col_status"),
         cell: ({ row }) => <StatusBadge status={row.original.status} />,
       },
       {
-        accessorKey: "default_branch",
-        header: t("repositories.list.col_branch"),
-        cell: ({ row }) => (
-          <span className="font-mono text-xs text-muted-foreground">
-            {row.original.default_branch}
-          </span>
-        ),
+        // Commits per day over the last month. Single series, so no axes and no legend;
+        // the numbers live in the title attribute rather than a floating tooltip, which
+        // would fight the row's click-to-open.
+        id: "activity",
+        // Sorts on total commits in the window — the sparkline's shape isn't orderable, its
+        // volume is. Repos with no analysis yet sort as -1 so "unknown" stays below a real
+        // zero instead of tying with it.
+        accessorFn: (repo) => {
+          const item = inspectionsById.get(repo.id);
+          if (!item) return -1;
+          return item.daily_commits.reduce((sum, n) => sum + n, 0);
+        },
+        sortingFn: "basic",
+        sortDescFirst: true,
+        header: t("repositories.list.col_activity"),
+        cell: ({ row }) => {
+          const daily =
+            inspectionsById.get(row.original.id)?.daily_commits ?? [];
+          return (
+            <Sparkline
+              values={daily}
+              className="text-(--chart-2)"
+              title={t("repositories.list.activity_hint", {
+                count: daily.reduce((sum, n) => sum + n, 0),
+                days: daily.length,
+              })}
+            />
+          );
+        },
+      },
+      {
+        id: "checks",
+        // Sorts on the completion ratio rather than the raw count, so the order still reads
+        // correctly if two repos ever end up with different denominators.
+        accessorFn: (repo) => {
+          const item = inspectionsById.get(repo.id);
+          if (!item || item.total === 0) return -1;
+          return item.completed / item.total;
+        },
+        sortingFn: "basic",
+        sortDescFirst: true,
+        header: t("repositories.list.col_checks"),
+        cell: ({ row }) => {
+          const item = inspectionsById.get(row.original.id);
+          if (!item) {
+            return <span className="text-xs text-muted-foreground">—</span>;
+          }
+          return (
+            <span
+              className={cn(
+                "text-sm font-medium tabular-nums",
+                completionToneClass(item.completed, item.total),
+              )}
+            >
+              {item.completed}/{item.total}
+            </span>
+          );
+        },
       },
       {
         accessorKey: "last_analyzed_at",
@@ -251,8 +329,10 @@ export function RepositoriesListPage({
         ),
       },
     ],
-    // pageRows matters: toggleSelectAll closes over the current page's ids.
-    [t, selectedIds, allPageSelected, pageRows],
+    // pageRows matters: toggleSelectAll closes over the current page's ids. inspectionsById
+    // matters too — the Activity and Checks cells read it, and it arrives a beat after the
+    // rows do, so leaving it out freezes both columns on the empty first-render map.
+    [t, selectedIds, allPageSelected, pageRows, inspectionsById],
   );
 
   return (
@@ -280,9 +360,18 @@ export function RepositoriesListPage({
             <ActivityIcon />
             {t("repositories.list.compare_selected")}
           </Button>
-          <Button size="sm" variant="outline" onClick={handleRunCompliance}>
-            <ShieldCheckIcon />
-            {t("repositories.list.run_compliance")}
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={isAnalyzing}
+            onClick={() => setConfirmAnalyzeOpen(true)}
+          >
+            {isAnalyzing ? (
+              <Loader2Icon className="animate-spin" />
+            ) : (
+              <SparklesIcon />
+            )}
+            {t("repositories.list.run_ai_analysis")}
           </Button>
           <Button
             size="sm"
@@ -343,6 +432,36 @@ export function RepositoriesListPage({
           </div>
         ) : null}
       </Card>
+
+      {/* Each selected repo fans out to ~13 engine runs — worth confirming the scale. */}
+      <AlertDialog
+        open={confirmAnalyzeOpen}
+        onOpenChange={setConfirmAnalyzeOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("repositories.list.run_ai_analysis_title")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("repositories.list.run_ai_analysis_description", {
+                count: selectedIds.length,
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isAnalyzing}>
+              {t("common.actions.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isAnalyzing}
+              onClick={handleBulkAnalyze}
+            >
+              {t("repositories.list.run_ai_analysis_confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
         <AlertDialogContent>

@@ -1,15 +1,26 @@
 import { cn } from "@/lib/utils";
 
-/** Tiny hand-rolled SVG trend line — cheap enough for hundreds of table rows. */
+/**
+ * Tiny hand-rolled SVG trend line — cheap enough for hundreds of table rows.
+ *
+ * Pass `title` to give the line an accessible name and a hover hint; without one it stays
+ * decorative (`aria-hidden`), which is right when a nearby number already carries the value.
+ */
 export function Sparkline({
   values,
   className,
+  title,
 }: {
   values: number[];
   className?: string;
+  title?: string;
 }) {
   if (values.length === 0) {
-    return <span className="text-xs text-muted-foreground">—</span>;
+    return (
+      <span className="text-xs text-muted-foreground" title={title}>
+        —
+      </span>
+    );
   }
   const width = 96;
   const height = 28;
@@ -29,8 +40,11 @@ export function Sparkline({
       height={height}
       viewBox={`0 0 ${width} ${height}`}
       className={cn("text-primary", className)}
-      aria-hidden="true"
+      role={title ? "img" : undefined}
+      aria-label={title}
+      aria-hidden={title ? undefined : "true"}
     >
+      {title ? <title>{title}</title> : null}
       <polyline
         points={points}
         fill="none"

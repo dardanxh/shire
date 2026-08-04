@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { DataTable } from "@/components/shared/DataTable";
+import { Sparkline } from "@/components/shared/Sparkline";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,7 +39,6 @@ import { cn } from "@/lib/utils";
 import { useAddExclusionMutation, useMembersOverviewQuery } from "../api";
 import { ExclusionsDialog } from "./ExclusionsDialog";
 import { MergeMembersDialog } from "./MergeMembersDialog";
-import { Sparkline } from "./Sparkline";
 
 interface Props {
   anonymize: boolean;

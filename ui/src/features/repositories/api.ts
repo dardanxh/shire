@@ -22,11 +22,14 @@ import {
   type GraphOut,
   type HobitOut,
   type HobitRunOut,
+  type InspectionDetailOut,
+  type InspectionOverviewOut,
   type JobOut,
   type QuestionOut,
   type ReadinessExecutionOut,
   type ReadinessStatusOut,
   type RepositoryOut,
+  type RunInspectionsOut,
   type TechStackOut,
   type ToolLogOut,
   type ToolName,
@@ -986,6 +989,74 @@ export function useGenerateTechStackMutation(id: string) {
  * make-ai-ready executions. Polls while an execution is pending so an in-flight
  * run's branch/summary (and flipped suggestion statuses) land on their own.
  */
+/** Inspection completion counts + 30-day commit activity for every repository — one read
+ * behind the list table's Activity and Checks columns. */
+export function useInspectionsOverviewQuery(days = 30) {
+  return useQuery<InspectionOverviewOut[]>({
+    queryKey: repositoryKeys.inspectionsOverview(days),
+    queryFn: async () => {
+      const { data, error } = await api.GET("/api/v1/inspections/overview", {
+        params: { query: { days } },
+      });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+/** Every inspection's state for one repository (the Suggested Actions checklist). Polls
+ * while anything is in flight — server-reported, so it survives a reload. */
+export function useInspectionsQuery(id: string) {
+  return useQuery<InspectionDetailOut>({
+    queryKey: repositoryKeys.inspections(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/inspections",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+    refetchInterval: (query) =>
+      query.state.data?.items.some((item) => item.in_flight) ? 4000 : false,
+  });
+}
+
+/** Start inspections for a repository. `keys: null` runs every bulk-eligible inspection
+ * that isn't done yet; an explicit list runs exactly those. Never touches hobits or
+ * principles. Preconditions come back in `skipped` rather than as an error. */
+export function useRunInspectionsMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      repositoryId,
+      keys = null,
+    }: {
+      repositoryId: string;
+      keys?: string[] | null;
+    }): Promise<RunInspectionsOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/inspections/run",
+        {
+          params: { path: { repository_id: repositoryId } },
+          body: { keys },
+        },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_result, { repositoryId }) => {
+      queryClient.invalidateQueries({
+        queryKey: repositoryKeys.inspections(repositoryId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...repositoryKeys.all, "inspections-overview"],
+      });
+    },
+  });
+}
+
 export function useAiReadinessQuery(id: string) {
   return useQuery<ReadinessStatusOut>({
     queryKey: repositoryKeys.aiReadiness(id),

@@ -50,6 +50,7 @@ import {
 } from "@/lib/format";
 import { isIngesting, useAnalysisQuery, useRepositoryQuery } from "../api";
 import type { RepositoryTab } from "../tabs";
+import { ActionsPanel } from "./ActionsPanel";
 import { AiReadinessPanel } from "./AiReadinessPanel";
 import { ArchitecturePanel } from "./ArchitecturePanel";
 import { AskPanel } from "./AskPanel";
@@ -163,6 +164,10 @@ export function RepositoryViewPage({
             <GaugeIcon />
             {t("repositories.view.tabs.overview")}
           </TabsTrigger>
+          <TabsTrigger value="actions">
+            <ListChecksIcon />
+            {t("repositories.view.tabs.actions")}
+          </TabsTrigger>
           <TabsTrigger value="ask">
             <MessageCircleQuestionIcon />
             {t("repositories.view.tabs.ask")}
@@ -272,6 +277,10 @@ export function RepositoryViewPage({
 
             <TabsContent value="ai-readiness">
               <AiReadinessPanel repoId={repo.id} />
+            </TabsContent>
+
+            <TabsContent value="actions">
+              <ActionsPanel repoId={repo.id} />
             </TabsContent>
 
             <TabsContent value="principles">

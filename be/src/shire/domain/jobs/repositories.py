@@ -149,6 +149,19 @@ class SqlJobRepository:
         )
         return result.rowcount
 
+    def unsettled_for_repository(self, repository_id: uuid.UUID) -> list[JobRow]:
+        """Every pending/running job for a repository, newest first — one query for callers
+        that need in-flight state across many job kinds at once (the inspections checklist)."""
+        stmt = (
+            select(JobRow)
+            .where(
+                JobRow.repository_id == repository_id,
+                JobRow.status.in_(("pending", "running")),
+            )
+            .order_by(JobRow.created_at.desc())
+        )
+        return list(self._session.scalars(stmt))
+
     def latest_unsettled(self, kind: str, repository_id: uuid.UUID) -> JobRow | None:
         """The most recent pending/running job of a kind for a repository (e.g. the in-flight
         dependency-gains enrichment surfaced on the freshness panel)."""

@@ -9,6 +9,7 @@
  */
 export const REPOSITORY_TAB_VALUES = [
   "overview",
+  "actions",
   "ask",
   "code",
   "architecture",

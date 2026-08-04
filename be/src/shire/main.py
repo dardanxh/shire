@@ -27,6 +27,7 @@ from shire.domain.context.routes import router as context_router
 from shire.domain.council.routes import router as council_router
 from shire.domain.hobits.routes import router as hobits_router
 from shire.domain.home.routes import router as home_router
+from shire.domain.inspections.routes import router as inspections_router
 from shire.domain.jobs.routes import router as jobs_router
 from shire.domain.members.routes import router as members_router
 from shire.domain.merge_review.routes import router as merge_reviews_router
@@ -147,6 +148,7 @@ app.include_router(compliance_router, prefix=API_V1_PREFIX)
 app.include_router(capacity_router, prefix=API_V1_PREFIX)
 app.include_router(readiness_router, prefix=API_V1_PREFIX)
 app.include_router(cicd_router, prefix=API_V1_PREFIX)
+app.include_router(inspections_router, prefix=API_V1_PREFIX)
 app.include_router(techchoice_router, prefix=API_V1_PREFIX)
 
 # fastapi-pagination wires its Params/Page plumbing for the catalog routers above.

@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useConnectionsQuery } from "@/features/connectors/api";
 import { useHobitsQuery } from "@/features/hobits/api";
 import { useToolsQuery } from "@/features/tools/api";
@@ -282,18 +283,16 @@ export function IngestRepositoryDialog({
                 <Label htmlFor="wiz-subpath">
                   {t("repositories.ingest.subpath.label")}
                 </Label>
-                <div className="flex gap-2">
-                  <Input
+                {/* A textarea, not an input: pasting a one-path-per-line list into a
+                    single-line input collapses the newlines to spaces, which parses as one
+                    bogus path. Enter therefore inserts a newline; the draft is committed by
+                    Add, by blurring, or by advancing the wizard. */}
+                <div className="flex items-start gap-2">
+                  <Textarea
                     id="wiz-subpath"
-                    type="text"
+                    rows={3}
                     value={subpathDraft}
                     onChange={(e) => setSubpathDraft(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key !== "Enter") return;
-                      // Enter adds an entry instead of advancing the wizard.
-                      e.preventDefault();
-                      commitDraft();
-                    }}
                     onBlur={() => commitDraft()}
                     placeholder={t("repositories.ingest.subpath.placeholder")}
                   />

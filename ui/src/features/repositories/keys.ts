@@ -13,6 +13,9 @@ export const repositoryKeys = {
   lists: () => [...repositoryKeys.all, "list"] as const,
   list: (params: RepositoryListParams) =>
     [...repositoryKeys.lists(), params] as const,
+  // Cross-repo inspection counts + activity for the list's derived columns.
+  inspectionsOverview: (days: number) =>
+    [...repositoryKeys.all, "inspections-overview", days] as const,
   details: () => [...repositoryKeys.all, "detail"] as const,
   detail: (id: string) => [...repositoryKeys.details(), id] as const,
   analysis: (id: string) => [...repositoryKeys.detail(id), "analysis"] as const,
@@ -53,6 +56,8 @@ export const repositoryKeys = {
   codeMap: (id: string) => [...repositoryKeys.detail(id), "code-map"] as const,
   integrations: (id: string) =>
     [...repositoryKeys.detail(id), "integrations"] as const,
+  inspections: (id: string) =>
+    [...repositoryKeys.detail(id), "inspections"] as const,
   toolLog: (id: string, tool: string) =>
     [...repositoryKeys.detail(id), "tool-log", tool] as const,
   questions: (id: string) =>

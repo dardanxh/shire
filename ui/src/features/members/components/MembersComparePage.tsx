@@ -2,6 +2,7 @@ import { getRouteApi, Link } from "@tanstack/react-router";
 import { ChevronLeftIcon, TriangleAlertIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { Sparkline } from "@/components/shared/Sparkline";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +15,6 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import type { MemberActivityOut, MemberSummaryOut } from "@/lib/api";
 import { useMemberActivityQuery, useMembersOverviewQuery } from "../api";
-import { Sparkline } from "./Sparkline";
 
 const route = getRouteApi("/members/compare");
 const SLOTS = [0, 1, 2] as const;
