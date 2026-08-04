@@ -2488,6 +2488,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/watchlist/pulse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Pulse
+         * @description Cross-repo activity comparison from `since` on (all repos when `repos` is omitted).
+         */
+        get: operations["get_pulse_api_v1_watchlist_pulse_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/watchlist/pulse/summarize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Summarize Pulse
+         * @description Queue accomplishment summaries for the window (skips cached/pending/idle repos);
+         *     returns the repository ids actually queued.
+         */
+        post: operations["summarize_pulse_api_v1_watchlist_pulse_summarize_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/watchlist/{repository_id}": {
         parameters: {
             query?: never;
@@ -3939,6 +3980,41 @@ export interface components {
          * @enum {string}
          */
         CommentSeverity: "info" | "minor" | "major" | "critical";
+        /** CommitActivityAuthor */
+        CommitActivityAuthor: {
+            /** Email */
+            email: string;
+            /** Commits */
+            commits: number;
+        };
+        /** CommitActivityDay */
+        CommitActivityDay: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Commits */
+            commits: number;
+        };
+        /**
+         * CommitActivityResult
+         * @description Aggregated commit activity of one repository within a time window (Pulse).
+         */
+        CommitActivityResult: {
+            /** Commits */
+            commits: number;
+            /** Insertions */
+            insertions: number;
+            /** Deletions */
+            deletions: number;
+            /** Files Changed */
+            files_changed: number;
+            /** Authors */
+            authors: components["schemas"]["CommitActivityAuthor"][];
+            /** Daily */
+            daily: components["schemas"]["CommitActivityDay"][];
+        };
         /**
          * CommitSizeBucketResult
          * @description One bar of the commit-size histogram (`label` like "1-10", "500+").
@@ -6939,6 +7015,44 @@ export interface components {
              * @default 0
              */
             violated_count: number;
+        };
+        /**
+         * PulseEntryResult
+         * @description One repository's activity within the Pulse window.
+         */
+        PulseEntryResult: {
+            repository: components["schemas"]["RepositoryResult"];
+            activity: components["schemas"]["CommitActivityResult"] | null;
+            /** Summary */
+            summary: string | null;
+            /** Summary Generated At */
+            summary_generated_at: string | null;
+            /** Summary Pending */
+            summary_pending: boolean;
+        };
+        /** PulseResult */
+        PulseResult: {
+            /**
+             * Since
+             * Format: date-time
+             */
+            since: string;
+            /** Entries */
+            entries: components["schemas"]["PulseEntryResult"][];
+        };
+        /**
+         * PulseSummarizeRequest
+         * @description Generate accomplishment summaries for the given repos' current Pulse window.
+         *     Empty/None repository_ids = every repository in the comparison (all repos).
+         */
+        PulseSummarizeRequest: {
+            /**
+             * Since
+             * Format: date-time
+             */
+            since: string;
+            /** Repository Ids */
+            repository_ids?: string[] | null;
         };
         /**
          * QualityManifestation
@@ -13218,6 +13332,71 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WatchlistRefreshResult"];
+                };
+            };
+        };
+    };
+    get_pulse_api_v1_watchlist_pulse_get: {
+        parameters: {
+            query: {
+                since: string;
+                repos?: string[] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PulseResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    summarize_pulse_api_v1_watchlist_pulse_summarize_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PulseSummarizeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

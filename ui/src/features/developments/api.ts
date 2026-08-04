@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { repositoryKeys } from "@/features/repositories/keys";
-import type { RepositoryOut, WatchlistEntryOut, WatchlistOut } from "@/lib/api";
+import type {
+  PulseOut,
+  RepositoryOut,
+  WatchlistEntryOut,
+  WatchlistOut,
+} from "@/lib/api";
 import { api } from "@/lib/api";
 import { watchlistKeys } from "./keys";
 
@@ -75,6 +80,49 @@ export function useMarkReviewedMutation() {
       const { data, error } = await api.POST(
         "/api/v1/watchlist/{repository_id}/reviewed",
         { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: watchlistKeys.all });
+    },
+  });
+}
+
+/** Cross-repo activity comparison. Polls while any summary job is running. */
+export function usePulseQuery(since: string, repos: string[]) {
+  return useQuery<PulseOut>({
+    queryKey: watchlistKeys.pulse(since, repos),
+    queryFn: async () => {
+      const { data, error } = await api.GET("/api/v1/watchlist/pulse", {
+        params: {
+          query: { since, repos: repos.length > 0 ? repos : undefined },
+        },
+      });
+      if (error) throw error;
+      return data;
+    },
+    refetchInterval: (query) =>
+      (query.state.data?.entries ?? []).some((e) => e.summary_pending)
+        ? 4000
+        : false,
+  });
+}
+
+/** Queue accomplishment summaries for the window (cached/pending repos skipped). */
+export function useSummarizePulseMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: {
+      since: string;
+      repository_ids: string[] | null;
+    }): Promise<string[]> => {
+      const { data, error } = await api.POST(
+        "/api/v1/watchlist/pulse/summarize",
+        {
+          body,
+        },
       );
       if (error) throw error;
       return data;

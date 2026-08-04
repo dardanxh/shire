@@ -24,7 +24,8 @@
       "delete_selected_description_other": "This permanently removes {{count}} repositories and everything derived from them (analysis, artifacts, runs). Local files are left untouched.",
       "delete_selected_confirm": "Delete",
       "delete_selected_success_one": "{{count}} repository deleted",
-      "delete_selected_success_other": "{{count}} repositories deleted"
+      "delete_selected_success_other": "{{count}} repositories deleted",
+      "compare_selected": "Compare activity"
     },
     "ingest": {
       "trigger": "Add repository",

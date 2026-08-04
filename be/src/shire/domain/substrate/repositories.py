@@ -455,6 +455,25 @@ class SqlCommitRecordRepository:
         )
         return dict(rows.all())
 
+    def records_since(
+        self, analysis_id: uuid.UUID, since: datetime
+    ) -> list[tuple[str, datetime, int, int, int]]:
+        """(author_email, committed_at, insertions, deletions, files_changed) rows of one
+        analysis's history from `since` on — the Pulse interval aggregation."""
+        rows = self._session.execute(
+            select(
+                CommitRecordRow.author_email,
+                CommitRecordRow.committed_at,
+                CommitRecordRow.insertions,
+                CommitRecordRow.deletions,
+                CommitRecordRow.files_changed,
+            ).where(
+                CommitRecordRow.analysis_id == analysis_id,
+                CommitRecordRow.committed_at >= since,
+            )
+        )
+        return [tuple(r) for r in rows.all()]
+
     def sha_line_stats_for_analysis(self, analysis_id: uuid.UUID) -> dict[str, tuple[int, int]]:
         """sha -> (insertions, deletions) for one analysis's history — sums the line churn
         of the delta's new commits (the Developments feed's +added/-deleted)."""

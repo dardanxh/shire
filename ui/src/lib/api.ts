@@ -18,6 +18,8 @@ export const api = createClient<paths>({ baseUrl: env.VITE_API_BASE_URL });
 export type RepositoryOut = components["schemas"]["RepositoryResult"];
 export type WatchlistOut = components["schemas"]["WatchlistResult"];
 export type WatchlistEntryOut = components["schemas"]["WatchlistEntryResult"];
+export type PulseOut = components["schemas"]["PulseResult"];
+export type PulseEntryOut = components["schemas"]["PulseEntryResult"];
 export type AnalysisOut = components["schemas"]["AnalysisResult"];
 export type AnalysisSnapshotOut =
   components["schemas"]["AnalysisSnapshotSummary"];

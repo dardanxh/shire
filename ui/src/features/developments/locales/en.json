@@ -40,6 +40,36 @@
     "copy": "Copy",
     "copied": "Summary copied — ready to paste to your team.",
     "show_last_review": "Show last review",
-    "hide_last_review": "Hide last review"
+    "hide_last_review": "Hide last review",
+    "tab_feed": "Feed",
+    "tab_pulse": "Pulse",
+    "pulse": {
+      "range_today": "Today",
+      "range_3d": "Past 3 days",
+      "range_week": "Past week",
+      "range_month": "Past month",
+      "all_repos": "All repositories ({{count}})",
+      "n_repos_one": "{{count}} repository",
+      "n_repos_other": "{{count}} repositories",
+      "clear_selection": "Clear selection (compare all)",
+      "summarize": "Generate summaries",
+      "summarize_toast_one": "Summarizing {{count}} repository…",
+      "summarize_toast_other": "Summarizing {{count}} repositories…",
+      "copy": "Copy as markdown",
+      "copied": "Comparison copied — ready to paste.",
+      "all_quiet": "No commits in this window across the selected repositories.",
+      "idle_one": "{{count}} repo with no activity:",
+      "idle_other": "{{count}} repos with no activity:",
+      "commits_one": "{{count}} commit",
+      "commits_other": "{{count}} commits",
+      "files_one": "{{count}} file touched",
+      "files_other": "{{count}} files touched",
+      "no_summary_yet": "No AI summary yet — use Generate summaries above.",
+      "axis_commits": "Commits",
+      "axis_insertions": "Lines added",
+      "axis_deletions": "Lines removed",
+      "axis_members": "Members",
+      "axis_files": "Files touched"
+    }
   }
 }

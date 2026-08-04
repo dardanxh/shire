@@ -86,3 +86,24 @@ def build_scan_context(
         commits=tuple(commits),
         repo_url=repo_url,
     )
+
+
+_SUBJECT_LIMIT = 200
+
+
+def commit_subjects_since(clone_path: Path, since: datetime, subpath: str = "") -> str:
+    """One line per commit (`sha author: subject`) since a timestamp, newest first — embedded
+    in Pulse summary prompts because engine agents cannot run git themselves. Scoped to
+    `subpath` for monorepo-focused records. Best-effort: '' when git can't answer."""
+    try:
+        repo = Repo(clone_path)
+        args = [
+            f"--since={since.isoformat()}",
+            f"--max-count={_SUBJECT_LIMIT}",
+            "--format=%h %an: %s",
+        ]
+        if subpath:
+            args += ["--", subpath]
+        return repo.git.log(*args).strip()
+    except (GitCommandError, OSError, ValueError):
+        return ""
