@@ -66,9 +66,9 @@
       "subpath": {
         "label": "Subdirectories",
         "placeholder": "packages/api\npackages/ui\nservices/worker",
-        "add": "Add",
-        "remove": "Remove {{path}}",
-        "hint": "Focus analysis and agents on one folder of the repo. Add several — one per line, or comma-separated — and each becomes its own repository. Leave empty to analyze the whole repo."
+        "hint": "Focus analysis and agents on one folder of the repo. Add several — one per line, or comma-separated — and each becomes its own repository. Leave empty to analyze the whole repo.",
+        "parsed_one": "{{count}} subdirectory — each becomes its own repository",
+        "parsed_other": "{{count}} subdirectories — each becomes its own repository"
       }
     },
     "wizard": {

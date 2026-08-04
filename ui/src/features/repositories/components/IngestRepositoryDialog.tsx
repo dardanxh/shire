@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { PlusIcon, XIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -69,9 +69,9 @@ export function IngestRepositoryDialog({
   const setOpen = onOpenChange ?? setInternalOpen;
   const [step, setStep] = useState(0);
   const [url, setUrl] = useState("");
-  // One repository record is created per subdirectory; empty = the whole repo.
-  const [subpaths, setSubpaths] = useState<string[]>([]);
-  const [subpathDraft, setSubpathDraft] = useState("");
+  // The textarea is the single source of truth: paste paths, press Next. One repository
+  // record is created per parsed subdirectory; empty = the whole repo.
+  const [subpathsText, setSubpathsText] = useState("");
   const [urlError, setUrlError] = useState(false);
   const [connectionId, setConnectionId] = useState(NO_CONNECTION);
   const [tools, setTools] = useState<Set<string>>(new Set());
@@ -90,6 +90,8 @@ export function IngestRepositoryDialog({
   const setRepoHobits = useSetRepoHobitsMutation();
   const isPending = progress !== undefined;
 
+  const subpaths = useMemo(() => parseSubpaths(subpathsText), [subpathsText]);
+
   const hobitOptions = useMemo(
     () =>
       (hobitCatalog ?? [])
@@ -106,23 +108,12 @@ export function IngestRepositoryDialog({
   const reset = () => {
     setStep(0);
     setUrl("");
-    setSubpaths([]);
-    setSubpathDraft("");
+    setSubpathsText("");
     setUrlError(false);
     setConnectionId(NO_CONNECTION);
     setTools(new Set());
     setHobits(new Set());
     setProgress(undefined);
-  };
-
-  /** Move whatever is typed in the subdirectory box into the entry list. */
-  const commitDraft = (raw = subpathDraft) => {
-    const parsed = parseSubpaths(raw);
-    if (parsed.length > 0) {
-      setSubpaths((prev) => [...new Set([...prev, ...parsed])]);
-    }
-    setSubpathDraft("");
-    return parsed;
   };
 
   const next = () => {
@@ -133,8 +124,6 @@ export function IngestRepositoryDialog({
         setUrlError(true);
         return;
       }
-      // Don't silently drop a subdirectory the user typed but never added.
-      commitDraft();
     }
     setStep((s) => Math.min(s + 1, STEPS.length - 1));
   };
@@ -285,55 +274,22 @@ export function IngestRepositoryDialog({
                 </Label>
                 {/* A textarea, not an input: pasting a one-path-per-line list into a
                     single-line input collapses the newlines to spaces, which parses as one
-                    bogus path. Enter therefore inserts a newline; the draft is committed by
-                    Add, by blurring, or by advancing the wizard. */}
-                <div className="flex items-start gap-2">
-                  <Textarea
-                    id="wiz-subpath"
-                    rows={3}
-                    value={subpathDraft}
-                    onChange={(e) => setSubpathDraft(e.target.value)}
-                    onBlur={() => commitDraft()}
-                    placeholder={t("repositories.ingest.subpath.placeholder")}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={parseSubpaths(subpathDraft).length === 0}
-                    onClick={() => commitDraft()}
-                  >
-                    {t("repositories.ingest.subpath.add")}
-                  </Button>
-                </div>
-                {subpaths.length > 0 ? (
-                  <div className="flex flex-wrap gap-1 pt-1">
-                    {subpaths.map((path) => (
-                      <Badge
-                        key={path}
-                        variant="secondary"
-                        className="gap-1 font-mono text-xs"
-                      >
-                        {path}
-                        <button
-                          type="button"
-                          aria-label={t("repositories.ingest.subpath.remove", {
-                            path,
-                          })}
-                          onClick={() =>
-                            setSubpaths((prev) =>
-                              prev.filter((p) => p !== path),
-                            )
-                          }
-                          className="text-muted-foreground hover:text-foreground"
-                        >
-                          <XIcon className="size-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                ) : null}
+                    bogus path. The text itself is the entry list — no chips to confirm, since
+                    a real monorepo produces dozens of them and they bury the rest of the step. */}
+                <Textarea
+                  id="wiz-subpath"
+                  rows={6}
+                  className="font-mono text-xs"
+                  value={subpathsText}
+                  onChange={(e) => setSubpathsText(e.target.value)}
+                  placeholder={t("repositories.ingest.subpath.placeholder")}
+                />
                 <p className="text-xs text-muted-foreground">
-                  {t("repositories.ingest.subpath.hint")}
+                  {subpaths.length > 0
+                    ? t("repositories.ingest.subpath.parsed", {
+                        count: subpaths.length,
+                      })
+                    : t("repositories.ingest.subpath.hint")}
                 </p>
               </div>
               <div className="space-y-1.5">
@@ -390,19 +346,11 @@ export function IngestRepositoryDialog({
               {subpaths.length > 0 ? (
                 <Summary
                   label={t("repositories.wizard.sum_subpath")}
-                  value={
-                    <div className="flex flex-wrap gap-1">
-                      {subpaths.map((path) => (
-                        <Badge
-                          key={path}
-                          variant="secondary"
-                          className="font-mono text-xs"
-                        >
-                          {path}
-                        </Badge>
-                      ))}
-                    </div>
-                  }
+                  // A count, matching how tools are summarised — dozens of path chips here
+                  // would push the Start button off the dialog.
+                  value={t("repositories.ingest.subpath.parsed", {
+                    count: subpaths.length,
+                  })}
                 />
               ) : null}
               <Summary
