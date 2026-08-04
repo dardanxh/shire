@@ -57,10 +57,16 @@ class _Author:
 
 
 def resolve_branch_ref(repo: Repo, branch: str, *, provider_is_local: bool) -> str:
-    """Resolve a branch name to a concrete ref, preferring the remote-tracking ref (it mirrors
-    the remote post-fetch); local-source repos only have local heads."""
-    candidates = [] if provider_is_local else [f"refs/remotes/origin/{branch}"]
-    candidates.append(f"refs/heads/{branch}")
+    """Resolve a branch name to a concrete ref.
+
+    Both spaces are tried either way; only the preference flips. Our own clones prefer the
+    remote-tracking ref (it mirrors the remote post-fetch), while a local-source repo is the
+    user's own checkout, so its heads win — but it still falls back to `origin/<branch>` for the
+    many branches such a repo has never checked out locally.
+    """
+    local = f"refs/heads/{branch}"
+    remote = f"refs/remotes/origin/{branch}"
+    candidates = [local, remote] if provider_is_local else [remote, local]
     for ref in candidates:
         try:
             repo.git.rev_parse("--verify", "--quiet", f"{ref}^{{commit}}")

@@ -1,9 +1,13 @@
 """Live branch inspection against a local clone (GitPython-backed).
 
 Everything reads the clone on disk; the only network I/O is a best-effort `fetch --prune` so
-remote-tracking refs mirror the remote. Git work is bounded: one `for-each-ref` enumerates all
-branches, one `branch --merged` builds the merged set, and per-branch plumbing (ahead/behind,
-squash detection) runs only for the top `limit` rows.
+remote-tracking refs mirror the remote. Git work is bounded: `for-each-ref` per ref space
+enumerates all branches, `branch --merged` builds the merged set, and per-branch plumbing
+(ahead/behind, squash detection) runs only for the top `limit` rows.
+
+Branches are the **union of local heads and origin's remote-tracking refs**. Neither space alone
+is complete: a clone the user works in usually has one local head and every other branch only as
+`origin/*`, while shire's own clones only grow a local head for the branch they checked out.
 """
 
 from __future__ import annotations
@@ -21,7 +25,7 @@ from shire.integrations.scanners.git import _author_key_resolver
 _MAX_BRANCHES = 1000  # bound Python-side parsing on pathological repos
 _FETCH_TIMEOUT_SECONDS = 10
 _FOR_EACH_REF_FORMAT = (
-    "%(refname:short)%00%(objectname)%00%(committerdate:iso8601-strict)"
+    "%(refname)%00%(refname:short)%00%(objectname)%00%(committerdate:iso8601-strict)"
     "%00%(authorname)%00%(authoremail:trim)%00%(symref)"
 )
 # Fixed identity for the synthetic commit in squash detection: `commit-tree` needs an
@@ -39,6 +43,9 @@ _SYNTHETIC_ENV = {
 @dataclass
 class _RawTip:
     name: str
+    #: Full ref this tip came from (`refs/heads/x` or `refs/remotes/origin/x`) — the union of
+    #: both spaces means the ref space can no longer be derived from a single flag.
+    ref: str
     sha: str
     committed_at: datetime
     author_name: str
@@ -56,21 +63,18 @@ def inspect_branches(
     repo = Repo(clone_path)
     fetched = _fetch(repo, provider_is_local)
 
-    # Remote-tracking refs mirror the remote post-prune; local-source repos (and clones that
-    # somehow lack origin refs) fall back to local heads.
-    use_remote = not provider_is_local and any(r.name == "origin" for r in repo.remotes)
-    entries = _enumerate(repo, use_remote)
-    if not entries and use_remote:
-        use_remote = False
-        entries = _enumerate(repo, use_remote)
+    # Local-source repos are the user's own checkout, so their heads win a name collision;
+    # elsewhere the remote-tracking ref does (a local head only moves when checked out).
+    include_remote = _has_origin(repo)
+    entries = _enumerate(repo, include_remote, prefer_local=provider_is_local)
 
     now = datetime.now(UTC)
     total = len(entries)
     truncated = total > _MAX_BRANCHES
     entries = entries[:_MAX_BRANCHES]
 
-    default_ref = _resolve_default_ref(repo, default_branch, use_remote)
-    merged_names = _merged_names(repo, default_ref, use_remote) if default_ref else set()
+    default_ref = _resolve_default_ref(repo, default_branch, include_remote)
+    merged_names = _merged_names(repo, default_ref, include_remote) if default_ref else set()
     stale_cutoff = now - timedelta(days=stale_days)
 
     merged_count = sum(1 for e in entries if e.name != default_branch and e.name in merged_names)
@@ -82,12 +86,11 @@ def inspect_branches(
 
     top = entries[:limit]
     display_authors = _canonical_authors(top)
-    ref_prefix = "refs/remotes/origin/" if use_remote else "refs/heads/"
 
     branches: list[BranchTip] = []
     for tip, (author_name, author_email) in zip(top, display_authors, strict=True):
         is_default = tip.name == default_branch
-        branch_ref = ref_prefix + tip.name
+        branch_ref = tip.ref
         ahead: int | None = None
         behind: int | None = None
         merged: bool | None = None
@@ -154,16 +157,12 @@ def inspect_named_branches(
     if not wanted:
         return {}
     repo = Repo(clone_path)
-    use_remote = any(r.name == "origin" for r in repo.remotes)
-    entries = [tip for tip in _enumerate(repo, use_remote) if tip.name in wanted]
-    if not entries and use_remote:
-        use_remote = False
-        entries = [tip for tip in _enumerate(repo, use_remote) if tip.name in wanted]
+    include_remote = _has_origin(repo)
+    entries = [tip for tip in _enumerate(repo, include_remote) if tip.name in wanted]
     if not entries:
         return {}
 
-    default_ref = _resolve_default_ref(repo, default_branch, use_remote)
-    ref_prefix = "refs/remotes/origin/" if use_remote else "refs/heads/"
+    default_ref = _resolve_default_ref(repo, default_branch, include_remote)
     stale_cutoff = datetime.now(UTC) - timedelta(days=stale_days)
     display_authors = _canonical_authors(entries)
 
@@ -173,7 +172,7 @@ def inspect_named_branches(
         ahead: int | None = None
         behind: int | None = None
         if default_ref is not None:
-            ahead, behind = _ahead_behind(repo, default_ref, ref_prefix + tip.name)
+            ahead, behind = _ahead_behind(repo, default_ref, tip.ref)
         if is_default:
             status = BranchStatus.default
         elif tip.committed_at < stale_cutoff:
@@ -201,10 +200,7 @@ def list_branch_names(clone_path: Path, *, provider_is_local: bool) -> list[str]
     (the full `inspect_branches` returns only the most active tips, with per-branch plumbing)."""
     repo = Repo(clone_path)
     _fetch(repo, provider_is_local)
-    use_remote = not provider_is_local and any(r.name == "origin" for r in repo.remotes)
-    entries = _enumerate(repo, use_remote)
-    if not entries and use_remote:
-        entries = _enumerate(repo, False)
+    entries = _enumerate(repo, _has_origin(repo), prefer_local=provider_is_local)
     return [e.name for e in entries[:_MAX_BRANCHES]]
 
 
@@ -221,31 +217,56 @@ def _fetch(repo: Repo, provider_is_local: bool) -> bool:
         return False  # offline / slow remote — inspect whatever is on disk
 
 
-def _enumerate(repo: Repo, use_remote: bool) -> list[_RawTip]:
-    ref_space = "refs/remotes/origin" if use_remote else "refs/heads"
+def _has_origin(repo: Repo) -> bool:
+    return any(r.name == "origin" for r in repo.remotes)
+
+
+def _enumerate(repo: Repo, include_remote: bool, *, prefer_local: bool = False) -> list[_RawTip]:
+    """Every branch tip, newest commit first: local heads plus origin's remote-tracking refs.
+
+    A name present in both spaces collapses to one entry — the remote-tracking ref by default
+    (post-fetch it mirrors the remote, while a local head only moves when it's checked out), or
+    the local head when `prefer_local`, i.e. for repos whose clone the user works in directly.
+    """
+    ref_spaces = ["refs/heads"]
+    if include_remote:
+        # Later ref spaces overwrite earlier ones, so order encodes the collision preference.
+        ref_spaces = (
+            ["refs/remotes/origin", "refs/heads"]
+            if prefer_local
+            else ["refs/heads", "refs/remotes/origin"]
+        )
+    by_name: dict[str, _RawTip] = {}
+    for ref_space in ref_spaces:
+        for tip in _for_each_ref(repo, ref_space):
+            by_name[tip.name] = tip
+    return sorted(by_name.values(), key=lambda tip: tip.committed_at, reverse=True)
+
+
+def _for_each_ref(repo: Repo, ref_space: str) -> list[_RawTip]:
     out = repo.git.for_each_ref(
         "--sort=-committerdate", f"--format={_FOR_EACH_REF_FORMAT}", ref_space
     )
     tips: list[_RawTip] = []
     for line in out.splitlines():
         parts = line.split("\x00")
-        if len(parts) != 6:
+        if len(parts) != 7:
             continue
-        name, sha, date_str, author_name, author_email, symref = parts
+        ref, name, sha, date_str, author_name, author_email, symref = parts
         if symref:  # e.g. origin/HEAD — a pointer, not a branch
             continue
-        if use_remote:
+        if ref.startswith("refs/remotes/"):
             name = name.removeprefix("origin/")
         try:
             committed_at = datetime.fromisoformat(date_str)
         except ValueError:
             continue
-        tips.append(_RawTip(name, sha, committed_at, author_name, author_email))
+        tips.append(_RawTip(name, ref, sha, committed_at, author_name, author_email))
     return tips
 
 
-def _resolve_default_ref(repo: Repo, default_branch: str, use_remote: bool) -> str | None:
-    candidates = [f"refs/remotes/origin/{default_branch}"] if use_remote else []
+def _resolve_default_ref(repo: Repo, default_branch: str, include_remote: bool) -> str | None:
+    candidates = [f"refs/remotes/origin/{default_branch}"] if include_remote else []
     candidates += [f"refs/heads/{default_branch}", "HEAD"]
     for ref in candidates:
         try:
@@ -256,22 +277,23 @@ def _resolve_default_ref(repo: Repo, default_branch: str, use_remote: bool) -> s
     return None
 
 
-def _merged_names(repo: Repo, default_ref: str, use_remote: bool) -> set[str]:
+def _merged_names(repo: Repo, default_ref: str, include_remote: bool) -> set[str]:
     """Branch names whose tips are ancestors of the default branch — `merge-base --is-ancestor`
-    semantics for every branch in one call."""
-    args = ("-r", "--merged", default_ref) if use_remote else ("--merged", default_ref)
-    try:
-        out = repo.git.branch(*args)
-    except GitCommandError:
-        return set()
+    semantics for every branch in one call per ref space (local heads, then origin's refs)."""
+    arg_sets: list[tuple[str, ...]] = [("--merged", default_ref)]
+    if include_remote:
+        arg_sets.append(("-r", "--merged", default_ref))
     names: set[str] = set()
-    for line in out.splitlines():
-        entry = line.strip().lstrip("*+ ").strip()
-        if not entry or "->" in entry:  # skip "origin/HEAD -> origin/main"
+    for args in arg_sets:
+        try:
+            out = repo.git.branch(*args)
+        except GitCommandError:
             continue
-        if use_remote:
-            entry = entry.removeprefix("origin/")
-        names.add(entry)
+        for line in out.splitlines():
+            entry = line.strip().lstrip("*+ ").strip()
+            if not entry or "->" in entry:  # skip "origin/HEAD -> origin/main"
+                continue
+            names.add(entry.removeprefix("origin/"))
     return names
 
 

@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from shire.domain.repository.domain import BranchStatus
-from shire.integrations.git_branches import inspect_branches
+from shire.integrations.git_branches import inspect_branches, list_branch_names
 
 
 def _git(cwd: Path, *args: str, date: str = "2026-07-01T12:00:00", author: str = "Alice") -> None:
@@ -122,6 +122,56 @@ def test_inspect_branches(branchy_repo: Path) -> None:
     stale = by_name["old-experiment"]
     assert stale.status == BranchStatus.stale
     assert stale.merged is False
+
+
+@pytest.fixture
+def cloned_repo(branchy_repo: Path, tmp_path: Path) -> Path:
+    """A clone of `branchy_repo`: one local head (main), every other branch only as origin/*.
+
+    This is what both a shire-managed clone and a checkout the user works in look like.
+    """
+    clone = tmp_path / "clone"
+    _git(tmp_path, "clone", "-q", str(branchy_repo), str(clone))
+    return clone
+
+
+@pytest.mark.parametrize("provider_is_local", [True, False])
+def test_inspect_branches_includes_remote_only(cloned_repo: Path, provider_is_local: bool) -> None:
+    """Branches that exist only as origin/* must be listed — a clone has one local head."""
+    heads = subprocess.run(
+        ["git", "branch", "--format=%(refname:short)"],
+        cwd=cloned_repo,
+        check=True,
+        capture_output=True,
+        text=True,
+        env={"PATH": "/usr/bin:/bin"},
+    ).stdout.split()
+    assert heads == ["main"]  # the premise: everything else lives under refs/remotes/origin
+
+    result = inspect_branches(cloned_repo, "main", provider_is_local=provider_is_local)
+
+    assert result.total_branches == 5
+    by_name = {b.name: b for b in result.branches}
+    assert set(by_name) == {
+        "main",
+        "feature-merged",
+        "feature-squashed",
+        "feature-open",
+        "old-experiment",
+    }
+    # Per-branch plumbing resolves through the remote-tracking refs too.
+    assert by_name["main"].status == BranchStatus.default
+    assert by_name["feature-merged"].merged is True
+    assert by_name["feature-squashed"].squash_merged is True
+    assert by_name["feature-open"].ahead == 1
+    assert by_name["old-experiment"].status == BranchStatus.stale
+    assert result.merged_count == 1
+    assert result.stale_count == 1
+    if provider_is_local:
+        assert result.fetched is False  # we never fetch into the user's own clone
+
+    # The cheap name list behind branch pickers sees the same set.
+    assert set(list_branch_names(cloned_repo, provider_is_local=provider_is_local)) == set(by_name)
 
 
 def test_inspect_branches_empty_repo(tmp_path: Path) -> None:
