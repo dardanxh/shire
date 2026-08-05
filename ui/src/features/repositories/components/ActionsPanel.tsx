@@ -3,6 +3,7 @@ import {
   CircleIcon,
   Loader2Icon,
   SparklesIcon,
+  TriangleAlertIcon,
 } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -11,6 +12,11 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { InspectionItemOut } from "@/lib/api";
 import { formatTimeAgo } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -170,11 +176,24 @@ function InspectionRow({
       )}
       <span
         className={cn(
-          "min-w-0 flex-1 text-sm",
+          "flex min-w-0 flex-1 items-center gap-1.5 text-sm",
           item.done && "text-muted-foreground",
         )}
       >
-        {inspectionLabel(item.key, t)}
+        <span className="truncate">{inspectionLabel(item.key, t)}</span>
+        {/* Why it can't run lives in a tooltip on this icon — the row stays scannable. */}
+        {!item.runnable && !item.in_flight && reason ? (
+          <Tooltip>
+            <TooltipTrigger
+              type="button"
+              aria-label={reason}
+              className="shrink-0 text-warning"
+            >
+              <TriangleAlertIcon className="size-3.5" />
+            </TooltipTrigger>
+            <TooltipContent>{reason}</TooltipContent>
+          </Tooltip>
+        ) : null}
       </span>
       {item.done && item.generated_at ? (
         <span className="text-xs text-muted-foreground">
@@ -190,17 +209,11 @@ function InspectionRow({
           size="sm"
           variant="outline"
           disabled={disabled || !item.runnable}
-          title={reason}
           onClick={onRun}
         >
-          {item.done
-            ? t("repositories.view.actions.rerun")
-            : t("repositories.view.actions.run")}
+          {t("repositories.view.actions.run")}
         </Button>
       )}
-      {!item.runnable && reason ? (
-        <span className="text-xs text-muted-foreground">{reason}</span>
-      ) : null}
     </li>
   );
 }

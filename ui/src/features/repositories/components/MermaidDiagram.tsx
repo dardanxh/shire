@@ -12,6 +12,10 @@ function ensureInitialized() {
     theme: "neutral",
     securityLevel: "strict",
     fontFamily: "inherit",
+    // Without this, a diagram that fails to parse leaves mermaid's own giant
+    // "Syntax error in text / mermaid version x" SVG behind in <body> — it
+    // throws before cleaning up its temp container. We render our own message.
+    suppressErrorRendering: true,
   });
   initialized = true;
 }
@@ -48,6 +52,9 @@ export function MermaidDiagram({
         setFailed(false);
       })
       .catch(() => {
+        // Belt and braces: drop mermaid's temp container if it survived.
+        document.getElementById(domId)?.remove();
+        document.getElementById(`d${domId}`)?.remove();
         if (cancelled) return;
         setSvg(null);
         setFailed(true);

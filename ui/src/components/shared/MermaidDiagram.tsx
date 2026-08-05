@@ -11,6 +11,9 @@ function loadMermaid() {
     mermaid.initialize({
       startOnLoad: false,
       theme: "base",
+      // Keep mermaid from leaving its own giant "Syntax error in text" SVG in
+      // <body> when a diagram fails to parse — it throws before cleaning up.
+      suppressErrorRendering: true,
       // Soft, cohesive palette + rounded nodes, drop shadows, curved links.
       fontFamily:
         "'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif",
@@ -169,6 +172,7 @@ export async function renderDiagramForExport(
     return decorateRoleIcons(svg);
   } catch {
     document.getElementById(`mermaid-export-${exportRenderCount}`)?.remove();
+    document.getElementById(`dmermaid-export-${exportRenderCount}`)?.remove();
     return null;
   }
 }
@@ -213,6 +217,7 @@ export function MermaidDiagram({
       } catch {
         // On failure mermaid may leave a temp error element behind — clean it up.
         document.getElementById(renderId)?.remove();
+        document.getElementById(`d${renderId}`)?.remove();
         if (!cancelled) setState({ status: "invalid" });
       }
     })();

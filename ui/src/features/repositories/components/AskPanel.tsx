@@ -1,13 +1,16 @@
 import {
   ChevronDownIcon,
   ChevronRightIcon,
+  CopyIcon,
   Loader2Icon,
   MessageCircleQuestionIcon,
   SendIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
+import { Markdown } from "@/components/shared/Markdown";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -119,9 +122,26 @@ function QuestionCard({ item }: { item: QuestionOut }) {
               {t("repositories.ask.answering")}
             </p>
           ) : item.answer ? (
-            <p className="whitespace-pre-wrap text-sm leading-relaxed">
-              {item.answer}
-            </p>
+            <>
+              {/* Rendered, not raw: the engine answers in Markdown. Copy hands back the
+                  source, which is what you paste into a ticket or doc. */}
+              <div className="flex justify-end">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 px-2 text-xs"
+                  onClick={() => {
+                    navigator.clipboard
+                      .writeText(item.answer ?? "")
+                      .then(() => toast.success(t("repositories.ask.copied")));
+                  }}
+                >
+                  <CopyIcon className="size-3" />
+                  {t("repositories.ask.copy")}
+                </Button>
+              </div>
+              <Markdown>{item.answer}</Markdown>
+            </>
           ) : (
             <p className="text-sm text-destructive">
               {item.error ?? t("repositories.ask.no_answer")}

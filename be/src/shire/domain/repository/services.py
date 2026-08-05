@@ -82,9 +82,12 @@ assumptions alone.
 ## Question
 {question}
 
-Answer concisely. Ground every claim in code you actually inspected and cite concrete file \
-paths (like `src/module/file.py`) where relevant. Use short paragraphs and bullet lists; no \
-headings. If the repository doesn't contain enough information to answer, say so plainly."""
+Answer concisely, in **Markdown** (it is rendered as Markdown, not shown as source): short \
+paragraphs, bullet lists, `inline code` for paths, symbols and commands, and fenced code blocks \
+for anything longer than one line. No headings, no preamble about what you are about to do. \
+Ground every claim in code you actually inspected and cite concrete file paths (like \
+`src/module/file.py`) where relevant. If the repository doesn't contain enough information to \
+answer, say so plainly."""
 
 
 def _question_prompt(slug: str, context_md: str, question: str) -> str:
