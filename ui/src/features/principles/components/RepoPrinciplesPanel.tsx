@@ -10,6 +10,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import { Highlightable } from "@/components/shared/Highlightable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -245,7 +246,10 @@ function StatusCard({
           ) : (
             <>
               {check.summary ? (
-                <p className="text-sm leading-relaxed">{check.summary}</p>
+                // The auditor's verdict — agent-written, so highlightable.
+                <Highlightable>
+                  <p className="text-sm leading-relaxed">{check.summary}</p>
+                </Highlightable>
               ) : null}
               {check.violations.length > 0 ? (
                 <ul className="space-y-2">

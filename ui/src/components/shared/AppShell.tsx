@@ -8,6 +8,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { SelectionHighlighter } from "@/features/highlights";
 import { cn } from "@/lib/utils";
 
 /**
@@ -39,6 +40,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           {children}
         </main>
       </SidebarInset>
+      {/* Offers itself on any text selection inside AI-written prose, on every page. */}
+      <SelectionHighlighter />
     </SidebarProvider>
   );
 }

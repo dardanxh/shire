@@ -15,6 +15,7 @@ from shire.domain.compliance import models as _compliance_models  # noqa: F401
 from shire.domain.connections import models as _connections_models  # noqa: F401
 from shire.domain.context import models as _context_models  # noqa: F401
 from shire.domain.council import models as _council_models  # noqa: F401
+from shire.domain.highlights import models as _highlights_models  # noqa: F401
 from shire.domain.hobits import models as _hobits_models  # noqa: F401
 from shire.domain.jobs import models as _jobs_models  # noqa: F401
 from shire.domain.members import models as _members_models  # noqa: F401

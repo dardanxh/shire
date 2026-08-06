@@ -152,6 +152,9 @@ export type CouncilTopicDetailOut =
 export type CouncilTakeOut = components["schemas"]["CouncilTakeResult"];
 export type CouncilTopicsPage =
   components["schemas"]["Page_CouncilTopicResult_"];
+export type HighlightOut = components["schemas"]["HighlightResult"];
+export type HighlightIn = components["schemas"]["CreateHighlight"];
+export type HighlightsPage = components["schemas"]["Page_HighlightResult_"];
 
 /** Roadmap item labels (backend types the column as a bare string). */
 export const ROADMAP_ITEM_LABELS = [

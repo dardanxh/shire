@@ -7,6 +7,7 @@ import compliance from "@/features/compliance/locales/en.json";
 import connectors from "@/features/connectors/locales/en.json";
 import council from "@/features/council/locales/en.json";
 import developments from "@/features/developments/locales/en.json";
+import highlights from "@/features/highlights/locales/en.json";
 import hobits from "@/features/hobits/locales/en.json";
 import home from "@/features/home/locales/en.json";
 import jobs from "@/features/jobs/locales/en.json";
@@ -57,6 +58,7 @@ const en = {
   ...compliance,
   ...apps,
   ...developments,
+  ...highlights,
 };
 
 i18n.use(initReactI18next).init({

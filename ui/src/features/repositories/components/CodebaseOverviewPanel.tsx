@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import { Highlightable } from "@/components/shared/Highlightable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -94,10 +95,14 @@ export function CodebaseOverviewPanel({ repoId }: { repoId: string }) {
               </div>
             ) : null}
 
+            {/* These four blocks are written by the engine, so they're highlightable — the
+                headings and badges around them are not. */}
             {data.summary ? (
-              <p className="text-lg font-medium leading-relaxed">
-                {data.summary}
-              </p>
+              <Highlightable>
+                <p className="text-lg font-medium leading-relaxed">
+                  {data.summary}
+                </p>
+              </Highlightable>
             ) : null}
 
             {data.problem ? (
@@ -105,9 +110,11 @@ export function CodebaseOverviewPanel({ repoId }: { repoId: string }) {
                 <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   {t("repositories.view.overview.problem")}
                 </h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {data.problem}
-                </p>
+                <Highlightable>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {data.problem}
+                  </p>
+                </Highlightable>
               </section>
             ) : null}
 
@@ -116,11 +123,13 @@ export function CodebaseOverviewPanel({ repoId }: { repoId: string }) {
                 <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   {t("repositories.view.overview.features")}
                 </h3>
-                <ul className="list-disc space-y-1 pl-5 text-sm leading-relaxed">
-                  {data.features.map((f) => (
-                    <li key={f}>{f}</li>
-                  ))}
-                </ul>
+                <Highlightable>
+                  <ul className="list-disc space-y-1 pl-5 text-sm leading-relaxed">
+                    {data.features.map((f) => (
+                      <li key={f}>{f}</li>
+                    ))}
+                  </ul>
+                </Highlightable>
               </section>
             ) : null}
 
@@ -129,9 +138,11 @@ export function CodebaseOverviewPanel({ repoId }: { repoId: string }) {
                 <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   {t("repositories.view.overview.audience")}
                 </h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {data.audience}
-                </p>
+                <Highlightable>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {data.audience}
+                  </p>
+                </Highlightable>
               </section>
             ) : null}
 

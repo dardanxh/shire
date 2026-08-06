@@ -23,6 +23,7 @@ import { Route as MergeReviewsRouteImport } from './routes/merge-reviews'
 import { Route as MembersRouteImport } from './routes/members'
 import { Route as JobsRouteImport } from './routes/jobs'
 import { Route as HobitsRouteImport } from './routes/hobits'
+import { Route as HighlightsRouteImport } from './routes/highlights'
 import { Route as DevelopmentsRouteImport } from './routes/developments'
 import { Route as DataRouteImport } from './routes/data'
 import { Route as CouncilRouteImport } from './routes/council'
@@ -142,6 +143,11 @@ const JobsRoute = JobsRouteImport.update({
 const HobitsRoute = HobitsRouteImport.update({
   id: '/hobits',
   path: '/hobits',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HighlightsRoute = HighlightsRouteImport.update({
+  id: '/highlights',
+  path: '/highlights',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DevelopmentsRoute = DevelopmentsRouteImport.update({
@@ -406,6 +412,7 @@ export interface FileRoutesByFullPath {
   '/council': typeof CouncilRouteWithChildren
   '/data': typeof DataRouteWithChildren
   '/developments': typeof DevelopmentsRoute
+  '/highlights': typeof HighlightsRoute
   '/hobits': typeof HobitsRouteWithChildren
   '/jobs': typeof JobsRouteWithChildren
   '/members': typeof MembersRouteWithChildren
@@ -469,6 +476,7 @@ export interface FileRoutesByTo {
   '/compliance': typeof ComplianceRoute
   '/connectors': typeof ConnectorsRoute
   '/developments': typeof DevelopmentsRoute
+  '/highlights': typeof HighlightsRoute
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
@@ -527,6 +535,7 @@ export interface FileRoutesById {
   '/council': typeof CouncilRouteWithChildren
   '/data': typeof DataRouteWithChildren
   '/developments': typeof DevelopmentsRoute
+  '/highlights': typeof HighlightsRoute
   '/hobits': typeof HobitsRouteWithChildren
   '/jobs': typeof JobsRouteWithChildren
   '/members': typeof MembersRouteWithChildren
@@ -595,6 +604,7 @@ export interface FileRouteTypes {
     | '/council'
     | '/data'
     | '/developments'
+    | '/highlights'
     | '/hobits'
     | '/jobs'
     | '/members'
@@ -658,6 +668,7 @@ export interface FileRouteTypes {
     | '/compliance'
     | '/connectors'
     | '/developments'
+    | '/highlights'
     | '/merge-reviews'
     | '/news'
     | '/principles'
@@ -715,6 +726,7 @@ export interface FileRouteTypes {
     | '/council'
     | '/data'
     | '/developments'
+    | '/highlights'
     | '/hobits'
     | '/jobs'
     | '/members'
@@ -782,6 +794,7 @@ export interface RootRouteChildren {
   CouncilRoute: typeof CouncilRouteWithChildren
   DataRoute: typeof DataRouteWithChildren
   DevelopmentsRoute: typeof DevelopmentsRoute
+  HighlightsRoute: typeof HighlightsRoute
   HobitsRoute: typeof HobitsRouteWithChildren
   JobsRoute: typeof JobsRouteWithChildren
   MembersRoute: typeof MembersRouteWithChildren
@@ -897,6 +910,13 @@ declare module '@tanstack/react-router' {
       path: '/hobits'
       fullPath: '/hobits'
       preLoaderRoute: typeof HobitsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/highlights': {
+      id: '/highlights'
+      path: '/highlights'
+      fullPath: '/highlights'
+      preLoaderRoute: typeof HighlightsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/developments': {
@@ -1464,6 +1484,7 @@ const rootRouteChildren: RootRouteChildren = {
   CouncilRoute: CouncilRouteWithChildren,
   DataRoute: DataRouteWithChildren,
   DevelopmentsRoute: DevelopmentsRoute,
+  HighlightsRoute: HighlightsRoute,
   HobitsRoute: HobitsRouteWithChildren,
   JobsRoute: JobsRouteWithChildren,
   MembersRoute: MembersRouteWithChildren,

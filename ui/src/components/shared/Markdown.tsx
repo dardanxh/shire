@@ -17,6 +17,9 @@ export function Markdown({
 }) {
   return (
     <div
+      // Everything rendered here is agent-written prose, which is exactly what the
+      // selection-to-highlight toolbar offers itself for (see `use-text-selection`).
+      data-highlightable="true"
       className={cn(
         "text-sm leading-relaxed",
         "[&_p]:my-1.5 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0",

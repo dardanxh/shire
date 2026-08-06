@@ -7,6 +7,7 @@ import {
   FolderGitIcon,
   GaugeIcon,
   GlobeIcon,
+  HighlighterIcon,
   HomeIcon,
   LandmarkIcon,
   LayersIcon,
@@ -83,6 +84,13 @@ const WORKSPACE_ITEMS: NavItem[] = [
     icon: NewspaperIcon,
     search: { tab: "feed" },
     match: (p) => p === "/developments",
+  },
+  {
+    to: "/highlights",
+    labelKey: "common.nav.highlights",
+    icon: HighlighterIcon,
+    search: { page: 1, size: 20 },
+    match: (p) => p === "/highlights",
   },
   {
     to: "/members",

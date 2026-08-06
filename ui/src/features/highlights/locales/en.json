@@ -1,0 +1,19 @@
+{
+  "highlights": {
+    "crumb": "Highlights",
+    "title": "Highlights",
+    "desc": "Passages you kept while reading. Select any AI-written text to add one.",
+    "button": "Highlight",
+    "saved": "Highlighted.",
+    "empty_title": "No highlights yet",
+    "empty_body": "Select a sentence in any AI-written passage — a repository's Ask answer, an MR overview, a council take — and click Highlight.",
+    "open": "Open",
+    "copy": "Copy",
+    "copied": "Highlight copied.",
+    "delete": "Delete highlight",
+    "deleted": "Highlight deleted.",
+    "unknown_source": "Unknown page",
+    "no_link": "This page no longer exists",
+    "load_error": "Could not load your highlights: {{message}}"
+  }
+}

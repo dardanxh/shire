@@ -12,6 +12,7 @@ import {
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { Highlightable } from "@/components/shared/Highlightable";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -227,17 +228,21 @@ export function ItemDialog({
 
             {item.description ? (
               <Section label={t("roadmaps.item.description")}>
-                <p className="whitespace-pre-wrap text-sm">
-                  {item.description}
-                </p>
+                <Highlightable>
+                  <p className="whitespace-pre-wrap text-sm">
+                    {item.description}
+                  </p>
+                </Highlightable>
               </Section>
             ) : null}
 
             {item.rationale ? (
               <Section label={t("roadmaps.item.rationale")}>
-                <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-                  {item.rationale}
-                </p>
+                <Highlightable>
+                  <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                    {item.rationale}
+                  </p>
+                </Highlightable>
               </Section>
             ) : null}
 
