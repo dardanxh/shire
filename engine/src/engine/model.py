@@ -18,6 +18,10 @@ class EngineRequest(BaseModel):
     system: str | None = None
     cwd: str
     allowed_tools: tuple[str, ...] = ("Read", "Grep", "Glob")
+    # Tools to deny outright. Deny beats allow, so this is the only way to express "no tools":
+    # an *empty* `allowed_tools` omits the --allowedTools flag, which the CLI reads as
+    # unrestricted rather than as sandboxed.
+    disallowed_tools: tuple[str, ...] = ()
     model: str | None = None
     timeout_seconds: float = 500.0
 

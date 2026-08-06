@@ -168,6 +168,9 @@ class ClaudeCliEngine:
             argv += ["--append-system-prompt", request.system]
         if request.allowed_tools:
             argv += ["--allowedTools", *request.allowed_tools]
+        # Deny wins over allow, so this is how a run gets no tools at all.
+        if request.disallowed_tools:
+            argv += ["--disallowedTools", *request.disallowed_tools]
         # In --print mode, `default` auto-denies non-allowed tools instead of prompting (which
         # would hang headlessly) — so the allow-list above is the actual permission boundary.
         argv += ["--permission-mode", "default"]

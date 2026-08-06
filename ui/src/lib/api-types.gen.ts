@@ -3376,6 +3376,276 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/prompts/analyze": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Analyze Prompt
+         * @description Score a prompt against the best-practice rule pack. Stores nothing, calls no model.
+         */
+        post: operations["analyze_prompt_api_v1_prompts_analyze_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prompts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Prompts
+         * @description The library, most recently touched first.
+         */
+        get: operations["list_prompts_api_v1_prompts_get"];
+        put?: never;
+        /**
+         * Create Prompt
+         * @description Add a prompt to the library. The supplied body becomes version 1.
+         */
+        post: operations["create_prompt_api_v1_prompts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prompts/{prompt_id}/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Prompt Metrics
+         * @description One point per version for the trend chart: static score, AI scores, measured cost.
+         */
+        get: operations["get_prompt_metrics_api_v1_prompts__prompt_id__metrics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prompts/{prompt_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Prompt
+         * @description One prompt with its current version in full and the version list.
+         */
+        get: operations["get_prompt_api_v1_prompts__prompt_id__get"];
+        /**
+         * Update Prompt
+         * @description Library metadata only -- the text is immutable, so edits go through a new version.
+         */
+        put: operations["update_prompt_api_v1_prompts__prompt_id__put"];
+        post?: never;
+        /** Delete Prompt */
+        delete: operations["delete_prompt_api_v1_prompts__prompt_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prompts/{prompt_id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Prompt Versions
+         * @description Every version, newest first.
+         */
+        get: operations["list_prompt_versions_api_v1_prompts__prompt_id__versions_get"];
+        put?: never;
+        /**
+         * Create Prompt Version
+         * @description Append a version and make it current. Scored on the way in.
+         */
+        post: operations["create_prompt_version_api_v1_prompts__prompt_id__versions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prompts/{prompt_id}/versions/{version_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Prompt Version */
+        get: operations["get_prompt_version_api_v1_prompts__prompt_id__versions__version_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prompts/{prompt_id}/versions/{version_id}/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set Current Prompt Version
+         * @description Roll the workbench back to an earlier version without losing later ones.
+         */
+        post: operations["set_current_prompt_version_api_v1_prompts__prompt_id__versions__version_id__current_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prompts/{prompt_id}/versions/{version_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Review Prompt Version
+         * @description Score a version on eight dimensions. Poll the version detail for the settled review.
+         */
+        post: operations["review_prompt_version_api_v1_prompts__prompt_id__versions__version_id__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prompts/{prompt_id}/versions/{version_id}/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Prompt Reviews
+         * @description AI reviews of this version, newest first.
+         */
+        get: operations["list_prompt_reviews_api_v1_prompts__prompt_id__versions__version_id__reviews_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prompts/{prompt_id}/versions/{version_id}/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Suggest Prompt Rewrite
+         * @description Ask the model for a rewrite. Poll the version detail for the settled suggestion.
+         */
+        post: operations["suggest_prompt_rewrite_api_v1_prompts__prompt_id__versions__version_id__suggest_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prompts/{prompt_id}/versions/{version_id}/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Prompt Suggestions
+         * @description Rewrites proposed for this version, newest first.
+         */
+        get: operations["list_prompt_suggestions_api_v1_prompts__prompt_id__versions__version_id__suggestions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prompts/{prompt_id}/versions/{version_id}/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start Prompt Arena Run
+         * @description Run this version against several models at once. One engine job per model.
+         */
+        post: operations["start_prompt_arena_run_api_v1_prompts__prompt_id__versions__version_id__runs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prompts/{prompt_id}/versions/{version_id}/batches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Prompt Arena Batches
+         * @description Arena batches for this version, newest first, each with the judge's verdict.
+         */
+        get: operations["list_prompt_arena_batches_api_v1_prompts__prompt_id__versions__version_id__batches_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -3563,6 +3833,14 @@ export interface components {
             /** Rating Health */
             rating_health: string;
         };
+        /**
+         * AnalyzePrompt
+         * @description Score a body without storing anything -- powers the live editor feedback.
+         */
+        AnalyzePrompt: {
+            /** Body */
+            body: string;
+        };
         /** ApplyCicdSuggestions */
         ApplyCicdSuggestions: {
             /** Suggestion Ids */
@@ -3573,6 +3851,12 @@ export interface components {
             /** Suggestion Ids */
             suggestion_ids: string[];
         };
+        /**
+         * Archetype
+         * @description The voice a rewrite should adopt.
+         * @enum {string}
+         */
+        Archetype: "clear_crisp" | "straight_to_point" | "politically_correct" | "aggressive" | "well_organized" | "action_oriented";
         /**
          * ArchitectureDiagram
          * @description One diagram in the catalog. Always present; `mermaid` is filled once generated.
@@ -3668,6 +3952,25 @@ export interface components {
              * @default true
              */
             agent_available: boolean;
+        };
+        /**
+         * ArenaBatchResult
+         * @description One "test across these models" action: its runs and the judge's verdict on them.
+         */
+        ArenaBatchResult: {
+            /**
+             * Batch Id
+             * Format: uuid
+             */
+            batch_id: string;
+            /** Runs */
+            runs: components["schemas"]["PromptRunResult"][];
+            judgement: components["schemas"]["PromptJudgementResult"] | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** ArtifactState */
         ArtifactState: {
@@ -5456,6 +5759,40 @@ export interface components {
              */
             enabled: boolean;
         };
+        /**
+         * CreatePrompt
+         * @description A new prompt. The body becomes version 1.
+         */
+        CreatePrompt: {
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /** Tags */
+            tags?: string[];
+            /** Body */
+            body: string;
+            /** Guidance */
+            guidance?: string | null;
+            tuning?: components["schemas"]["Tuning"];
+        };
+        /**
+         * CreatePromptVersion
+         * @description Append a version. `source` records whether a human or the model wrote the body.
+         */
+        CreatePromptVersion: {
+            /** Body */
+            body: string;
+            /** Guidance */
+            guidance?: string | null;
+            tuning?: components["schemas"]["Tuning"];
+            /** @default manual */
+            source: components["schemas"]["VersionSource"];
+            /** Note */
+            note?: string | null;
+            /** From Suggestion Id */
+            from_suggestion_id?: string | null;
+        };
         /** CreateRoadmap */
         CreateRoadmap: {
             /** Name */
@@ -5950,6 +6287,19 @@ export interface components {
             detail: string | null;
         };
         /**
+         * EnqueuedResult
+         * @description 202 body for the async actions: the artefact row plus the engine job driving it.
+         */
+        EnqueuedResult: {
+            /** Job Id */
+            job_id: string | null;
+            /**
+             * Artefact Id
+             * Format: uuid
+             */
+            artefact_id: string;
+        };
+        /**
          * Enrichment
          * @description Scalar enrichment bundle embedded on an Analysis (all tool-sourced, best-effort).
          */
@@ -6164,6 +6514,31 @@ export interface components {
              * @default false
              */
             is_hotspot: boolean;
+        };
+        /**
+         * Finding
+         * @description One rule that fired, with everything the UI needs to explain itself.
+         */
+        Finding: {
+            /** Rule Id */
+            rule_id: string;
+            /** Dimension */
+            dimension: string;
+            /** Severity */
+            severity: string;
+            /** Title */
+            title: string;
+            /** Detail */
+            detail: string;
+            /** Why It Matters */
+            why_it_matters: string;
+            /**
+             * Occurrences
+             * @default 1
+             */
+            occurrences: number;
+            /** Evidence */
+            evidence?: string | null;
         };
         /**
          * Footprint
@@ -6748,6 +7123,26 @@ export interface components {
             num_turns?: number | null;
             /** Models */
             models?: string[] | null;
+        };
+        /** JudgeScore */
+        JudgeScore: {
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+            /** Faithfulness */
+            faithfulness: number | null;
+            /** Completeness */
+            completeness: number | null;
+            /** Instruction Adherence */
+            instruction_adherence: number | null;
+            /** Groundedness */
+            groundedness: number | null;
+            /** Overall */
+            overall: number | null;
+            /** Rationale */
+            rationale: string;
         };
         /** LanguageShift */
         LanguageShift: {
@@ -7459,6 +7854,11 @@ export interface components {
             /** First Repository Id */
             first_repository_id: string | null;
         };
+        /**
+         * OutputFormat
+         * @enum {string}
+         */
+        OutputFormat: "none" | "markdown" | "json" | "plain" | "table";
         /** Page[ActivityEventResult] */
         Page_ActivityEventResult_: {
             /** Items */
@@ -7606,6 +8006,19 @@ export interface components {
         Page_NewsItemResult_: {
             /** Items */
             items: components["schemas"]["NewsItemResult"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
+        };
+        /** Page[PromptResult] */
+        Page_PromptResult_: {
+            /** Items */
+            items: components["schemas"]["PromptResult"][];
             /** Total */
             total: number;
             /** Page */
@@ -7772,6 +8185,442 @@ export interface components {
              * @default 0
              */
             violated_count: number;
+        };
+        /**
+         * PromptDetailResult
+         * @description What the workbench opens on: the library row, the current version in full, and the version
+         *     list for the picker.
+         */
+        PromptDetailResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string | null;
+            /** Tags */
+            tags: string[];
+            /** Current Version Id */
+            current_version_id: string | null;
+            /** Current Version Number */
+            current_version_number: number | null;
+            /** Version Count */
+            version_count: number;
+            /** Static Score */
+            static_score: number | null;
+            /** Estimated Input Tokens */
+            estimated_input_tokens: number | null;
+            /** Score History */
+            score_history: number[];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            current_version: components["schemas"]["PromptVersionDetailResult"] | null;
+            /** Versions */
+            versions: components["schemas"]["PromptVersionResult"][];
+        };
+        /** PromptJudgementResult */
+        PromptJudgementResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Version Id
+             * Format: uuid
+             */
+            version_id: string;
+            /**
+             * Batch Id
+             * Format: uuid
+             */
+            batch_id: string;
+            /** Job Id */
+            job_id: string | null;
+            /** Status */
+            status: string;
+            /** Model */
+            model: string;
+            /** Scores */
+            scores: components["schemas"]["JudgeScore"][];
+            /** Winner Run Id */
+            winner_run_id: string | null;
+            /** Summary */
+            summary: string | null;
+            /** Error */
+            error: string | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /**
+         * PromptMetricPoint
+         * @description One version's numbers, for the trend chart. Every field is nullable except the version
+         *     identity: a version that was never reviewed or never run still belongs on the x-axis, as a gap
+         *     rather than a zero.
+         */
+        PromptMetricPoint: {
+            /**
+             * Version Id
+             * Format: uuid
+             */
+            version_id: string;
+            /** Number */
+            number: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Source */
+            source: string;
+            /** Estimated Input Tokens */
+            estimated_input_tokens: number;
+            /** Static Score */
+            static_score: number;
+            /** Review Model */
+            review_model: string | null;
+            /** Clarity */
+            clarity: number | null;
+            /** Specificity */
+            specificity: number | null;
+            /** Structure */
+            structure: number | null;
+            /** Context Sufficiency */
+            context_sufficiency: number | null;
+            /** Factfulness */
+            factfulness: number | null;
+            /** Accuracy */
+            accuracy: number | null;
+            /** Goal Focus */
+            goal_focus: number | null;
+            /** Hallucination Risk */
+            hallucination_risk: number | null;
+            /** Measured Input Tokens */
+            measured_input_tokens: number | null;
+            /** Measured Output Tokens */
+            measured_output_tokens: number | null;
+            /** Total Cost Usd */
+            total_cost_usd: number | null;
+            /** Run Count */
+            run_count: number;
+            /** Judge Overall */
+            judge_overall: number | null;
+        };
+        /**
+         * PromptMetricsResult
+         * @description The whole trend, oldest version first.
+         *
+         *     Deliberately carries no "estimator accuracy" figure. It looks derivable -- measured tokens over
+         *     estimated tokens -- but is not: the CLI's usage covers its own system prompt and tool
+         *     definitions as well as the prompt under test, so the ratio would compare two different things
+         *     and read as a wild estimator error (5% on a real measurement) rather than as overhead.
+         */
+        PromptMetricsResult: {
+            /**
+             * Prompt Id
+             * Format: uuid
+             */
+            prompt_id: string;
+            /** Points */
+            points: components["schemas"]["PromptMetricPoint"][];
+        };
+        /**
+         * PromptResult
+         * @description A library row. Carries the current version's headline numbers so the list needs no joins,
+         *     plus the score of every version so the table can draw a sparkline.
+         */
+        PromptResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string | null;
+            /** Tags */
+            tags: string[];
+            /** Current Version Id */
+            current_version_id: string | null;
+            /** Current Version Number */
+            current_version_number: number | null;
+            /** Version Count */
+            version_count: number;
+            /** Static Score */
+            static_score: number | null;
+            /** Estimated Input Tokens */
+            estimated_input_tokens: number | null;
+            /** Score History */
+            score_history: number[];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * PromptReviewResult
+         * @description One AI metrics pass. Scores are 0-100; `hallucination_risk` is the one where high is bad.
+         */
+        PromptReviewResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Version Id
+             * Format: uuid
+             */
+            version_id: string;
+            /** Job Id */
+            job_id: string | null;
+            /** Status */
+            status: string;
+            /** Model */
+            model: string;
+            /** Clarity */
+            clarity: number | null;
+            /** Specificity */
+            specificity: number | null;
+            /** Structure */
+            structure: number | null;
+            /** Context Sufficiency */
+            context_sufficiency: number | null;
+            /** Factfulness */
+            factfulness: number | null;
+            /** Accuracy */
+            accuracy: number | null;
+            /** Goal Focus */
+            goal_focus: number | null;
+            /** Hallucination Risk */
+            hallucination_risk: number | null;
+            /** Size Verdict */
+            size_verdict: string | null;
+            /** Goal Count */
+            goal_count: number | null;
+            /** Summary */
+            summary: string | null;
+            /** Findings */
+            findings: components["schemas"]["ReviewFinding"][];
+            /** Error */
+            error: string | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /**
+         * PromptRunResult
+         * @description One execution. Token counts and cost here are *measured*, unlike the version's estimate.
+         */
+        PromptRunResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Version Id
+             * Format: uuid
+             */
+            version_id: string;
+            /**
+             * Batch Id
+             * Format: uuid
+             */
+            batch_id: string;
+            /** Job Id */
+            job_id: string | null;
+            /** Model */
+            model: string;
+            /** Status */
+            status: string;
+            /** Output */
+            output: string | null;
+            /** Input Tokens */
+            input_tokens: number | null;
+            /** Output Tokens */
+            output_tokens: number | null;
+            /** Cache Read Input Tokens */
+            cache_read_input_tokens: number | null;
+            /** Cache Creation Input Tokens */
+            cache_creation_input_tokens: number | null;
+            /** Total Cost Usd */
+            total_cost_usd: number | null;
+            /** Num Turns */
+            num_turns: number | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /** Error */
+            error: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /** PromptStats */
+        PromptStats: {
+            /** Characters */
+            characters: number;
+            /** Words */
+            words: number;
+            /** Sentences */
+            sentences: number;
+            /** Lines */
+            lines: number;
+        };
+        /** PromptSuggestionResult */
+        PromptSuggestionResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Version Id
+             * Format: uuid
+             */
+            version_id: string;
+            /** Job Id */
+            job_id: string | null;
+            /** Status */
+            status: string;
+            /** Model */
+            model: string;
+            /** Rewritten Body */
+            rewritten_body: string | null;
+            /** Changes */
+            changes: components["schemas"]["SuggestionChange"][];
+            /** Summary */
+            summary: string | null;
+            /** Error */
+            error: string | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /**
+         * PromptVersionDetailResult
+         * @description A version plus the deterministic findings and every async artefact hanging off it.
+         */
+        PromptVersionDetailResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Prompt Id
+             * Format: uuid
+             */
+            prompt_id: string;
+            /** Number */
+            number: number;
+            /** Body */
+            body: string;
+            /** Guidance */
+            guidance: string | null;
+            tuning: components["schemas"]["Tuning"];
+            /** Source */
+            source: string;
+            /** Note */
+            note: string | null;
+            /** Estimated Input Tokens */
+            estimated_input_tokens: number;
+            /** Static Score */
+            static_score: number;
+            /** Size Verdict */
+            size_verdict: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Findings */
+            findings: components["schemas"]["Finding"][];
+            /** Suggestions */
+            suggestions: components["schemas"]["PromptSuggestionResult"][];
+            /** Reviews */
+            reviews: components["schemas"]["PromptReviewResult"][];
+            /** Batches */
+            batches: components["schemas"]["ArenaBatchResult"][];
+        };
+        /**
+         * PromptVersionResult
+         * @description A version without its findings -- the shape the version table and trend chart read.
+         */
+        PromptVersionResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Prompt Id
+             * Format: uuid
+             */
+            prompt_id: string;
+            /** Number */
+            number: number;
+            /** Body */
+            body: string;
+            /** Guidance */
+            guidance: string | null;
+            tuning: components["schemas"]["Tuning"];
+            /** Source */
+            source: string;
+            /** Note */
+            note: string | null;
+            /** Estimated Input Tokens */
+            estimated_input_tokens: number;
+            /** Static Score */
+            static_score: number;
+            /** Size Verdict */
+            size_verdict: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /**
          * PulseEntryResult
@@ -8214,6 +9063,35 @@ export interface components {
             updated_at: string;
         };
         /**
+         * RequestSuggestion
+         * @description Ask the model to rewrite a version.
+         *
+         *     Tuning and guidance are supplied per request rather than read off the version, so the panel can
+         *     try a different voice without first saving a version nobody wanted.
+         */
+        RequestSuggestion: {
+            tuning?: components["schemas"]["Tuning"];
+            /** Guidance */
+            guidance?: string | null;
+        };
+        /**
+         * ReviewFinding
+         * @description One thing the reviewing model would change. Distinct from `analysis.Finding`, which is
+         *     mechanical -- this is a judgement, and the UI keeps the two visually apart.
+         */
+        ReviewFinding: {
+            /** Dimension */
+            dimension: string;
+            /** Severity */
+            severity: string;
+            /** Title */
+            title: string;
+            /** Detail */
+            detail: string;
+            /** Evidence */
+            evidence: string | null;
+        };
+        /**
          * RiskBreakdown
          * @description The composite risk score and its components (each 0-100), plus how it was combined.
          */
@@ -8636,6 +9514,59 @@ export interface components {
             starred: boolean;
         };
         /**
+         * StartArenaRun
+         * @description Run one version against several models at once.
+         *
+         *     `judge` defaults on: comparing outputs by eye is the tedious part, and the judge is one extra
+         *     call on top of N runs that already happened.
+         */
+        StartArenaRun: {
+            /** Models */
+            models: string[];
+            /** System */
+            system?: string | null;
+            /** Variables */
+            variables?: {
+                [key: string]: string;
+            } | null;
+            /**
+             * Judge
+             * @default true
+             */
+            judge: boolean;
+            /** Judge Model */
+            judge_model?: string | null;
+        };
+        /**
+         * StaticAnalysis
+         * @description The full deterministic verdict for one prompt body.
+         */
+        StaticAnalysis: {
+            /** Estimated Input Tokens */
+            estimated_input_tokens: number;
+            /** Score */
+            score: number;
+            /** Size Verdict */
+            size_verdict: string;
+            /** Goal Count */
+            goal_count: number;
+            stats: components["schemas"]["PromptStats"];
+            /** Findings */
+            findings: components["schemas"]["Finding"][];
+        };
+        /**
+         * SuggestionChange
+         * @description One of the model's notes on what it changed. Explanatory, not an applicable patch.
+         */
+        SuggestionChange: {
+            /** Title */
+            title: string;
+            /** Rationale */
+            rationale: string;
+            /** Dimension */
+            dimension: string;
+        };
+        /**
          * SwitchBranchRequest
          * @description Switch the repository's active branch (checkout + pull + full re-analysis).
          */
@@ -8968,6 +9899,51 @@ export interface components {
             body: string;
         };
         /**
+         * Tuning
+         * @description The knobs applied when Claude rewrites a prompt.
+         *
+         *     Every field has a defensible default so an untuned version still round-trips: the defaults
+         *     describe "a clear, moderately detailed prompt for an unspecified audience", which is what you
+         *     want when the user has only pasted text and not touched the panel yet.
+         */
+        Tuning: {
+            /**
+             * Criticality
+             * @default 3
+             */
+            criticality: number;
+            /**
+             * Sensitivity
+             * @default 1
+             */
+            sensitivity: number;
+            /**
+             * Verbosity
+             * @default 3
+             */
+            verbosity: number;
+            /** @default clear_crisp */
+            archetype: components["schemas"]["Archetype"];
+            /** @default none */
+            output_format: components["schemas"]["OutputFormat"];
+            /**
+             * Disclaimer
+             * @default false
+             */
+            disclaimer: boolean;
+            /** Disclaimer Text */
+            disclaimer_text?: string | null;
+            /** Keywords */
+            keywords?: string[];
+            /** Audience */
+            audience?: string | null;
+            /**
+             * Target Model
+             * @default sonnet
+             */
+            target_model: string;
+        };
+        /**
          * UpdateArchitectureQuality
          * @description Star-only update — quality content stays seed-managed.
          */
@@ -9194,6 +10170,18 @@ export interface components {
             enabled: boolean;
         };
         /**
+         * UpdatePrompt
+         * @description Library metadata only. The text is immutable -- edits create a version.
+         */
+        UpdatePrompt: {
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /** Tags */
+            tags?: string[];
+        };
+        /**
          * UpdateRoadmap
          * @description Full edit — affects the *next* generated version, never the current one.
          */
@@ -9308,6 +10296,12 @@ export interface components {
             /** Context */
             ctx?: Record<string, never>;
         };
+        /**
+         * VersionSource
+         * @description Where a version's body came from.
+         * @enum {string}
+         */
+        VersionSource: "manual" | "ai_rewrite" | "suggestion_merge";
         /** Vulnerability */
         Vulnerability: {
             /** Package */
@@ -16100,6 +17094,562 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    analyze_prompt_api_v1_prompts_analyze_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalyzePrompt"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaticAnalysis"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_prompts_api_v1_prompts_get: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_PromptResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_prompt_api_v1_prompts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePrompt"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromptDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_prompt_metrics_api_v1_prompts__prompt_id__metrics_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                prompt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromptMetricsResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_prompt_api_v1_prompts__prompt_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                prompt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromptDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_prompt_api_v1_prompts__prompt_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                prompt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePrompt"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromptDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_prompt_api_v1_prompts__prompt_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                prompt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_prompt_versions_api_v1_prompts__prompt_id__versions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                prompt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromptVersionResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_prompt_version_api_v1_prompts__prompt_id__versions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                prompt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePromptVersion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromptVersionDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_prompt_version_api_v1_prompts__prompt_id__versions__version_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                prompt_id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromptVersionDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_current_prompt_version_api_v1_prompts__prompt_id__versions__version_id__current_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                prompt_id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromptDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_prompt_version_api_v1_prompts__prompt_id__versions__version_id__review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                prompt_id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnqueuedResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_prompt_reviews_api_v1_prompts__prompt_id__versions__version_id__reviews_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                prompt_id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromptReviewResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    suggest_prompt_rewrite_api_v1_prompts__prompt_id__versions__version_id__suggest_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                prompt_id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequestSuggestion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnqueuedResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_prompt_suggestions_api_v1_prompts__prompt_id__versions__version_id__suggestions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                prompt_id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromptSuggestionResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_prompt_arena_run_api_v1_prompts__prompt_id__versions__version_id__runs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                prompt_id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartArenaRun"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromptRunResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_prompt_arena_batches_api_v1_prompts__prompt_id__versions__version_id__batches_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                prompt_id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArenaBatchResult"][];
+                };
             };
             /** @description Validation Error */
             422: {

@@ -26,6 +26,12 @@ from shire.domain.merge_review.jobs import (
 )
 from shire.domain.news.jobs import handle_news_poll, handle_news_recommend
 from shire.domain.principles.jobs import handle_principle_audit
+from shire.domain.prompts.jobs import (
+    handle_prompt_judge,
+    handle_prompt_review,
+    handle_prompt_run,
+    handle_prompt_suggest,
+)
 from shire.domain.readiness.jobs import (
     handle_readiness_apply,
     handle_readiness_suggest,
@@ -80,4 +86,8 @@ HANDLERS: dict[str, Callable[[JobRow], None]] = {
     kinds.ROADMAP_GENERATE: handle_roadmap_generate,
     kinds.ROADMAP_EXECUTE: handle_roadmap_execute,
     kinds.ROADMAP_DRIFT: handle_roadmap_drift,
+    kinds.PROMPT_REVIEW: handle_prompt_review,
+    kinds.PROMPT_SUGGEST: handle_prompt_suggest,
+    kinds.PROMPT_RUN: handle_prompt_run,
+    kinds.PROMPT_JUDGE: handle_prompt_judge,
 }

@@ -1,4 +1,4 @@
-import { ChevronsUpDownIcon, InfoIcon, Loader2Icon } from "lucide-react";
+import { ChevronsUpDownIcon, InfoIcon, Loader2Icon, XIcon } from "lucide-react";
 import { type ComponentProps, type ReactNode, useState } from "react";
 import {
   type FieldPath,
@@ -37,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -421,6 +422,148 @@ export function CheckboxField<T extends FieldValues>({
           <FormMessage />
         </FormItem>
       )}
+    />
+  );
+}
+
+export function SliderField<T extends FieldValues>({
+  name,
+  label,
+  description,
+  info,
+  min = 1,
+  max = 5,
+  step = 1,
+  disabled,
+  formatValue,
+}: BaseFieldProps<T> & {
+  min?: number;
+  max?: number;
+  step?: number;
+  disabled?: boolean;
+  /** Render the current value as a word ("Critical") instead of the bare number. */
+  formatValue?: (value: number) => string;
+}) {
+  const { control } = useFormContext<T>();
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => {
+        const value = Number(field.value ?? min);
+        return (
+          <FormItem>
+            <div className="flex items-baseline justify-between gap-2">
+              <FieldLabel label={label} info={info} />
+              <span className="text-sm font-medium tabular-nums">
+                {formatValue ? formatValue(value) : value}
+              </span>
+            </div>
+            <FormControl>
+              <Slider
+                value={value}
+                onValueChange={(next) =>
+                  // base-ui emits number | number[] depending on thumb count; this is single-thumb.
+                  field.onChange(Array.isArray(next) ? next[0] : next)
+                }
+                onBlur={field.onBlur}
+                min={min}
+                max={max}
+                step={step}
+                disabled={disabled}
+              />
+            </FormControl>
+            {description ? (
+              <FormDescription>{description}</FormDescription>
+            ) : null}
+            <FormMessage />
+          </FormItem>
+        );
+      }}
+    />
+  );
+}
+
+export function TagsField<T extends FieldValues>({
+  name,
+  label,
+  description,
+  info,
+  placeholder,
+  disabled,
+}: BaseFieldProps<T> & { placeholder?: string; disabled?: boolean }) {
+  const { control } = useFormContext<T>();
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => {
+        const tags: string[] = Array.isArray(field.value) ? field.value : [];
+        const add = (raw: string) => {
+          const trimmed = raw.trim().replace(/,$/, "").trim();
+          if (!trimmed) return;
+          // Case-insensitive de-dupe: two chips differing only in case read as a UI bug.
+          if (tags.some((tag) => tag.toLowerCase() === trimmed.toLowerCase()))
+            return;
+          field.onChange([...tags, trimmed]);
+        };
+        return (
+          <FormItem>
+            <FieldLabel label={label} info={info} />
+            <FormControl>
+              <Input
+                placeholder={placeholder}
+                disabled={disabled}
+                onBlur={(event) => {
+                  // Commit whatever is half-typed: losing a tag because the user clicked away
+                  // instead of pressing Enter is the classic chip-input annoyance.
+                  add(event.target.value);
+                  event.target.value = "";
+                  field.onBlur();
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === ",") {
+                    event.preventDefault();
+                    add(event.currentTarget.value);
+                    event.currentTarget.value = "";
+                  } else if (
+                    event.key === "Backspace" &&
+                    event.currentTarget.value === "" &&
+                    tags.length > 0
+                  ) {
+                    field.onChange(tags.slice(0, -1));
+                  }
+                }}
+              />
+            </FormControl>
+            {tags.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {tags.map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    disabled={disabled}
+                    onClick={() =>
+                      field.onChange(tags.filter((t) => t !== tag))
+                    }
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs",
+                      "hover:bg-muted/70 disabled:cursor-not-allowed",
+                    )}
+                  >
+                    {tag}
+                    <XIcon className="size-3" />
+                  </button>
+                ))}
+              </div>
+            ) : null}
+            {description ? (
+              <FormDescription>{description}</FormDescription>
+            ) : null}
+            <FormMessage />
+          </FormItem>
+        );
+      }}
     />
   );
 }

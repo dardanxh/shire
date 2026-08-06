@@ -30,6 +30,10 @@ NEWS_RECOMMEND = "news.recommend"
 ROADMAP_GENERATE = "roadmap.generate"
 ROADMAP_EXECUTE = "roadmap.execute"
 ROADMAP_DRIFT = "roadmap.drift"
+PROMPT_REVIEW = "prompt.review"
+PROMPT_SUGGEST = "prompt.suggest"
+PROMPT_RUN = "prompt.run"
+PROMPT_JUDGE = "prompt.judge"
 
 # Models the engine's `claude` CLI accepts: aliases (track the latest version) plus pinned
 # IDs for reproducibility. Curated here so the Config tab's dropdown has one place to update.
@@ -37,7 +41,9 @@ AVAILABLE_MODELS = (
     "sonnet",
     "opus",
     "haiku",
-    "claude-sonnet-4-6",
+    "claude-opus-5",
+    "claude-sonnet-5",
     "claude-opus-4-8",
+    "claude-sonnet-4-6",
     "claude-haiku-4-5",
 )

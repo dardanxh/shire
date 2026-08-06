@@ -1,0 +1,256 @@
+{
+  "prompts": {
+    "crumb": "Prompts",
+    "title": "Prompts",
+    "desc": "A versioned prompt library. Paste a prompt, see how it measures against prompting best practices, and watch the score move as you improve it.",
+    "load_error": "Could not load prompts: {{message}}",
+    "saved_score": "saved",
+    "unsaved": "Unsaved changes",
+    "tabs": {
+      "editor": "Editor",
+      "checks": "Checks",
+      "tuning": "Tuning",
+      "suggestions": "Suggestions",
+      "versions": "Versions",
+      "running": "Running",
+      "arena": "Arena",
+      "dashboard": "Trend"
+    },
+    "tuning": {
+      "intro": "Set the constraints, then ask for a rewrite. These knobs are compiled into instructions for the model — they are not applied to your text mechanically.",
+      "footnote": "The rewrite starts from the deterministic findings, so the model spends its effort fixing them rather than rediscovering them.",
+      "request": "Ask for a rewrite",
+      "requested": "Rewrite requested. It will appear under Suggestions.",
+      "criticality": "Criticality",
+      "criticality_hint": "How expensive a mistake is.",
+      "sensitivity": "Sensitivity",
+      "sensitivity_hint": "How delicate the subject matter is.",
+      "verbosity": "Verbosity",
+      "verbosity_hint": "How much detail the answer should carry.",
+      "archetype": "Voice",
+      "archetype_hint": "How the prompt should read.",
+      "output_format": "Output format",
+      "audience": "Audience",
+      "audience_placeholder": "the on-call engineer",
+      "keywords": "Must-include terms",
+      "keywords_hint": "Enter or comma to add; backspace removes the last one.",
+      "keywords_placeholder": "SLA, escalation",
+      "disclaimer": "Add a disclaimer",
+      "disclaimer_hint": "Ask the prompt to caveat its own output.",
+      "disclaimer_text": "Disclaimer wording",
+      "disclaimer_text_placeholder": "Leave blank for a sensible default",
+      "rating": {
+        "1": "1 — minimal",
+        "2": "2 — low",
+        "3": "3 — normal",
+        "4": "4 — high",
+        "5": "5 — maximum"
+      },
+      "archetype_option": {
+        "clear_crisp": "Clear and crisp",
+        "straight_to_point": "Straight to the point",
+        "politically_correct": "Carefully neutral",
+        "aggressive": "Aggressive",
+        "well_organized": "Well organised",
+        "action_oriented": "Action oriented"
+      },
+      "output_format_option": {
+        "none": "Unspecified",
+        "markdown": "Markdown",
+        "json": "JSON",
+        "plain": "Plain prose",
+        "table": "Table"
+      }
+    },
+    "suggestions": {
+      "empty_title": "No rewrites yet",
+      "empty_body": "Set the knobs on the Tuning tab and ask for a rewrite. It runs as an engine job, so you can leave the page.",
+      "running": "Rewriting",
+      "running_hint": "{{model}} is working on it. This page updates itself when it lands.",
+      "failed": "The rewrite did not land",
+      "failed_generic": "The model did not return a usable prompt.",
+      "proposal": "Proposed rewrite",
+      "identical": "The model returned the prompt unchanged.",
+      "accepted_count": "{{accepted}} of {{total}} changes accepted",
+      "accept_all": "Accept all",
+      "reject_all": "Reject all",
+      "accept_this": "Accept this change",
+      "reject_this": "Reject this change",
+      "legend": "Additions are highlighted, removals struck through. Click any change to reject it — rejected changes dim and keep the original wording.",
+      "agree": "Agree and save version",
+      "rationale": "Why the model changed it",
+      "note_all": "Accepted the model's rewrite in full.",
+      "note_partial": "Accepted {{accepted}} of {{total}} suggested changes.",
+      "dimension": {
+        "clarity": "Clarity",
+        "structure": "Structure",
+        "emphasis": "Emphasis",
+        "substance": "Substance",
+        "safety": "Safety",
+        "format": "Format"
+      }
+    },
+    "list": {
+      "new": "New prompt",
+      "trend_title": "Score by version, oldest first",
+      "empty_title": "No prompts yet",
+      "empty_body": "Add your first prompt to get an instant read on its clarity, structure and size — no model call needed.",
+      "columns": {
+        "name": "Prompt",
+        "score": "Score",
+        "trend": "Trend",
+        "tokens": "Tokens",
+        "versions": "Versions",
+        "updated": "Updated"
+      }
+    },
+    "new": {
+      "title": "New prompt",
+      "desc": "The body you paste becomes version 1 and is scored immediately.",
+      "submit": "Create prompt",
+      "created": "Prompt created."
+    },
+    "form": {
+      "name": "Name",
+      "name_placeholder": "Support thread summariser",
+      "description": "Description",
+      "description_placeholder": "What this prompt is for",
+      "tags": "Tags",
+      "tags_hint": "Comma-separated.",
+      "tags_placeholder": "support, summarise",
+      "guidance": "Guidance",
+      "guidance_hint": "How you want this prompt changed. Kept with the version; used when you ask for a rewrite.",
+      "body": "Prompt",
+      "body_placeholder": "Paste the prompt here"
+    },
+    "editor": {
+      "guidance_label": "Guidance",
+      "guidance_hint": "How you want this changed",
+      "guidance_placeholder": "Make it sharper, drop the shouting, keep the reasons",
+      "body_label": "Prompt",
+      "body_placeholder": "Paste or write the prompt here",
+      "token_estimate": "~{{formatted}} tokens",
+      "estimate_caveat": "Token count is an estimate (about +/-15% on prose, wider on code and JSON). Exact counts come from a real run.",
+      "note_label": "What changed",
+      "note_placeholder": "Added audience and an output shape",
+      "save": "Save as new version",
+      "saved": "Saved as version {{number}}."
+    },
+    "checks": {
+      "empty": "Write a prompt to see the checks.",
+      "score": "Score",
+      "tokens": "Est. tokens",
+      "size": "Size",
+      "goals": "Goals",
+      "words": "Words",
+      "scoring_note": "These checks are mechanical: they read the text and never call a model, so they are free, instant and identical every time. Length on its own is not a defect — a rule only fires on something it can name.",
+      "clean_title": "Nothing to flag",
+      "clean_body": "None of the checks fired. That means no known anti-pattern is present, not that the prompt is perfect.",
+      "occurrences": "{{count}}x",
+      "severity": {
+        "blocker": "Fix first",
+        "warn": "Worth fixing",
+        "info": "Worth knowing"
+      },
+      "dimension": {
+        "pressure": "Emphasis",
+        "dated": "Dated",
+        "stale": "Stale",
+        "over_specification": "Over-specified",
+        "structure": "Structure",
+        "substance": "Substance",
+        "size": "Size",
+        "cache": "Caching"
+      },
+      "size_verdict": {
+        "too_small": "Too small",
+        "right": "Reasonable",
+        "too_big": "Very large"
+      }
+    },
+    "review": {
+      "title": "Model review",
+      "caveat": "These are one model's judgement on one run, so they move a little between runs. The model that produced them is shown above. The checks above are facts about the text; these are an opinion about it.",
+      "run": "Score with a model",
+      "rerun": "Score again",
+      "requested": "Review requested.",
+      "running": "{{model}} is scoring this version. The page updates itself when it lands.",
+      "failed": "The review did not land.",
+      "empty": "Not scored yet. The deterministic checks above are free; this one costs a model call.",
+      "not_scored": "Not scored",
+      "dimension": {
+        "clarity": "Clarity",
+        "specificity": "Specificity",
+        "structure": "Structure",
+        "context_sufficiency": "Context",
+        "factfulness": "Factfulness",
+        "accuracy": "Accuracy",
+        "goal_focus": "Goal focus",
+        "hallucination_risk": "Hallucination risk"
+      },
+      "severity": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      }
+    },
+    "versions": {
+      "empty": "No versions yet",
+      "number": "Version {{number}}",
+      "current": "Current",
+      "tokens": "~{{formatted}} tokens",
+      "body": "Prompt text",
+      "restore": "Make current",
+      "restored": "Version {{number}} is now current.",
+      "trend": "Score by version",
+      "trend_title": "Static score, oldest version first",
+      "trend_hint": "Versions are immutable. Making an earlier one current moves the pointer — nothing is deleted, so the history stays honest.",
+      "source": {
+        "manual": "Hand-written",
+        "ai_rewrite": "AI rewrite",
+        "suggestion_merge": "Merged suggestion"
+      }
+    },
+    "arena": {
+      "intro": "Run this prompt against several models at once and have a separate model judge the answers. Token counts here are measured from the real call, not estimated.",
+      "judge": "Have a separate model judge the answers",
+      "run": "Run against {{count}} model(s)",
+      "started": "Runs queued. They execute in parallel.",
+      "concurrency_hint": "The engine runs a limited number of jobs at once (Jobs -> Config). Above that, runs queue rather than failing.",
+      "empty_title": "Not tested yet",
+      "empty_body": "Pick the models you care about and run. Each answer comes back with its real input and output token counts.",
+      "batch": "{{count}} model(s)",
+      "verdict": "Judge's verdict",
+      "judging": "Judging",
+      "winner": "Best",
+      "running": "Running",
+      "failed": "Failed",
+      "overall": "overall {{score}}",
+      "tokens_in": "Tokens in",
+      "tokens_out": "Tokens out",
+      "cost": "Cost (indicative)",
+      "duration": "Took",
+      "output": "Answer from {{model}}"
+    },
+    "dashboard": {
+      "empty": "No versions to chart yet.",
+      "trend": "Metrics by version",
+      "up_is_better": "Up is better on every line",
+      "first_last": "First to latest",
+      "versions": "Versions",
+      "est_tokens": "Est. tokens",
+      "measured_tokens": "Billed input tokens",
+      "cost": "Cost per run (indicative)",
+      "no_runs_yet": "Only the deterministic score is plotted so far. Score a version on the Checks tab and run it in the Arena to fill in the other lines.",
+      "mixed_note": "The static score is mechanical; the AI lines are one model's judgement per version and will wobble a little between runs.",
+      "series": {
+        "static_score": "Checks score",
+        "accuracy": "Accuracy",
+        "factfulness": "Factfulness",
+        "grounding": "Grounding (inverse of hallucination risk)",
+        "judge_overall": "Judge overall"
+      },
+      "measured_hint": "mean of {{count}} run(s), incl. CLI overhead"
+    }
+  }
+}

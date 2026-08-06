@@ -29,6 +29,10 @@ HIDDEN_JOB_KINDS = (
     "news.poll",
     "news.recommend",
     "roadmap.drift",
+    # Prompt-workbench jobs: the module has its own live view of them, and an arena batch fans out
+    # one job per model, which would drown the feed.
+    "prompt.run",
+    "prompt.judge",
 )
 
 

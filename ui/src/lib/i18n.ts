@@ -16,6 +16,7 @@ import mergeReviews from "@/features/merge-reviews/locales/en.json";
 import modelling from "@/features/modelling/locales/en.json";
 import news from "@/features/news/locales/en.json";
 import principles from "@/features/principles/locales/en.json";
+import prompts from "@/features/prompts/locales/en.json";
 import qualities from "@/features/qualities/locales/en.json";
 import readiness from "@/features/readiness/locales/en.json";
 import repositories from "@/features/repositories/locales/en.json";
@@ -59,6 +60,7 @@ const en = {
   ...apps,
   ...developments,
   ...highlights,
+  ...prompts,
 };
 
 i18n.use(initReactI18next).init({

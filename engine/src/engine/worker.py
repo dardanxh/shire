@@ -41,6 +41,7 @@ def build_request(job: dict[str, Any]) -> EngineRequest:
         system=payload.get("system"),
         cwd=payload.get("cwd", "."),
         allowed_tools=tuple(payload.get("allowed_tools") or ("Read", "Grep", "Glob")),
+        disallowed_tools=tuple(payload.get("disallowed_tools") or ()),
         model=payload.get("model"),
         timeout_seconds=float(payload.get("timeout_seconds") or 500.0),
     )

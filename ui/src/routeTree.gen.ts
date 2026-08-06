@@ -17,6 +17,7 @@ import { Route as SecurityRouteImport } from './routes/security'
 import { Route as RoadmapsRouteImport } from './routes/roadmaps'
 import { Route as RepositoriesRouteImport } from './routes/repositories'
 import { Route as QualitiesRouteImport } from './routes/qualities'
+import { Route as PromptsRouteImport } from './routes/prompts'
 import { Route as PrinciplesRouteImport } from './routes/principles'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as MergeReviewsRouteImport } from './routes/merge-reviews'
@@ -40,6 +41,7 @@ import { Route as SecurityIndexRouteImport } from './routes/security/index'
 import { Route as RoadmapsIndexRouteImport } from './routes/roadmaps.index'
 import { Route as RepositoriesIndexRouteImport } from './routes/repositories.index'
 import { Route as QualitiesIndexRouteImport } from './routes/qualities/index'
+import { Route as PromptsIndexRouteImport } from './routes/prompts/index'
 import { Route as MembersIndexRouteImport } from './routes/members/index'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
 import { Route as HobitsIndexRouteImport } from './routes/hobits.index'
@@ -52,6 +54,8 @@ import { Route as RoadmapsNewRouteImport } from './routes/roadmaps.new'
 import { Route as RoadmapsIdRouteImport } from './routes/roadmaps.$id'
 import { Route as RepositoriesIdRouteImport } from './routes/repositories.$id'
 import { Route as QualitiesIdRouteImport } from './routes/qualities/$id'
+import { Route as PromptsNewRouteImport } from './routes/prompts/new'
+import { Route as PromptsIdRouteImport } from './routes/prompts/$id'
 import { Route as MergeReviewsIdRouteImport } from './routes/merge-reviews.$id'
 import { Route as MembersCompareRouteImport } from './routes/members/compare'
 import { Route as MembersIdRouteImport } from './routes/members/$id'
@@ -113,6 +117,11 @@ const RepositoriesRoute = RepositoriesRouteImport.update({
 const QualitiesRoute = QualitiesRouteImport.update({
   id: '/qualities',
   path: '/qualities',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PromptsRoute = PromptsRouteImport.update({
+  id: '/prompts',
+  path: '/prompts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrinciplesRoute = PrinciplesRouteImport.update({
@@ -230,6 +239,11 @@ const QualitiesIndexRoute = QualitiesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => QualitiesRoute,
 } as any)
+const PromptsIndexRoute = PromptsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PromptsRoute,
+} as any)
 const MembersIndexRoute = MembersIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -289,6 +303,16 @@ const QualitiesIdRoute = QualitiesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => QualitiesRoute,
+} as any)
+const PromptsNewRoute = PromptsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => PromptsRoute,
+} as any)
+const PromptsIdRoute = PromptsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => PromptsRoute,
 } as any)
 const MergeReviewsIdRoute = MergeReviewsIdRouteImport.update({
   id: '/$id',
@@ -419,6 +443,7 @@ export interface FileRoutesByFullPath {
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
+  '/prompts': typeof PromptsRouteWithChildren
   '/qualities': typeof QualitiesRouteWithChildren
   '/repositories': typeof RepositoriesRouteWithChildren
   '/roadmaps': typeof RoadmapsRouteWithChildren
@@ -439,6 +464,8 @@ export interface FileRoutesByFullPath {
   '/members/$id': typeof MembersIdRoute
   '/members/compare': typeof MembersCompareRoute
   '/merge-reviews/$id': typeof MergeReviewsIdRoute
+  '/prompts/$id': typeof PromptsIdRoute
+  '/prompts/new': typeof PromptsNewRoute
   '/qualities/$id': typeof QualitiesIdRoute
   '/repositories/$id': typeof RepositoriesIdRoute
   '/roadmaps/$id': typeof RoadmapsIdRoute
@@ -451,6 +478,7 @@ export interface FileRoutesByFullPath {
   '/hobits/': typeof HobitsIndexRoute
   '/jobs/': typeof JobsIndexRoute
   '/members/': typeof MembersIndexRoute
+  '/prompts/': typeof PromptsIndexRoute
   '/qualities/': typeof QualitiesIndexRoute
   '/repositories/': typeof RepositoriesIndexRoute
   '/roadmaps/': typeof RoadmapsIndexRoute
@@ -494,6 +522,8 @@ export interface FileRoutesByTo {
   '/members/$id': typeof MembersIdRoute
   '/members/compare': typeof MembersCompareRoute
   '/merge-reviews/$id': typeof MergeReviewsIdRoute
+  '/prompts/$id': typeof PromptsIdRoute
+  '/prompts/new': typeof PromptsNewRoute
   '/qualities/$id': typeof QualitiesIdRoute
   '/repositories/$id': typeof RepositoriesIdRoute
   '/roadmaps/$id': typeof RoadmapsIdRoute
@@ -506,6 +536,7 @@ export interface FileRoutesByTo {
   '/hobits': typeof HobitsIndexRoute
   '/jobs': typeof JobsIndexRoute
   '/members': typeof MembersIndexRoute
+  '/prompts': typeof PromptsIndexRoute
   '/qualities': typeof QualitiesIndexRoute
   '/repositories': typeof RepositoriesIndexRoute
   '/roadmaps': typeof RoadmapsIndexRoute
@@ -542,6 +573,7 @@ export interface FileRoutesById {
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
   '/principles': typeof PrinciplesRoute
+  '/prompts': typeof PromptsRouteWithChildren
   '/qualities': typeof QualitiesRouteWithChildren
   '/repositories': typeof RepositoriesRouteWithChildren
   '/roadmaps': typeof RoadmapsRouteWithChildren
@@ -562,6 +594,8 @@ export interface FileRoutesById {
   '/members/$id': typeof MembersIdRoute
   '/members/compare': typeof MembersCompareRoute
   '/merge-reviews/$id': typeof MergeReviewsIdRoute
+  '/prompts/$id': typeof PromptsIdRoute
+  '/prompts/new': typeof PromptsNewRoute
   '/qualities/$id': typeof QualitiesIdRoute
   '/repositories/$id': typeof RepositoriesIdRoute
   '/roadmaps/$id': typeof RoadmapsIdRoute
@@ -574,6 +608,7 @@ export interface FileRoutesById {
   '/hobits/': typeof HobitsIndexRoute
   '/jobs/': typeof JobsIndexRoute
   '/members/': typeof MembersIndexRoute
+  '/prompts/': typeof PromptsIndexRoute
   '/qualities/': typeof QualitiesIndexRoute
   '/repositories/': typeof RepositoriesIndexRoute
   '/roadmaps/': typeof RoadmapsIndexRoute
@@ -611,6 +646,7 @@ export interface FileRouteTypes {
     | '/merge-reviews'
     | '/news'
     | '/principles'
+    | '/prompts'
     | '/qualities'
     | '/repositories'
     | '/roadmaps'
@@ -631,6 +667,8 @@ export interface FileRouteTypes {
     | '/members/$id'
     | '/members/compare'
     | '/merge-reviews/$id'
+    | '/prompts/$id'
+    | '/prompts/new'
     | '/qualities/$id'
     | '/repositories/$id'
     | '/roadmaps/$id'
@@ -643,6 +681,7 @@ export interface FileRouteTypes {
     | '/hobits/'
     | '/jobs/'
     | '/members/'
+    | '/prompts/'
     | '/qualities/'
     | '/repositories/'
     | '/roadmaps/'
@@ -686,6 +725,8 @@ export interface FileRouteTypes {
     | '/members/$id'
     | '/members/compare'
     | '/merge-reviews/$id'
+    | '/prompts/$id'
+    | '/prompts/new'
     | '/qualities/$id'
     | '/repositories/$id'
     | '/roadmaps/$id'
@@ -698,6 +739,7 @@ export interface FileRouteTypes {
     | '/hobits'
     | '/jobs'
     | '/members'
+    | '/prompts'
     | '/qualities'
     | '/repositories'
     | '/roadmaps'
@@ -733,6 +775,7 @@ export interface FileRouteTypes {
     | '/merge-reviews'
     | '/news'
     | '/principles'
+    | '/prompts'
     | '/qualities'
     | '/repositories'
     | '/roadmaps'
@@ -753,6 +796,8 @@ export interface FileRouteTypes {
     | '/members/$id'
     | '/members/compare'
     | '/merge-reviews/$id'
+    | '/prompts/$id'
+    | '/prompts/new'
     | '/qualities/$id'
     | '/repositories/$id'
     | '/roadmaps/$id'
@@ -765,6 +810,7 @@ export interface FileRouteTypes {
     | '/hobits/'
     | '/jobs/'
     | '/members/'
+    | '/prompts/'
     | '/qualities/'
     | '/repositories/'
     | '/roadmaps/'
@@ -801,6 +847,7 @@ export interface RootRouteChildren {
   MergeReviewsRoute: typeof MergeReviewsRouteWithChildren
   NewsRoute: typeof NewsRoute
   PrinciplesRoute: typeof PrinciplesRoute
+  PromptsRoute: typeof PromptsRouteWithChildren
   QualitiesRoute: typeof QualitiesRouteWithChildren
   RepositoriesRoute: typeof RepositoriesRouteWithChildren
   RoadmapsRoute: typeof RoadmapsRouteWithChildren
@@ -868,6 +915,13 @@ declare module '@tanstack/react-router' {
       path: '/qualities'
       fullPath: '/qualities'
       preLoaderRoute: typeof QualitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prompts': {
+      id: '/prompts'
+      path: '/prompts'
+      fullPath: '/prompts'
+      preLoaderRoute: typeof PromptsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/principles': {
@@ -1031,6 +1085,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QualitiesIndexRouteImport
       parentRoute: typeof QualitiesRoute
     }
+    '/prompts/': {
+      id: '/prompts/'
+      path: '/'
+      fullPath: '/prompts/'
+      preLoaderRoute: typeof PromptsIndexRouteImport
+      parentRoute: typeof PromptsRoute
+    }
     '/members/': {
       id: '/members/'
       path: '/'
@@ -1114,6 +1175,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/qualities/$id'
       preLoaderRoute: typeof QualitiesIdRouteImport
       parentRoute: typeof QualitiesRoute
+    }
+    '/prompts/new': {
+      id: '/prompts/new'
+      path: '/new'
+      fullPath: '/prompts/new'
+      preLoaderRoute: typeof PromptsNewRouteImport
+      parentRoute: typeof PromptsRoute
+    }
+    '/prompts/$id': {
+      id: '/prompts/$id'
+      path: '/$id'
+      fullPath: '/prompts/$id'
+      preLoaderRoute: typeof PromptsIdRouteImport
+      parentRoute: typeof PromptsRoute
     }
     '/merge-reviews/$id': {
       id: '/merge-reviews/$id'
@@ -1381,6 +1456,21 @@ const MergeReviewsRouteWithChildren = MergeReviewsRoute._addFileChildren(
   MergeReviewsRouteChildren,
 )
 
+interface PromptsRouteChildren {
+  PromptsIdRoute: typeof PromptsIdRoute
+  PromptsNewRoute: typeof PromptsNewRoute
+  PromptsIndexRoute: typeof PromptsIndexRoute
+}
+
+const PromptsRouteChildren: PromptsRouteChildren = {
+  PromptsIdRoute: PromptsIdRoute,
+  PromptsNewRoute: PromptsNewRoute,
+  PromptsIndexRoute: PromptsIndexRoute,
+}
+
+const PromptsRouteWithChildren =
+  PromptsRoute._addFileChildren(PromptsRouteChildren)
+
 interface QualitiesRouteChildren {
   QualitiesIdRoute: typeof QualitiesIdRoute
   QualitiesIndexRoute: typeof QualitiesIndexRoute
@@ -1491,6 +1581,7 @@ const rootRouteChildren: RootRouteChildren = {
   MergeReviewsRoute: MergeReviewsRouteWithChildren,
   NewsRoute: NewsRoute,
   PrinciplesRoute: PrinciplesRoute,
+  PromptsRoute: PromptsRouteWithChildren,
   QualitiesRoute: QualitiesRouteWithChildren,
   RepositoriesRoute: RepositoriesRouteWithChildren,
   RoadmapsRoute: RoadmapsRouteWithChildren,

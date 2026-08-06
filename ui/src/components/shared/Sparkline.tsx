@@ -53,6 +53,16 @@ export function Sparkline({
         strokeLinejoin="round"
         strokeLinecap="round"
       />
+      {/* A one-point series has nothing to join, and SVG draws a single-coordinate polyline as
+          nothing at all — which reads as "broken chart" rather than "one data point". Mark it. */}
+      {values.length === 1 ? (
+        <circle
+          cx={points.split(",")[0]}
+          cy={points.split(",")[1]}
+          r="1.75"
+          fill="currentColor"
+        />
+      ) : null}
     </svg>
   );
 }

@@ -35,6 +35,7 @@ from shire.domain.merge_review.routes import router as merge_reviews_router
 from shire.domain.modelling.routes import router as modelling_router
 from shire.domain.news.routes import router as news_router
 from shire.domain.principles.routes import router as principles_router
+from shire.domain.prompts.routes import router as prompts_router
 from shire.domain.qualities.routes import router as qualities_router
 from shire.domain.readiness.routes import router as readiness_router
 from shire.domain.repository.routes import router as repositories_router
@@ -152,6 +153,7 @@ app.include_router(cicd_router, prefix=API_V1_PREFIX)
 app.include_router(inspections_router, prefix=API_V1_PREFIX)
 app.include_router(techchoice_router, prefix=API_V1_PREFIX)
 app.include_router(highlights_router, prefix=API_V1_PREFIX)
+app.include_router(prompts_router, prefix=API_V1_PREFIX)
 
 # fastapi-pagination wires its Params/Page plumbing for the catalog routers above.
 add_pagination(app)

@@ -33,6 +33,21 @@ describe("Sparkline", () => {
     expect(points.split(" ")).toHaveLength(1);
   });
 
+  it("marks a single value with a dot, since a 1-point polyline draws nothing", () => {
+    const { container } = render(<Sparkline values={[3]} />);
+
+    const dot = container.querySelector("circle");
+    expect(dot).not.toBeNull();
+    expect(dot?.getAttribute("cx")).not.toContain("NaN");
+    expect(dot?.getAttribute("cy")).not.toContain("NaN");
+  });
+
+  it("draws no dot once there is a line to see", () => {
+    const { container } = render(<Sparkline values={[1, 2]} />);
+
+    expect(container.querySelector("circle")).toBeNull();
+  });
+
   it("stays flat for an all-zero series rather than producing NaN", () => {
     const { container } = render(<Sparkline values={[0, 0, 0]} />);
 

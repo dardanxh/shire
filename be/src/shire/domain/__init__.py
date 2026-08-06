@@ -23,6 +23,7 @@ from shire.domain.merge_review import models as _merge_review_models  # noqa: F4
 from shire.domain.modelling import models as _modelling_models  # noqa: F401
 from shire.domain.news import models as _news_models  # noqa: F401
 from shire.domain.principles import models as _principles_models  # noqa: F401
+from shire.domain.prompts import models as _prompts_models  # noqa: F401
 from shire.domain.qualities import models as _qualities_models  # noqa: F401
 from shire.domain.readiness import models as _readiness_models  # noqa: F401
 from shire.domain.repository import models as _repository_models  # noqa: F401

@@ -155,6 +155,37 @@ export type CouncilTopicsPage =
 export type HighlightOut = components["schemas"]["HighlightResult"];
 export type HighlightIn = components["schemas"]["CreateHighlight"];
 export type HighlightsPage = components["schemas"]["Page_HighlightResult_"];
+export type PromptOut = components["schemas"]["PromptResult"];
+export type PromptDetailOut = components["schemas"]["PromptDetailResult"];
+export type PromptIn = components["schemas"]["CreatePrompt"];
+export type UpdatePromptIn = components["schemas"]["UpdatePrompt"];
+export type PromptsPage = components["schemas"]["Page_PromptResult_"];
+export type PromptVersionOut = components["schemas"]["PromptVersionResult"];
+export type PromptVersionDetailOut =
+  components["schemas"]["PromptVersionDetailResult"];
+export type PromptVersionIn = components["schemas"]["CreatePromptVersion"];
+export type PromptAnalysisOut = components["schemas"]["StaticAnalysis"];
+export type PromptFinding = components["schemas"]["Finding"];
+export type PromptTuning = components["schemas"]["Tuning"];
+export type PromptSuggestionOut =
+  components["schemas"]["PromptSuggestionResult"];
+export type PromptReviewOut = components["schemas"]["PromptReviewResult"];
+export type PromptRunOut = components["schemas"]["PromptRunResult"];
+export type PromptArenaBatch = components["schemas"]["ArenaBatchResult"];
+export type StartArenaRunIn = components["schemas"]["StartArenaRun"];
+export type PromptMetricsOut = components["schemas"]["PromptMetricsResult"];
+export type PromptMetricPoint = components["schemas"]["PromptMetricPoint"];
+/** Models the engine accepts, mirroring `jobs.kinds.AVAILABLE_MODELS`. The bare aliases
+ *  track the current release of each tier; the pinned ids are for reproducibility. */
+export const PROMPT_MODELS = [
+  "opus",
+  "sonnet",
+  "haiku",
+  "claude-opus-5",
+  "claude-sonnet-5",
+] as const;
+export type RequestSuggestionIn = components["schemas"]["RequestSuggestion"];
+export type PromptEnqueuedOut = components["schemas"]["EnqueuedResult"];
 
 /** Roadmap item labels (backend types the column as a bare string). */
 export const ROADMAP_ITEM_LABELS = [
