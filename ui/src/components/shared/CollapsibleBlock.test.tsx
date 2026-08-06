@@ -28,6 +28,26 @@ describe("CollapsibleBlock", () => {
     expect(screen.queryByText("all good")).not.toBeInTheDocument();
   });
 
+  it("keeps content verbatim by default and renders it as Markdown on request", () => {
+    const { unmount } = render(
+      <CollapsibleBlock title="Prompt" content="**bold**" defaultOpen />,
+    );
+    // Raw engine output: the asterisks are part of the text, not formatting.
+    expect(screen.getByText("**bold**")).toBeInTheDocument();
+    unmount();
+
+    render(
+      <CollapsibleBlock
+        title="Take"
+        content="**bold**"
+        body="markdown"
+        defaultOpen
+      />,
+    );
+    expect(screen.queryByText("**bold**")).not.toBeInTheDocument();
+    expect(screen.getByText("bold").tagName).toBe("STRONG");
+  });
+
   it("renders the empty label when content is null", () => {
     render(
       <CollapsibleBlock

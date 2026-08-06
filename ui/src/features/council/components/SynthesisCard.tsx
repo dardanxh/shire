@@ -1,6 +1,7 @@
 import { GavelIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { Markdown } from "@/components/shared/Markdown";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { CouncilTopicDetailOut } from "@/lib/api";
 
@@ -20,9 +21,8 @@ export function SynthesisCard({ topic }: { topic: CouncilTopicDetailOut }) {
         <CardTitle className="text-lg">{synthesis.headline}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="whitespace-pre-wrap text-sm leading-relaxed">
-          {synthesis.narrative}
-        </p>
+        {/* The chair writes the synthesis as Markdown. */}
+        <Markdown>{synthesis.narrative ?? ""}</Markdown>
         {synthesis.key_disagreements.length > 0 ? (
           <div className="space-y-1.5">
             <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">

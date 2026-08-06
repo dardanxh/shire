@@ -1,6 +1,7 @@
 import { SparklesIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { Markdown } from "@/components/shared/Markdown";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { MergeReviewDetailOut } from "@/lib/api";
@@ -39,9 +40,11 @@ export function HumanOverviewPanel({
             </div>
           }
         >
-          <div className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
-            {review.overview_markdown}
-          </div>
+          {/* The engine writes this as Markdown (see mr_hobit's overview prompt) — render it,
+              don't print the source. */}
+          <Markdown className="text-foreground/90">
+            {review.overview_markdown ?? ""}
+          </Markdown>
         </SectionShell>
       </CardContent>
     </Card>

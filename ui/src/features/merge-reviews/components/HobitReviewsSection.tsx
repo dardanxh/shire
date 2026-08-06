@@ -2,6 +2,7 @@ import { ChevronDownIcon, Loader2Icon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { Markdown } from "@/components/shared/Markdown";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -91,7 +92,11 @@ function TopFindingsPanel({ review }: { review: MergeReviewDetailOut }) {
                   className="mt-0.5 shrink-0"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="line-clamp-2 text-sm">{finding.body}</p>
+                  {/* Two-line preview of a Markdown body: paragraphs go inline so the
+                      line clamp still applies to it as one block of text. */}
+                  <Markdown className="line-clamp-2 [&_p]:inline">
+                    {finding.body}
+                  </Markdown>
                   <div className="mt-1 flex flex-wrap items-center gap-2">
                     {finding.file ? (
                       <span className="truncate font-mono text-xs text-muted-foreground">
@@ -215,9 +220,8 @@ function ReviewCommentRow({ comment }: { comment: MrCommentOut }) {
             {comment.line != null ? `:${comment.line}` : ""}
           </p>
         ) : null}
-        <p className="whitespace-pre-wrap text-sm leading-relaxed">
-          {comment.body}
-        </p>
+        {/* Comment bodies are Markdown too — the hobit prompt asks for it explicitly. */}
+        <Markdown>{comment.body}</Markdown>
       </div>
     </li>
   );

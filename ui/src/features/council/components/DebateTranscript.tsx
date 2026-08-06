@@ -41,6 +41,8 @@ export function DebateTranscript({
                     : null)
                 }
                 emptyLabel={t("council.takes.empty")}
+                // Takes are written as Markdown (see the council prompts).
+                body="markdown"
                 defaultOpen={defaultOpen}
                 variant={take.is_devils_advocate ? "destructive" : "default"}
                 titleAccessory={
