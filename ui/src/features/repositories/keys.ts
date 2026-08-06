@@ -13,6 +13,8 @@ export const repositoryKeys = {
   lists: () => [...repositoryKeys.all, "list"] as const,
   list: (params: RepositoryListParams) =>
     [...repositoryKeys.lists(), params] as const,
+  /** The starred (favourite) repositories — unpaginated, its own list. */
+  starred: () => [...repositoryKeys.lists(), "starred"] as const,
   // Cross-repo inspection counts + activity for the list's derived columns.
   inspectionsOverview: (days: number) =>
     [...repositoryKeys.all, "inspections-overview", days] as const,

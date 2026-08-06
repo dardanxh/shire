@@ -33,6 +33,7 @@ def _to_domain(row: RepositoryRow) -> Repository:
         clone_path=row.clone_path,
         status=IngestionStatus(row.status),
         watched=row.watched,
+        starred=row.starred,
         last_reviewed_commit_sha=row.last_reviewed_commit_sha,
         prev_reviewed_commit_sha=row.prev_reviewed_commit_sha,
         last_analyzed_commit=row.last_analyzed_commit,
@@ -56,6 +57,7 @@ def _apply(row: RepositoryRow, repo: Repository) -> None:
     row.clone_path = repo.clone_path
     row.status = repo.status.value
     row.watched = repo.watched
+    row.starred = repo.starred
     row.last_reviewed_commit_sha = repo.last_reviewed_commit_sha
     row.prev_reviewed_commit_sha = repo.prev_reviewed_commit_sha
     row.last_analyzed_commit = repo.last_analyzed_commit
@@ -103,6 +105,16 @@ class SqlRepositoryRepository:
             select(RepositoryRow)
             .where(RepositoryRow.watched.is_(True))
             .order_by(RepositoryRow.created_at.asc())
+        )
+        return [_to_domain(r) for r in self._session.scalars(stmt)]
+
+    def list_starred(self) -> list[Repository]:
+        """Starred repositories, newest-onboarded first; inside a family the whole-repo record
+        ('' subpath) precedes its subdirectories so the table can still nest them."""
+        stmt = (
+            select(RepositoryRow)
+            .where(RepositoryRow.starred.is_(True))
+            .order_by(RepositoryRow.created_at.desc(), RepositoryRow.subpath.asc())
         )
         return [_to_domain(r) for r in self._session.scalars(stmt)]
 

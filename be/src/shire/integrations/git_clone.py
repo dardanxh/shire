@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import contextlib
+import logging
 from pathlib import Path
 
 from git import Git, GitCommandError, Repo
 
 from shire.domain.repository.domain import CloneOutcome, GitProvider, RepoCoordinates
+
+logger = logging.getLogger(__name__)
 
 
 class DirtyWorkingTreeError(Exception):
@@ -43,13 +46,19 @@ class GitCloneService:
     def _dest(self, coordinates: RepoCoordinates) -> Path:
         return self._clone_root / coordinates.provider.value / coordinates.owner / coordinates.name
 
-    def _use_local(self, path: str, branch: str | None = None) -> CloneOutcome:
+    def _use_local(
+        self, path: str, branch: str | None = None, *, pull: bool = False
+    ) -> CloneOutcome:
         """Point at an existing on-disk repo instead of cloning: validate it's a git working tree,
         then read its branch + HEAD in place. The `clone_path` is the given path (no copy).
 
         With `branch`, checks out that LOCAL branch in the user's own working tree — an explicit
-        user action, guarded by a dirty-tree check so uncommitted work is never clobbered. With
-        `branch=None` (ingest/refresh) the tree is never touched: we adopt whatever is checked out.
+        user action, guarded by a dirty-tree check so uncommitted work is never clobbered.
+
+        With `pull` (a user pressing "Pull latest") the active branch is fast-forwarded onto its
+        upstream first, so commits pushed by others land before analysis — see
+        `_fast_forward_local` for the guarantees. Without it (first ingest, scheduled runs) the
+        tree is never touched: we adopt whatever is checked out.
         """
         dest = Path(path).expanduser()
         if not dest.is_dir():
@@ -66,6 +75,9 @@ class GitCloneService:
         if not (dest / ".git").exists():
             raise ValueError(f"Not a git repository (no .git): {dest}")
         repo = Repo(dest)
+
+        if pull and branch is None:
+            _fast_forward_local(repo, dest)
 
         active = _active_branch(repo)
         if branch is not None and branch != active:
@@ -102,10 +114,17 @@ class GitCloneService:
             return None
 
     def clone(
-        self, url: str, coordinates: RepoCoordinates, branch: str | None = None
+        self,
+        url: str,
+        coordinates: RepoCoordinates,
+        branch: str | None = None,
+        *,
+        pull: bool = False,
     ) -> CloneOutcome:
+        """Our own clones always fetch + pull (they're ours to move). `pull` only matters for
+        local-provider repos, where the checkout belongs to the user — see `_use_local`."""
         if coordinates.provider is GitProvider.local:
-            return self._use_local(url, branch)
+            return self._use_local(url, branch, pull=pull)
 
         dest = self._dest(coordinates)
         dest.parent.mkdir(parents=True, exist_ok=True)
@@ -135,6 +154,56 @@ class GitCloneService:
             head_sha=repo.head.commit.hexsha,
             active_branch=_active_branch(repo),
         )
+
+
+def _fast_forward_local(repo: Repo, dest: Path) -> None:
+    """`git pull --ff-only` on the user's own checkout, best-effort.
+
+    Fetch the active branch's upstream, then move the branch onto it only when the move is a
+    pure fast-forward and the tree has no uncommitted changes. Everything else — detached HEAD,
+    no upstream, unreachable remote (no credentials in the container, offline), dirty tree,
+    diverged history — is a logged no-op, and the caller analyzes whatever is on disk exactly
+    as before. Nothing here can rewrite or lose the user's work: no merge commit, no rebase,
+    no stash, no checkout of a different branch.
+    """
+    try:
+        active = _active_branch(repo)
+        if active is None:
+            return  # detached HEAD — nothing to fast-forward
+        tracking = repo.active_branch.tracking_branch()
+        if tracking is None:
+            logger.info(
+                "Pull latest: no upstream for '%s' in %s — using what's on disk", active, dest
+            )
+            return
+        try:
+            repo.remote(tracking.remote_name).fetch(prune=True)
+        except (GitCommandError, ValueError) as exc:
+            # Offline, or no credentials for this remote (an SSH remote inside a container
+            # without a key is the common one). Not fatal: analyze the current checkout.
+            logger.warning(
+                "Pull latest: could not fetch %s for %s: %s", tracking.remote_name, dest, exc
+            )
+            return
+        if tracking.commit == repo.head.commit:
+            return  # already up to date
+        if repo.is_dirty(index=True, working_tree=True, untracked_files=False):
+            logger.info("Pull latest: %s has uncommitted changes — not fast-forwarding", dest)
+            return
+        bases = repo.merge_base(repo.head.commit, tracking.commit)
+        if not bases or bases[0] != repo.head.commit:
+            logger.info(
+                "Pull latest: '%s' in %s has diverged from %s — not fast-forwarding",
+                active,
+                dest,
+                tracking.name,
+            )
+            return
+        repo.git.merge("--ff-only", tracking.name)
+        logger.info("Pull latest: fast-forwarded '%s' in %s to %s", active, dest, tracking.name)
+    except Exception:
+        # A pull that can't happen must never fail the ingest pipeline.
+        logger.exception("Pull latest: fast-forward of %s failed", dest)
 
 
 def ensure_clean(clone_path: Path | str) -> None:

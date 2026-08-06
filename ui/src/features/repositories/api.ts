@@ -53,7 +53,10 @@ export function isIngesting(repo: { status: string } | null | undefined) {
  * asynchronous — the list polls while any visible repo is still cloning/analyzing,
  * then stops on its own.
  */
-export function useRepositoriesQuery(params: RepositoryListParams) {
+export function useRepositoriesQuery(
+  params: RepositoryListParams,
+  { enabled = true }: { enabled?: boolean } = {},
+) {
   return useQuery({
     queryKey: repositoryKeys.list(params),
     queryFn: async () => {
@@ -63,8 +66,58 @@ export function useRepositoriesQuery(params: RepositoryListParams) {
       if (error) throw error;
       return data;
     },
+    enabled,
     refetchInterval: (q) =>
       q.state.data?.items.some(isIngesting) ? INGEST_POLL_MS : false,
+  });
+}
+
+/**
+ * The starred repositories — a flat, unpaginated list (the hub's Starred tab). Polls on the
+ * same terms as the main list so a starred repo mid-ingest still updates in place.
+ */
+export function useStarredRepositoriesQuery({
+  enabled = true,
+}: {
+  enabled?: boolean;
+} = {}) {
+  return useQuery({
+    queryKey: repositoryKeys.starred(),
+    queryFn: async () => {
+      const { data, error } = await api.GET("/api/v1/repositories/starred");
+      if (error) throw error;
+      return data;
+    },
+    enabled,
+    refetchInterval: (q) =>
+      q.state.data?.some(isIngesting) ? INGEST_POLL_MS : false,
+  });
+}
+
+/** Star or unstar a repository — a bookmark, nothing is cloned or re-analyzed. */
+export function useSetRepositoryStarredMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      starred,
+    }: {
+      id: string;
+      starred: boolean;
+    }): Promise<RepositoryOut> => {
+      const { data, error } = await api.PUT(
+        "/api/v1/repositories/{repository_id}/star",
+        {
+          params: { path: { repository_id: id } },
+          body: { starred },
+        },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.all });
+    },
   });
 }
 

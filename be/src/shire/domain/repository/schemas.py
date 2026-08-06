@@ -44,6 +44,7 @@ class RepositoryResult(BaseModel):
     current_branch: str
     status: str
     watched: bool
+    starred: bool
     last_analyzed_commit: str | None
     last_analyzed_at: datetime | None
     error: str | None
@@ -65,12 +66,19 @@ class RepositoryResult(BaseModel):
             current_branch=repo.current_branch or repo.default_branch,
             status=repo.status.value,
             watched=repo.watched,
+            starred=repo.starred,
             last_analyzed_commit=repo.last_analyzed_commit,
             last_analyzed_at=repo.last_analyzed_at,
             error=repo.error,
             created_at=repo.created_at,
             updated_at=repo.updated_at,
         )
+
+
+class StarRequest(BaseModel):
+    """Star or unstar a repository (the list's Starred tab)."""
+
+    starred: bool
 
 
 class SwitchBranchRequest(BaseModel):

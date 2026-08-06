@@ -9,7 +9,7 @@ import {
   RepositoriesListPage,
 } from "@/features/repositories";
 
-const VIEW_VALUES = ["repositories", "mrs"] as const;
+const VIEW_VALUES = ["repositories", "starred", "mrs"] as const;
 type HubView = (typeof VIEW_VALUES)[number];
 
 const searchSchema = z.object({
@@ -55,6 +55,9 @@ function RouteComponent() {
             <TabsTrigger value="repositories">
               {t("common.nav.repositories")}
             </TabsTrigger>
+            <TabsTrigger value="starred">
+              {t("repositories.list.tab_starred")}
+            </TabsTrigger>
             <TabsTrigger value="mrs">
               {t("common.nav.merge_reviews")}
             </TabsTrigger>
@@ -75,10 +78,10 @@ function RouteComponent() {
         ) : null}
       </div>
 
-      {view === "repositories" ? (
-        <RepositoriesListPage {...listProps} />
-      ) : (
+      {view === "mrs" ? (
         <MergeReviewsListPage {...listProps} />
+      ) : (
+        <RepositoriesListPage {...listProps} starredOnly={view === "starred"} />
       )}
     </div>
   );

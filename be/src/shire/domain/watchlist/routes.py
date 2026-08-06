@@ -39,7 +39,9 @@ def refresh_watchlist(
     """Pull latest for every idle watched repo (non-blocking; poll the digest for status)."""
     result = WatchlistService(session).refresh_all()
     for repository_id in result.queued_repository_ids:
-        background_tasks.add_task(run_ingest_pipeline, repository_id)
+        # `pull=True`: "Pull latest" means it, including for local-provider repos, whose
+        # checkout is fast-forwarded first (guarded — see GitCloneService._use_local).
+        background_tasks.add_task(run_ingest_pipeline, repository_id, pull=True)
     return result
 
 

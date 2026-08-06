@@ -22,6 +22,7 @@ function repo(
     current_branch: "main",
     status: "ready",
     watched: false,
+    starred: false,
     last_analyzed_commit: null,
     last_analyzed_at: null,
     error: null,

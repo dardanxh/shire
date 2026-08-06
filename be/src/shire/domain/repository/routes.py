@@ -16,6 +16,7 @@ from shire.domain.repository.schemas import (
     IngestRepositoryRequest,
     QuestionResult,
     RepositoryResult,
+    StarRequest,
     SwitchBranchRequest,
 )
 from shire.domain.repository.services import RepositoryService, run_ingest_pipeline
@@ -42,6 +43,15 @@ def list_repositories(
     session: Session = Depends(get_session),
 ) -> Page[RepositoryResult]:
     return RepositoryService(session).list(params)
+
+
+@router.get("/starred", response_model=list[RepositoryResult])
+def list_starred_repositories(
+    session: Session = Depends(get_session),
+) -> list[RepositoryResult]:
+    """Every starred repository, newest-onboarded first (unpaginated — it's a hand-curated
+    set). Declared before `/{repository_id}` so the literal path wins the match."""
+    return RepositoryService(session).list_starred()
 
 
 @router.get("/{repository_id}", response_model=RepositoryResult)
@@ -76,8 +86,18 @@ def refresh_repository(
     """Pull the latest from the remote and re-run the full analysis in the background
     (non-blocking — poll the repository's `status`)."""
     result = RepositoryService(session).refresh(repository_id)
-    background_tasks.add_task(run_ingest_pipeline, result.id)
+    background_tasks.add_task(run_ingest_pipeline, result.id, pull=True)
     return result
+
+
+@router.put("/{repository_id}/star", response_model=RepositoryResult)
+def set_repository_starred(
+    repository_id: uuid.UUID,
+    body: StarRequest,
+    session: Session = Depends(get_session),
+) -> RepositoryResult:
+    """Star or unstar a repository (a bookmark for the list's Starred tab)."""
+    return RepositoryService(session).set_starred(repository_id, body.starred)
 
 
 @router.post(

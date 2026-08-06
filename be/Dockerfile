@@ -35,8 +35,10 @@ RUN set -eux; \
 FROM python:3.13-slim
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# git for clone/analysis (GitPython shells out).
-RUN apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates \
+# git for clone/analysis (GitPython shells out). openssh-client so "pull latest" can fetch
+# from SSH remotes (`git@host:org/repo.git`) when a key or agent socket is mounted in — git
+# fails with "cannot run ssh" without it.
+RUN apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates openssh-client \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=scanners /out/ /usr/local/bin/

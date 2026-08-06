@@ -8,6 +8,7 @@ import {
   Loader2Icon,
   RefreshCwIcon,
   SparklesIcon,
+  StarIcon,
   Trash2Icon,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -39,6 +40,8 @@ import {
   useRefreshRepositoriesMutation,
   useRepositoriesQuery,
   useRunInspectionsMutation,
+  useSetRepositoryStarredMutation,
+  useStarredRepositoriesQuery,
 } from "../api";
 import { buildRepositoryTree, type RepositoryTreeRow } from "../grouping";
 import { completionToneClass } from "../inspections";
@@ -49,23 +52,31 @@ export function RepositoriesListPage({
   size,
   onPageChange,
   onSizeChange,
+  starredOnly = false,
 }: {
   page: number;
   size: number;
   onPageChange: (page: number) => void;
   onSizeChange: (size: number) => void;
+  /** Starred tab: the hand-curated favourites, unpaginated. Same table, same actions. */
+  starredOnly?: boolean;
 }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { data, isPending, isError, error } = useRepositoriesQuery({
-    page,
-    page_size: size,
-  });
+  // Only the active tab's query runs — the other stays idle rather than polling in the background.
+  const listQuery = useRepositoriesQuery(
+    { page, page_size: size },
+    { enabled: !starredOnly },
+  );
+  const starredQuery = useStarredRepositoriesQuery({ enabled: starredOnly });
+  const { isPending, isError, error } = starredOnly ? starredQuery : listQuery;
+  const { mutate: setStarred } = useSetRepositoryStarredMutation();
 
   // The page is a flat list of repository records; `total` counts parent repos, since the
   // backend pages by family so a monorepo's subdirectory records always arrive with it.
-  const pageRows = data?.items ?? [];
-  const total = data?.total ?? 0;
+  const pageRows =
+    (starredOnly ? starredQuery.data : listQuery.data?.items) ?? [];
+  const total = listQuery.data?.total ?? 0;
   const rows = useMemo(() => buildRepositoryTree(pageRows), [pageRows]);
 
   // Ticked repositories for the bulk actions — transient UI state.
@@ -180,6 +191,47 @@ export function RepositoriesListPage({
               name: row.original.slug,
             })}
           />
+        ),
+      },
+      {
+        // Favourite toggle. Bookmark only — it never touches the watchlist digest.
+        id: "star",
+        enableSorting: false,
+        meta: { isAction: true, className: "w-8" },
+        header: () => null,
+        cell: ({ row }) => (
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            aria-pressed={row.original.starred}
+            aria-label={t(
+              row.original.starred
+                ? "repositories.list.unstar"
+                : "repositories.list.star",
+              { name: row.original.slug },
+            )}
+            title={t(
+              row.original.starred
+                ? "repositories.list.unstar"
+                : "repositories.list.star",
+              { name: row.original.slug },
+            )}
+            onClick={() =>
+              setStarred({
+                id: row.original.id,
+                starred: !row.original.starred,
+              })
+            }
+          >
+            <StarIcon
+              className={cn(
+                "size-4",
+                row.original.starred
+                  ? "fill-warning text-warning"
+                  : "text-muted-foreground/40",
+              )}
+            />
+          </Button>
         ),
       },
       {
@@ -332,7 +384,7 @@ export function RepositoriesListPage({
     // pageRows matters: toggleSelectAll closes over the current page's ids. inspectionsById
     // matters too — the Activity and Checks cells read it, and it arrives a beat after the
     // rows do, so leaving it out freezes both columns on the empty first-render map.
-    [t, selectedIds, allPageSelected, pageRows, inspectionsById],
+    [t, selectedIds, allPageSelected, pageRows, inspectionsById, setStarred],
   );
 
   return (
@@ -404,17 +456,29 @@ export function RepositoriesListPage({
           }
           emptyState={
             <div className="flex flex-col items-center gap-2 p-12 text-center">
-              <GitBranchIcon className="size-8 text-muted-foreground" />
+              {starredOnly ? (
+                <StarIcon className="size-8 text-muted-foreground" />
+              ) : (
+                <GitBranchIcon className="size-8 text-muted-foreground" />
+              )}
               <p className="font-medium">
-                {t("repositories.list.empty_title")}
+                {t(
+                  starredOnly
+                    ? "repositories.list.starred_empty_title"
+                    : "repositories.list.empty_title",
+                )}
               </p>
               <p className="max-w-sm text-sm text-muted-foreground">
-                {t("repositories.list.empty_body")}
+                {t(
+                  starredOnly
+                    ? "repositories.list.starred_empty_body"
+                    : "repositories.list.empty_body",
+                )}
               </p>
             </div>
           }
         />
-        {total > 0 ? (
+        {!starredOnly && total > 0 ? (
           <div className="border-t border-border">
             <DataTablePagination
               page={page}

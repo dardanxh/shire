@@ -133,6 +133,11 @@ class RepositoryService:
         items = [RepositoryResult.of(r) for r in repos]
         return Page.create(items, total, params)
 
+    def list_starred(self) -> list[RepositoryResult]:
+        """Every starred repository — the list's Starred tab. Unpaginated: a favourites set
+        the user curates by hand stays small, and it must all fit on one screen."""
+        return [RepositoryResult.of(r) for r in self._repos.list_starred()]
+
     def get(self, repository_id: uuid.UUID) -> RepositoryResult:
         repo = self._repos.get(repository_id)
         if repo is None:
@@ -256,6 +261,16 @@ class RepositoryService:
         self._session.commit()
         return RepositoryResult.of(repo)
 
+    def set_starred(self, repository_id: uuid.UUID, starred: bool) -> RepositoryResult:
+        """Star or unstar a repository. Purely a bookmark — nothing is cloned, analyzed or
+        added to the watchlist digest."""
+        repo = self._repos.get(repository_id)
+        if repo is None:
+            raise NotFoundError("Repository not found")
+        repo.starred = starred
+        self._repos.save(repo)
+        return RepositoryResult.of(repo)
+
     # --- ask ("chat with the repo") --------------------------------------------
     def ask_question(self, repository_id: uuid.UUID, question: str) -> QuestionResult:
         """Enqueue a free-form question about this repository. The engine explores the clone
@@ -374,12 +389,15 @@ class RepositoryService:
         *,
         branch: str | None = None,
         tool_ids: list[str] | None = None,
+        pull: bool = False,
     ) -> None:
         """Run clone→analyze for an already-registered repository (the background-task body)."""
         repository = self._repos.get(repository_id)
         if repository is None:
             return
-        self._run_pipeline(repository, repository.url.value, branch=branch, tool_ids=tool_ids)
+        self._run_pipeline(
+            repository, repository.url.value, branch=branch, tool_ids=tool_ids, pull=pull
+        )
 
     def _run_pipeline(
         self,
@@ -388,6 +406,7 @@ class RepositoryService:
         *,
         branch: str | None = None,
         tool_ids: list[str] | None = None,
+        pull: bool = False,
     ) -> Repository:
         """Clone/update (optionally checking out `branch`) → analyze → ready; failures persist
         the error state (no raise). Runs on a background-task session — each phase transition
@@ -400,7 +419,7 @@ class RepositoryService:
         try:
             clone_url, provider_client = self._authenticate(url, repository.connection_id)
             outcome = self._clone.clone(
-                clone_url, coordinates=repository.coordinates, branch=branch
+                clone_url, coordinates=repository.coordinates, branch=branch, pull=pull
             )
             metadata = provider_client.fetch_metadata(url)
             if metadata and metadata.default_branch:
@@ -444,14 +463,18 @@ class RepositoryService:
                 repository_id=repository.id,
             )
             # Manifests the deterministic parsers can't read (a pom.xml monorepo, a Pipfile app)
-            # leave the dependency inventory incomplete — hand what's left to the engine.
-            # Best-effort: a queueing failure must never fail the pull.
-            try:
-                self._analysis.enqueue_ai_dependency_scan_if_needed(repository.id)
-            except Exception:
-                logger.exception(
-                    "Could not auto-enqueue the AI dependency scan for %s", repository.id
-                )
+            # leave the dependency inventory incomplete — hand what's left to the engine. First
+            # ingest only: the deterministic parsers re-run on every analysis, so a pull doesn't
+            # need an engine job per repository (with a monorepo's subrepos that's dozens of
+            # runs for a handful of new commits). Re-run it deliberately from the Actions tab.
+            # Best-effort: a queueing failure must never fail the ingest.
+            if first_ingest:
+                try:
+                    self._analysis.enqueue_ai_dependency_scan_if_needed(repository.id)
+                except Exception:
+                    logger.exception(
+                        "Could not auto-enqueue the AI dependency scan for %s", repository.id
+                    )
             if repository.watched:
                 # Watched repos auto-summarize their pending digest delta so the
                 # Developments feed fills in without a click. Best-effort — a summary
@@ -502,15 +525,19 @@ def run_ingest_pipeline(
     *,
     branch: str | None = None,
     tool_ids: list[str] | None = None,
+    pull: bool = False,
 ) -> None:
     """Background-task entry point for ingest/refresh/branch-switch: run the clone→analyze
     pipeline on its own transactional session. Phase transitions commit inside `_run_pipeline`
-    so pollers see cloning → analyzing → ready/failed as they happen."""
+    so pollers see cloning → analyzing → ready/failed as they happen.
+
+    `pull=True` marks a user-initiated "pull latest": local-provider repos then fast-forward
+    the user's own checkout before analysis (see `GitCloneService._use_local`)."""
     from shire.core.db import unit_of_work
 
     logger.info("Ingest pipeline started for %s", repository_id)
     with unit_of_work() as session:
         RepositoryService(session).run_pipeline(
-            repository_id, branch=branch, tool_ids=tool_ids
+            repository_id, branch=branch, tool_ids=tool_ids, pull=pull
         )
     logger.info("Ingest pipeline finished for %s", repository_id)

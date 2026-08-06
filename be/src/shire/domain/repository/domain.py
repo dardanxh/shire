@@ -132,6 +132,8 @@ class Repository(AggregateRoot):
     status: IngestionStatus = IngestionStatus.registered
     # Watchlist membership + the digest review cursor (see watchlist domain).
     watched: bool = False
+    # Favourite flag driving the list's Starred tab — independent of `watched`.
+    starred: bool = False
     last_reviewed_commit_sha: str | None = None
     prev_reviewed_commit_sha: str | None = None
     last_analyzed_commit: str | None = None

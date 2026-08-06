@@ -26,6 +26,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/repositories/starred": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Starred Repositories
+         * @description Every starred repository, newest-onboarded first (unpaginated — it's a hand-curated
+         *     set). Declared before `/{repository_id}` so the literal path wins the match.
+         */
+        get: operations["list_starred_repositories_api_v1_repositories_starred_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/repositories/{repository_id}": {
         parameters: {
             query?: never;
@@ -103,6 +124,26 @@ export interface paths {
          *     (non-blocking — poll the repository's `status`).
          */
         post: operations["refresh_repository_api_v1_repositories__repository_id__refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/star": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set Repository Starred
+         * @description Star or unstar a repository (a bookmark for the list's Starred tab).
+         */
+        put: operations["set_repository_starred_api_v1_repositories__repository_id__star_put"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3294,6 +3335,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/highlights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Highlights
+         * @description Kept passages, newest first.
+         */
+        get: operations["list_highlights_api_v1_highlights_get"];
+        put?: never;
+        /**
+         * Create Highlight
+         * @description Keep a passage the user selected while reading.
+         */
+        post: operations["create_highlight_api_v1_highlights_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/highlights/{highlight_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Highlight */
+        delete: operations["delete_highlight_api_v1_highlights__highlight_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -5183,6 +5265,22 @@ export interface components {
             devils_advocate: boolean;
         };
         /**
+         * CreateHighlight
+         * @description Keep a selected passage. The client supplies where it was reading.
+         */
+        CreateHighlight: {
+            /** Text */
+            text: string;
+            /** Source Kind */
+            source_kind: string;
+            /** Source Id */
+            source_id?: string | null;
+            /** Source Label */
+            source_label: string;
+            /** Repository Id */
+            repository_id?: string | null;
+        };
+        /**
          * CreateHobit
          * @description Create a user-authored hobit (its full definition).
          */
@@ -6169,6 +6267,32 @@ export interface components {
             score: number;
             /** Reason */
             reason: string;
+        };
+        /**
+         * HighlightResult
+         * @description One kept passage, with the pointer the UI turns back into a link.
+         */
+        HighlightResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Text */
+            text: string;
+            /** Source Kind */
+            source_kind: string;
+            /** Source Id */
+            source_id: string | null;
+            /** Source Label */
+            source_label: string;
+            /** Repository Id */
+            repository_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /**
          * HobitAssignmentResult
@@ -7426,6 +7550,19 @@ export interface components {
             /** Pages */
             pages: number;
         };
+        /** Page[HighlightResult] */
+        Page_HighlightResult_: {
+            /** Items */
+            items: components["schemas"]["HighlightResult"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
+        };
         /** Page[JobResult] */
         Page_JobResult_: {
             /** Items */
@@ -8057,6 +8194,8 @@ export interface components {
             status: string;
             /** Watched */
             watched: boolean;
+            /** Starred */
+            starred: boolean;
             /** Last Analyzed Commit */
             last_analyzed_commit: string | null;
             /** Last Analyzed At */
@@ -8487,6 +8626,14 @@ export interface components {
             reason: string;
             /** Detail */
             detail?: string | null;
+        };
+        /**
+         * StarRequest
+         * @description Star or unstar a repository (the list's Starred tab).
+         */
+        StarRequest: {
+            /** Starred */
+            starred: boolean;
         };
         /**
          * SwitchBranchRequest
@@ -9327,6 +9474,26 @@ export interface operations {
             };
         };
     };
+    list_starred_repositories_api_v1_repositories_starred_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepositoryResult"][];
+                };
+            };
+        };
+    };
     get_repository_api_v1_repositories__repository_id__get: {
         parameters: {
             query?: never;
@@ -9459,6 +9626,41 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepositoryResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_repository_starred_api_v1_repositories__repository_id__star_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StarRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -15791,6 +15993,102 @@ export interface operations {
             header?: never;
             path: {
                 decision_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_highlights_api_v1_highlights_get: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_HighlightResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_highlight_api_v1_highlights_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateHighlight"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HighlightResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_highlight_api_v1_highlights__highlight_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                highlight_id: string;
             };
             cookie?: never;
         };

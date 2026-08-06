@@ -36,6 +36,9 @@ class RepositoryRow(Base):
     status: Mapped[str] = mapped_column(String(32))
     # Watchlist: repos the user follows for the daily "what changed" digest.
     watched: Mapped[bool] = mapped_column(default=False, server_default="false")
+    # Favourite: the repos the user wants one click away (the list's Starred tab). Distinct
+    # from `watched` — starring must not change what the daily digest reports on.
+    starred: Mapped[bool] = mapped_column(default=False, server_default="false")
     # Digest cursor: the snapshot commit the user last reviewed. The digest shows the delta
     # from here to the latest snapshot; "mark reviewed" advances it. A sha (not analysis id)
     # because re-analyzing the same commit replaces the snapshot row and its id.

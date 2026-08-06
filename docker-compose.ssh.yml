@@ -1,0 +1,28 @@
+# Opt-in overlay: let the backend fetch from SSH git remotes (`git@github.com:org/repo.git`)
+# when it pulls latest, by forwarding your SSH *agent* into the container. No private key is
+# ever mounted or copied — the container can only ask the agent on your machine to sign, and
+# only while the stack is running.
+#
+# Without this, "Pull latest" on a local-provider repo whose remote is an SSH URL cannot reach
+# the remote (git reports "cannot run ssh" / permission denied), so Shire analyzes whatever
+# commit your own checkout is on. HTTPS remotes need nothing from this file.
+#
+# Enable it:
+#   1. Make sure your key is loaded in the agent on the host:  ssh-add -l   (else: ssh-add)
+#   2. Add this file to COMPOSE_FILE in .env, e.g.
+#        COMPOSE_FILE=docker-compose.yml:docker-compose.local-repos.yml:docker-compose.ssh.yml
+#   3. docker compose up -d
+#
+# macOS/Windows (Docker Desktop) get the agent at the magic path below. On Linux, replace it
+# with your own socket: ${SSH_AUTH_SOCK}:/ssh-agent.
+#
+# Host-key checking uses `accept-new`: the first connection to a host is trusted and pinned
+# (there is no known_hosts inside the container to seed). Drop that flag if you'd rather mount
+# a known_hosts file yourself.
+services:
+  backend:
+    environment:
+      SSH_AUTH_SOCK: /ssh-agent
+      GIT_SSH_COMMAND: ssh -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/tmp/known_hosts
+    volumes:
+      - /run/host-services/ssh-auth.sock:/ssh-agent

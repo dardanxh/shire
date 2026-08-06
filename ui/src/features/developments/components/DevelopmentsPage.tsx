@@ -304,12 +304,42 @@ function WatchlistCard({ entry }: { entry: WatchlistEntryOut }) {
         ) : entry.up_to_date ? (
           <ReviewedWindow entry={entry} />
         ) : (
-          <p className="text-sm text-muted-foreground">
-            {t("developments.baseline_only")}
-          </p>
+          <NothingNew entry={entry} />
         )}
       </CardContent>
     </Card>
+  );
+}
+
+/**
+ * The pull produced no new window. Name the commit the feed is sitting on, so "nothing new"
+ * is legible: for a local repository that commit is whatever the user's own checkout is on,
+ * and a pull Shire couldn't run (unreachable remote, dirty tree) looks identical from here.
+ */
+function NothingNew({ entry }: { entry: WatchlistEntryOut }) {
+  const { t } = useTranslation();
+
+  if (!entry.latest) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        {t("developments.no_analysis")}
+      </p>
+    );
+  }
+  return (
+    <div className="space-y-1">
+      <p className="text-sm text-muted-foreground">
+        {t("developments.no_new_commits", {
+          sha: entry.latest.commit_sha.slice(0, 8),
+          when: formatDate(entry.latest.analyzed_at),
+        })}
+      </p>
+      {entry.repository.provider === "local" ? (
+        <p className="text-xs text-muted-foreground">
+          {t("developments.local_checkout_hint")}
+        </p>
+      ) : null}
+    </div>
   );
 }
 
