@@ -61,12 +61,21 @@ type BaseFieldProps<T extends FieldValues> = {
   info?: string;
 };
 
-/** The label line: plain label, or label + hoverable info icon when `info` is set. */
-function FieldLabel({ label, info }: { label: string; info?: string }) {
-  if (!info) return <FormLabel>{label}</FormLabel>;
+/** The label line: plain label, or label + hoverable info icon when `info` is set.
+ * `required` adds the conventional `*` marker (the control carries the real `required`). */
+function FieldLabel({
+  label,
+  info,
+  required,
+}: {
+  label: string;
+  info?: string;
+  required?: boolean;
+}) {
+  if (!info) return <FormLabel required={required}>{label}</FormLabel>;
   return (
     <div className="flex items-center gap-1.5">
-      <FormLabel>{label}</FormLabel>
+      <FormLabel required={required}>{label}</FormLabel>
       <Tooltip>
         <TooltipTrigger
           type="button"
@@ -95,7 +104,13 @@ export function TextField<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FieldLabel label={label} info={info} />
+          {/* `required` rides along in the native input props: it marks the label and the
+              control in one place, so the two can't drift apart. */}
+          <FieldLabel
+            label={label}
+            info={info}
+            required={inputProps.required}
+          />
           <FormControl>
             <Input {...field} {...inputProps} />
           </FormControl>
@@ -327,7 +342,11 @@ export function TextareaField<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FieldLabel label={label} info={info} />
+          <FieldLabel
+            label={label}
+            info={info}
+            required={textareaProps.required}
+          />
           <FormControl>
             <Textarea {...field} {...textareaProps} />
           </FormControl>

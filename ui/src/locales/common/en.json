@@ -16,6 +16,7 @@
     "nav": {
       "home": "Home",
       "repositories": "Repositories",
+      "highlights": "Highlights",
       "hobits": "Hobits",
       "news": "News",
       "roadmaps": "Roadmaps",
@@ -51,6 +52,9 @@
       "edit": "Edit",
       "open_menu": "Open menu",
       "save": "Save"
+    },
+    "labels": {
+      "subdir": "subdir"
     },
     "states": {
       "loading": "Loading…",

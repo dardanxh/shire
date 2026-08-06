@@ -94,6 +94,7 @@ export function NewRoadmapPage() {
                   searchPlaceholder={t("roadmaps.new.repo_search_placeholder")}
                   emptyLabel={t("roadmaps.new.no_repositories")}
                   loadingLabel={t("common.states.loading")}
+                  subdirLabel={t("common.labels.subdir")}
                 />
                 <FormMessage />
               </FormItem>

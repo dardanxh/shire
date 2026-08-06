@@ -15,12 +15,15 @@ export function RepoMultiSelect({
   searchPlaceholder,
   emptyLabel,
   loadingLabel,
+  subdirLabel,
 }: {
   selected: Set<string>;
   onToggle: (repositoryId: string) => void;
   searchPlaceholder: string;
   emptyLabel: string;
   loadingLabel: string;
+  /** Hint shown on a monorepo subdirectory record (e.g. "subdir"). */
+  subdirLabel: string;
 }) {
   const [search, setSearch] = useState("");
   const { data: page, isPending } = useRepositoriesQuery({
@@ -30,19 +33,19 @@ export function RepoMultiSelect({
 
   const items = useMemo(() => {
     const term = search.trim().toLowerCase();
-    return (page?.items ?? [])
-      .filter((repo) => repo.status === "ready")
-      .filter(
-        (repo) =>
-          term === "" ||
-          `${repo.owner}/${repo.name}`.toLowerCase().includes(term),
-      )
-      .map((repo) => ({
-        value: repo.id,
-        label: `${repo.owner}/${repo.name}`,
-        hint: repo.provider,
-      }));
-  }, [page, search]);
+    return (
+      (page?.items ?? [])
+        .filter((repo) => repo.status === "ready")
+        // `slug` carries the subdirectory (owner/name/subpath) — without it a monorepo's
+        // subrepos are a column of identical rows you can't tell apart.
+        .filter((repo) => term === "" || repo.slug.toLowerCase().includes(term))
+        .map((repo) => ({
+          value: repo.id,
+          label: repo.slug,
+          hint: repo.subpath ? subdirLabel : undefined,
+        }))
+    );
+  }, [page, search, subdirLabel]);
 
   return (
     <div className="space-y-2">

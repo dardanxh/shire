@@ -21,7 +21,7 @@
       "description_help": "What's the question, the context, and what kind of answer you need. The more concrete, the better the debate.",
       "description_placeholder": "Lay out the decision, constraints, and what you already know…",
       "description_required": "A description is required",
-      "repos_label": "Ground in repositories (optional)",
+      "repos_label": "Ground in repositories",
       "repo_search_placeholder": "Search repositories…",
       "no_repositories": "No analyzed repositories.",
       "da_label": "Devil's advocate",

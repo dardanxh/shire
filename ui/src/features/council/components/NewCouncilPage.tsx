@@ -66,6 +66,7 @@ export function NewCouncilPage() {
               label={t("council.new.name_label")}
               placeholder={t("council.new.name_placeholder")}
               disabled={isPending}
+              required
             />
             <TextareaField<CouncilTopicFormValues>
               name="description"
@@ -74,6 +75,7 @@ export function NewCouncilPage() {
               placeholder={t("council.new.description_placeholder")}
               rows={6}
               disabled={isPending}
+              required
             />
             <FormField
               control={form.control}
@@ -93,6 +95,7 @@ export function NewCouncilPage() {
                     searchPlaceholder={t("council.new.repo_search_placeholder")}
                     emptyLabel={t("council.new.no_repositories")}
                     loadingLabel={t("common.states.loading")}
+                    subdirLabel={t("common.labels.subdir")}
                   />
                   <FormMessage />
                 </FormItem>
