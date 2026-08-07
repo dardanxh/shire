@@ -1,19 +1,25 @@
 import {
   CheckIcon,
+  ChevronDownIcon,
   Loader2Icon,
-  SparklesIcon,
   WandSparklesIcon,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { Markdown } from "@/components/shared/Markdown";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import {
+  Collapsible,
+  CollapsiblePanel,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import type { PromptSuggestionOut } from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import { isArtefactActive, useCreatePromptVersionMutation } from "../api";
 import { applyHunks, changedHunks, diffWords } from "../diff";
 import { DiffPreview } from "./DiffPreview";
@@ -25,6 +31,10 @@ import { DiffPreview } from "./DiffPreview";
  * "accept everything" is byte-identical to the model's rewrite and "accept nothing" is
  * byte-identical to what you started with. The model's own notes on what it changed sit alongside
  * as explanation, not as the merge mechanism.
+ *
+ * It collapses because it lives inside the editor, directly under the button that fills it. The
+ * caller keys this component on the suggestion id, so a fresh proposal arrives with a clean
+ * accept/reject slate rather than inheriting positional decisions made about the previous one.
  */
 export function SuggestionsPanel({
   promptId,
@@ -66,6 +76,15 @@ export function SuggestionsPanel({
   const merged = useMemo(() => applyHunks(hunks, accepted), [hunks, accepted]);
   const hasChanges = accepted.size > 0;
 
+  const isRunning = latest !== undefined && isArtefactActive(latest.status);
+  /**
+   * Open state follows the data until the user overrides it: a rewrite that lands while you are
+   * typing opens itself, because a collapsed section is easy to miss and the whole point is to
+   * review it. Deriving it this way rather than syncing with an effect keeps one source of truth.
+   */
+  const [override, setOverride] = useState<boolean>();
+  const open = override ?? (latest !== undefined && !isRunning);
+
   const toggle = (id: number) =>
     setRejected((prev) => {
       const next = new Set(prev);
@@ -74,50 +93,8 @@ export function SuggestionsPanel({
       return next;
     });
 
-  if (!latest) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
-          <WandSparklesIcon className="size-8 text-muted-foreground" />
-          <p className="font-medium">{t("prompts.suggestions.empty_title")}</p>
-          <p className="max-w-md text-sm text-muted-foreground">
-            {t("prompts.suggestions.empty_body")}
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (isArtefactActive(latest.status)) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
-          <Loader2Icon className="size-8 animate-spin text-muted-foreground" />
-          <p className="font-medium">{t("prompts.suggestions.running")}</p>
-          <p className="max-w-md text-sm text-muted-foreground">
-            {t("prompts.suggestions.running_hint", { model: latest.model })}
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (latest.status === "failed") {
-    return (
-      <Card className="border-destructive/40">
-        <CardContent className="flex flex-col gap-2 py-6">
-          <p className="font-medium text-destructive">
-            {t("prompts.suggestions.failed")}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            {latest.error ?? t("prompts.suggestions.failed_generic")}
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   const handleMerge = () => {
+    if (!latest) return;
     saveVersion(
       {
         body: merged,
@@ -141,85 +118,97 @@ export function SuggestionsPanel({
     );
   };
 
-  return (
-    <div className="flex flex-col gap-4">
-      <Card>
-        <CardContent className="flex flex-col gap-3 py-4">
+  // One line on the collapsed header, so the section reports itself without being opened.
+  let status: string;
+  if (!latest) status = t("prompts.suggestions.none_yet");
+  else if (isRunning) status = t("prompts.suggestions.running");
+  else if (latest.status === "failed") status = t("prompts.suggestions.failed");
+  else if (changed.length === 0) status = t("prompts.suggestions.identical");
+  else
+    status = t("prompts.suggestions.accepted_count", {
+      accepted: accepted.size,
+      total: changed.length,
+    });
+
+  let body: ReactNode;
+  if (!latest) {
+    body = (
+      <p className="text-sm text-muted-foreground">
+        {t("prompts.suggestions.empty_body")}
+      </p>
+    );
+  } else if (isRunning) {
+    body = (
+      <p className="text-sm text-muted-foreground">
+        {t("prompts.suggestions.running_hint", { model: latest.model })}
+      </p>
+    );
+  } else if (latest.status === "failed") {
+    body = (
+      <p className="text-sm text-destructive">
+        {latest.error ?? t("prompts.suggestions.failed_generic")}
+      </p>
+    );
+  } else {
+    body = (
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <SparklesIcon className="size-4 text-muted-foreground" />
-            <span className="font-medium">
-              {t("prompts.suggestions.proposal")}
-            </span>
             <Badge variant="outline">{latest.model}</Badge>
-            <span className="ml-auto text-xs text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {formatDateTime(latest.finished_at ?? latest.created_at)}
             </span>
           </div>
           {latest.summary ? <Markdown>{latest.summary}</Markdown> : null}
-        </CardContent>
-      </Card>
+        </div>
 
-      {changed.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-center text-sm text-muted-foreground">
+        {changed.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
             {t("prompts.suggestions.identical")}
-          </CardContent>
-        </Card>
-      ) : (
-        <>
-          <Card>
-            <CardContent className="flex flex-col gap-3 py-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-medium">
-                    {t("prompts.suggestions.accepted_count", {
-                      accepted: accepted.size,
-                      total: changed.length,
-                    })}
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setRejected(new Set())}
-                    disabled={rejected.size === 0}
-                  >
-                    {t("prompts.suggestions.accept_all")}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setRejected(new Set(allIds))}
-                    disabled={accepted.size === 0}
-                  >
-                    {t("prompts.suggestions.reject_all")}
-                  </Button>
-                </div>
+          </p>
+        ) : (
+          <>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium">
+                  {t("prompts.suggestions.accepted_count", {
+                    accepted: accepted.size,
+                    total: changed.length,
+                  })}
+                </span>
                 <Button
-                  onClick={handleMerge}
-                  disabled={!hasChanges || isSaving}
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setRejected(new Set())}
+                  disabled={rejected.size === 0}
                 >
-                  {isSaving ? (
-                    <Loader2Icon className="animate-spin" />
-                  ) : (
-                    <CheckIcon />
-                  )}
-                  {t("prompts.suggestions.agree")}
+                  {t("prompts.suggestions.accept_all")}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setRejected(new Set(allIds))}
+                  disabled={accepted.size === 0}
+                >
+                  {t("prompts.suggestions.reject_all")}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
-                {t("prompts.suggestions.legend")}
-              </p>
-              <DiffPreview
-                hunks={hunks}
-                accepted={accepted}
-                onToggle={toggle}
-              />
-            </CardContent>
-          </Card>
+              <Button onClick={handleMerge} disabled={!hasChanges || isSaving}>
+                {isSaving ? (
+                  <Loader2Icon className="animate-spin" />
+                ) : (
+                  <CheckIcon />
+                )}
+                {t("prompts.suggestions.agree")}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t("prompts.suggestions.legend")}
+            </p>
+            <DiffPreview hunks={hunks} accepted={accepted} onToggle={toggle} />
 
-          {latest.changes.length > 0 ? (
-            <Card>
-              <CardContent className="flex flex-col gap-3 py-4">
+            {latest.changes.length > 0 ? (
+              <div className="flex flex-col gap-3 border-t border-border pt-4">
                 <span className="text-sm font-semibold">
                   {t("prompts.suggestions.rationale")}
                 </span>
@@ -240,11 +229,41 @@ export function SuggestionsPanel({
                     </li>
                   ))}
                 </ul>
-              </CardContent>
-            </Card>
-          ) : null}
-        </>
-      )}
-    </div>
+              </div>
+            ) : null}
+          </>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <Card className="p-0">
+      <Collapsible open={open} onOpenChange={setOverride}>
+        <CollapsibleTrigger className="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left">
+          {isRunning ? (
+            <Loader2Icon className="size-4 shrink-0 animate-spin text-muted-foreground" />
+          ) : (
+            <WandSparklesIcon className="size-4 shrink-0 text-muted-foreground" />
+          )}
+          <span className="shrink-0 text-sm font-semibold">
+            {t("prompts.suggestions.proposal")}
+          </span>
+          <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
+            {status}
+          </span>
+          <ChevronDownIcon
+            className={cn(
+              "size-3.5 shrink-0 text-muted-foreground transition-transform",
+              !open && "-rotate-90",
+            )}
+          />
+        </CollapsibleTrigger>
+
+        <CollapsiblePanel className="border-t border-border px-4 py-4">
+          {body}
+        </CollapsiblePanel>
+      </Collapsible>
+    </Card>
   );
 }

@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/prompts")({
-  staticData: { crumb: "common.nav.prompts" },
+  staticData: { crumb: "prompts.crumb" },
   component: Outlet,
 });

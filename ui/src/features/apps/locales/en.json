@@ -2,7 +2,7 @@
   "apps": {
     "crumb": "Apps",
     "title": "Apps",
-    "subtitle": "Standalone tools for planning, evaluation, and checks.",
+    "subtitle": "Standalone tools for planning, authoring, evaluation, and checks.",
     "catalog": {
       "ai_readiness": {
         "name": "AI Readiness",
@@ -19,6 +19,10 @@
       "compliance": {
         "name": "Compliance",
         "description": "Run compliance checks against standards across your repositories."
+      },
+      "prompts": {
+        "name": "Prompt Chemistry",
+        "description": "Score a prompt against prompting best practices, tune it, and see how each version reacts across models."
       }
     }
   }

@@ -20,7 +20,6 @@ import {
   ScaleIcon,
   SettingsIcon,
   ShieldIcon,
-  SparklesIcon,
   UsersIcon,
   WrenchIcon,
 } from "lucide-react";
@@ -92,13 +91,6 @@ const WORKSPACE_ITEMS: NavItem[] = [
     icon: HighlighterIcon,
     search: { page: 1, size: 20 },
     match: (p) => p === "/highlights",
-  },
-  {
-    to: "/prompts",
-    labelKey: "common.nav.prompts",
-    icon: SparklesIcon,
-    search: { page: 1, size: 20 },
-    match: (p) => p === "/prompts" || p.startsWith("/prompts/"),
   },
   {
     to: "/members",

@@ -39,8 +39,7 @@
       "group_workspace": "Workspace",
       "group_intelligence": "Intelligence",
       "group_platform": "Platform",
-      "developments": "Developments",
-    "prompts": "Prompts"
+      "developments": "Developments"
     },
     "actions": {
       "add": "Add",

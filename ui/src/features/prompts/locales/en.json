@@ -1,7 +1,7 @@
 {
   "prompts": {
-    "crumb": "Prompts",
-    "title": "Prompts",
+    "crumb": "Prompt Chemistry",
+    "title": "Prompt Chemistry",
     "desc": "A versioned prompt library. Paste a prompt, see how it measures against prompting best practices, and watch the score move as you improve it.",
     "load_error": "Could not load prompts: {{message}}",
     "saved_score": "saved",
@@ -9,18 +9,19 @@
     "tabs": {
       "editor": "Editor",
       "checks": "Checks",
-      "tuning": "Tuning",
-      "suggestions": "Suggestions",
       "versions": "Versions",
       "running": "Running",
       "arena": "Arena",
       "dashboard": "Trend"
     },
     "tuning": {
+      "section_title": "Tuning & rewrite",
+      "summary": "{{archetype}} · criticality {{criticality}}/5 · verbosity {{verbosity}}/5",
+      "dirty_blocked": "Save your edits first — a rewrite runs against the saved version, not the draft above.",
       "intro": "Set the constraints, then ask for a rewrite. These knobs are compiled into instructions for the model — they are not applied to your text mechanically.",
       "footnote": "The rewrite starts from the deterministic findings, so the model spends its effort fixing them rather than rediscovering them.",
       "request": "Ask for a rewrite",
-      "requested": "Rewrite requested. It will appear under Suggestions.",
+      "requested": "Rewrite requested. It will appear in the section below when it lands.",
       "criticality": "Criticality",
       "criticality_hint": "How expensive a mistake is.",
       "sensitivity": "Sensitivity",
@@ -63,9 +64,9 @@
       }
     },
     "suggestions": {
-      "empty_title": "No rewrites yet",
-      "empty_body": "Set the knobs on the Tuning tab and ask for a rewrite. It runs as an engine job, so you can leave the page.",
-      "running": "Rewriting",
+      "none_yet": "None yet",
+      "empty_body": "Set the knobs above and ask for a rewrite. It runs as an engine job, so you can leave the page and it will be here when you come back.",
+      "running": "Rewriting…",
       "running_hint": "{{model}} is working on it. This page updates itself when it lands.",
       "failed": "The rewrite did not land",
       "failed_generic": "The model did not return a usable prompt.",

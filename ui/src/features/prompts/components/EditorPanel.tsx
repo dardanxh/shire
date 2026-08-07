@@ -1,4 +1,5 @@
 import { Loader2Icon, SaveIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,8 @@ export function EditorPanel({
   isDirty,
   isSaving,
   onSave,
+  tuning,
+  suggestions,
 }: {
   body: string;
   guidance: string;
@@ -41,6 +44,14 @@ export function EditorPanel({
   isDirty: boolean;
   isSaving: boolean;
   onSave: () => void;
+  /**
+   * The collapsible tuning section, passed in rather than rendered here: it needs the saved
+   * version's id and owns a mutation, neither of which this text-editing surface should know
+   * about. Absent until the prompt has a version to rewrite.
+   */
+  tuning?: ReactNode;
+  /** The collapsible proposed-rewrite section, for the same reason as `tuning`. */
+  suggestions?: ReactNode;
 }) {
   const { t } = useTranslation();
 
@@ -63,6 +74,12 @@ export function EditorPanel({
           rows={3}
         />
       </Card>
+
+      {/* Sits under Guidance because the two are one thought — "how I want this changed" and the
+          constraints it should be changed under — and above the body they will rewrite. The
+          rewrite lands directly beneath the button that asked for it. */}
+      {tuning}
+      {suggestions}
 
       <Card className="flex flex-col gap-2 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">

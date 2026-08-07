@@ -4,8 +4,6 @@ import {
   HistoryIcon,
   ListChecksIcon,
   PencilIcon,
-  SlidersHorizontalIcon,
-  WandSparklesIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -81,9 +79,6 @@ export function PromptWorkbenchPage({
     batch.runs.some((run) => isArtefactActive(run.status)),
   );
   const suggestionRunning = suggestions.some((s) => isArtefactActive(s.status));
-  const readySuggestions = suggestions.filter(
-    (s) => s.status === "done",
-  ).length;
 
   const handleSave = () => {
     saveVersion(
@@ -169,19 +164,6 @@ export function PromptWorkbenchPage({
               <Badge variant="ghost">{analysis.findings.length}</Badge>
             ) : null}
           </TabsTrigger>
-          <TabsTrigger value="tuning">
-            <SlidersHorizontalIcon />
-            {t("prompts.tabs.tuning")}
-          </TabsTrigger>
-          <TabsTrigger value="suggestions">
-            <WandSparklesIcon />
-            {t("prompts.tabs.suggestions")}
-            {suggestionRunning ? (
-              <Badge variant="warning">{t("prompts.tabs.running")}</Badge>
-            ) : readySuggestions > 0 ? (
-              <Badge variant="ghost">{readySuggestions}</Badge>
-            ) : null}
-          </TabsTrigger>
           <TabsTrigger value="arena">
             <GaugeIcon />
             {t("prompts.tabs.arena")}
@@ -215,6 +197,36 @@ export function PromptWorkbenchPage({
             isDirty={isDirty}
             isSaving={isSaving}
             onSave={handleSave}
+            tuning={
+              saved ? (
+                <TuningPanel
+                  promptId={id}
+                  versionId={saved.id}
+                  tuning={tuningToForm(saved.tuning)}
+                  guidance={guidance}
+                  isBusy={suggestionRunning}
+                  isDirty={isDirty}
+                />
+              ) : null
+            }
+            suggestions={
+              saved ? (
+                <SuggestionsPanel
+                  // Remount on a new proposal: hunk ids are positional, so carrying the previous
+                  // accept/reject set over would silently reject unrelated changes.
+                  key={suggestions[0]?.id ?? "none"}
+                  promptId={id}
+                  currentBody={saved.body}
+                  suggestions={suggestions}
+                  onMerged={() => {
+                    // The merge created a new current version; drop the local draft so the editor
+                    // shows the merged text rather than the pre-merge draft.
+                    setDraftBody(undefined);
+                    setNote("");
+                  }}
+                />
+              ) : null
+            }
           />
         </TabsContent>
 
@@ -226,35 +238,6 @@ export function PromptWorkbenchPage({
             versionId={saved?.id}
             reviews={saved?.reviews ?? []}
           />
-        </TabsContent>
-
-        <TabsContent value="tuning">
-          {saved ? (
-            <TuningPanel
-              promptId={id}
-              versionId={saved.id}
-              tuning={tuningToForm(saved.tuning)}
-              guidance={guidance}
-              isBusy={suggestionRunning}
-            />
-          ) : null}
-        </TabsContent>
-
-        <TabsContent value="suggestions">
-          {saved ? (
-            <SuggestionsPanel
-              promptId={id}
-              currentBody={saved.body}
-              suggestions={suggestions}
-              onMerged={() => {
-                // The merge created a new current version; drop the local draft so the editor
-                // shows the merged text rather than the pre-merge draft.
-                setDraftBody(undefined);
-                setNote("");
-                onTabChange("editor");
-              }}
-            />
-          ) : null}
         </TabsContent>
 
         <TabsContent value="arena">

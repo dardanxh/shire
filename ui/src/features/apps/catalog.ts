@@ -1,5 +1,6 @@
 import {
   CalculatorIcon,
+  FlaskConicalIcon,
   type LucideIcon,
   ShieldCheckIcon,
   SlidersHorizontalIcon,
@@ -53,5 +54,13 @@ export const APPS: AppEntry[] = [
     nameKey: "apps.catalog.compliance.name",
     descriptionKey: "apps.catalog.compliance.description",
     search: {},
+  },
+  {
+    id: "prompts",
+    to: "/prompts",
+    icon: FlaskConicalIcon,
+    nameKey: "apps.catalog.prompts.name",
+    descriptionKey: "apps.catalog.prompts.description",
+    search: { page: 1, size: 20 },
   },
 ];
