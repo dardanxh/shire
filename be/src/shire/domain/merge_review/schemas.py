@@ -13,7 +13,12 @@ from shire.domain.merge_review.domain import (
     MrComment,
     RiskBreakdown,
 )
-from shire.domain.merge_review.models import MergeReviewRow, MrHobitReviewRow
+from shire.domain.merge_review.models import (
+    MergeReviewRow,
+    MrHobitReviewRow,
+    MrPrincipleCheckRow,
+)
+from shire.domain.principles.models import PrincipleRow
 
 
 class CreateMergeReview(BaseModel):
@@ -48,6 +53,47 @@ class MrHobitReviewResult(BaseModel):
             headline=row.headline,
             self_score=row.self_score,
             comments=[MrComment.model_validate(c) for c in (row.comments or [])],
+            error=row.error,
+            duration_seconds=row.duration_seconds,
+            finished_at=row.finished_at,
+        )
+
+
+class RunMrPrincipleChecks(BaseModel):
+    """Which principles to judge this diff against.
+
+    Omit `principle_ids` to run every enabled principle the repository is currently held to;
+    pass an explicit list to run a subset. Never implicit — the caller always asks.
+    """
+
+    principle_ids: list[uuid.UUID] | None = None
+
+
+class MrPrincipleCheckResult(BaseModel):
+    """One principle's verdict about this MR's changes. Carries the principle's identity so the
+    section renders standalone even if the principle is later unassigned from the repository."""
+
+    principle_id: uuid.UUID
+    principle_name: str
+    severity: str
+    statement: str
+    status: str
+    summary: str | None
+    violations: list[dict]
+    error: str | None
+    duration_seconds: float | None
+    finished_at: datetime | None
+
+    @classmethod
+    def of(cls, row: MrPrincipleCheckRow, principle: PrincipleRow) -> MrPrincipleCheckResult:
+        return cls(
+            principle_id=row.principle_id,
+            principle_name=principle.name,
+            severity=principle.severity,
+            statement=principle.statement,
+            status=row.status,
+            summary=row.summary,
+            violations=list(row.violations or []),
             error=row.error,
             duration_seconds=row.duration_seconds,
             finished_at=row.finished_at,
@@ -138,6 +184,8 @@ class MergeReviewDetailResult(MergeReviewResult):
     selected_hobit_slugs: list[str]
     hobit_reviews: list[MrHobitReviewResult]
     top_findings: list[TopFindingResult]
+    # On-demand, never populated by the analysis pipeline (see MrPrincipleCheckRow).
+    principle_checks: list[MrPrincipleCheckResult]
     # None = the source branch no longer resolves (deleted); True/False = moved / unchanged.
     stale: bool | None
     current_source_sha: str | None
@@ -150,6 +198,7 @@ class MergeReviewDetailResult(MergeReviewResult):
         repo_slug: str,
         hobit_reviews: list[MrHobitReviewResult],
         top_findings: list[TopFindingResult],
+        principle_checks: list[MrPrincipleCheckResult],
         *,
         stale: bool | None,
         current_source_sha: str | None,
@@ -172,6 +221,7 @@ class MergeReviewDetailResult(MergeReviewResult):
             selected_hobit_slugs=list(row.selected_hobit_slugs or []),
             hobit_reviews=hobit_reviews,
             top_findings=top_findings,
+            principle_checks=principle_checks,
             stale=stale,
             current_source_sha=current_source_sha,
             error=row.error,

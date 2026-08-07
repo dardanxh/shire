@@ -33,12 +33,13 @@ from shire.domain.jobs import kinds
 from shire.domain.jobs.models import JobRow
 from shire.domain.jobs.services import JobService
 from shire.domain.merge_review.domain import Footprint, MrComment, compute_risk
-from shire.domain.merge_review.models import MergeReviewRow
+from shire.domain.merge_review.models import MergeReviewRow, MrPrincipleCheckRow
 from shire.domain.merge_review.mr_hobit import (
     MrContext,
     MrHobit,
     build_classification_prompt,
     build_overview_prompt,
+    build_principle_check_prompt,
     footprint_summary,
     parse_classification,
     parse_overview,
@@ -46,7 +47,10 @@ from shire.domain.merge_review.mr_hobit import (
 from shire.domain.merge_review.repositories import (
     SqlMergeReviewRepository,
     SqlMrHobitReviewRepository,
+    SqlMrPrincipleCheckRepository,
 )
+from shire.domain.principles.jobs import MAX_VIOLATIONS, parse_verdict
+from shire.domain.principles.models import PrincipleRow
 from shire.domain.repository.repositories import SqlRepositoryRepository
 from shire.integrations.git_diff import diff_excerpt
 
@@ -102,6 +106,68 @@ def enqueue_classification(session: Session, review_id: uuid.UUID) -> None:
         },
         repository_id=inputs.repository_id,
     )
+
+
+def enqueue_principle_checks(
+    session: Session, review_id: uuid.UUID, principles: list[PrincipleRow]
+) -> None:
+    """Fan out one diff-scoped audit job per principle the user picked.
+
+    Off-chain on purpose: this is user-triggered, never part of the analysis pipeline, so it
+    neither claims the review nor feeds `_maybe_finish`. Running it must not disturb an
+    in-flight analysis or re-open a settled one. The diff excerpt is built once and shared —
+    it is a git call per review, not per principle.
+    """
+    inputs = _load_inputs(session, review_id)
+    if inputs is None:
+        return
+    ctx = _build_ctx(inputs)
+    jobs = JobService(session)
+    model, timeout_seconds = jobs.engine_defaults()
+    checks = SqlMrPrincipleCheckRepository(session)
+    now = datetime.now(UTC)
+
+    for principle in principles:
+        check = checks.get(review_id, principle.id)
+        if check is None:
+            check = MrPrincipleCheckRow(
+                merge_review_id=review_id,
+                principle_id=principle.id,
+                created_at=now,
+            )
+            checks.add(check)
+        # Re-running replaces the previous verdict in place: there is one current answer for
+        # "does this diff uphold this principle", and stale fields would read as the new one.
+        check.status = "pending"
+        check.summary = None
+        check.violations = None
+        check.error = None
+        check.finished_at = None
+        check.duration_seconds = None
+        check.analyzed_source_sha = inputs.analyzed_source_sha
+        job = jobs.enqueue(
+            kind=kinds.MR_PRINCIPLE_CHECK,
+            title=f"MR principle check: {principle.name} — {inputs.repo_slug}: "
+            f"{inputs.source_branch}→{inputs.target_branch}",
+            prompt=build_principle_check_prompt(
+                ctx,
+                name=principle.name,
+                severity=principle.severity,
+                statement=principle.statement,
+                max_violations=MAX_VIOLATIONS,
+            ),
+            payload={
+                "cwd": inputs.clone_path,
+                "model": model,
+                "timeout_seconds": timeout_seconds,
+                "review_id": str(review_id),
+                "principle_id": str(principle.id),
+                "check_id": str(check.id),
+                "analyzed_source_sha": inputs.analyzed_source_sha,
+            },
+            repository_id=inputs.repository_id,
+        )
+        check.job_id = job.id
 
 
 # --- completion handlers (called by the jobs dispatcher) ----------------------------------------
@@ -176,6 +242,50 @@ def handle_mr_hobit_review(job: JobRow) -> None:
                 hobit_row.self_score = output.self_score
                 hobit_row.comments = [c.model_dump(mode="json") for c in output.comments]
     _maybe_finish(review_id)
+
+
+def handle_mr_principle_check(job: JobRow) -> None:
+    """Settle one diff-scoped principle verdict.
+
+    Does not call `_maybe_finish`: these checks are off-chain, and letting them reach the
+    finalize step would let a manual run re-run the risk stage on a settled review.
+    """
+    check_id = uuid.UUID(job.payload["check_id"])
+    with unit_of_work() as session:
+        check = session.get(MrPrincipleCheckRow, check_id)
+        if check is None or check.status != "pending":
+            return  # deleted with the review, or already settled by an earlier dispatch
+
+        check.finished_at = datetime.now(UTC)
+        check.duration_seconds = job.duration_seconds
+
+        # Staleness: a re-analyze moved the review to a different sha, so this verdict is about
+        # code the page no longer shows. Recorded as an error rather than dropped silently —
+        # the row already exists in the UI and would otherwise spin forever.
+        review = session.get(MergeReviewRow, check.merge_review_id)
+        if review is None:
+            return
+        if check.analyzed_source_sha != review.analyzed_source_sha:
+            check.status = "error"
+            check.error = "The review was re-analyzed while this check ran. Run it again."
+            return
+
+        if job.status != "succeeded":
+            check.status = "error"
+            check.error = job.error or "The principle check job failed."
+            return
+
+        parsed = parse_verdict(job.result or "")
+        if parsed is None:
+            check.status = "error"
+            check.error = "Could not parse the auditor's structured verdict."
+            return
+
+        verdict, summary, violations = parsed
+        check.status = verdict
+        check.summary = summary
+        check.violations = violations
+        check.error = None
 
 
 # --- chain steps --------------------------------------------------------------------------------

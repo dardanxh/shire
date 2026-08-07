@@ -19,13 +19,17 @@ import { DeleteMergeReviewDialog } from "./DeleteMergeReviewDialog";
 import { FootprintSection } from "./FootprintSection";
 import { HobitReviewsSection } from "./HobitReviewsSection";
 import { HumanOverviewPanel } from "./HumanOverviewPanel";
+import { PrincipleChecksSection } from "./PrincipleChecksSection";
 import { StalenessBanner } from "./StalenessBanner";
 import { VerdictHeader } from "./VerdictHeader";
 
 /**
  * The MR review, layered top-down: verdict → classification → human overview →
- * git footprint → hobit reviews. One polled query drives the whole page; each
- * layer fills in as its background section completes.
+ * git footprint → hobit reviews → principle checks. One polled query drives the
+ * whole page; each layer fills in as its background section completes.
+ *
+ * The principles layer is the one exception to "fills in by itself": it runs only
+ * when the reader asks for it.
  */
 export function MergeReviewViewPage({ id }: { id: string }) {
   const { t } = useTranslation();
@@ -152,6 +156,7 @@ export function MergeReviewViewPage({ id }: { id: string }) {
         <FootprintSection footprint={review.footprint} />
       ) : null}
       <HobitReviewsSection review={review} />
+      <PrincipleChecksSection review={review} />
     </div>
   );
 }

@@ -9,7 +9,11 @@ from datetime import UTC, datetime
 from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
-from shire.domain.merge_review.models import MergeReviewRow, MrHobitReviewRow
+from shire.domain.merge_review.models import (
+    MergeReviewRow,
+    MrHobitReviewRow,
+    MrPrincipleCheckRow,
+)
 
 
 class SqlMergeReviewRepository:
@@ -92,4 +96,30 @@ class SqlMrHobitReviewRepository:
             self._session.add(
                 MrHobitReviewRow(merge_review_id=review_id, hobit_slug=slug, status="pending")
             )
+        self._session.flush()
+
+
+class SqlMrPrincipleCheckRepository:
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def list_for_review(self, review_id: uuid.UUID) -> list[MrPrincipleCheckRow]:
+        stmt = (
+            select(MrPrincipleCheckRow)
+            .where(MrPrincipleCheckRow.merge_review_id == review_id)
+            .order_by(MrPrincipleCheckRow.created_at)
+        )
+        return list(self._session.scalars(stmt))
+
+    def get(
+        self, review_id: uuid.UUID, principle_id: uuid.UUID
+    ) -> MrPrincipleCheckRow | None:
+        stmt = select(MrPrincipleCheckRow).where(
+            MrPrincipleCheckRow.merge_review_id == review_id,
+            MrPrincipleCheckRow.principle_id == principle_id,
+        )
+        return self._session.scalars(stmt).first()
+
+    def add(self, row: MrPrincipleCheckRow) -> None:
+        self._session.add(row)
         self._session.flush()

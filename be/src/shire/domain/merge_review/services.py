@@ -20,19 +20,25 @@ from shire.domain.activity.services import ActivityService
 from shire.domain.connections.domain import GitProvider
 from shire.domain.hobits.services import HobitService
 from shire.domain.merge_review.domain import CommentSeverity, Footprint, MrComment
-from shire.domain.merge_review.jobs import enqueue_classification
+from shire.domain.merge_review.jobs import enqueue_classification, enqueue_principle_checks
 from shire.domain.merge_review.models import MergeReviewRow
 from shire.domain.merge_review.repositories import (
     SqlMergeReviewRepository,
     SqlMrHobitReviewRepository,
+    SqlMrPrincipleCheckRepository,
 )
 from shire.domain.merge_review.schemas import (
     CreateMergeReview,
     MergeReviewDetailResult,
     MergeReviewResult,
     MrHobitReviewResult,
+    MrPrincipleCheckResult,
+    RunMrPrincipleChecks,
     TopFindingResult,
 )
+from shire.domain.principles.models import PrincipleRow
+from shire.domain.principles.repositories import SqlPrincipleRepository
+from shire.domain.principles.services import PrincipleService
 from shire.domain.repository.domain import Repository
 from shire.domain.repository.repositories import SqlRepositoryRepository
 from shire.domain.substrate.services import AnalysisService
@@ -51,6 +57,9 @@ _SEVERITY_RANK = {
 }
 _TOP_FINDINGS_LIMIT = 10
 
+# Violations lead the principles section; a still-running check sits above the quiet outcomes.
+_VERDICT_RANK = {"violated": 0, "pending": 1, "error": 2, "upheld": 3}
+
 
 class MergeReviewService:
     """Business logic for merge reviews. Constructed per request from a DB session."""
@@ -59,6 +68,8 @@ class MergeReviewService:
         self._session = session
         self._reviews = SqlMergeReviewRepository(session)
         self._hobit_reviews = SqlMrHobitReviewRepository(session)
+        self._principle_checks = SqlMrPrincipleCheckRepository(session)
+        self._principles = SqlPrincipleRepository(session)
         self._repos = SqlRepositoryRepository(session)
         self._hobits = HobitService(session)
         self._analysis = AnalysisService(session)
@@ -155,9 +166,83 @@ class MergeReviewService:
             repo.coordinates.slug,
             reviews,
             _top_findings(reviews),
+            self._principle_check_results(review_id),
             stale=stale,
             current_source_sha=current_sha,
         )
+
+    def run_principle_checks(
+        self, review_id: uuid.UUID, data: RunMrPrincipleChecks
+    ) -> MergeReviewDetailResult:
+        """Judge this MR's diff against the given principles — one engine job each.
+
+        Never called by the analysis pipeline: principles run only when asked for. A running
+        analysis is not a blocker (the checks are off-chain and read the pinned snapshot), but
+        an *unanalyzed* review is — without a footprint there is no diff to judge.
+        """
+        row = self._require_review(review_id)
+        repo = self._require_repo(row.repository_id)
+        if row.footprint is None:
+            raise ConflictError(
+                "This review has no computed change footprint yet, so there is no diff to judge."
+            )
+        if not repo.clone_path or not Path(repo.clone_path).is_dir():
+            raise ConflictError("Repository has not been cloned yet")
+
+        wanted = self._resolve_principles(row.repository_id, data.principle_ids)
+        in_flight = {
+            check.principle_id
+            for check in self._principle_checks.list_for_review(review_id)
+            if check.status == "pending"
+        }
+        # Re-asking for a check that is already running would enqueue a second job whose
+        # completion races the first for the same row.
+        runnable = [p for p in wanted if p.id not in in_flight]
+        if not runnable:
+            raise ConflictError(
+                "Those principle checks are already running. Wait for them to settle."
+            )
+
+        enqueue_principle_checks(self._session, review_id, runnable)
+        # Commit before `get`, which does git work: same reason as `create`.
+        self._session.commit()
+        return self.get(review_id)
+
+    def _resolve_principles(
+        self, repository_id: uuid.UUID, principle_ids: list[uuid.UUID] | None
+    ) -> list[PrincipleRow]:
+        """The principles to run: an explicit list, or every enabled one the repository is held
+        to. Reach is `PrincipleService`'s to decide — the repo tab and this must never disagree
+        about which principles apply."""
+        applicable = {
+            status.principle.id
+            for status in PrincipleService(self._session).repo_status(repository_id)
+            if status.assigned and status.principle.enabled
+        }
+        if principle_ids is None:
+            selected = list(applicable)
+        else:
+            selected = []
+            for principle_id in principle_ids:
+                if principle_id not in applicable:
+                    raise ValidationError(
+                        "That principle is not enabled for this review's repository."
+                    )
+                selected.append(principle_id)
+        rows = [row for pid in selected if (row := self._principles.get(pid)) is not None]
+        if not rows:
+            raise ConflictError("No enabled principles are assigned to this repository.")
+        return rows
+
+    def _principle_check_results(self, review_id: uuid.UUID) -> list[MrPrincipleCheckResult]:
+        """Checks joined to their principles, worst verdict first so violations lead the section."""
+        out: list[MrPrincipleCheckResult] = []
+        for check in self._principle_checks.list_for_review(review_id):
+            principle = self._principles.get(check.principle_id)
+            if principle is None:
+                continue  # principle deleted; the row cascades away with it
+            out.append(MrPrincipleCheckResult.of(check, principle))
+        return sorted(out, key=lambda r: (_VERDICT_RANK.get(r.status, 9), r.principle_name))
 
     def list(
         self, params: PaginationParams, repository_id: uuid.UUID | None = None

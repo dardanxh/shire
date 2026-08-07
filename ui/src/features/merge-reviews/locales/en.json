@@ -151,6 +151,21 @@
     "section": {
       "analyzing": "Analyzing…",
       "failed": "This section failed to generate — try Re-analyze"
+    },
+    "principles": {
+      "title": "Principle checks",
+      "intro": "Ask the repository's principles about these changes specifically. A verdict here is about the diff — a rule this MR doesn't touch is upheld, and a violation that predates the branch is not reported.",
+      "run_one": "Run {{count}} check",
+      "run_other": "Run {{count}} checks",
+      "queued": "Principle checks queued. Verdicts appear here as they land.",
+      "checking": "Checking…",
+      "checking_body": "An auditor is reading the diff against this principle.",
+      "never_body": "Not checked against this MR yet.",
+      "checked_at": "Checked {{when}}",
+      "error": "The check did not complete.",
+      "none_assigned": "This repository isn't held to any enabled principles yet. Assign some on its Principles tab and they'll show up here.",
+      "unassigned": "No longer assigned",
+      "include": "Include {{name}} in the next run"
     }
   }
 }

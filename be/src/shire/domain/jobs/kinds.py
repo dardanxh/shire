@@ -5,6 +5,7 @@ from __future__ import annotations
 MR_CLASSIFICATION = "mr.classification"
 MR_OVERVIEW = "mr.overview"
 MR_HOBIT_REVIEW = "mr.hobit_review"
+MR_PRINCIPLE_CHECK = "mr.principle_check"
 SUBSTRATE_ARCHITECTURE = "substrate.architecture"
 SUBSTRATE_CODEBASE_OVERVIEW = "substrate.codebase_overview"
 SUBSTRATE_DEPENDENCY_GAINS = "substrate.dependency_gains"

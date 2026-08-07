@@ -25,6 +25,8 @@ HIDDEN_JOB_KINDS = (
     "mr.classification",
     "mr.overview",
     "mr.hobit_review",
+    # Fans out one job per principle, and the MR page shows each verdict live.
+    "mr.principle_check",
     "hobit.feedback_distill",
     "news.poll",
     "news.recommend",

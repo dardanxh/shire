@@ -17,6 +17,7 @@ from shire.domain.merge_review.schemas import (
     CreateMergeReview,
     MergeReviewDetailResult,
     MergeReviewResult,
+    RunMrPrincipleChecks,
 )
 from shire.domain.merge_review.services import MergeReviewService
 
@@ -67,6 +68,25 @@ def reanalyze_merge_review(
 ) -> MergeReviewDetailResult:
     """Re-run the whole analysis against the branches' current heads (409 while one is running)."""
     return MergeReviewService(session).reanalyze(review_id)
+
+
+@router.post(
+    "/merge-reviews/{review_id}/principle-checks",
+    response_model=MergeReviewDetailResult,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+def run_merge_review_principle_checks(
+    review_id: uuid.UUID,
+    body: RunMrPrincipleChecks,
+    session: Session = Depends(get_session),
+) -> MergeReviewDetailResult:
+    """Judge this MR's changes against its repository's principles — one engine job each.
+
+    Explicitly triggered; the analysis pipeline never runs these. Returns the review with the
+    checks back as `pending`, which the detail poll then settles. 409 when the review has no
+    footprint yet, the repo has no clone, or the requested checks are already running.
+    """
+    return MergeReviewService(session).run_principle_checks(review_id, body)
 
 
 @router.delete("/merge-reviews/{review_id}", status_code=status.HTTP_204_NO_CONTENT)

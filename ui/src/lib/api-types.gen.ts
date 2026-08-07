@@ -1529,6 +1529,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/merge-reviews/{review_id}/principle-checks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Merge Review Principle Checks
+         * @description Judge this MR's changes against its repository's principles — one engine job each.
+         *
+         *     Explicitly triggered; the analysis pipeline never runs these. Returns the review with the
+         *     checks back as `pending`, which the detail poll then settles. 409 when the review has no
+         *     footprint yet, the repo has no clone, or the requested checks are already running.
+         */
+        post: operations["run_merge_review_principle_checks_api_v1_merge_reviews__review_id__principle_checks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/jobs": {
         parameters: {
             query?: never;
@@ -7452,6 +7476,8 @@ export interface components {
             hobit_reviews: components["schemas"]["MrHobitReviewResult"][];
             /** Top Findings */
             top_findings: components["schemas"]["TopFindingResult"][];
+            /** Principle Checks */
+            principle_checks: components["schemas"]["MrPrincipleCheckResult"][];
             /** Stale */
             stale: boolean | null;
             /** Current Source Sha */
@@ -7668,6 +7694,38 @@ export interface components {
          * @enum {string}
          */
         MrLabel: "bug_fix" | "new_feature" | "refactoring" | "docs" | "tests" | "chore" | "config";
+        /**
+         * MrPrincipleCheckResult
+         * @description One principle's verdict about this MR's changes. Carries the principle's identity so the
+         *     section renders standalone even if the principle is later unassigned from the repository.
+         */
+        MrPrincipleCheckResult: {
+            /**
+             * Principle Id
+             * Format: uuid
+             */
+            principle_id: string;
+            /** Principle Name */
+            principle_name: string;
+            /** Severity */
+            severity: string;
+            /** Statement */
+            statement: string;
+            /** Status */
+            status: string;
+            /** Summary */
+            summary: string | null;
+            /** Violations */
+            violations: {
+                [key: string]: unknown;
+            }[];
+            /** Error */
+            error: string | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /** Finished At */
+            finished_at: string | null;
+        };
         /**
          * MrSize
          * @enum {string}
@@ -9470,6 +9528,17 @@ export interface components {
             queued?: string[];
             /** Skipped */
             skipped?: components["schemas"]["SkippedInspection"][];
+        };
+        /**
+         * RunMrPrincipleChecks
+         * @description Which principles to judge this diff against.
+         *
+         *     Omit `principle_ids` to run every enabled principle the repository is currently held to;
+         *     pass an explicit list to run a subset. Never implicit — the caller always asks.
+         */
+        RunMrPrincipleChecks: {
+            /** Principle Ids */
+            principle_ids?: string[] | null;
         };
         /** SelfScoreResult */
         SelfScoreResult: {
@@ -13250,6 +13319,41 @@ export interface operations {
         responses: {
             /** @description Successful Response */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MergeReviewDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_merge_review_principle_checks_api_v1_merge_reviews__review_id__principle_checks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunMrPrincipleChecks"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };

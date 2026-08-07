@@ -15,9 +15,19 @@ const SETTLED_REVIEW = new Set([
   "error",
 ]);
 
-/** True once every AI section and every hobit review has reached a terminal state. */
+/**
+ * True once every AI section, every hobit review, and every requested principle check has
+ * reached a terminal state.
+ *
+ * Principle checks are counted even though the pipeline never enqueues them: they are started
+ * long after the analysis settles, and without them here the page would stop polling and the
+ * verdicts would never appear.
+ */
 export function isReviewSettled(review: MergeReviewDetailOut): boolean {
-  if (review.overall_status === "failed") return true;
+  const principlesSettled = review.principle_checks.every(
+    (c) => c.status !== "pending",
+  );
+  if (review.overall_status === "failed") return principlesSettled;
   const sections = [
     review.classification_status,
     review.overview_status,
@@ -25,6 +35,7 @@ export function isReviewSettled(review: MergeReviewDetailOut): boolean {
     review.risk_status,
   ];
   return (
+    principlesSettled &&
     review.overall_status === "completed" &&
     sections.every((s) => s === "completed" || s === "failed") &&
     review.hobit_reviews.every((r) => SETTLED_REVIEW.has(r.status))
@@ -128,6 +139,31 @@ export function useDeleteMergeReviewMutation() {
     onSuccess: (_data, id) => {
       queryClient.removeQueries({ queryKey: mergeReviewKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: mergeReviewKeys.lists() });
+    },
+  });
+}
+
+/**
+ * Run this MR's principles against its diff. Returns the review with the requested checks
+ * back at `pending`, so seeding the cache makes the detail query resume polling by itself.
+ *
+ * `principle_ids` omitted means "every enabled principle this repository is held to".
+ */
+export function useRunPrincipleChecksMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: {
+      principle_ids?: string[] | null;
+    }): Promise<MergeReviewDetailOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/merge-reviews/{review_id}/principle-checks",
+        { params: { path: { review_id: id } }, body },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(mergeReviewKeys.detail(id), data);
     },
   });
 }

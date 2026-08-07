@@ -155,6 +155,55 @@ def parse_overview(text: str) -> str | None:
     return overview if isinstance(overview, str) and overview.strip() else None
 
 
+_PRINCIPLE_CONTRACT = """\
+## The principle
+**{name}** (severity: {severity})
+
+{statement}
+
+## Your job
+Decide whether **the changes in this merge request** uphold or violate that principle. You are \
+judging the diff, not the repository:
+
+- A pre-existing violation somewhere else in the codebase is **not** this MR's fault. Do not \
+report it. Judge only what these changes do.
+- If the diff introduces a violation, makes an existing one worse, or extends a \
+non-conforming pattern into new code, the verdict is `violated` — cite the changed lines.
+- If the principle has nothing to say about these changes, the verdict is `upheld`. Say so \
+plainly in the summary rather than inventing a concern.
+- If the diff *fixes* a violation, that is `upheld` — mention it, it is worth knowing.
+
+Every file you cite must be a file this MR changes. Read the surrounding code when the diff \
+alone cannot tell you whether the principle holds (e.g. the rule concerns a convention you need \
+to see elsewhere to judge). List at most {max_violations} violations, most important first.
+
+Return ONLY a single fenced json object as the very last thing, nothing else:
+```json
+{{
+  "verdict": "upheld" or "violated",
+  "summary": "2-3 sentences: your finding about THIS change and how you verified it",
+  "violations": [
+    {{"file": "path/changed/by/this/mr.py", "line": 42, "explanation": "what this change breaks"}}
+  ]
+}}
+```
+`violations` must be empty when the verdict is "upheld". `line` may be null."""
+
+
+def build_principle_check_prompt(
+    ctx: MrContext, *, name: str, severity: str, statement: str, max_violations: int
+) -> str:
+    """Ask one principle of one diff. Deliberately not the repo-wide audit prompt from
+    `principles/jobs.py`: that one asks "does this codebase comply", which on a merge request
+    would report the whole backlog of pre-existing violations as if the MR caused them."""
+    return f"{_preamble(ctx)}\n\n" + _PRINCIPLE_CONTRACT.format(
+        name=name,
+        severity=severity,
+        statement=statement,
+        max_violations=max_violations,
+    )
+
+
 def footprint_summary(fp: Footprint) -> str:
     """A compact markdown rendering of the footprint, embedded in every MR prompt."""
     lines = [

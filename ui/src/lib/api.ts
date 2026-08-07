@@ -93,6 +93,8 @@ export type DirectoryFootprintOut = components["schemas"]["DirectoryFootprint"];
 export type MrHobitReviewOut = components["schemas"]["MrHobitReviewResult"];
 export type MrCommentOut = components["schemas"]["MrComment"];
 export type TopFindingOut = components["schemas"]["TopFindingResult"];
+export type MrPrincipleCheckOut =
+  components["schemas"]["MrPrincipleCheckResult"];
 export type RiskBreakdownOut = components["schemas"]["RiskBreakdown"];
 export type ClassificationLabelOut =
   components["schemas"]["ClassificationLabel"];

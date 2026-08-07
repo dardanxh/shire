@@ -19,7 +19,7 @@ from shire.domain.repository.models import RepositoryRow
 
 logger = logging.getLogger(__name__)
 
-_MAX_VIOLATIONS = 20
+MAX_VIOLATIONS = 20
 
 _AUDIT_PROMPT = """\
 You are auditing the repository **{slug}** against one engineering principle its team has \
@@ -56,7 +56,7 @@ def build_audit_prompt(slug: str, principle: PrincipleRow) -> str:
         name=principle.name,
         severity=principle.severity,
         statement=principle.statement,
-        max_violations=_MAX_VIOLATIONS,
+        max_violations=MAX_VIOLATIONS,
     )
 
 
@@ -86,7 +86,7 @@ def handle_principle_audit(job: JobRow) -> None:
             check.error = job.error or "The audit job failed."
             return
 
-        parsed = _parse_verdict(job.result or "")
+        parsed = parse_verdict(job.result or "")
         if parsed is None:
             check.status = "error"
             check.error = "Could not parse the auditor's structured verdict."
@@ -99,7 +99,9 @@ def handle_principle_audit(job: JobRow) -> None:
         check.error = None
 
 
-def _parse_verdict(text: str) -> tuple[str, str | None, list[dict]] | None:
+def parse_verdict(text: str) -> tuple[str, str | None, list[dict]] | None:
+    """Parse an auditor's `{verdict, summary, violations}` block. Shared with the MR-scoped
+    principle check, which asks the same question of a diff and gets the same shape back."""
     block = _extract_json_object(text)
     if block is None:
         return None
@@ -112,7 +114,7 @@ def _parse_verdict(text: str) -> tuple[str, str | None, list[dict]] | None:
     raw = data.get("violations")
     violations = []
     if isinstance(raw, list):
-        for item in raw[:_MAX_VIOLATIONS]:
+        for item in raw[:MAX_VIOLATIONS]:
             if not isinstance(item, dict) or not item.get("file"):
                 continue
             line = item.get("line")

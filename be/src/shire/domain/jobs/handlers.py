@@ -23,6 +23,7 @@ from shire.domain.merge_review.jobs import (
     handle_mr_classification,
     handle_mr_hobit_review,
     handle_mr_overview,
+    handle_mr_principle_check,
 )
 from shire.domain.news.jobs import handle_news_poll, handle_news_recommend
 from shire.domain.principles.jobs import handle_principle_audit
@@ -62,6 +63,7 @@ HANDLERS: dict[str, Callable[[JobRow], None]] = {
     kinds.MR_CLASSIFICATION: handle_mr_classification,
     kinds.MR_OVERVIEW: handle_mr_overview,
     kinds.MR_HOBIT_REVIEW: handle_mr_hobit_review,
+    kinds.MR_PRINCIPLE_CHECK: handle_mr_principle_check,
     kinds.SUBSTRATE_ARCHITECTURE: handle_architecture,
     kinds.SUBSTRATE_CODEBASE_OVERVIEW: handle_codebase_overview,
     kinds.SUBSTRATE_DEPENDENCY_GAINS: handle_dependency_gains,
