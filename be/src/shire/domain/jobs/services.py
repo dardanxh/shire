@@ -49,12 +49,16 @@ class JobService:
     def update_config(self, data: UpdateEngineConfig) -> EngineConfigResult:
         if data.model not in kinds.AVAILABLE_MODELS:
             raise ConflictError(f"Unknown model: {data.model}")
+        if data.light_model not in kinds.AVAILABLE_MODELS:
+            raise ConflictError(f"Unknown model: {data.light_model}")
         row = self._config.get_or_create()
         row.timeout_seconds = data.timeout_seconds
         row.model = data.model
         row.max_attempts = data.max_attempts
         row.concurrency = data.concurrency
         row.retention_days = data.retention_days
+        row.batch_checks = data.batch_checks
+        row.light_model = data.light_model
         row.updated_at = datetime.now(UTC)
         return EngineConfigResult.of(row)
 
@@ -63,6 +67,14 @@ class JobService:
         (e.g. per-hobit) configuration."""
         row = self._config.get_or_create()
         return row.model, row.timeout_seconds
+
+    def batch_checks_enabled(self) -> bool:
+        """Whether check fan-outs consolidate into one Claude session per batch."""
+        return self._config.get_or_create().batch_checks
+
+    def light_model(self) -> str:
+        """The model for lightweight kinds (classification, news, distillation)."""
+        return self._config.get_or_create().light_model
 
     def enqueue(
         self,

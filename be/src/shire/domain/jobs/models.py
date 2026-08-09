@@ -105,4 +105,12 @@ class EngineConfigRow(Base):
     concurrency: Mapped[int] = mapped_column(Integer)
     # Settled jobs older than this are deleted by the hourly cleanup; 0 = keep forever.
     retention_days: Mapped[int] = mapped_column(Integer)
+    # Token efficiency: run a repo's/MR's checks in ONE Claude session instead of one per
+    # check (explore once, judge N things). Off restores the one-session-per-check behavior.
+    batch_checks: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    # Model for lightweight kinds (classification, news, distillation) — they don't need the
+    # default model's depth, and haiku is ~3x cheaper.
+    light_model: Mapped[str] = mapped_column(
+        String(64), default="haiku", server_default="haiku"
+    )
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

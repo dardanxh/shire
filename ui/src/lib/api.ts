@@ -100,6 +100,12 @@ export type CreateMrRemarkInput = components["schemas"]["CreateMrRemark"];
 export type RiskBreakdownOut = components["schemas"]["RiskBreakdown"];
 export type ClassificationLabelOut =
   components["schemas"]["ClassificationLabel"];
+export type TreasuryOverviewOut =
+  components["schemas"]["TreasuryOverviewResult"];
+export type TreasuryBreakdownOut =
+  components["schemas"]["TreasuryBreakdownResult"];
+export type KindBreakdownOut = components["schemas"]["KindBreakdownResult"];
+export type ModelBreakdownOut = components["schemas"]["ModelBreakdownResult"];
 export type JobOut = components["schemas"]["JobResult"];
 export type JobDetailOut = components["schemas"]["JobDetailResult"];
 export type JobUsageOut = components["schemas"]["JobUsage"];

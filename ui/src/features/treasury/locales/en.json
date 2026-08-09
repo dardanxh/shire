@@ -1,0 +1,118 @@
+{
+  "treasury": {
+    "crumb": "Treasury",
+    "title": "Treasury",
+    "subtitle": "What Claude costs — this machine's whole spend, Shire's share of it, and which actions eat the tokens",
+    "subscription": {
+      "plan": {
+        "claude_max": "Claude Max",
+        "claude_pro": "Claude Pro",
+        "claude_team": "Claude Team",
+        "claude_enterprise": "Claude Enterprise"
+      },
+      "billing": {
+        "stripe_subscription": "Subscription",
+        "api": "API credits",
+        "prepaid": "Prepaid credits"
+      },
+      "unavailable_title": "Claude's local data isn't visible from here",
+      "unavailable_body": "Shire-side figures below are still exact. Running the backend in Docker? Add the docker-compose.claude-data.yml overlay to mount ~/.claude read-only and the subscription and machine-wide numbers appear."
+    },
+    "month": {
+      "machine_title": "This machine, {{month}}",
+      "machine_line": "{{tokens}} tokens across every Claude Code project",
+      "machine_unavailable": "Needs access to Claude's local data.",
+      "unknown_models": "Includes unpriced models ({{models}}) estimated at Opus tier",
+      "shire_title": "Via Shire, this month",
+      "shire_line": "{{tokens}} tokens · {{jobs}} jobs",
+      "share_title": "Shire's share",
+      "share_caveat": "Compared by tokens against the machine total — an approximation, since Shire's engine runs may not appear in this machine's transcripts.",
+      "lifetime_line": "All-time: ~${{cost}} · {{tokens}} tokens (Claude's own stats, as of {{date}})",
+      "estimated": "est.",
+      "actual": "actual"
+    },
+    "windows": {
+      "7d": "7 days",
+      "30d": "30 days",
+      "month": "This month",
+      "all": "All time"
+    },
+    "breakdown": {
+      "title": "Where the tokens go",
+      "mode_tokens": "Tokens",
+      "mode_cost": "Cost",
+      "input": "Input",
+      "output": "Output",
+      "cache_read": "Cache reads",
+      "cache_write": "Cache writes",
+      "cost": "Cost (USD)",
+      "empty": "No Claude jobs in this window yet — run a hobit, an MR review, or a principle audit and it shows up here.",
+      "show_all": "Show all {{count}} actions",
+      "show_less": "Show top {{count}}"
+    },
+    "models": {
+      "line": "{{jobs}} jobs · {{tokens}} tokens · ${{cost}}"
+    },
+    "kinds": {
+      "mr": {
+        "classification": "MR classification",
+        "overview": "MR overview",
+        "hobit_review": "MR hobit review",
+        "principle_check": "MR principle check"
+      },
+      "substrate": {
+        "architecture": "Architecture & ER diagrams",
+        "codebase_overview": "Repo overview",
+        "dependency_gains": "Dependency gains",
+        "dependency_ai_scan": "Dependency AI scan",
+        "tech_stack": "Tech stack narrative",
+        "evolution_note": "Evolution note"
+      },
+      "cicd": {
+        "scan": "CI/CD scan",
+        "apply": "CI/CD apply"
+      },
+      "watchlist": {
+        "pulse_summary": "Pulse summary"
+      },
+      "compliance": {
+        "check": "Compliance check"
+      },
+      "readiness": {
+        "suggest": "AI-readiness suggestions",
+        "apply": "AI-readiness apply"
+      },
+      "hobit": {
+        "run": "Hobit run",
+        "feedback_distill": "Hobit feedback distill"
+      },
+      "council": {
+        "roster": "Council roster",
+        "take_r1": "Council take (round 1)",
+        "take_r2": "Council take (round 2)",
+        "chair": "Council chair verdict"
+      },
+      "repo": {
+        "question": "Repo question"
+      },
+      "principle": {
+        "audit": "Principle audit"
+      },
+      "news": {
+        "poll": "News poll",
+        "recommend": "News recommendations"
+      },
+      "roadmap": {
+        "generate": "Roadmap generation",
+        "execute": "Roadmap execution",
+        "drift": "Roadmap drift check"
+      },
+      "prompt": {
+        "review": "Prompt review",
+        "suggest": "Prompt suggestions",
+        "run": "Prompt run",
+        "judge": "Prompt judge"
+      }
+    }
+  }
+}

@@ -197,6 +197,8 @@ class SqlEngineConfigRepository:
                 max_attempts=2,
                 concurrency=2,
                 retention_days=0,
+                batch_checks=True,
+                light_model="haiku",
                 updated_at=datetime.now(UTC),
             )
             self._session.add(row)

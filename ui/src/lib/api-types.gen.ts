@@ -3730,6 +3730,52 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/treasury/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Treasury Overview
+         * @description Subscription + this month's machine-wide spend (estimated) vs Shire's share (actual).
+         *
+         *     Always 200: when the deployment can't see Claude's local data, the machine-wide fields
+         *     come back null and `claude_data` says why — the Shire-side figures never depend on it.
+         *     `refresh=true` bypasses the transcript-scan cache (the first scan of a session can take
+         *     a few seconds; subsequent ones are incremental).
+         */
+        get: operations["treasury_overview_api_v1_treasury_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/treasury/breakdown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Treasury Breakdown
+         * @description Which AI actions consume the tokens: per-kind and per-model sums over the window,
+         *     worst offender first (the Treasury page's bar chart).
+         */
+        get: operations["treasury_breakdown_api_v1_treasury_breakdown_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -4802,6 +4848,18 @@ export interface components {
             label: components["schemas"]["MrLabel"];
             /** Proportion */
             proportion: number;
+        };
+        /**
+         * ClaudeDataStatusResult
+         * @description Whether this deployment can see Claude's local data, and why not when it can't.
+         */
+        ClaudeDataStatusResult: {
+            /** Available */
+            available: boolean;
+            /** Reason */
+            reason: string | null;
+            /** Data Dir */
+            data_dir: string | null;
         };
         /**
          * ClaudeStatusResult
@@ -6371,6 +6429,10 @@ export interface components {
             concurrency: number;
             /** Retention Days */
             retention_days: number;
+            /** Batch Checks */
+            batch_checks: boolean;
+            /** Light Model */
+            light_model: string;
             /** Available Models */
             available_models: string[];
             /**
@@ -7251,6 +7313,28 @@ export interface components {
             /** Rationale */
             rationale: string;
         };
+        /**
+         * KindBreakdownResult
+         * @description One AI action's totals over the window — the bar-chart row.
+         */
+        KindBreakdownResult: {
+            /** Kind */
+            kind: string;
+            /** Jobs */
+            jobs: number;
+            /** Input Tokens */
+            input_tokens: number;
+            /** Output Tokens */
+            output_tokens: number;
+            /** Cache Read Tokens */
+            cache_read_tokens: number;
+            /** Cache Creation Tokens */
+            cache_creation_tokens: number;
+            /** Total Tokens */
+            total_tokens: number;
+            /** Cost Usd */
+            cost_usd: number;
+        };
         /** LanguageShift */
         LanguageShift: {
             /** Language */
@@ -7270,6 +7354,19 @@ export interface components {
             files: number;
             /** Pct */
             pct: number;
+        };
+        /**
+         * LifetimeTotalsResult
+         * @description All-time machine totals from Claude's own stats cache — cheap but refreshed only when
+         *     the CLI recomputes it, so `as_of` says how stale the figure is.
+         */
+        LifetimeTotalsResult: {
+            /** Machine Total Tokens */
+            machine_total_tokens: number;
+            /** Machine Cost Usd Estimated */
+            machine_cost_usd_estimated: number;
+            /** As Of */
+            as_of: string | null;
         };
         /** MemberActivityResult */
         MemberActivityResult: {
@@ -7632,6 +7729,20 @@ export interface components {
             /** Analyzed At */
             analyzed_at: string | null;
         };
+        /**
+         * ModelBreakdownResult
+         * @description One model's totals over the window (the model the job requested).
+         */
+        ModelBreakdownResult: {
+            /** Model */
+            model: string;
+            /** Jobs */
+            jobs: number;
+            /** Total Tokens */
+            total_tokens: number;
+            /** Cost Usd */
+            cost_usd: number;
+        };
         /** ModellingExample */
         ModellingExample: {
             /**
@@ -7730,6 +7841,28 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+        };
+        /**
+         * MonthTotalsResult
+         * @description This month's spend: machine-wide (estimated) next to Shire's own (actual).
+         */
+        MonthTotalsResult: {
+            /** Month */
+            month: string;
+            /** Machine Total Tokens */
+            machine_total_tokens: number | null;
+            /** Machine Cost Usd Estimated */
+            machine_cost_usd_estimated: number | null;
+            /** Unknown Models */
+            unknown_models: string[];
+            /** Shire Jobs */
+            shire_jobs: number;
+            /** Shire Total Tokens */
+            shire_total_tokens: number;
+            /** Shire Cost Usd */
+            shire_cost_usd: number;
+            /** Share Pct */
+            share_pct: number | null;
         };
         /**
          * MrComment
@@ -9741,6 +9874,20 @@ export interface components {
             findings: components["schemas"]["Finding"][];
         };
         /**
+         * SubscriptionResult
+         * @description The Claude subscription this machine is logged into (from ~/.claude.json).
+         */
+        SubscriptionResult: {
+            /** Organization Type */
+            organization_type: string | null;
+            /** Rate Limit Tier */
+            rate_limit_tier: string | null;
+            /** Billing Type */
+            billing_type: string | null;
+            /** Email */
+            email: string | null;
+        };
+        /**
          * SuggestionChange
          * @description One of the model's notes on what it changed. Explanatory, not an applicable patch.
          */
@@ -10085,6 +10232,28 @@ export interface components {
             body: string;
         };
         /**
+         * TreasuryBreakdownResult
+         * @description Which actions eat the tokens: per-kind (ordered worst first) and per-model sums.
+         */
+        TreasuryBreakdownResult: {
+            /** Window */
+            window: string;
+            /** Kinds */
+            kinds: components["schemas"]["KindBreakdownResult"][];
+            /** Models */
+            models: components["schemas"]["ModelBreakdownResult"][];
+        };
+        /**
+         * TreasuryOverviewResult
+         * @description The Treasury page's headline read: who's paying, and what this month cost.
+         */
+        TreasuryOverviewResult: {
+            claude_data: components["schemas"]["ClaudeDataStatusResult"];
+            subscription: components["schemas"]["SubscriptionResult"] | null;
+            month: components["schemas"]["MonthTotalsResult"];
+            lifetime: components["schemas"]["LifetimeTotalsResult"] | null;
+        };
+        /**
          * Tuning
          * @description The knobs applied when Claude rewrites a prompt.
          *
@@ -10245,6 +10414,16 @@ export interface components {
             concurrency: number;
             /** Retention Days */
             retention_days: number;
+            /**
+             * Batch Checks
+             * @default true
+             */
+            batch_checks: boolean;
+            /**
+             * Light Model
+             * @default haiku
+             */
+            light_model: string;
         };
         /**
          * UpdateHobit
@@ -17967,6 +18146,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ArenaBatchResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    treasury_overview_api_v1_treasury_overview_get: {
+        parameters: {
+            query?: {
+                refresh?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TreasuryOverviewResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    treasury_breakdown_api_v1_treasury_breakdown_get: {
+        parameters: {
+            query?: {
+                window?: "7d" | "30d" | "month" | "all";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TreasuryBreakdownResult"];
                 };
             };
             /** @description Validation Error */

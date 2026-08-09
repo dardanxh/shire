@@ -97,6 +97,14 @@
         "label": "Job retention (days)",
         "desc": "Settled jobs older than this are deleted hourly. 0 = keep forever.",
         "invalid": "Must be between 0 and 365."
+      },
+      "light_model": {
+        "label": "Model for lightweight jobs",
+        "desc": "Classification, news polling and feedback distillation don't need the default model's depth — haiku is ~3x cheaper."
+      },
+      "batch": {
+        "label": "Batch checks into one session",
+        "desc": "Run all principle checks and MR reviewers for a repo or merge request in one Claude session instead of one per check. Much cheaper; per-check depth may be slightly lower."
       }
     },
     "repo": {

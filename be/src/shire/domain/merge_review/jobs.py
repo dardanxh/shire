@@ -38,18 +38,27 @@ from shire.domain.merge_review.mr_hobit import (
     MrContext,
     MrHobit,
     build_classification_prompt,
+    build_hobit_review_batch_prompt,
     build_overview_prompt,
+    build_principle_check_batch_prompt,
     build_principle_check_prompt,
     footprint_summary,
     parse_classification,
     parse_overview,
+    parse_review_batch,
 )
 from shire.domain.merge_review.repositories import (
     SqlMergeReviewRepository,
     SqlMrHobitReviewRepository,
     SqlMrPrincipleCheckRepository,
 )
-from shire.domain.principles.jobs import MAX_VIOLATIONS, parse_verdict
+from shire.domain.principles.jobs import (
+    BATCH_MAX_VIOLATIONS,
+    BATCH_SIZE,
+    MAX_VIOLATIONS,
+    parse_batch_verdicts,
+    parse_verdict,
+)
 from shire.domain.principles.models import PrincipleRow
 from shire.domain.repository.repositories import SqlRepositoryRepository
 from shire.integrations.git_diff import diff_excerpt
@@ -88,7 +97,9 @@ def enqueue_classification(session: Session, review_id: uuid.UUID) -> None:
         return
     ctx = _build_ctx(inputs)
     jobs = JobService(session)
-    model, timeout_seconds = jobs.engine_defaults()
+    # Classification is simple labeling with proportions — the light tier is plenty.
+    _, timeout_seconds = jobs.engine_defaults()
+    model = jobs.light_model()
     row = session.get(MergeReviewRow, review_id)
     if row is not None:
         row.classification_status = "running"
@@ -180,6 +191,7 @@ def enqueue_principle_checks(
     checks = SqlMrPrincipleCheckRepository(session)
     now = datetime.now(UTC)
 
+    runnable: list[tuple[PrincipleRow, MrPrincipleCheckRow]] = []
     for principle in principles:
         check = checks.get(review_id, principle.id)
         if check is None:
@@ -198,29 +210,67 @@ def enqueue_principle_checks(
         check.finished_at = None
         check.duration_seconds = None
         check.analyzed_source_sha = inputs.analyzed_source_sha
+        runnable.append((principle, check))
+
+    if len(runnable) <= 1 or not jobs.batch_checks_enabled():
+        for principle, check in runnable:
+            job = jobs.enqueue(
+                kind=kinds.MR_PRINCIPLE_CHECK,
+                title=f"MR principle check: {principle.name} — {inputs.repo_slug}: "
+                f"{inputs.source_branch}→{inputs.target_branch}",
+                prompt=build_principle_check_prompt(
+                    ctx,
+                    name=principle.name,
+                    severity=principle.severity,
+                    statement=principle.statement,
+                    max_violations=MAX_VIOLATIONS,
+                ),
+                payload={
+                    "cwd": inputs.clone_path,
+                    "model": model,
+                    "timeout_seconds": timeout_seconds,
+                    "review_id": str(review_id),
+                    "principle_id": str(principle.id),
+                    "check_id": str(check.id),
+                    "analyzed_source_sha": inputs.analyzed_source_sha,
+                },
+                repository_id=inputs.repository_id,
+            )
+            check.job_id = job.id
+        return
+
+    # Batched: the shared preamble (context, footprint, diff) is sent once per chunk, and one
+    # session judges every principle in it — the token win this mode exists for.
+    for chunk_start in range(0, len(runnable), BATCH_SIZE):
+        chunk = runnable[chunk_start : chunk_start + BATCH_SIZE]
         job = jobs.enqueue(
-            kind=kinds.MR_PRINCIPLE_CHECK,
-            title=f"MR principle check: {principle.name} — {inputs.repo_slug}: "
+            kind=kinds.MR_PRINCIPLE_CHECK_BATCH,
+            title=f"MR principle checks ({len(chunk)}) — {inputs.repo_slug}: "
             f"{inputs.source_branch}→{inputs.target_branch}",
-            prompt=build_principle_check_prompt(
+            prompt=build_principle_check_batch_prompt(
                 ctx,
-                name=principle.name,
-                severity=principle.severity,
-                statement=principle.statement,
-                max_violations=MAX_VIOLATIONS,
+                [principle for principle, _ in chunk],
+                max_violations=BATCH_MAX_VIOLATIONS,
             ),
             payload={
                 "cwd": inputs.clone_path,
                 "model": model,
-                "timeout_seconds": timeout_seconds,
+                "timeout_seconds": min(3600.0, timeout_seconds + 60.0 * len(chunk)),
                 "review_id": str(review_id),
-                "principle_id": str(principle.id),
-                "check_id": str(check.id),
                 "analyzed_source_sha": inputs.analyzed_source_sha,
+                "checks": [
+                    {
+                        "check_id": str(check.id),
+                        "principle_id": str(principle.id),
+                        "index": i + 1,
+                    }
+                    for i, (principle, check) in enumerate(chunk)
+                ],
             },
             repository_id=inputs.repository_id,
         )
-        check.job_id = job.id
+        for _, check in chunk:
+            check.job_id = job.id
 
 
 # --- completion handlers (called by the jobs dispatcher) ----------------------------------------
@@ -341,6 +391,112 @@ def handle_mr_principle_check(job: JobRow) -> None:
         check.error = None
 
 
+def handle_mr_principle_check_batch(job: JobRow) -> None:
+    """Settle every verdict of one batched principle-check session.
+
+    Off-chain like the single handler (never calls `_maybe_finish`). Guards run once per
+    batch — one review, one sha, one job outcome; only the verdict distribution is per check.
+    """
+    entries = job.payload.get("checks") or []  # [{check_id, principle_id, index}]
+    with unit_of_work() as session:
+        review = session.get(MergeReviewRow, uuid.UUID(job.payload["review_id"]))
+        if review is None:
+            return
+        now = datetime.now(UTC)
+        pending: list[tuple[dict, MrPrincipleCheckRow]] = []
+        for entry in entries:
+            check = session.get(MrPrincipleCheckRow, uuid.UUID(entry["check_id"]))
+            if check is None or check.status != "pending":
+                continue  # deleted with the review, or settled by an earlier dispatch
+            check.finished_at = now
+            check.duration_seconds = job.duration_seconds
+            pending.append((entry, check))
+        if not pending:
+            return
+
+        def fail_all(message: str) -> None:
+            for _, check in pending:
+                check.status = "error"
+                check.error = message
+
+        # All checks in a batch were pinned to one snapshot at enqueue.
+        if job.payload.get("analyzed_source_sha") != review.analyzed_source_sha:
+            fail_all("The review was re-analyzed while this check ran. Run it again.")
+            return
+        if job.status != "succeeded":
+            fail_all(job.error or "The principle check job failed.")
+            return
+
+        parsed = parse_batch_verdicts(
+            job.result or "", (entry["index"] for entry, _ in pending)
+        )
+        if parsed is None:
+            fail_all("Could not parse the auditor's structured verdicts.")
+            return
+
+        for entry, check in pending:
+            result = parsed.get(entry["index"])
+            if result is None:
+                check.status = "error"
+                check.error = "The auditor skipped this principle."
+                continue
+            verdict, summary, violations = result
+            check.status = verdict
+            check.summary = summary
+            check.violations = violations
+            check.error = None
+
+
+def handle_mr_hobit_review_batch(job: JobRow) -> None:
+    """Distribute one review panel's output to its hobit review rows, then finalize once.
+
+    Mirrors `handle_mr_hobit_review` per row; a reviewer the panel skipped settles as its own
+    parse failure instead of poisoning the batch. `_maybe_finish` runs once — its atomic
+    risk-status claim makes that safe.
+    """
+    review_id = uuid.UUID(job.payload["review_id"])
+    slugs = job.payload.get("slugs") or []
+    with unit_of_work() as session:
+        row = _guarded_review(session, review_id, job)
+        if row is None:
+            return
+        reviews = SqlMrHobitReviewRepository(session)
+        now = datetime.now(UTC)
+        rows: list[tuple[str, object]] = []
+        for slug in slugs:
+            hobit_row = reviews.get(review_id, slug)
+            if hobit_row is None:
+                continue
+            hobit_row.raw_output = job.result
+            hobit_row.duration_seconds = job.duration_seconds
+            hobit_row.finished_at = now
+            rows.append((slug, hobit_row))
+
+        if job.status != "succeeded":
+            for _, hobit_row in rows:
+                hobit_row.status = _failure_status(job.error)
+                hobit_row.error = job.error
+        else:
+            parsed = parse_review_batch(job.result or "", [slug for slug, _ in rows])
+            for slug, hobit_row in rows:
+                output = parsed.get(slug) if parsed is not None else None
+                if output is None:
+                    hobit_row.status = "parse_failed"
+                    hobit_row.error = (
+                        "Could not parse the review panel's structured output."
+                        if parsed is None
+                        else "The review panel skipped this reviewer."
+                    )
+                    continue
+                for comment in output.comments:
+                    comment.id = str(uuid.uuid4())  # stable key for the UI
+                hobit_row.status = "completed"
+                hobit_row.headline = output.headline
+                hobit_row.self_score = output.self_score
+                hobit_row.comments = [c.model_dump(mode="json") for c in output.comments]
+    _maybe_finish(review_id)
+
+
 # --- chain steps --------------------------------------------------------------------------------
 
 
@@ -393,6 +549,9 @@ def _enqueue_hobit_reviews(review_id: uuid.UUID, analyzed_sha: str | None) -> No
         reviews = SqlMrHobitReviewRepository(session)
         configured = {config.slug: config for config in inputs.hobit_configs}
         now = datetime.now(UTC)
+        jobs = JobService(session)
+
+        runnable = []  # (slug, config, spec)
         for slug in selected:
             hobit_row = reviews.get(review_id, slug)
             if hobit_row is None:
@@ -406,18 +565,52 @@ def _enqueue_hobit_reviews(review_id: uuid.UUID, analyzed_sha: str | None) -> No
                 continue
             hobit_row.status = "running"
             hobit_row.started_at = now
-            JobService(session).enqueue(
-                kind=kinds.MR_HOBIT_REVIEW,
-                title=f"MR review by {spec.name} — {inputs.repo_slug}: "
+            runnable.append((slug, config, spec))
+
+        if len(runnable) <= 1 or not jobs.batch_checks_enabled():
+            for slug, config, spec in runnable:
+                jobs.enqueue(
+                    kind=kinds.MR_HOBIT_REVIEW,
+                    title=f"MR review by {spec.name} — {inputs.repo_slug}: "
+                    f"{inputs.source_branch}→{inputs.target_branch}",
+                    prompt=MrHobit(spec).build_prompt(ctx, config.instructions),
+                    payload={
+                        "system": config.charter,
+                        "cwd": inputs.clone_path,
+                        "model": config.model,
+                        "timeout_seconds": config.timeout_seconds,
+                        "review_id": str(review_id),
+                        "slug": slug,
+                        "analyzed_source_sha": inputs.analyzed_source_sha,
+                    },
+                    repository_id=inputs.repository_id,
+                )
+            return
+
+        # Batched panel: one session reads the diff once and files every reviewer's report.
+        # Charters ride in the prompt (a batch has no single system prompt) and the model is
+        # the engine default — per-hobit model/timeout overrides don't apply here; the
+        # per-card re-run stays a single dedicated session for when one report disappoints.
+        model, timeout_seconds = jobs.engine_defaults()
+        for chunk_start in range(0, len(runnable), BATCH_SIZE):
+            chunk = runnable[chunk_start : chunk_start + BATCH_SIZE]
+            jobs.enqueue(
+                kind=kinds.MR_HOBIT_REVIEW_BATCH,
+                title=f"MR review panel ({len(chunk)} reviewers) — {inputs.repo_slug}: "
                 f"{inputs.source_branch}→{inputs.target_branch}",
-                prompt=MrHobit(spec).build_prompt(ctx, config.instructions),
+                prompt=build_hobit_review_batch_prompt(
+                    ctx,
+                    [
+                        (slug, spec.name, config.charter, config.instructions)
+                        for slug, config, spec in chunk
+                    ],
+                ),
                 payload={
-                    "system": config.charter,
                     "cwd": inputs.clone_path,
-                    "model": config.model,
-                    "timeout_seconds": config.timeout_seconds,
+                    "model": model,
+                    "timeout_seconds": min(3600.0, timeout_seconds + 60.0 * len(chunk)),
                     "review_id": str(review_id),
-                    "slug": slug,
+                    "slugs": [slug for slug, _, _ in chunk],
                     "analyzed_source_sha": inputs.analyzed_source_sha,
                 },
                 repository_id=inputs.repository_id,

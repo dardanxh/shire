@@ -374,7 +374,8 @@ class HobitService:
         entries = self._feedback.recent_entries(slug, _DISTILL_INPUT_LIMIT)
         total = self._feedback.count_changed_since(slug, None)
         jobs = JobService(self._session)
-        model, _timeout = jobs.engine_defaults()
+        # Distillation summarizes a handful of ratings — the light tier is plenty.
+        model = jobs.light_model()
         jobs.enqueue(
             kind=job_kinds.HOBIT_FEEDBACK_DISTILL,
             title=f"Feedback distillation: {spec.name}",

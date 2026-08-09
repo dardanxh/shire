@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TreasuryRouteImport } from './routes/treasury'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as TechnologiesRouteImport } from './routes/technologies'
 import { Route as TechChooserRouteImport } from './routes/tech-chooser'
@@ -79,6 +80,11 @@ import { Route as DataIdEditRouteImport } from './routes/data/$id/edit'
 import { Route as ArchitecturesIdEditRouteImport } from './routes/architectures/$id/edit'
 import { Route as ArchitecturesIdDiagramRouteImport } from './routes/architectures/$id/diagram'
 
+const TreasuryRoute = TreasuryRouteImport.update({
+  id: '/treasury',
+  path: '/treasury',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
   path: '/tools',
@@ -452,6 +458,7 @@ export interface FileRoutesByFullPath {
   '/tech-chooser': typeof TechChooserRoute
   '/technologies': typeof TechnologiesRouteWithChildren
   '/tools': typeof ToolsRoute
+  '/treasury': typeof TreasuryRoute
   '/architectures/advisor': typeof ArchitecturesAdvisorRoute
   '/architectures/compare': typeof ArchitecturesCompareRoute
   '/architectures/new': typeof ArchitecturesNewRoute
@@ -510,6 +517,7 @@ export interface FileRoutesByTo {
   '/principles': typeof PrinciplesRoute
   '/tech-chooser': typeof TechChooserRoute
   '/tools': typeof ToolsRoute
+  '/treasury': typeof TreasuryRoute
   '/architectures/advisor': typeof ArchitecturesAdvisorRoute
   '/architectures/compare': typeof ArchitecturesCompareRoute
   '/architectures/new': typeof ArchitecturesNewRoute
@@ -582,6 +590,7 @@ export interface FileRoutesById {
   '/tech-chooser': typeof TechChooserRoute
   '/technologies': typeof TechnologiesRouteWithChildren
   '/tools': typeof ToolsRoute
+  '/treasury': typeof TreasuryRoute
   '/architectures/advisor': typeof ArchitecturesAdvisorRoute
   '/architectures/compare': typeof ArchitecturesCompareRoute
   '/architectures/new': typeof ArchitecturesNewRoute
@@ -655,6 +664,7 @@ export interface FileRouteTypes {
     | '/tech-chooser'
     | '/technologies'
     | '/tools'
+    | '/treasury'
     | '/architectures/advisor'
     | '/architectures/compare'
     | '/architectures/new'
@@ -713,6 +723,7 @@ export interface FileRouteTypes {
     | '/principles'
     | '/tech-chooser'
     | '/tools'
+    | '/treasury'
     | '/architectures/advisor'
     | '/architectures/compare'
     | '/architectures/new'
@@ -784,6 +795,7 @@ export interface FileRouteTypes {
     | '/tech-chooser'
     | '/technologies'
     | '/tools'
+    | '/treasury'
     | '/architectures/advisor'
     | '/architectures/compare'
     | '/architectures/new'
@@ -856,11 +868,19 @@ export interface RootRouteChildren {
   TechChooserRoute: typeof TechChooserRoute
   TechnologiesRoute: typeof TechnologiesRouteWithChildren
   ToolsRoute: typeof ToolsRoute
+  TreasuryRoute: typeof TreasuryRoute
   DiagramRepoIdKindRoute: typeof DiagramRepoIdKindRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/treasury': {
+      id: '/treasury'
+      path: '/treasury'
+      fullPath: '/treasury'
+      preLoaderRoute: typeof TreasuryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tools': {
       id: '/tools'
       path: '/tools'
@@ -1590,6 +1610,7 @@ const rootRouteChildren: RootRouteChildren = {
   TechChooserRoute: TechChooserRoute,
   TechnologiesRoute: TechnologiesRouteWithChildren,
   ToolsRoute: ToolsRoute,
+  TreasuryRoute: TreasuryRoute,
   DiagramRepoIdKindRoute: DiagramRepoIdKindRoute,
 }
 export const routeTree = rootRouteImport

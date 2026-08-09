@@ -15,7 +15,11 @@ from sqlalchemy.orm import Session
 from shire.core.exceptions import ConflictError, NotFoundError, ValidationError
 from shire.domain.jobs import kinds as job_kinds
 from shire.domain.jobs.services import JobService
-from shire.domain.principles.jobs import build_audit_prompt
+from shire.domain.principles.jobs import (
+    BATCH_SIZE,
+    build_audit_batch_prompt,
+    build_audit_prompt,
+)
 from shire.domain.principles.models import (
     PRINCIPLE_SEVERITIES,
     PRINCIPLE_TECHS,
@@ -140,8 +144,14 @@ class PrincipleService:
         return self.repo_status(repository_id)
 
     def audit_repository(self, repository_id: uuid.UUID) -> list[RepoPrincipleStatusResult]:
-        """Enqueue one audit job per assigned enabled principle (non-blocking; the repo tab
-        polls). Skips principles that already have an unsettled check in flight."""
+        """Enqueue audit jobs for every assigned enabled principle (non-blocking; the repo tab
+        polls). Skips principles that already have an unsettled check in flight.
+
+        With batching on (the default), runnable principles share one Claude session per
+        chunk of BATCH_SIZE — the repository is explored once per chunk instead of once per
+        principle. Each principle still gets its own PrincipleCheckRow, so the UI's polling
+        surface is unchanged.
+        """
         repo = self._repos.get(repository_id)
         if repo is None:
             raise NotFoundError("Repository not found")
@@ -164,6 +174,7 @@ class PrincipleService:
         branch = repo.current_branch or repo.default_branch
         now = datetime.now(UTC)
 
+        runnable: list[tuple[PrincipleRow, PrincipleCheckRow]] = []
         for principle in applicable:
             current = latest.get(principle.id)
             if current is not None and current.status == "pending":
@@ -177,22 +188,59 @@ class PrincipleService:
                 created_at=now,
             )
             self._checks.add(check)
+            runnable.append((principle, check))
+
+        if len(runnable) <= 1 or not jobs.batch_checks_enabled():
+            for principle, check in runnable:
+                job = jobs.enqueue(
+                    kind=job_kinds.PRINCIPLE_AUDIT,
+                    title=f"Principle audit: {principle.name} — {repo.coordinates.slug}",
+                    prompt=build_audit_prompt(repo.coordinates.slug, principle),
+                    payload={
+                        "cwd": repo.clone_path,
+                        "model": model,
+                        "timeout_seconds": timeout_seconds,
+                        "repository_id": str(repository_id),
+                        "principle_id": str(principle.id),
+                        "check_id": str(check.id),
+                        "branch": branch,
+                    },
+                    repository_id=repository_id,
+                )
+                check.job_id = job.id
+            return self.repo_status(repository_id)
+
+        for chunk_start in range(0, len(runnable), BATCH_SIZE):
+            chunk = runnable[chunk_start : chunk_start + BATCH_SIZE]
             job = jobs.enqueue(
-                kind=job_kinds.PRINCIPLE_AUDIT,
-                title=f"Principle audit: {principle.name} — {repo.coordinates.slug}",
-                prompt=build_audit_prompt(repo.coordinates.slug, principle),
+                kind=job_kinds.PRINCIPLE_AUDIT_BATCH,
+                title=(
+                    f"Principle audit ({len(chunk)} principles) — {repo.coordinates.slug}"
+                ),
+                prompt=build_audit_batch_prompt(
+                    repo.coordinates.slug, [principle for principle, _ in chunk]
+                ),
                 payload={
                     "cwd": repo.clone_path,
                     "model": model,
-                    "timeout_seconds": timeout_seconds,
+                    # One session does N principles' work — give it headroom, within the
+                    # config UI's own ceiling.
+                    "timeout_seconds": min(3600.0, timeout_seconds + 60.0 * len(chunk)),
                     "repository_id": str(repository_id),
-                    "principle_id": str(principle.id),
-                    "check_id": str(check.id),
                     "branch": branch,
+                    "checks": [
+                        {
+                            "check_id": str(check.id),
+                            "principle_id": str(principle.id),
+                            "index": i + 1,
+                        }
+                        for i, (principle, check) in enumerate(chunk)
+                    ],
                 },
                 repository_id=repository_id,
             )
-            check.job_id = job.id
+            for _, check in chunk:
+                check.job_id = job.id
 
         return self.repo_status(repository_id)
 

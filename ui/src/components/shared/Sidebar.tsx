@@ -2,6 +2,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import {
   BookOpenIcon,
   ChevronDownIcon,
+  CoinsIcon,
   CpuIcon,
   DatabaseIcon,
   FolderGitIcon,
@@ -154,6 +155,13 @@ const PLATFORM_ITEMS: NavItem[] = [
     labelKey: "common.nav.connectors",
     icon: PlugIcon,
     match: (p) => p === "/connectors" || p.startsWith("/connectors/"),
+  },
+  {
+    to: "/treasury",
+    labelKey: "common.nav.treasury",
+    icon: CoinsIcon,
+    search: { window: "30d" },
+    match: (p) => p === "/treasury" || p.startsWith("/treasury/"),
   },
 ];
 

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import {
+  CheckboxField,
   FormFooter,
   SelectField,
   TextField,
@@ -25,10 +26,12 @@ function makeEngineConfigSchema(t: TFunction) {
     }, message);
   return z.object({
     model: z.string().trim().min(1),
+    light_model: z.string().trim().min(1),
     timeout_seconds: bounded(30, 3600, t("jobs.config.timeout.invalid")),
     max_attempts: bounded(1, 5, t("jobs.config.attempts.invalid")),
     concurrency: bounded(1, 16, t("jobs.config.concurrency.invalid")),
     retention_days: bounded(0, 365, t("jobs.config.retention.invalid")),
+    batch_checks: z.boolean(),
   });
 }
 
@@ -59,10 +62,12 @@ function ConfigForm({ config }: { config: EngineConfigOut }) {
     resolver: standardSchemaResolver(makeEngineConfigSchema(t)),
     defaultValues: {
       model: config.model,
+      light_model: config.light_model,
       timeout_seconds: String(config.timeout_seconds),
       max_attempts: String(config.max_attempts),
       concurrency: String(config.concurrency),
       retention_days: String(config.retention_days),
+      batch_checks: config.batch_checks,
     },
   });
 
@@ -70,10 +75,12 @@ function ConfigForm({ config }: { config: EngineConfigOut }) {
     save(
       {
         model: values.model,
+        light_model: values.light_model,
         timeout_seconds: Number(values.timeout_seconds),
         max_attempts: Number(values.max_attempts),
         concurrency: Number(values.concurrency),
         retention_days: Number(values.retention_days),
+        batch_checks: values.batch_checks,
       },
       { onSuccess: () => toast.success(t("jobs.config.saved_toast")) },
     );
@@ -100,6 +107,24 @@ function ConfigForm({ config }: { config: EngineConfigOut }) {
                 </SelectItem>
               ))}
             </SelectField>
+            <SelectField<EngineConfigFormValues>
+              name="light_model"
+              label={t("jobs.config.light_model.label")}
+              description={t("jobs.config.light_model.desc")}
+              disabled={isPending}
+            >
+              {config.available_models.map((m) => (
+                <SelectItem key={m} value={m}>
+                  {m}
+                </SelectItem>
+              ))}
+            </SelectField>
+            <CheckboxField<EngineConfigFormValues>
+              name="batch_checks"
+              label={t("jobs.config.batch.label")}
+              description={t("jobs.config.batch.desc")}
+              disabled={isPending}
+            />
             <TextField<EngineConfigFormValues>
               name="timeout_seconds"
               type="number"

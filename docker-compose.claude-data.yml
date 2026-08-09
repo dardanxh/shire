@@ -1,0 +1,20 @@
+# Optional overlay: mount the host's Claude Code data READ-ONLY into the backend so the
+# Treasury page can show the subscription and machine-wide usage (not just Shire's own jobs).
+#
+#   docker compose -f docker-compose.yml -f docker-compose.claude-data.yml up -d
+#
+# Consent-first, like the local-repos mount: without this overlay the backend never touches
+# ~/.claude and Treasury shows Shire-side figures only, with a hint pointing here.
+#
+# Unlike docker-compose.claude.yml (which the engine needs intact for auth), read-only access
+# is macOS-tolerable: the host CLI rewriting ~/.claude.json while we read can serve a torn
+# read, but the backend treats that as "subscription momentarily unavailable" and recovers on
+# the next poll — nothing fails.
+services:
+  backend:
+    environment:
+      SHIRE_CLAUDE_DATA_DIR: /home/shire/.claude
+      SHIRE_CLAUDE_CONFIG_FILE: /home/shire/.claude.json
+    volumes:
+      - ${HOME}/.claude:/home/shire/.claude:ro
+      - ${HOME}/.claude.json:/home/shire/.claude.json:ro

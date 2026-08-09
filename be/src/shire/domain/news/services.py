@@ -193,7 +193,9 @@ class NewsService:
     def _enqueue_poll(self, topic: NewsTopicRow, trigger: str) -> NewsPollRow:
         config = self._config.get_or_create()
         jobs = JobService(self._session)
-        model, timeout_seconds = jobs.engine_defaults()
+        # Polling headlines is retrieval + filtering — the light tier is plenty.
+        _, timeout_seconds = jobs.engine_defaults()
+        model = jobs.light_model()
         poll = NewsPollRow(
             topic_id=topic.id,
             status="pending",
@@ -263,7 +265,8 @@ class NewsService:
         if not digest:
             raise ConflictError("No analyzed repositories yet — nothing to recommend from.")
         jobs = JobService(self._session)
-        model, timeout_seconds = jobs.engine_defaults()
+        _, timeout_seconds = jobs.engine_defaults()
+        model = jobs.light_model()
         job = jobs.enqueue(
             kind=job_kinds.NEWS_RECOMMEND,
             title="News: recommend topics",

@@ -254,6 +254,12 @@ interactively (or take it from `SHIRE_LOCAL_REPOS_DIR`; see
 ever mounted, and you can revoke it by removing the two lines from `.env` and re-running
 `./setup.sh`.
 
+The same consent applies to Claude Code's own data: the **Treasury** page (cost observability)
+can show your subscription and machine-wide Claude usage, but only if you opt in with the
+read-only [`docker-compose.claude-data.yml`](./docker-compose.claude-data.yml) overlay. Without
+it, Treasury shows figures for Shire's own jobs only. (Running natively, the backend reads
+`~/.claude` directly.)
+
 ## Documentation
 
 The [`docs/`](./docs) folder holds the full vision and decided architecture — product surfaces,

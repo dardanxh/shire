@@ -61,6 +61,13 @@ class Settings(BaseSettings):
     claude_model: str = Field(default="sonnet")
     claude_timeout_seconds: float = Field(default=500.0)
 
+    # Treasury (cost observability) — where Claude Code's own local data lives. Unset means
+    # auto-detect ~/.claude and ~/.claude.json when readable (native dev). Containerized
+    # deploys must opt in via the docker-compose.claude-data.yml overlay (consent-first, like
+    # the local-repos mount) — the overlay mounts them read-only and sets these two paths.
+    claude_data_dir: Path | None = Field(default=None)
+    claude_config_file: Path | None = Field(default=None)
+
     # Orchestration (Phase 2.5) — scheduled, change-gated hobit runs via Prefect. Off by default so
     # the app runs standalone; flip on once the Prefect server + worker are up (see
     # docs/running-phase-2.5.md). When off, assignment saves never reach out to Prefect and the

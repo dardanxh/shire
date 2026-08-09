@@ -9,6 +9,7 @@ the tree is surrounding context.
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 
 from shire.domain.hobits.domain import HobitSpec
@@ -19,6 +20,8 @@ from shire.domain.merge_review.domain import (
     MrHobitOutput,
     MrLabel,
 )
+from shire.domain.principles.jobs import format_principles_section
+from shire.domain.principles.models import PrincipleRow
 
 
 @dataclass(frozen=True)
@@ -202,6 +205,135 @@ def build_principle_check_prompt(
         statement=statement,
         max_violations=max_violations,
     )
+
+
+_PRINCIPLE_BATCH_CONTRACT = """\
+## Your job
+For EACH principle above, decide whether **the changes in this merge request** uphold or \
+violate it. You are judging the diff, not the repository:
+
+- A pre-existing violation somewhere else in the codebase is **not** this MR's fault. Do not \
+report it. Judge only what these changes do.
+- If the diff introduces a violation, makes an existing one worse, or extends a \
+non-conforming pattern into new code, that principle's verdict is `violated` — cite the \
+changed lines.
+- If a principle has nothing to say about these changes, its verdict is `upheld`. Say so \
+plainly in that principle's summary rather than inventing a concern.
+- If the diff *fixes* a violation, that is `upheld` — mention it, it is worth knowing.
+
+Every file you cite must be a file this MR changes. Read the surrounding code when the diff \
+alone cannot tell you whether a principle holds. List at most {max_violations} violations per \
+principle, most important first.
+
+Return ONLY a single fenced json object as the very last thing, nothing else, with exactly \
+one entry per principle (use the numbers above):
+```json
+{{
+  "results": [
+    {{
+      "index": 1,
+      "verdict": "upheld" or "violated",
+      "summary": "2-3 sentences: your finding about THIS change and how you verified it",
+      "violations": [
+        {{"file": "path/changed/by/this/mr.py", "line": 42, "explanation": "what breaks"}}
+      ]
+    }}
+  ]
+}}
+```
+Every principle must appear exactly once. `violations` must be empty when that principle's \
+verdict is "upheld". `line` may be null."""
+
+
+def build_principle_check_batch_prompt(
+    ctx: MrContext, principles: Sequence[PrincipleRow], *, max_violations: int
+) -> str:
+    """Ask N principles of one diff in one session — the shared preamble (context, footprint,
+    diff) is emitted once instead of once per principle. Same judging rules as the single
+    check; only the output shape is batched."""
+    return (
+        f"{_preamble(ctx)}\n\n{format_principles_section(principles)}\n\n"
+        + _PRINCIPLE_BATCH_CONTRACT.format(max_violations=max_violations)
+    )
+
+
+# One session, several reviewer personas: each gets its own section and must file its own
+# report. Charters ride in the user prompt (a batch has no single system prompt).
+_MR_BATCH_REVIEW_HEADER = """\
+You are running a review panel of {count} reviewers over this merge request. Work through the \
+diff once, then produce EACH reviewer's report through that reviewer's lens — stay in each \
+persona for its report, and do not let one reviewer's findings bleed into another's unless \
+both genuinely apply."""
+
+_MR_BATCH_OUTPUT_CONTRACT = """\
+Severity semantics: critical = would break production or leak data, must not merge; major = a \
+real defect or serious risk; minor = worth fixing, not blocking; info = observation. \
+self_score is 0-100: how serious that reviewer's most important finding is (empty comments → \
+score it low).
+
+Return ONLY a single fenced json block as the very last thing in your response, nothing after \
+it — one entry per reviewer, keyed by the slug shown in its section. Comment bodies are JSON \
+strings (escape quotes/newlines); cite exact file paths from the diff; invent nothing. If \
+nothing is wrong through a reviewer's lens, return an empty comments list for it. Shape:
+```json
+{{"reviews": [{{"slug": "<reviewer slug>", "headline": "<one sentence>", "self_score": 0, \
+"comments": [{{"severity": "info|minor|major|critical", "file": "<path or null>", "line": \
+null, "body": "<markdown>"}}]}}]}}
+```
+Every reviewer must appear exactly once."""
+
+
+def build_hobit_review_batch_prompt(
+    ctx: MrContext, reviewers: Sequence[tuple[str, str, str, str]]
+) -> str:
+    """One session for N reviewers: (slug, name, charter, instructions) each. The charter that
+    would have been the session's system prompt becomes the reviewer's persona section."""
+    sections = []
+    for i, (slug, name, charter, instructions) in enumerate(reviewers, start=1):
+        sections.append(
+            f"## Reviewer {i}: {name} (slug: {slug})\n"
+            f"Persona:\n{charter}\n\n"
+            f"Instructions:\n{instructions}"
+        )
+    header = _MR_BATCH_REVIEW_HEADER.format(count=len(reviewers))
+    body = "\n\n".join(sections)
+    return f"{_preamble(ctx)}\n\n{header}\n\n{body}\n\n{_MR_BATCH_OUTPUT_CONTRACT}"
+
+
+def parse_review_batch(
+    text: str, expected_slugs: Iterable[str]
+) -> dict[str, MrHobitOutput] | None:
+    """Parse `{"reviews": [{slug, headline, self_score, comments}]}` from a batched session.
+
+    None only when nothing parseable exists (the whole batch settles as parse failures).
+    Otherwise a map keyed by slug; skipped or mangled reviewers are simply absent and settle
+    individually. Unknown/duplicate slugs are ignored (first entry wins).
+    """
+    block = extract_json_block(text)
+    if block is None:
+        return None
+    try:
+        data = json.loads(block)
+    except (json.JSONDecodeError, ValueError):
+        return None
+    reviews = data.get("reviews") if isinstance(data, dict) else None
+    if not isinstance(reviews, list):
+        return None
+    expected = set(expected_slugs)
+    parsed: dict[str, MrHobitOutput] = {}
+    for entry in reviews:
+        if not isinstance(entry, dict):
+            continue
+        slug = entry.get("slug")
+        if not isinstance(slug, str) or slug not in expected or slug in parsed:
+            continue
+        try:
+            parsed[slug] = MrHobitOutput.model_validate(
+                {key: value for key, value in entry.items() if key != "slug"}
+            )
+        except ValueError:
+            continue
+    return parsed
 
 
 def footprint_summary(fp: Footprint) -> str:

@@ -91,6 +91,10 @@ class UpdateEngineConfig(BaseModel):
     max_attempts: int = Field(ge=1, le=5)
     concurrency: int = Field(ge=1, le=16)
     retention_days: int = Field(ge=0, le=365)
+    # One Claude session per batch of checks instead of one per check (token efficiency).
+    batch_checks: bool = True
+    # Model for lightweight kinds (classification, news, distillation).
+    light_model: str = "haiku"
 
 
 class EngineConfigResult(BaseModel):
@@ -101,6 +105,8 @@ class EngineConfigResult(BaseModel):
     max_attempts: int
     concurrency: int
     retention_days: int
+    batch_checks: bool
+    light_model: str
     available_models: list[str]
     updated_at: datetime
 
@@ -112,6 +118,8 @@ class EngineConfigResult(BaseModel):
             max_attempts=row.max_attempts,
             concurrency=row.concurrency,
             retention_days=row.retention_days,
+            batch_checks=row.batch_checks,
+            light_model=row.light_model,
             available_models=list(AVAILABLE_MODELS),
             updated_at=row.updated_at,
         )

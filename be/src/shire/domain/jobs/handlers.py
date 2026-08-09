@@ -22,11 +22,16 @@ from shire.domain.jobs.models import JobRow
 from shire.domain.merge_review.jobs import (
     handle_mr_classification,
     handle_mr_hobit_review,
+    handle_mr_hobit_review_batch,
     handle_mr_overview,
     handle_mr_principle_check,
+    handle_mr_principle_check_batch,
 )
 from shire.domain.news.jobs import handle_news_poll, handle_news_recommend
-from shire.domain.principles.jobs import handle_principle_audit
+from shire.domain.principles.jobs import (
+    handle_principle_audit,
+    handle_principle_audit_batch,
+)
 from shire.domain.prompts.jobs import (
     handle_prompt_judge,
     handle_prompt_review,
@@ -63,7 +68,9 @@ HANDLERS: dict[str, Callable[[JobRow], None]] = {
     kinds.MR_CLASSIFICATION: handle_mr_classification,
     kinds.MR_OVERVIEW: handle_mr_overview,
     kinds.MR_HOBIT_REVIEW: handle_mr_hobit_review,
+    kinds.MR_HOBIT_REVIEW_BATCH: handle_mr_hobit_review_batch,
     kinds.MR_PRINCIPLE_CHECK: handle_mr_principle_check,
+    kinds.MR_PRINCIPLE_CHECK_BATCH: handle_mr_principle_check_batch,
     kinds.SUBSTRATE_ARCHITECTURE: handle_architecture,
     kinds.SUBSTRATE_CODEBASE_OVERVIEW: handle_codebase_overview,
     kinds.SUBSTRATE_DEPENDENCY_GAINS: handle_dependency_gains,
@@ -83,6 +90,7 @@ HANDLERS: dict[str, Callable[[JobRow], None]] = {
     kinds.COUNCIL_TAKE_R2: handle_council_take_r2,
     kinds.COUNCIL_CHAIR: handle_council_chair,
     kinds.PRINCIPLE_AUDIT: handle_principle_audit,
+    kinds.PRINCIPLE_AUDIT_BATCH: handle_principle_audit_batch,
     kinds.NEWS_POLL: handle_news_poll,
     kinds.NEWS_RECOMMEND: handle_news_recommend,
     kinds.ROADMAP_GENERATE: handle_roadmap_generate,

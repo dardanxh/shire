@@ -53,6 +53,7 @@ from shire.domain.techchoice.routes import router as techchoice_router
 from shire.domain.technology.routes import categories_router as tech_categories_router
 from shire.domain.technology.routes import technologies_router as technologies_router
 from shire.domain.tools.routes import router as tools_router
+from shire.domain.treasury.routes import router as treasury_router
 from shire.domain.watchlist.routes import router as watchlist_router
 from shire.integrations.external_tools.codecharta import resolve_viewer_dir
 
@@ -154,6 +155,7 @@ app.include_router(inspections_router, prefix=API_V1_PREFIX)
 app.include_router(techchoice_router, prefix=API_V1_PREFIX)
 app.include_router(highlights_router, prefix=API_V1_PREFIX)
 app.include_router(prompts_router, prefix=API_V1_PREFIX)
+app.include_router(treasury_router, prefix=API_V1_PREFIX)
 
 # fastapi-pagination wires its Params/Page plumbing for the catalog routers above.
 add_pagination(app)
