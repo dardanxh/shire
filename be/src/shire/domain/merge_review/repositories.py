@@ -13,6 +13,7 @@ from shire.domain.merge_review.models import (
     MergeReviewRow,
     MrHobitReviewRow,
     MrPrincipleCheckRow,
+    MrRemarkRow,
 )
 
 
@@ -122,4 +123,38 @@ class SqlMrPrincipleCheckRepository:
 
     def add(self, row: MrPrincipleCheckRow) -> None:
         self._session.add(row)
+        self._session.flush()
+
+
+class SqlMrRemarkRepository:
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def list_for_review(self, review_id: uuid.UUID) -> list[MrRemarkRow]:
+        stmt = (
+            select(MrRemarkRow)
+            .where(MrRemarkRow.merge_review_id == review_id)
+            .order_by(MrRemarkRow.created_at)
+        )
+        return list(self._session.scalars(stmt))
+
+    def get(self, review_id: uuid.UUID, remark_id: uuid.UUID) -> MrRemarkRow | None:
+        row = self._session.get(MrRemarkRow, remark_id)
+        if row is None or row.merge_review_id != review_id:
+            return None
+        return row
+
+    def get_by_ref(self, review_id: uuid.UUID, source_ref: str) -> MrRemarkRow | None:
+        stmt = select(MrRemarkRow).where(
+            MrRemarkRow.merge_review_id == review_id,
+            MrRemarkRow.source_ref == source_ref,
+        )
+        return self._session.scalars(stmt).first()
+
+    def add(self, row: MrRemarkRow) -> None:
+        self._session.add(row)
+        self._session.flush()
+
+    def delete(self, row: MrRemarkRow) -> None:
+        self._session.delete(row)
         self._session.flush()

@@ -15,6 +15,7 @@ from shire.core.db import get_session
 from shire.core.pagination import Page, PaginationParams
 from shire.domain.merge_review.schemas import (
     CreateMergeReview,
+    CreateMrRemark,
     MergeReviewDetailResult,
     MergeReviewResult,
     RunMrPrincipleChecks,
@@ -87,6 +88,49 @@ def run_merge_review_principle_checks(
     footprint yet, the repo has no clone, or the requested checks are already running.
     """
     return MergeReviewService(session).run_principle_checks(review_id, body)
+
+
+@router.post(
+    "/merge-reviews/{review_id}/hobit-reviews/{hobit_slug}/rerun",
+    response_model=MergeReviewDetailResult,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+def rerun_merge_review_hobit(
+    review_id: uuid.UUID,
+    hobit_slug: str,
+    session: Session = Depends(get_session),
+) -> MergeReviewDetailResult:
+    """Re-run one hobit's review of this MR (e.g. after a timeout). Returns the review with
+    that card back at `running`, which the detail poll then settles. 409 while it is already
+    running or when the review has no footprint / clone."""
+    return MergeReviewService(session).rerun_hobit_review(review_id, hobit_slug)
+
+
+@router.post(
+    "/merge-reviews/{review_id}/remarks",
+    response_model=MergeReviewDetailResult,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_merge_review_remark(
+    review_id: uuid.UUID,
+    body: CreateMrRemark,
+    session: Session = Depends(get_session),
+) -> MergeReviewDetailResult:
+    """Star a hobit or principle finding for this MR (the human-remarks tab). Idempotent per
+    `source_ref` — starring the same finding twice keeps one remark."""
+    return MergeReviewService(session).add_remark(review_id, body)
+
+
+@router.delete(
+    "/merge-reviews/{review_id}/remarks/{remark_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_merge_review_remark(
+    review_id: uuid.UUID,
+    remark_id: uuid.UUID,
+    session: Session = Depends(get_session),
+) -> None:
+    MergeReviewService(session).remove_remark(review_id, remark_id)
 
 
 @router.delete("/merge-reviews/{review_id}", status_code=status.HTTP_204_NO_CONTENT)

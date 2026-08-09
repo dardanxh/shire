@@ -130,8 +130,19 @@
       "hotspots_body": "Changed files that are historically churn-heavy",
       "hotspots_none": "No known hotspots touched"
     },
+    "tabs": {
+      "hobits": "What hobits say",
+      "principles": "What principles say",
+      "remarks": "Human remarks"
+    },
     "reviews": {
       "title": "Hobit reviews",
+      "none_selected": "No hobits reviewed this MR — pick reviewers when creating a review.",
+      "last_run": "Last run {{when}}",
+      "started_at": "Running since {{when}}",
+      "never_run": "Not run yet",
+      "rerun": "Re-run {{name}}",
+      "rerun_queued": "{{name}} is reading the diff again",
       "top_title": "Most important items",
       "top_empty": "No findings from the completed reviews — a good sign.",
       "running_count": "{{count}} still running",
@@ -166,6 +177,14 @@
       "none_assigned": "This repository isn't held to any enabled principles yet. Assign some on its Principles tab and they'll show up here.",
       "unassigned": "No longer assigned",
       "include": "Include {{name}} in the next run"
+    },
+    "remarks": {
+      "star": "Keep as a remark for this MR",
+      "unstar": "Remove this remark",
+      "intro": "The findings you starred from the hobits and principles — this MR's curated shortlist. Remarks are snapshots, so they survive re-runs.",
+      "empty_title": "Nothing kept yet",
+      "empty_body": "Star the findings worth acting on in the other two tabs and they'll be collected here.",
+      "kept_at": "Kept {{when}}"
     }
   }
 }

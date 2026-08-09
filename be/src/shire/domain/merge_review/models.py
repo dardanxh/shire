@@ -1,5 +1,5 @@
 """SQLAlchemy ORM entities for merge reviews: the review snapshot, per-hobit review results,
-and the on-demand principle verdicts about the diff."""
+the on-demand principle verdicts about the diff, and the reader's starred remarks."""
 
 from __future__ import annotations
 
@@ -148,3 +148,37 @@ class MrPrincipleCheckRow(Base):
     duration_seconds: Mapped[float | None] = mapped_column(Float, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class MrRemarkRow(Base):
+    """One finding the reader starred on this MR — the "human remarks" layer.
+
+    A snapshot, not a pointer: hobit comments are JSONB blobs replaced wholesale on re-analyze
+    and principle verdicts are overwritten in place, so a remark copies the text it kept. It
+    thereby survives re-runs — which is the point: the reader curated it for *this MR*.
+
+    `source_ref` is the id of what was starred (a comment id, or a principle id with an optional
+    violation index) — unique per review so starring is a toggle, not an append.
+    """
+
+    __tablename__ = "mr_remarks"
+    __table_args__ = (
+        UniqueConstraint("merge_review_id", "source_ref"),
+        CheckConstraint(
+            "source_kind IN ('hobit', 'principle')", name="ck_mr_remarks_source_kind"
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    merge_review_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("merge_reviews.id", ondelete="CASCADE"), index=True
+    )
+    source_kind: Mapped[str] = mapped_column(String(16))
+    source_ref: Mapped[str] = mapped_column(String(128))
+    # Who said it (hobit or principle name) — denormalized so the tab renders standalone.
+    source_label: Mapped[str] = mapped_column(String(300))
+    severity: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    file: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    line: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    text: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

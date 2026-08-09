@@ -6,15 +6,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { MergeReviewDetailOut } from "@/lib/api";
 import { SectionShell } from "./SectionShell";
 
-/** One fixed color per label so the proportion bar reads consistently. */
+/** One fixed color per label so the proportion bar reads consistently. Every label gets its
+ * own hue — chart-2 and chart-4 are both green, so only one label may use a green. */
 const LABEL_COLORS: Record<string, string> = {
-  bug_fix: "var(--chart-2)",
-  new_feature: "var(--chart-1)",
-  refactoring: "var(--chart-4)",
-  docs: "var(--chart-5)",
-  tests: "var(--success)",
-  chore: "var(--muted-foreground)",
-  config: "var(--chart-3)",
+  bug_fix: "var(--chart-5)", // red
+  new_feature: "var(--chart-1)", // blue
+  refactoring: "var(--chart-6)", // purple
+  docs: "var(--chart-3)", // amber
+  tests: "var(--success)", // green
+  chore: "var(--muted-foreground)", // grey
+  config: "var(--warning)", // orange
 };
 
 /** Layer 2 — what kind of change is this? Multi-label with proportions. */

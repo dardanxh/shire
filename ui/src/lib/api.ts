@@ -95,6 +95,8 @@ export type MrCommentOut = components["schemas"]["MrComment"];
 export type TopFindingOut = components["schemas"]["TopFindingResult"];
 export type MrPrincipleCheckOut =
   components["schemas"]["MrPrincipleCheckResult"];
+export type MrRemarkOut = components["schemas"]["MrRemarkResult"];
+export type CreateMrRemarkInput = components["schemas"]["CreateMrRemark"];
 export type RiskBreakdownOut = components["schemas"]["RiskBreakdown"];
 export type ClassificationLabelOut =
   components["schemas"]["ClassificationLabel"];

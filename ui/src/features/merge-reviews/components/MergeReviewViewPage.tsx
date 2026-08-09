@@ -5,13 +5,17 @@ import {
   GitBranchIcon,
   Loader2Icon,
   RefreshCwIcon,
+  ScaleIcon,
+  StarIcon,
   Trash2Icon,
+  UsersIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDateTime } from "@/lib/format";
 import { useMergeReviewQuery, useReanalyzeMergeReviewMutation } from "../api";
 import { ClassificationBadges } from "./ClassificationBadges";
@@ -20,13 +24,15 @@ import { FootprintSection } from "./FootprintSection";
 import { HobitReviewsSection } from "./HobitReviewsSection";
 import { HumanOverviewPanel } from "./HumanOverviewPanel";
 import { PrincipleChecksSection } from "./PrincipleChecksSection";
+import { RemarksSection } from "./RemarksSection";
 import { StalenessBanner } from "./StalenessBanner";
 import { VerdictHeader } from "./VerdictHeader";
 
 /**
  * The MR review, layered top-down: verdict → classification → human overview →
- * git footprint → hobit reviews → principle checks. One polled query drives the
- * whole page; each layer fills in as its background section completes.
+ * git footprint, then three tabs — what the hobits say, what the principles say,
+ * and the reader's own starred remarks. One polled query drives the whole page;
+ * each layer fills in as its background section completes.
  *
  * The principles layer is the one exception to "fills in by itself": it runs only
  * when the reader asks for it.
@@ -155,8 +161,44 @@ export function MergeReviewViewPage({ id }: { id: string }) {
       {review.footprint ? (
         <FootprintSection footprint={review.footprint} />
       ) : null}
-      <HobitReviewsSection review={review} />
-      <PrincipleChecksSection review={review} />
+
+      <Tabs defaultValue="hobits">
+        <TabsList>
+          <TabsTrigger value="hobits">
+            <UsersIcon />
+            {t("merge_reviews.tabs.hobits")}
+            {review.hobit_reviews.length > 0 ? (
+              <Badge variant="secondary">{review.hobit_reviews.length}</Badge>
+            ) : null}
+          </TabsTrigger>
+          <TabsTrigger value="principles">
+            <ScaleIcon />
+            {t("merge_reviews.tabs.principles")}
+            {review.principle_checks.length > 0 ? (
+              <Badge variant="secondary">
+                {review.principle_checks.length}
+              </Badge>
+            ) : null}
+          </TabsTrigger>
+          <TabsTrigger value="remarks">
+            <StarIcon />
+            {t("merge_reviews.tabs.remarks")}
+            {review.remarks.length > 0 ? (
+              <Badge variant="secondary">{review.remarks.length}</Badge>
+            ) : null}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="hobits">
+          <HobitReviewsSection review={review} />
+        </TabsContent>
+        <TabsContent value="principles">
+          <PrincipleChecksSection review={review} />
+        </TabsContent>
+        <TabsContent value="remarks">
+          <RemarksSection review={review} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

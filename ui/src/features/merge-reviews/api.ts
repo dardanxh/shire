@@ -1,6 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { api, type MergeReviewDetailOut } from "@/lib/api";
+import {
+  api,
+  type CreateMrRemarkInput,
+  type MergeReviewDetailOut,
+} from "@/lib/api";
 import { type MergeReviewListParams, mergeReviewKeys } from "./keys";
 
 /** How often the detail query polls while the background analysis is still running. */
@@ -139,6 +143,63 @@ export function useDeleteMergeReviewMutation() {
     onSuccess: (_data, id) => {
       queryClient.removeQueries({ queryKey: mergeReviewKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: mergeReviewKeys.lists() });
+    },
+  });
+}
+
+/**
+ * Re-run one hobit's review of this MR. Returns the review with that card back at
+ * `running`, so seeding the cache makes the detail query resume polling by itself.
+ */
+export function useRerunHobitReviewMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (hobitSlug: string): Promise<MergeReviewDetailOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/merge-reviews/{review_id}/hobit-reviews/{hobit_slug}/rerun",
+        { params: { path: { review_id: id, hobit_slug: hobitSlug } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(mergeReviewKeys.detail(id), data);
+    },
+  });
+}
+
+/** Star a hobit or principle finding for this MR (the human-remarks tab). */
+export function useAddRemarkMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (
+      body: CreateMrRemarkInput,
+    ): Promise<MergeReviewDetailOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/merge-reviews/{review_id}/remarks",
+        { params: { path: { review_id: id } }, body },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(mergeReviewKeys.detail(id), data);
+    },
+  });
+}
+
+export function useDeleteRemarkMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (remarkId: string): Promise<void> => {
+      const { error } = await api.DELETE(
+        "/api/v1/merge-reviews/{review_id}/remarks/{remark_id}",
+        { params: { path: { review_id: id, remark_id: remarkId } } },
+      );
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: mergeReviewKeys.detail(id) });
     },
   });
 }

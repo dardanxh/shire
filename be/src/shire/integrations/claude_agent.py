@@ -53,7 +53,7 @@ class ClaudeAgent:
         model: str | None = None,
         allowed_tools: tuple[str, ...] = DEFAULT_ALLOWED_TOOLS,
         mcp_config: str | None = None,
-        timeout_seconds: float = 180.0,
+        timeout_seconds: float = 600.0,
         use_api_key: bool = False,
     ) -> None:
         self._binary = binary

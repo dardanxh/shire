@@ -1553,6 +1553,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/merge-reviews/{review_id}/hobit-reviews/{hobit_slug}/rerun": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rerun Merge Review Hobit
+         * @description Re-run one hobit's review of this MR (e.g. after a timeout). Returns the review with
+         *     that card back at `running`, which the detail poll then settles. 409 while it is already
+         *     running or when the review has no footprint / clone.
+         */
+        post: operations["rerun_merge_review_hobit_api_v1_merge_reviews__review_id__hobit_reviews__hobit_slug__rerun_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merge-reviews/{review_id}/remarks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Merge Review Remark
+         * @description Star a hobit or principle finding for this MR (the human-remarks tab). Idempotent per
+         *     `source_ref` — starring the same finding twice keeps one remark.
+         */
+        post: operations["create_merge_review_remark_api_v1_merge_reviews__review_id__remarks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merge-reviews/{review_id}/remarks/{remark_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Merge Review Remark */
+        delete: operations["delete_merge_review_remark_api_v1_merge_reviews__review_id__remarks__remark_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/jobs": {
         parameters: {
             query?: never;
@@ -5627,7 +5687,7 @@ export interface components {
             model: string;
             /**
              * Timeout Seconds
-             * @default 180
+             * @default 600
              */
             timeout_seconds: number;
             /** Tags */
@@ -5739,6 +5799,29 @@ export interface components {
              * @default 0
              */
             position: number;
+        };
+        /**
+         * CreateMrRemark
+         * @description Star one finding for this MR — a snapshot of what was said, not a pointer to it.
+         *
+         *     `source_ref` identifies what was starred (a hobit comment id, or a principle id with an
+         *     optional violation index) so the UI can render the star as toggled and un-star it later.
+         */
+        CreateMrRemark: {
+            /** Source Kind */
+            source_kind: string;
+            /** Source Ref */
+            source_ref: string;
+            /** Source Label */
+            source_label: string;
+            /** Severity */
+            severity?: string | null;
+            /** File */
+            file?: string | null;
+            /** Line */
+            line?: number | null;
+            /** Text */
+            text: string;
         };
         /** CreateNewsSource */
         CreateNewsSource: {
@@ -7478,6 +7561,8 @@ export interface components {
             top_findings: components["schemas"]["TopFindingResult"][];
             /** Principle Checks */
             principle_checks: components["schemas"]["MrPrincipleCheckResult"][];
+            /** Remarks */
+            remarks: components["schemas"]["MrRemarkResult"][];
             /** Stale */
             stale: boolean | null;
             /** Current Source Sha */
@@ -7685,6 +7770,8 @@ export interface components {
             error: string | null;
             /** Duration Seconds */
             duration_seconds: number | null;
+            /** Started At */
+            started_at: string | null;
             /** Finished At */
             finished_at: string | null;
         };
@@ -7725,6 +7812,36 @@ export interface components {
             duration_seconds: number | null;
             /** Finished At */
             finished_at: string | null;
+        };
+        /**
+         * MrRemarkResult
+         * @description One starred finding in the review's human-remarks tab.
+         */
+        MrRemarkResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Source Kind */
+            source_kind: string;
+            /** Source Ref */
+            source_ref: string;
+            /** Source Label */
+            source_label: string;
+            /** Severity */
+            severity: string | null;
+            /** File */
+            file: string | null;
+            /** Line */
+            line: number | null;
+            /** Text */
+            text: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /**
          * MrSize
@@ -10149,7 +10266,7 @@ export interface components {
             model: string;
             /**
              * Timeout Seconds
-             * @default 180
+             * @default 600
              */
             timeout_seconds: number;
             /** Tags */
@@ -13360,6 +13477,103 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["MergeReviewDetailResult"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rerun_merge_review_hobit_api_v1_merge_reviews__review_id__hobit_reviews__hobit_slug__rerun_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+                hobit_slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MergeReviewDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_merge_review_remark_api_v1_merge_reviews__review_id__remarks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMrRemark"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MergeReviewDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_merge_review_remark_api_v1_merge_reviews__review_id__remarks__remark_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+                remark_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

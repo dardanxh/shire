@@ -194,7 +194,7 @@ class CreateHobit(BaseModel):
     charter: str
     instructions: str
     model: str = "sonnet"
-    timeout_seconds: float = 180.0
+    timeout_seconds: float = 600.0
     tags: list[str] = Field(default_factory=list)
 
 

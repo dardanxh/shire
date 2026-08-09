@@ -74,7 +74,7 @@ export function HobitFormDialog({
       model: hobit?.model ?? "sonnet",
       charter: hobit?.charter ?? "",
       instructions: hobit?.instructions ?? "",
-      timeout_seconds: String(hobit?.timeout_seconds ?? 180),
+      timeout_seconds: String(hobit?.timeout_seconds ?? 600),
       tags: hobit?.tags.join(", ") ?? "",
     },
   });

@@ -108,6 +108,59 @@ def enqueue_classification(session: Session, review_id: uuid.UUID) -> None:
     )
 
 
+def enqueue_hobit_rerun(session: Session, review_id: uuid.UUID, slug: str) -> bool:
+    """Re-run a single hobit's review of this MR, in place.
+
+    Off-chain like the principle checks: user-triggered, never enqueued by the pipeline, so it
+    must not claim the review or disturb the settled sections. The completion handler's
+    `_maybe_finish` is harmless afterwards — on a settled review the atomic `risk_status`
+    claim fails and it exits without touching anything.
+
+    The previous verdict is cleared rather than kept: there is one current answer for "what
+    does this hobit say about this diff", and stale comments would read as the new run's.
+    """
+    inputs = _load_inputs(session, review_id)
+    if inputs is None:
+        return False
+    hobit_row = SqlMrHobitReviewRepository(session).get(review_id, slug)
+    if hobit_row is None:
+        return False
+    hobits = HobitService(session)
+    spec = hobits.resolve_spec(slug)
+    if spec is None:
+        return False
+    config = hobits.effective_config_for(spec)
+
+    hobit_row.status = "running"
+    hobit_row.started_at = datetime.now(UTC)
+    hobit_row.finished_at = None
+    hobit_row.headline = None
+    hobit_row.self_score = None
+    hobit_row.comments = None
+    hobit_row.raw_output = None
+    hobit_row.error = None
+    hobit_row.duration_seconds = None
+
+    ctx = _build_ctx(inputs)
+    JobService(session).enqueue(
+        kind=kinds.MR_HOBIT_REVIEW,
+        title=f"MR review by {spec.name} — {inputs.repo_slug}: "
+        f"{inputs.source_branch}→{inputs.target_branch}",
+        prompt=MrHobit(spec).build_prompt(ctx, config.instructions),
+        payload={
+            "system": config.charter,
+            "cwd": inputs.clone_path,
+            "model": config.model,
+            "timeout_seconds": config.timeout_seconds,
+            "review_id": str(review_id),
+            "slug": slug,
+            "analyzed_source_sha": inputs.analyzed_source_sha,
+        },
+        repository_id=inputs.repository_id,
+    )
+    return True
+
+
 def enqueue_principle_checks(
     session: Session, review_id: uuid.UUID, principles: list[PrincipleRow]
 ) -> None:

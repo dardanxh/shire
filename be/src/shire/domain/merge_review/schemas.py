@@ -17,6 +17,7 @@ from shire.domain.merge_review.models import (
     MergeReviewRow,
     MrHobitReviewRow,
     MrPrincipleCheckRow,
+    MrRemarkRow,
 )
 from shire.domain.principles.models import PrincipleRow
 
@@ -42,6 +43,7 @@ class MrHobitReviewResult(BaseModel):
     comments: list[MrComment]
     error: str | None
     duration_seconds: float | None
+    started_at: datetime | None
     finished_at: datetime | None
 
     @classmethod
@@ -55,6 +57,7 @@ class MrHobitReviewResult(BaseModel):
             comments=[MrComment.model_validate(c) for c in (row.comments or [])],
             error=row.error,
             duration_seconds=row.duration_seconds,
+            started_at=row.started_at,
             finished_at=row.finished_at,
         )
 
@@ -97,6 +100,50 @@ class MrPrincipleCheckResult(BaseModel):
             error=row.error,
             duration_seconds=row.duration_seconds,
             finished_at=row.finished_at,
+        )
+
+
+class CreateMrRemark(BaseModel):
+    """Star one finding for this MR — a snapshot of what was said, not a pointer to it.
+
+    `source_ref` identifies what was starred (a hobit comment id, or a principle id with an
+    optional violation index) so the UI can render the star as toggled and un-star it later.
+    """
+
+    source_kind: str  # "hobit" | "principle"
+    source_ref: str
+    source_label: str
+    severity: str | None = None
+    file: str | None = None
+    line: int | None = None
+    text: str
+
+
+class MrRemarkResult(BaseModel):
+    """One starred finding in the review's human-remarks tab."""
+
+    id: uuid.UUID
+    source_kind: str
+    source_ref: str
+    source_label: str
+    severity: str | None
+    file: str | None
+    line: int | None
+    text: str
+    created_at: datetime
+
+    @classmethod
+    def of(cls, row: MrRemarkRow) -> MrRemarkResult:
+        return cls(
+            id=row.id,
+            source_kind=row.source_kind,
+            source_ref=row.source_ref,
+            source_label=row.source_label,
+            severity=row.severity,
+            file=row.file,
+            line=row.line,
+            text=row.text,
+            created_at=row.created_at,
         )
 
 
@@ -186,6 +233,8 @@ class MergeReviewDetailResult(MergeReviewResult):
     top_findings: list[TopFindingResult]
     # On-demand, never populated by the analysis pipeline (see MrPrincipleCheckRow).
     principle_checks: list[MrPrincipleCheckResult]
+    # The reader's starred findings — snapshots, so they survive re-runs.
+    remarks: list[MrRemarkResult]
     # None = the source branch no longer resolves (deleted); True/False = moved / unchanged.
     stale: bool | None
     current_source_sha: str | None
@@ -199,6 +248,7 @@ class MergeReviewDetailResult(MergeReviewResult):
         hobit_reviews: list[MrHobitReviewResult],
         top_findings: list[TopFindingResult],
         principle_checks: list[MrPrincipleCheckResult],
+        remarks: list[MrRemarkResult],
         *,
         stale: bool | None,
         current_source_sha: str | None,
@@ -222,6 +272,7 @@ class MergeReviewDetailResult(MergeReviewResult):
             hobit_reviews=hobit_reviews,
             top_findings=top_findings,
             principle_checks=principle_checks,
+            remarks=remarks,
             stale=stale,
             current_source_sha=current_source_sha,
             error=row.error,

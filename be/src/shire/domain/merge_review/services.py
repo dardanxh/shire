@@ -20,19 +20,26 @@ from shire.domain.activity.services import ActivityService
 from shire.domain.connections.domain import GitProvider
 from shire.domain.hobits.services import HobitService
 from shire.domain.merge_review.domain import CommentSeverity, Footprint, MrComment
-from shire.domain.merge_review.jobs import enqueue_classification, enqueue_principle_checks
-from shire.domain.merge_review.models import MergeReviewRow
+from shire.domain.merge_review.jobs import (
+    enqueue_classification,
+    enqueue_hobit_rerun,
+    enqueue_principle_checks,
+)
+from shire.domain.merge_review.models import MergeReviewRow, MrRemarkRow
 from shire.domain.merge_review.repositories import (
     SqlMergeReviewRepository,
     SqlMrHobitReviewRepository,
     SqlMrPrincipleCheckRepository,
+    SqlMrRemarkRepository,
 )
 from shire.domain.merge_review.schemas import (
     CreateMergeReview,
+    CreateMrRemark,
     MergeReviewDetailResult,
     MergeReviewResult,
     MrHobitReviewResult,
     MrPrincipleCheckResult,
+    MrRemarkResult,
     RunMrPrincipleChecks,
     TopFindingResult,
 )
@@ -69,6 +76,7 @@ class MergeReviewService:
         self._reviews = SqlMergeReviewRepository(session)
         self._hobit_reviews = SqlMrHobitReviewRepository(session)
         self._principle_checks = SqlMrPrincipleCheckRepository(session)
+        self._remarks = SqlMrRemarkRepository(session)
         self._principles = SqlPrincipleRepository(session)
         self._repos = SqlRepositoryRepository(session)
         self._hobits = HobitService(session)
@@ -167,6 +175,7 @@ class MergeReviewService:
             reviews,
             _top_findings(reviews),
             self._principle_check_results(review_id),
+            [MrRemarkResult.of(r) for r in self._remarks.list_for_review(review_id)],
             stale=stale,
             current_source_sha=current_sha,
         )
@@ -207,6 +216,67 @@ class MergeReviewService:
         # Commit before `get`, which does git work: same reason as `create`.
         self._session.commit()
         return self.get(review_id)
+
+    def rerun_hobit_review(self, review_id: uuid.UUID, slug: str) -> MergeReviewDetailResult:
+        """Re-run one hobit's review of this MR in place (e.g. after a timeout, or after
+        raising the hobit's timeout). Off-chain like the principle checks — a settled review
+        stays settled; only this one card goes back to running."""
+        row = self._require_review(review_id)
+        repo = self._require_repo(row.repository_id)
+        if row.footprint is None:
+            raise ConflictError(
+                "This review has no computed change footprint yet, so there is no diff to review."
+            )
+        if not repo.clone_path or not Path(repo.clone_path).is_dir():
+            raise ConflictError("Repository has not been cloned yet")
+
+        hobit_row = self._hobit_reviews.get(review_id, slug)
+        if hobit_row is None:
+            raise NotFoundError("That hobit is not part of this review")
+        if hobit_row.status in ("pending", "running"):
+            raise ConflictError("This hobit's review is already running")
+        if self._hobits.resolve_spec(slug) is None:
+            raise ConflictError("This hobit no longer exists")
+
+        if not enqueue_hobit_rerun(self._session, review_id, slug):
+            raise ConflictError("The repository or its clone is no longer available.")
+        # Commit before `get`, which does git work: same reason as `create`.
+        self._session.commit()
+        return self.get(review_id)
+
+    def add_remark(self, review_id: uuid.UUID, data: CreateMrRemark) -> MergeReviewDetailResult:
+        """Star a finding for this MR. Idempotent per `source_ref`: starring what is already
+        starred is a no-op, so a double-click cannot duplicate a remark."""
+        self._require_review(review_id)
+        if data.source_kind not in ("hobit", "principle"):
+            raise ValidationError("source_kind must be 'hobit' or 'principle'")
+        if not data.text.strip():
+            raise ValidationError("A remark needs the text it keeps")
+
+        if self._remarks.get_by_ref(review_id, data.source_ref) is None:
+            self._remarks.add(
+                MrRemarkRow(
+                    merge_review_id=review_id,
+                    source_kind=data.source_kind,
+                    source_ref=data.source_ref,
+                    source_label=data.source_label,
+                    severity=data.severity,
+                    file=data.file,
+                    line=data.line,
+                    text=data.text,
+                    created_at=datetime.now(UTC),
+                )
+            )
+        self._session.commit()
+        return self.get(review_id)
+
+    def remove_remark(self, review_id: uuid.UUID, remark_id: uuid.UUID) -> None:
+        self._require_review(review_id)
+        remark = self._remarks.get(review_id, remark_id)
+        if remark is None:
+            raise NotFoundError("Remark not found")
+        self._remarks.delete(remark)
+        self._session.commit()
 
     def _resolve_principles(
         self, repository_id: uuid.UUID, principle_ids: list[uuid.UUID] | None

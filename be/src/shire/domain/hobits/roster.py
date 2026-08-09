@@ -76,7 +76,7 @@ def _spec(
     instructions: str,
     *,
     writes_narrative: bool = False,
-    timeout_seconds: float = 180.0,
+    timeout_seconds: float = 600.0,
 ) -> HobitSpec:
     return HobitSpec(
         slug=slug,
@@ -137,7 +137,7 @@ def _arch_spec(entry: dict) -> HobitSpec:
         default_charter=charter,
         default_instructions=f"{instructions}\n{_GROUND}",
         default_model="sonnet",
-        default_timeout_seconds=180.0,
+        default_timeout_seconds=600.0,
         default_tags=["data engineering", "architecture"],
     )
 
@@ -167,7 +167,7 @@ def _quality_spec(entry: dict) -> HobitSpec:
         default_charter=charter,
         default_instructions=f"{instructions}\n{_GROUND}",
         default_model="sonnet",
-        default_timeout_seconds=180.0,
+        default_timeout_seconds=600.0,
         default_tags=["data engineering", "quality", entry["category"]],
     )
 
@@ -188,7 +188,7 @@ def _mr(slug: str, name: str, description: str, charter: str, instructions: str)
         default_charter=charter,
         default_instructions=f"{instructions}\n{_MR_GROUND}",
         default_model="sonnet",
-        default_timeout_seconds=180.0,
+        default_timeout_seconds=600.0,
         default_tags=TAGS.get(slug, []),
     )
 
@@ -482,9 +482,6 @@ _HANDWRITTEN: list[HobitSpec] = [
         "to change and why it pays off here), `paths` (the pipeline files to edit). Every "
         "suggestion must be concrete enough for another engineer to implement from the detail "
         "alone. Keep the other keys of the JSON block exactly as specified below.",
-        # Reads every pipeline file (following includes) and emits the suggestion array on top of
-        # the narrative — the 180s default is not enough for either of these two.
-        timeout_seconds=420.0,
     ),
     _spec(
         "git-branching",
@@ -519,7 +516,6 @@ _HANDWRITTEN: list[HobitSpec] = [
         "people branch and how code ships.\n"
         "6. **Verdict.** The 3 changes that would most reduce branching friction and risk, "
         "ranked — including specific branches to merge or delete.",
-        timeout_seconds=420.0,
     ),
     # --- MR reviewers (diff-scoped) ------------------------------------------
     _mr(

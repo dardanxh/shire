@@ -18,9 +18,14 @@ import {
   SeverityDot,
   VerdictIcon,
 } from "@/features/principles/components/badges";
-import type { MergeReviewDetailOut, MrPrincipleCheckOut } from "@/lib/api";
+import type {
+  MergeReviewDetailOut,
+  MrPrincipleCheckOut,
+  MrRemarkOut,
+} from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
 import { useRunPrincipleChecksMutation } from "../api";
+import { RemarkStarButton } from "./RemarkStarButton";
 
 /** Violation shape written by the check handler (JSONB, so openapi types it loosely). */
 interface Violation {
@@ -58,6 +63,7 @@ export function PrincipleChecksSection({
   const checksByPrinciple = new Map(
     review.principle_checks.map((c) => [c.principle_id, c]),
   );
+  const remarks = new Map(review.remarks.map((r) => [r.source_ref, r]));
   const running = review.principle_checks.some((c) => c.status === "pending");
 
   // `undefined` = "not touched yet" → every applicable principle. Deriving the default rather
@@ -78,11 +84,6 @@ export function PrincipleChecksSection({
       { principle_ids: [...selected] },
       { onSuccess: () => toast.success(t("merge_reviews.principles.queued")) },
     );
-
-  // Nothing to offer and nothing to show: stay out of the page entirely.
-  if (applicable.length === 0 && review.principle_checks.length === 0) {
-    return null;
-  }
 
   return (
     <div className="space-y-4">
@@ -124,6 +125,8 @@ export function PrincipleChecksSection({
           {applicable.map((status) => (
             <PrincipleRow
               key={status.principle.id}
+              reviewId={review.id}
+              remarks={remarks}
               name={status.principle.name}
               severity={status.principle.severity}
               statement={status.principle.statement}
@@ -144,6 +147,8 @@ export function PrincipleChecksSection({
         .map((check) => (
           <PrincipleRow
             key={check.principle_id}
+            reviewId={review.id}
+            remarks={remarks}
             name={check.principle_name}
             severity={check.severity}
             statement={check.statement}
@@ -156,6 +161,8 @@ export function PrincipleChecksSection({
 }
 
 function PrincipleRow({
+  reviewId,
+  remarks,
   name,
   severity,
   statement,
@@ -164,6 +171,8 @@ function PrincipleRow({
   onToggle,
   unassigned,
 }: {
+  reviewId: string;
+  remarks: Map<string, MrRemarkOut>;
   name: string;
   severity: string;
   statement: string;
@@ -246,27 +255,56 @@ function PrincipleRow({
           ) : (
             <>
               {check.summary ? (
-                // Agent-written prose, so highlightable like every other verdict.
-                <Highlightable>
-                  <p className="text-sm leading-relaxed">{check.summary}</p>
-                </Highlightable>
+                <div className="flex items-start gap-2">
+                  {/* Agent-written prose, so highlightable like every other verdict. */}
+                  <Highlightable className="min-w-0 flex-1">
+                    <p className="text-sm leading-relaxed">{check.summary}</p>
+                  </Highlightable>
+                  <RemarkStarButton
+                    reviewId={reviewId}
+                    remark={remarks.get(check.principle_id)}
+                    payload={{
+                      source_kind: "principle",
+                      source_ref: check.principle_id,
+                      source_label: name,
+                      severity,
+                      text: check.summary,
+                    }}
+                    className="mt-0.5"
+                  />
+                </div>
               ) : null}
               {check.violations.length > 0 ? (
                 <ul className="space-y-2">
                   {(check.violations as unknown as Violation[]).map((v, i) => (
                     <li
                       key={`${v.file}-${i}`}
-                      className="rounded-md border border-red-500/20 bg-red-500/5 px-3 py-2 text-sm"
+                      className="flex items-start gap-2 rounded-md border border-red-500/20 bg-red-500/5 px-3 py-2 text-sm"
                     >
-                      <p className="font-mono text-xs">
-                        {v.file}
-                        {v.line != null ? `:${v.line}` : ""}
-                      </p>
-                      {v.explanation ? (
-                        <p className="mt-1 text-muted-foreground">
-                          {v.explanation}
+                      <div className="min-w-0 flex-1">
+                        <p className="font-mono text-xs">
+                          {v.file}
+                          {v.line != null ? `:${v.line}` : ""}
                         </p>
-                      ) : null}
+                        {v.explanation ? (
+                          <p className="mt-1 text-muted-foreground">
+                            {v.explanation}
+                          </p>
+                        ) : null}
+                      </div>
+                      <RemarkStarButton
+                        reviewId={reviewId}
+                        remark={remarks.get(`${check.principle_id}:v${i}`)}
+                        payload={{
+                          source_kind: "principle",
+                          source_ref: `${check.principle_id}:v${i}`,
+                          source_label: name,
+                          severity,
+                          file: v.file,
+                          line: v.line,
+                          text: v.explanation || v.file,
+                        }}
+                      />
                     </li>
                   ))}
                 </ul>
