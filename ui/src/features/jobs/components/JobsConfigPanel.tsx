@@ -98,7 +98,7 @@ function ConfigForm({ config }: { config: EngineConfigOut }) {
             <SelectField<EngineConfigFormValues>
               name="model"
               label={t("jobs.config.model.label")}
-              description={t("jobs.config.model.desc")}
+              info={t("jobs.config.model.desc")}
               disabled={isPending}
             >
               {config.available_models.map((m) => (
@@ -110,7 +110,7 @@ function ConfigForm({ config }: { config: EngineConfigOut }) {
             <SelectField<EngineConfigFormValues>
               name="light_model"
               label={t("jobs.config.light_model.label")}
-              description={t("jobs.config.light_model.desc")}
+              info={t("jobs.config.light_model.desc")}
               disabled={isPending}
             >
               {config.available_models.map((m) => (
@@ -122,35 +122,35 @@ function ConfigForm({ config }: { config: EngineConfigOut }) {
             <CheckboxField<EngineConfigFormValues>
               name="batch_checks"
               label={t("jobs.config.batch.label")}
-              description={t("jobs.config.batch.desc")}
+              info={t("jobs.config.batch.desc")}
               disabled={isPending}
             />
             <TextField<EngineConfigFormValues>
               name="timeout_seconds"
               type="number"
               label={t("jobs.config.timeout.label")}
-              description={t("jobs.config.timeout.desc")}
+              info={t("jobs.config.timeout.desc")}
               disabled={isPending}
             />
             <TextField<EngineConfigFormValues>
               name="max_attempts"
               type="number"
               label={t("jobs.config.attempts.label")}
-              description={t("jobs.config.attempts.desc")}
+              info={t("jobs.config.attempts.desc")}
               disabled={isPending}
             />
             <TextField<EngineConfigFormValues>
               name="concurrency"
               type="number"
               label={t("jobs.config.concurrency.label")}
-              description={t("jobs.config.concurrency.desc")}
+              info={t("jobs.config.concurrency.desc")}
               disabled={isPending}
             />
             <TextField<EngineConfigFormValues>
               name="retention_days"
               type="number"
               label={t("jobs.config.retention.label")}
-              description={t("jobs.config.retention.desc")}
+              info={t("jobs.config.retention.desc")}
               disabled={isPending}
             />
             <FormFooter

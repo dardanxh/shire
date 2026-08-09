@@ -398,6 +398,7 @@ export function CheckboxField<T extends FieldValues>({
   name,
   label,
   description,
+  info,
   disabled,
 }: BaseFieldProps<T> & { disabled?: boolean }) {
   const { control } = useFormContext<T>();
@@ -416,6 +417,18 @@ export function CheckboxField<T extends FieldValues>({
             />
           </FormControl>
           <FormLabel className="font-normal">{label}</FormLabel>
+          {info ? (
+            <Tooltip>
+              <TooltipTrigger
+                type="button"
+                aria-label={info}
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <InfoIcon className="size-3.5" />
+              </TooltipTrigger>
+              <TooltipContent>{info}</TooltipContent>
+            </Tooltip>
+          ) : null}
           {description ? (
             <FormDescription>{description}</FormDescription>
           ) : null}
