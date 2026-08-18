@@ -30,6 +30,7 @@ from shire.domain.repository import models as _repository_models  # noqa: F401
 from shire.domain.roadmap import models as _roadmap_models  # noqa: F401
 from shire.domain.security import models as _security_models  # noqa: F401
 from shire.domain.substrate import models as _substrate_models  # noqa: F401
+from shire.domain.teams import models as _teams_models  # noqa: F401
 from shire.domain.techchoice import models as _techchoice_models  # noqa: F401
 from shire.domain.technology import models as _technology_models  # noqa: F401
 from shire.domain.tools import models as _tools_models  # noqa: F401

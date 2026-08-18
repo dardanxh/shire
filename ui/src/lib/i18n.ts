@@ -23,6 +23,7 @@ import repositories from "@/features/repositories/locales/en.json";
 import roadmaps from "@/features/roadmaps/locales/en.json";
 import security from "@/features/security/locales/en.json";
 import sizing from "@/features/sizing/locales/en.json";
+import teams from "@/features/teams/locales/en.json";
 import techchoice from "@/features/techchoice/locales/en.json";
 import technologies from "@/features/technologies/locales/en.json";
 import tools from "@/features/tools/locales/en.json";
@@ -63,6 +64,7 @@ const en = {
   ...highlights,
   ...prompts,
   ...treasury,
+  ...teams,
 };
 
 i18n.use(initReactI18next).init({

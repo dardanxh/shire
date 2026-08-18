@@ -261,6 +261,12 @@ class AnalysisService:
                 RepositoryContributorsResult(
                     repository_id=repo.id,
                     repository_name=f"{repo.coordinates.owner}/{repo.coordinates.name}",
+                    subpath=repo.coordinates.subpath,
+                    slug=repo.coordinates.slug,
+                    family=(
+                        f"{repo.coordinates.provider.value}/"
+                        f"{repo.coordinates.owner}/{repo.coordinates.name}"
+                    ),
                     contributors=analysis.contributors,
                 )
             )

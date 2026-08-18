@@ -22,8 +22,12 @@ from shire.domain.members.repositories import (
 )
 from shire.domain.members.schemas import (
     CommitSizeBucketResult,
+    ContributionsGraphResult,
     CreateMemberExclusion,
     CreateMemberMerge,
+    GraphEdge,
+    GraphMemberNode,
+    GraphRepositoryNode,
     MemberActivityResult,
     MemberCommitSizesResult,
     MemberDetailResult,
@@ -36,8 +40,12 @@ from shire.domain.members.schemas import (
     MemberSummaryResult,
     MemberWeeklyActivityResult,
     PortfolioHealthResult,
+    TeamContributionResult,
+    TeamContributionsResult,
 )
 from shire.domain.substrate.services import AnalysisService
+from shire.domain.teams.schemas import TeamRefResult
+from shire.domain.teams.services import TeamsService
 
 # Identities are keyed by a stable UUIDv5 of the normalized email, so ids survive re-analysis.
 _IDENTITY_NS = uuid.uuid5(uuid.NAMESPACE_URL, "hobits/member-identity")
@@ -114,6 +122,7 @@ class _Aggregate:
 class MembersService:
     def __init__(self, session: Session) -> None:
         self._substrate = AnalysisService(session)
+        self._teams = TeamsService(session)
         self._exclusions = SqlMemberExclusionRepository(session)
         self._merges = SqlMemberMergeRepository(session)
 
@@ -125,9 +134,13 @@ class MembersService:
         weekly_by_email = self._substrate.weekly_commit_counts(
             datetime.now(UTC) - timedelta(weeks=_SPARKLINE_WEEKS)
         )
+        # Team is a collaboration lens, not an identity — hidden in the anonymized view.
+        refs = {} if anonymize else self._teams.membership_refs()
         # Neutral default order: alphabetical by display name (NOT by output — not a ranking).
         ordered = sorted(aggregates.values(), key=lambda a: a.name.lower())
-        members = [self._to_summary(a, labels, weekly_by_email, weeks) for a in ordered]
+        members = [
+            self._to_summary(a, labels, weekly_by_email, weeks, refs) for a in ordered
+        ]
         return MembersOverviewResult(
             health=self._health(aggregates, repo_count, single_maintainer),
             members=members,
@@ -240,6 +253,129 @@ class MembersService:
             repositories=repositories,
             missing_data_repositories=missing,
         )
+
+    # --- contributions graph + team dashboard ---------------------------------
+    def contributions_graph(
+        self,
+        *,
+        team_id: uuid.UUID | None = None,
+        include_subrepos: bool = True,
+        anonymize: bool = False,
+    ) -> ContributionsGraphResult:
+        """People ↔ repositories, each edge weighted by that person's commit count.
+
+        `team_id` narrows to one team's members; `include_subrepos=False` folds each monorepo
+        subpath's edges into a single family-root node so a monorepo shows as one repository.
+        """
+        aggregates, _, _ = self._aggregate()
+        labels = self._anon_labels(aggregates) if anonymize else {}
+        refs = {} if anonymize else self._teams.membership_refs()
+
+        members: list[GraphMemberNode] = []
+        repo_nodes: dict[str, dict] = {}
+        edges: list[GraphEdge] = []
+        teams_seen: dict[uuid.UUID, TeamRefResult] = {}
+
+        for agg in aggregates.values():
+            team = refs.get(agg.id)
+            if team_id is not None and (team is None or team.id != team_id):
+                continue
+            name, _email, _anon = self._display(agg, labels)
+            # Per-member edges, summed per target node (subpath repos may collapse onto a root).
+            member_edges: dict[str, int] = {}
+            for rid, data in agg.repositories.items():
+                node_id, node = self._repo_node(rid, data, include_subrepos)
+                existing = repo_nodes.setdefault(node_id, node)
+                existing["commits"] += data["commits"]
+                member_edges[node_id] = member_edges.get(node_id, 0) + data["commits"]
+            member_total = sum(member_edges.values())
+            if member_total == 0:
+                continue
+            members.append(
+                GraphMemberNode(id=agg.id, name=name, commits=member_total, team=team)
+            )
+            if team is not None:
+                teams_seen[team.id] = team
+            for node_id, commits in member_edges.items():
+                edges.append(
+                    GraphEdge(member_id=agg.id, repository_id=node_id, commits=commits)
+                )
+
+        # Drop repo nodes that ended up with no edges (only possible after team filtering).
+        referenced = {e.repository_id for e in edges}
+        repositories = [
+            GraphRepositoryNode(**node)
+            for node_id, node in repo_nodes.items()
+            if node_id in referenced
+        ]
+        repositories.sort(key=lambda r: r.commits, reverse=True)
+        members.sort(key=lambda m: m.commits, reverse=True)
+        return ContributionsGraphResult(
+            members=members,
+            repositories=repositories,
+            edges=edges,
+            teams=sorted(teams_seen.values(), key=lambda t: t.name.lower()),
+        )
+
+    @staticmethod
+    def _repo_node(rid: uuid.UUID, data: dict, include_subrepos: bool) -> tuple[str, dict]:
+        """Return the (node_id, node dict) a repo contributes to. With subrepos folded, every
+        row of a monorepo family (its root and each subpath) collapses onto one family node so
+        the graph shows one repository per monorepo."""
+        family = data.get("family") or data["name"]
+        subpath = data.get("subpath") or ""
+        if not include_subrepos:
+            node_id = f"family:{family}"
+            # Name the folded node after the family (owner/name), not the subdir.
+            name = family.split("/", 1)[-1] if "/" in family else family
+            return node_id, {
+                "id": node_id,
+                "name": name,
+                "family": family,
+                "subpath": "",
+                "commits": 0,
+            }
+        return str(rid), {
+            "id": str(rid),
+            "name": data.get("slug") or data["name"],
+            "family": family,
+            "subpath": subpath,
+            "commits": 0,
+        }
+
+    def team_contributions(self) -> TeamContributionsResult:
+        """Commits published per team across every tracked repository (an Unassigned bucket
+        collects members with no team). Framed as distribution, ordered by volume for the
+        dashboard. No anonymization needed — teams are groups, not individuals."""
+        aggregates, _, _ = self._aggregate()
+        refs = self._teams.membership_refs()
+
+        # team_id -> accumulator; None key = the Unassigned bucket.
+        buckets: dict[uuid.UUID | None, dict] = {}
+        for agg in aggregates.values():
+            team = refs.get(agg.id)
+            key = team.id if team is not None else None
+            bucket = buckets.setdefault(
+                key, {"team": team, "commits": 0, "members": 0, "repos": set()}
+            )
+            bucket["commits"] += agg.commits
+            bucket["members"] += 1
+            bucket["repos"].update(agg.repositories.keys())
+
+        total = sum(b["commits"] for b in buckets.values())
+        results = [
+            TeamContributionResult(
+                team=b["team"],
+                total_commits=b["commits"],
+                member_count=b["members"],
+                repository_count=len(b["repos"]),
+                share=round(b["commits"] / total, 4) if total else 0.0,
+            )
+            for b in buckets.values()
+        ]
+        # Volume order for the dashboard; the Unassigned bucket (team is None) always last.
+        results.sort(key=lambda r: (r.team is None, -r.total_commits))
+        return TeamContributionsResult(teams=results, total_commits=total)
 
     # --- exclusions (opt-out / bots) ------------------------------------------
     def list_exclusions(self) -> list[MemberExclusionResult]:
@@ -363,6 +499,11 @@ class MembersService:
                     repo.repository_id,
                     {
                         "name": repo.repository_name,
+                        # slug/family/subpath drive the contributions graph's repo nodes and
+                        # subrepo folding; falling back keeps older callers working.
+                        "slug": repo.slug or repo.repository_name,
+                        "family": repo.family or repo.repository_name,
+                        "subpath": repo.subpath,
                         "commits": 0,
                         "lines_added": 0,
                         "lines_removed": 0,
@@ -415,6 +556,7 @@ class MembersService:
         labels: dict[uuid.UUID, str],
         weekly_by_email: dict[str, dict[date, int]],
         weeks: list[date],
+        team_refs: dict[uuid.UUID, TeamRefResult],
     ) -> MemberSummaryResult:
         name, email, anonymized = self._display(agg, labels)
         # Sum across every raw email folded into this identity (aliases from merges).
@@ -444,6 +586,7 @@ class MembersService:
             sole_maintainer_repos=sum(
                 1 for data in agg.repositories.values() if data.get("sole")
             ),
+            team=team_refs.get(agg.id),
         )
 
     @staticmethod

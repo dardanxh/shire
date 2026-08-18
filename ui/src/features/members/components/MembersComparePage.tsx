@@ -98,7 +98,7 @@ export function MembersComparePage() {
         <Button
           variant="outline"
           size="sm"
-          render={<Link to="/members" search={{ anonymize }} />}
+          render={<Link to="/members" search={{ anonymize, tab: "members" }} />}
         >
           <ChevronLeftIcon />
           {t("members.compare.back")}

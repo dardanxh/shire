@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from shire.core.db import get_session
 from shire.domain.members.schemas import (
+    ContributionsGraphResult,
     CreateMemberExclusion,
     CreateMemberMerge,
     MemberActivityResult,
@@ -16,6 +17,7 @@ from shire.domain.members.schemas import (
     MemberExclusionResult,
     MemberMergeResult,
     MembersOverviewResult,
+    TeamContributionsResult,
 )
 from shire.domain.members.services import MembersService
 
@@ -79,6 +81,31 @@ def add_merges(
 @router.delete("/merges/{merge_id}", status_code=status.HTTP_204_NO_CONTENT)
 def remove_merge(merge_id: uuid.UUID, session: Session = Depends(get_session)) -> None:
     MembersService(session).remove_merge(merge_id)
+
+
+@router.get("/contributions-graph", response_model=ContributionsGraphResult)
+def contributions_graph(
+    team_id: uuid.UUID | None = None,
+    include_subrepos: bool = True,
+    anonymize: bool = False,
+    session: Session = Depends(get_session),
+) -> ContributionsGraphResult:
+    """Members ↔ repositories graph, edges weighted by commits.
+
+    `team_id` narrows to one team; `include_subrepos=false` folds monorepo subpaths into their
+    family root. Declared before `/{identity_id}` so the literal path wins the match.
+    """
+    return MembersService(session).contributions_graph(
+        team_id=team_id, include_subrepos=include_subrepos, anonymize=anonymize
+    )
+
+
+@router.get("/team-contributions", response_model=TeamContributionsResult)
+def team_contributions(
+    session: Session = Depends(get_session),
+) -> TeamContributionsResult:
+    """Which teams publish the most commits across tracked repositories (+ Unassigned bucket)."""
+    return MembersService(session).team_contributions()
 
 
 @router.get("/{identity_id}", response_model=MemberDetailResult)

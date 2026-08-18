@@ -3,6 +3,47 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, type MemberExclusionOut } from "@/lib/api";
 import { memberKeys } from "./keys";
 
+/** Members ↔ repositories contributions graph (edges weighted by commits). */
+export function useContributionsGraphQuery(params: {
+  teamId: string | null;
+  includeSubrepos: boolean;
+  anonymize: boolean;
+}) {
+  return useQuery({
+    queryKey: memberKeys.graph(params),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/members/contributions-graph",
+        {
+          params: {
+            query: {
+              team_id: params.teamId ?? undefined,
+              include_subrepos: params.includeSubrepos,
+              anonymize: params.anonymize,
+            },
+          },
+        },
+      );
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+/** Which teams publish the most commits across tracked repositories. */
+export function useTeamContributionsQuery() {
+  return useQuery({
+    queryKey: memberKeys.teamContributions(),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/members/team-contributions",
+      );
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
 /** Fleet-wide members overview: portfolio health + aggregated identities. */
 export function useMembersOverviewQuery(anonymize: boolean) {
   return useQuery({

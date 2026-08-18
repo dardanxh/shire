@@ -96,6 +96,12 @@ class RepositoryContributorsResult(BaseModel):
 
     repository_id: uuid.UUID
     repository_name: str
+    # Monorepo focus subdirectory ('' = whole repo); `slug` includes it (owner/name/subpath) and
+    # `family` (provider/owner/name) groups a monorepo's subpath rows with their root for the
+    # contributions graph's subrepo folding.
+    subpath: str = ""
+    slug: str = ""
+    family: str = ""
     contributors: list[Contributor]
 
 

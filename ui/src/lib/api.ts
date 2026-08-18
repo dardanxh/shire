@@ -285,6 +285,25 @@ export type MemberMergeOut = components["schemas"]["MemberMergeResult"];
 export type MemberRepositoryShareOut =
   components["schemas"]["MemberRepositoryShareResult"];
 
+// ---- Teams + contributions graph -------------------------------------------
+export type TeamOut = components["schemas"]["TeamResult"];
+export type TeamDetailOut = components["schemas"]["TeamDetailResult"];
+export type TeamRefOut = components["schemas"]["TeamRefResult"];
+export type TeamMemberOut = components["schemas"]["TeamMemberResult"];
+export type CreateTeamIn = components["schemas"]["CreateTeam"];
+export type UpdateTeamIn = components["schemas"]["UpdateTeam"];
+export type AssignMembersIn = components["schemas"]["AssignMembersInput"];
+export type ContributionsGraphOut =
+  components["schemas"]["ContributionsGraphResult"];
+export type GraphMemberNodeOut = components["schemas"]["GraphMemberNode"];
+export type GraphRepositoryNodeOut =
+  components["schemas"]["GraphRepositoryNode"];
+export type GraphEdgeOut = components["schemas"]["GraphEdge"];
+export type TeamContributionsOut =
+  components["schemas"]["TeamContributionsResult"];
+export type TeamContributionOut =
+  components["schemas"]["TeamContributionResult"];
+
 /** Repository lifecycle status (backend types it as a bare string). */
 export type RepositoryStatus =
   | "registered"

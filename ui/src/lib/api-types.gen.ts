@@ -1002,6 +1002,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/members/contributions-graph": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Contributions Graph
+         * @description Members ↔ repositories graph, edges weighted by commits.
+         *
+         *     `team_id` narrows to one team; `include_subrepos=false` folds monorepo subpaths into their
+         *     family root. Declared before `/{identity_id}` so the literal path wins the match.
+         */
+        get: operations["contributions_graph_api_v1_members_contributions_graph_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/team-contributions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Team Contributions
+         * @description Which teams publish the most commits across tracked repositories (+ Unassigned bucket).
+         */
+        get: operations["team_contributions_api_v1_members_team_contributions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/members/{identity_id}": {
         parameters: {
             query?: never;
@@ -1040,6 +1083,83 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/teams": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Teams
+         * @description Every team with its member count.
+         */
+        get: operations["list_teams_api_v1_teams_get"];
+        put?: never;
+        /** Create Team */
+        post: operations["create_team_api_v1_teams_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/teams/{team_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Team */
+        get: operations["get_team_api_v1_teams__team_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Team */
+        delete: operations["delete_team_api_v1_teams__team_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Team */
+        patch: operations["update_team_api_v1_teams__team_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/teams/{team_id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Assign Members
+         * @description Assign (or move) members into this team. A member belongs to at most one team.
+         */
+        post: operations["assign_members_api_v1_teams__team_id__members_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/teams/{team_id}/members/{member_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Unassign Member */
+        delete: operations["unassign_member_api_v1_teams__team_id__members__member_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -4151,6 +4271,27 @@ export interface components {
             /** Question */
             question: string;
         };
+        /**
+         * AssignMember
+         * @description One member to assign — identity id plus the email to record for the roster label.
+         */
+        AssignMember: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Email */
+            email: string;
+        };
+        /**
+         * AssignMembersInput
+         * @description Assign (or move) these members into a team.
+         */
+        AssignMembersInput: {
+            /** Members */
+            members: components["schemas"]["AssignMember"][];
+        };
         /** AssistantState */
         AssistantState: {
             /** Key */
@@ -5352,6 +5493,17 @@ export interface components {
             /** Unavailable */
             unavailable: string[];
         };
+        /** ContributionsGraphResult */
+        ContributionsGraphResult: {
+            /** Members */
+            members: components["schemas"]["GraphMemberNode"][];
+            /** Repositories */
+            repositories: components["schemas"]["GraphRepositoryNode"][];
+            /** Edges */
+            edges: components["schemas"]["GraphEdge"][];
+            /** Teams */
+            teams: components["schemas"]["TeamRefResult"][];
+        };
         /** Contributor */
         Contributor: {
             /**
@@ -5966,6 +6118,15 @@ export interface components {
             goal?: string | null;
             /** Repository Ids */
             repository_ids: string[];
+        };
+        /** CreateTeam */
+        CreateTeam: {
+            /** Name */
+            name: string;
+            /** Color */
+            color?: string | null;
+            /** Description */
+            description?: string | null;
         };
         /** CreateTechCategory */
         CreateTechCategory: {
@@ -6769,6 +6930,54 @@ export interface components {
          */
         GitProvider: "github" | "gitlab" | "bitbucket" | "generic" | "local";
         /**
+         * GraphEdge
+         * @description One member's contribution to one repository — `commits` drives the line width.
+         */
+        GraphEdge: {
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /** Repository Id */
+            repository_id: string;
+            /** Commits */
+            commits: number;
+        };
+        /**
+         * GraphMemberNode
+         * @description A person node on the contributions graph.
+         */
+        GraphMemberNode: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Commits */
+            commits: number;
+            team?: components["schemas"]["TeamRefResult"] | null;
+        };
+        /**
+         * GraphRepositoryNode
+         * @description A repository node on the contributions graph (a subpath repo is its own node unless
+         *     subrepos are folded into their family root).
+         */
+        GraphRepositoryNode: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Family */
+            family: string;
+            /** Subpath */
+            subpath: string;
+            /** Commits */
+            commits: number;
+        };
+        /**
          * GraphResult
          * @description State of a repository's codebase graph (emerge) artifact.
          *
@@ -7558,6 +7767,7 @@ export interface components {
             weekly_commits: number[];
             /** Sole Maintainer Repos */
             sole_maintainer_repos: number;
+            team?: components["schemas"]["TeamRefResult"] | null;
         };
         /** MemberWeeklyActivityResult */
         MemberWeeklyActivityResult: {
@@ -9907,6 +10117,100 @@ export interface components {
             /** Branch */
             branch: string;
         };
+        /**
+         * TeamContributionResult
+         * @description One team's (or the Unassigned bucket's) share of fleet-wide commits.
+         */
+        TeamContributionResult: {
+            team: components["schemas"]["TeamRefResult"] | null;
+            /** Total Commits */
+            total_commits: number;
+            /** Member Count */
+            member_count: number;
+            /** Repository Count */
+            repository_count: number;
+            /** Share */
+            share: number;
+        };
+        /** TeamContributionsResult */
+        TeamContributionsResult: {
+            /** Teams */
+            teams: components["schemas"]["TeamContributionResult"][];
+            /** Total Commits */
+            total_commits: number;
+        };
+        /** TeamDetailResult */
+        TeamDetailResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Color */
+            color: string;
+            /** Description */
+            description: string | null;
+            /** Member Count */
+            member_count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Members */
+            members: components["schemas"]["TeamMemberResult"][];
+        };
+        /**
+         * TeamMemberResult
+         * @description One member assigned to a team (identity id + the email captured at assignment time).
+         */
+        TeamMemberResult: {
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /** Email */
+            email: string;
+        };
+        /**
+         * TeamRefResult
+         * @description Compact team reference embedded into member summaries and graph nodes.
+         */
+        TeamRefResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Color */
+            color: string;
+        };
+        /** TeamResult */
+        TeamResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Color */
+            color: string;
+            /** Description */
+            description: string | null;
+            /** Member Count */
+            member_count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** TechCategoryResult */
         TechCategoryResult: {
             /**
@@ -10585,6 +10889,15 @@ export interface components {
             position?: number | null;
             /** Title */
             title?: string | null;
+            /** Description */
+            description?: string | null;
+        };
+        /** UpdateTeam */
+        UpdateTeam: {
+            /** Name */
+            name?: string | null;
+            /** Color */
+            color?: string | null;
             /** Description */
             description?: string | null;
         };
@@ -12548,6 +12861,59 @@ export interface operations {
             };
         };
     };
+    contributions_graph_api_v1_members_contributions_graph_get: {
+        parameters: {
+            query?: {
+                team_id?: string | null;
+                include_subrepos?: boolean;
+                anonymize?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContributionsGraphResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    team_contributions_api_v1_members_team_contributions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamContributionsResult"];
+                };
+            };
+        };
+    };
     member_detail_api_v1_members__identity_id__get: {
         parameters: {
             query?: {
@@ -12602,6 +12968,219 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["MemberActivityResult"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_teams_api_v1_teams_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamResult"][];
+                };
+            };
+        };
+    };
+    create_team_api_v1_teams_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTeam"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_team_api_v1_teams__team_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                team_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_team_api_v1_teams__team_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                team_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_team_api_v1_teams__team_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                team_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTeam"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    assign_members_api_v1_teams__team_id__members_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                team_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignMembersInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamDetailResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unassign_member_api_v1_teams__team_id__members__member_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                team_id: string;
+                member_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

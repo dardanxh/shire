@@ -12,6 +12,8 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict
 
+from shire.domain.teams.schemas import TeamRefResult
+
 
 class MemberSummaryResult(BaseModel):
     """One aggregated identity across all repos (name/email pseudonymized when anonymized)."""
@@ -33,6 +35,8 @@ class MemberSummaryResult(BaseModel):
     weekly_commits: list[int]
     # Repos where this member is the only tracked contributor (offboarding risk, not a rank).
     sole_maintainer_repos: int
+    # The team this member is assigned to, if any (null when unassigned or anonymized-and-hidden).
+    team: TeamRefResult | None = None
 
 
 class PortfolioHealthResult(BaseModel):
@@ -163,3 +167,60 @@ class CreateMemberMerge(BaseModel):
 
     primary_email: str
     alias_emails: list[str]
+
+
+# --- contributions graph (members <-> repositories, weighted by commits) ------
+
+
+class GraphMemberNode(BaseModel):
+    """A person node on the contributions graph."""
+
+    id: uuid.UUID
+    name: str
+    commits: int  # total across the repositories in this graph
+    team: TeamRefResult | None = None
+
+
+class GraphRepositoryNode(BaseModel):
+    """A repository node on the contributions graph (a subpath repo is its own node unless
+    subrepos are folded into their family root)."""
+
+    id: str  # repository id, or "family:<key>" for a folded synthetic root
+    name: str
+    family: str  # provider/owner/name — the monorepo this belongs to
+    subpath: str
+    commits: int  # total across the members in this graph
+
+
+class GraphEdge(BaseModel):
+    """One member's contribution to one repository — `commits` drives the line width."""
+
+    member_id: uuid.UUID
+    repository_id: str
+    commits: int
+
+
+class ContributionsGraphResult(BaseModel):
+    members: list[GraphMemberNode]
+    repositories: list[GraphRepositoryNode]
+    edges: list[GraphEdge]
+    # Teams present among the graph's members — the legend + color source.
+    teams: list[TeamRefResult]
+
+
+# --- team contributions dashboard ---------------------------------------------
+
+
+class TeamContributionResult(BaseModel):
+    """One team's (or the Unassigned bucket's) share of fleet-wide commits."""
+
+    team: TeamRefResult | None  # null = the Unassigned bucket
+    total_commits: int
+    member_count: int
+    repository_count: int  # distinct repositories this team's members touched
+    share: float  # total_commits / fleet commits (0..1)
+
+
+class TeamContributionsResult(BaseModel):
+    teams: list[TeamContributionResult]  # ordered by commits desc; Unassigned last
+    total_commits: int

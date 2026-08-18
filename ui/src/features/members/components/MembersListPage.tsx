@@ -9,6 +9,7 @@ import {
   TriangleAlertIcon,
   UserMinusIcon,
   UsersIcon,
+  UsersRoundIcon,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -30,6 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { AssignTeamDialog, ManageTeamsDialog } from "@/features/teams";
 import {
   extractErrorMessage,
   type MemberSummaryOut,
@@ -111,6 +113,8 @@ export function MembersListPage({ anonymize, onAnonymizeChange }: Props) {
     useMembersOverviewQuery(anonymize);
   const [exclusionsOpen, setExclusionsOpen] = useState(false);
   const [mergeOpen, setMergeOpen] = useState(false);
+  const [assignTeamOpen, setAssignTeamOpen] = useState(false);
+  const [manageTeamsOpen, setManageTeamsOpen] = useState(false);
 
   // Ticked members — dashboard (1), compare (2-3), untrack (any count).
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -180,8 +184,22 @@ export function MembersListPage({ anonymize, onAnonymizeChange }: Props) {
         accessorKey: "name",
         header: t("members.list.col_member"),
         cell: ({ row }) => (
-          <div className="flex flex-col">
-            <span className="font-medium">{row.original.name}</span>
+          <div className="flex flex-col gap-0.5">
+            <span className="flex items-center gap-1.5 font-medium">
+              {row.original.name}
+              {row.original.team ? (
+                <Badge
+                  variant="outline"
+                  className="gap-1 border-foreground/10 px-1.5 py-0 text-[10px] font-normal"
+                >
+                  <span
+                    className="size-2 rounded-full"
+                    style={{ backgroundColor: row.original.team.color }}
+                  />
+                  {row.original.team.name}
+                </Badge>
+              ) : null}
+            </span>
             <span className="text-xs text-muted-foreground">
               {row.original.email}
             </span>
@@ -338,6 +356,16 @@ export function MembersListPage({ anonymize, onAnonymizeChange }: Props) {
                 </Button>
               ) : null}
               <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAssignTeamOpen(true)}
+              >
+                <UsersRoundIcon />
+                {t("members.list.assign_team_button", {
+                  count: selectedIds.length,
+                })}
+              </Button>
+              <Button
                 variant="destructive"
                 size="sm"
                 disabled={anonymize}
@@ -386,6 +414,14 @@ export function MembersListPage({ anonymize, onAnonymizeChange }: Props) {
           >
             <MergeIcon className="size-4" />
             {t("members.list.manage_merges")}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setManageTeamsOpen(true)}
+          >
+            <UsersRoundIcon className="size-4" />
+            {t("members.list.manage_teams")}
           </Button>
         </div>
       </div>
@@ -450,6 +486,16 @@ export function MembersListPage({ anonymize, onAnonymizeChange }: Props) {
         // No creation section when opened just to manage rules (or while anonymized).
         members={anonymize ? [] : selectedMembers}
         onMerged={() => setSelectedIds([])}
+      />
+      <AssignTeamDialog
+        open={assignTeamOpen}
+        onOpenChange={setAssignTeamOpen}
+        members={selectedMembers.map((m) => ({ id: m.id, email: m.email }))}
+        onAssigned={() => setSelectedIds([])}
+      />
+      <ManageTeamsDialog
+        open={manageTeamsOpen}
+        onOpenChange={setManageTeamsOpen}
       />
     </div>
   );

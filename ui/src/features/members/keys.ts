@@ -15,4 +15,10 @@ export const memberKeys = {
     [...memberKeys.all, "activity", id, params] as const,
   exclusions: () => [...memberKeys.all, "exclusions"] as const,
   merges: () => [...memberKeys.all, "merges"] as const,
+  graph: (params: {
+    teamId: string | null;
+    includeSubrepos: boolean;
+    anonymize: boolean;
+  }) => [...memberKeys.all, "graph", params] as const,
+  teamContributions: () => [...memberKeys.all, "team-contributions"] as const,
 };

@@ -49,6 +49,7 @@ from shire.domain.substrate.services import (
     CC_VIEWER_PATH,
     GRAPH_ARTIFACTS_PATH,
 )
+from shire.domain.teams.routes import router as teams_router
 from shire.domain.techchoice.routes import router as techchoice_router
 from shire.domain.technology.routes import categories_router as tech_categories_router
 from shire.domain.technology.routes import technologies_router as technologies_router
@@ -128,6 +129,7 @@ app.include_router(substrate_router, prefix=API_V1_PREFIX)
 app.include_router(connections_router, prefix=API_V1_PREFIX)
 app.include_router(tools_router, prefix=API_V1_PREFIX)
 app.include_router(members_router, prefix=API_V1_PREFIX)
+app.include_router(teams_router, prefix=API_V1_PREFIX)
 app.include_router(context_router, prefix=API_V1_PREFIX)
 app.include_router(hobits_router, prefix=API_V1_PREFIX)
 app.include_router(briefing_router, prefix=API_V1_PREFIX)

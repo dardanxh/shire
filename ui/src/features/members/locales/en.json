@@ -31,6 +31,9 @@
       "merge_button_one": "Merge",
       "merge_disabled_anonymized": "Turn off anonymization to merge members",
       "manage_merges": "Merged identities",
+      "manage_teams": "Manage teams",
+      "assign_team_button_one": "Assign to team",
+      "assign_team_button_other": "Assign to team ({{count}})",
       "col_member": "Member",
       "col_activity": "Activity",
       "col_repositories": "Repositories",
@@ -137,6 +140,29 @@
       "remove": "Remove",
       "added": "Exclusion added",
       "removed": "Exclusion removed"
+    },
+    "tabs": {
+      "members": "Members",
+      "graph": "Contributions",
+      "teams": "Teams"
+    },
+    "graph": {
+      "all_teams": "All teams",
+      "include_subrepos": "Show subrepos",
+      "loading": "Building the graph…",
+      "empty": "No contributions to show. Analyze a repository, or widen the team filter."
+    },
+    "teams": {
+      "subtitle": "Which teams publish the most commits across tracked repositories.",
+      "manage": "Manage teams",
+      "unassigned": "Unassigned",
+      "loading": "Loading…",
+      "empty": "No contributions yet. Analyze a repository to see team activity.",
+      "col_team": "Team",
+      "col_members": "Members",
+      "col_repositories": "Repos touched",
+      "col_commits": "Commits",
+      "col_share": "Share"
     }
   }
 }

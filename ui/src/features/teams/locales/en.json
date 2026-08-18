@@ -1,0 +1,37 @@
+{
+  "teams": {
+    "form": {
+      "name_label": "Team name",
+      "name_placeholder": "e.g. Platform",
+      "name_required": "Give the team a name",
+      "color_label": "Color",
+      "color_invalid": "Pick a valid hex color",
+      "pick_color": "Use color {{color}}"
+    },
+    "manage": {
+      "title": "Manage teams",
+      "description": "Create teams and assign members to them. Each person belongs to one team.",
+      "add": "Add team",
+      "created": "Team created",
+      "saved": "Team updated",
+      "deleted": "Team deleted",
+      "empty": "No teams yet — create one above.",
+      "name_label": "Team name",
+      "member_count_one": "{{count}} member",
+      "member_count_other": "{{count}} members",
+      "save": "Save changes",
+      "delete": "Delete team"
+    },
+    "assign": {
+      "title_one": "Assign {{count}} member to a team",
+      "title_other": "Assign {{count}} members to a team",
+      "description": "Pick an existing team or create a new one. This moves anyone already on another team.",
+      "pick_placeholder": "Select a team…",
+      "new_team": "+ Create a new team",
+      "confirm_one": "Assign {{count}} member",
+      "confirm_other": "Assign {{count}} members",
+      "done_one": "Assigned {{count}} member",
+      "done_other": "Assigned {{count}} members"
+    }
+  }
+}
