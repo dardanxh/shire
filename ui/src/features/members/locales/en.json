@@ -149,8 +149,10 @@
     "graph": {
       "all_teams": "All teams",
       "include_subrepos": "Show subrepos",
+      "show_unassigned": "Show unassigned",
+      "fit": "Fit",
       "loading": "Building the graph…",
-      "empty": "No contributions to show. Analyze a repository, or widen the team filter."
+      "empty": "No contributions to show. Assign members to teams, turn on unassigned, or widen the filter."
     },
     "teams": {
       "subtitle": "Which teams publish the most commits across tracked repositories.",

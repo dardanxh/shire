@@ -1,10 +1,18 @@
 import { NetworkIcon, UsersIcon, UsersRoundIcon } from "lucide-react";
+import { lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ContributionsGraphTab } from "./ContributionsGraphTab";
 import { MembersListPage } from "./MembersListPage";
 import { TeamsDashboardTab } from "./TeamsDashboardTab";
+
+// The graph tab pulls in reagraph + three.js (heavy, WebGL) — load it only when opened.
+const ContributionsGraphTab = lazy(() =>
+  import("./ContributionsGraphTab").then((m) => ({
+    default: m.ContributionsGraphTab,
+  })),
+);
 
 export type MembersTab = "members" | "graph" | "teams";
 
@@ -48,7 +56,15 @@ export function MembersPage({
         />
       </TabsContent>
       <TabsContent value="graph">
-        <ContributionsGraphTab anonymize={anonymize} />
+        <Suspense
+          fallback={
+            <Card className="flex h-[620px] items-center justify-center text-sm text-muted-foreground">
+              {t("members.graph.loading")}
+            </Card>
+          }
+        >
+          <ContributionsGraphTab anonymize={anonymize} />
+        </Suspense>
       </TabsContent>
       <TabsContent value="teams">
         <TeamsDashboardTab />
