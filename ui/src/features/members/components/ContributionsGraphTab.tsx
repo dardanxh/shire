@@ -52,6 +52,11 @@ const REPO_COLOR = "#f59e0b"; // amber-500 (matches the star)
 const EDGE_WIDTH = 1.5; // uniform — commit magnitude lives on the label, not the width
 const UNASSIGNED_KEY = "unassigned";
 
+// Spread the force layout far wider than reagraph's defaults (linkDistance 50, nodeStrength -250)
+// so the graph fills a large world area. reagraph's fit uses a fixed 50-unit world padding, which
+// is then a negligible margin — the graph frames edge-to-edge instead of floating in the middle.
+const LAYOUT_OVERRIDES = { linkDistance: 220, nodeStrength: -1100 } as const;
+
 type ViewMode = "people" | "teams";
 
 /** Keep only members at/above the p-th percentile of commit volume (p=0 keeps everyone). */
@@ -368,19 +373,35 @@ export function ContributionsGraphTab({ anonymize }: { anonymize: boolean }) {
     return { selections: [selectedId], actives: [...nodeIds, ...edgeIds] };
   }, [selectedId, nodes, edges]);
 
-  // Reframe to fill the pane whenever the visible set changes.
+  // Reframe to fill the pane whenever the visible set changes, and make zoom snappy. With
+  // `animated={false}` the layout snaps to final positions, so the fit frames it tightly.
   // biome-ignore lint/correctness/useExhaustiveDependencies: `nodes` is the intended trigger — refit after the node set (and thus the layout) changes.
   useEffect(() => {
-    const id = setTimeout(() => graphRef.current?.fitNodesInView(), 400);
+    const id = setTimeout(() => {
+      graphRef.current?.fitNodesInView();
+      const controls = graphRef.current?.getControls?.() as
+        | { dollySpeed?: number; smoothTime?: number }
+        | undefined;
+      if (controls) {
+        controls.dollySpeed = 4; // faster zoom per wheel tick (default 1)
+        controls.smoothTime = 0.05; // snappier camera (default 0.25)
+      }
+    }, 250);
     return () => clearTimeout(id);
   }, [nodes]);
 
   // Focus theme: while something is selected, non-connected edges vanish and other nodes fade.
+  // The selection "ring" halo is hidden (transparent) — a click just highlights the lines.
   const theme = useMemo<Theme>(
     () => ({
       ...lightTheme,
       edge: { ...lightTheme.edge, inactiveOpacity: 0 },
       node: { ...lightTheme.node, inactiveOpacity: 0.12 },
+      ring: {
+        ...lightTheme.ring,
+        fill: "transparent",
+        activeFill: "transparent",
+      },
     }),
     [],
   );
@@ -630,11 +651,15 @@ export function ContributionsGraphTab({ anonymize }: { anonymize: boolean }) {
               onCanvasClick={() => graphRef.current?.fitNodesInView()}
               renderNode={renderGraphNode}
               layoutType="forceDirected2d"
+              layoutOverrides={LAYOUT_OVERRIDES}
               sizingType="default"
-              labelType={showCommitLabels ? "all" : "auto"}
+              // Always show node names (repos + people); "all" adds edge labels too.
+              labelType={showCommitLabels ? "all" : "nodes"}
               edgeLabelPosition="natural"
               edgeArrowPosition="none"
               draggable
+              // Snap the layout to final positions so the fit frames it tightly (no big margins).
+              animated={false}
               theme={theme}
             />
           </div>

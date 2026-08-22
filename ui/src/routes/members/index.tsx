@@ -12,6 +12,9 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/members/")({
   validateSearch: searchSchema,
+  // Stretch across the full viewport — the contributions graph is a pan/zoom canvas that
+  // should not be capped by the centered max-width container.
+  staticData: { fullBleed: true },
   component: RouteComponent,
 });
 
