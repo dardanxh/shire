@@ -10,6 +10,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import { GeneratedBadge } from "@/components/shared/GeneratedBadge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,7 +21,6 @@ import {
 } from "@/components/ui/card";
 import { isJobSettled, useJobQuery } from "@/features/jobs";
 import type { ArchitectureDiagram, JobDetailOut } from "@/lib/api";
-import { formatDateTime } from "@/lib/format";
 import {
   useArchitectureQuery,
   useGenerateArchitectureDiagramMutation,
@@ -235,13 +235,10 @@ function DiagramCard({
               </div>
             </Link>
             <DiagramSource code={diagram.mermaid} />
-            {diagram.generated_at ? (
-              <p className="text-xs text-muted-foreground">
-                {t("repositories.view.architecture.generated_at", {
-                  when: formatDateTime(diagram.generated_at),
-                })}
-              </p>
-            ) : null}
+            <GeneratedBadge
+              generatedAt={diagram.generated_at}
+              commitsBehind={diagram.commits_behind}
+            />
             <ArtifactVersionHistory
               repoId={repoId}
               artifact="architecture"

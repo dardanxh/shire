@@ -33,6 +33,7 @@ from shire.domain.repository.schemas import (
     BranchNamesResult,
     QuestionResult,
     RepositoryResult,
+    SubrepoCandidateResult,
 )
 from shire.domain.substrate.services import AnalysisService
 from shire.integrations.git_branches import inspect_branches, list_branch_names
@@ -45,6 +46,7 @@ from shire.integrations.git_clone import (
 from shire.integrations.git_history import build_scan_context
 from shire.integrations.git_providers.registry import get_connector
 from shire.integrations.github import GithubProviderClient
+from shire.integrations.monorepo import detect_new_subprojects
 
 logger = logging.getLogger(__name__)
 
@@ -261,6 +263,38 @@ class RepositoryService:
         self._session.commit()
         return RepositoryResult.of(repo)
 
+    def subrepo_candidates(self, repository_id: uuid.UUID) -> list[SubrepoCandidateResult]:
+        """New subproject directories in the family's clone that aren't onboarded yet — offered
+        for one-click add. Empty unless the family already has subrepos (we complete a set the
+        user started, never explode a plain repo). Reads the current on-disk clone, so a poll
+        that pulled the new folder surfaces it here without any extra fetch."""
+        repo = self._repos.get(repository_id)
+        if repo is None:
+            raise NotFoundError("Repository not found")
+        if not repo.clone_path or not Path(repo.clone_path).is_dir():
+            return []
+        family = self._repos.list_family(repo.coordinates)
+        existing = {member.coordinates.subpath for member in family}
+        candidates = detect_new_subprojects(Path(repo.clone_path), existing)
+        owner, name = repo.coordinates.owner, repo.coordinates.name
+        return [
+            SubrepoCandidateResult(
+                subpath=candidate.subpath,
+                slug=f"{owner}/{name}/{candidate.subpath}",
+                manifest=candidate.manifest,
+            )
+            for candidate in candidates
+        ]
+
+    def add_subrepo(self, repository_id: uuid.UUID, subpath: str) -> RepositoryResult:
+        """Onboard one detected subproject as a sibling subrepo. Reuses the family's clone URL
+        and connection, so it shares the existing clone; the clone→analyze pipeline is queued by
+        the route, exactly like a manual ingest."""
+        repo = self._repos.get(repository_id)
+        if repo is None:
+            raise NotFoundError("Repository not found")
+        return self.ingest(repo.url.value, repo.connection_id, subpath)
+
     def set_starred(self, repository_id: uuid.UUID, starred: bool) -> RepositoryResult:
         """Star or unstar a repository. Purely a bookmark — nothing is cloned, analyzed or
         added to the watchlist digest."""
@@ -322,11 +356,17 @@ class RepositoryService:
         )
         return [_question_of(row) for row in rows]
 
-    def switch_branch(self, repository_id: uuid.UUID, branch: str) -> RepositoryResult:
-        """Make `branch` the repo's active branch: check it out, clear every generated artifact
-        (they reflect the old branch), and re-run the full analysis pipeline in the background
-        (non-blocking, like refresh). For local-provider repos this moves the user's own
-        checkout — an explicit action, refused while their working tree is dirty."""
+    def switch_branch(
+        self, repository_id: uuid.UUID, branch: str, *, reanalyze: bool = True
+    ) -> RepositoryResult:
+        """Make `branch` the repo's active branch: check it out and re-run analysis in the
+        background (non-blocking, like refresh). For local-provider repos this moves the user's
+        own checkout — an explicit action, refused while their working tree is dirty.
+
+        `reanalyze=True` clears every generated artifact (they reflect the old branch) so the AI
+        ones regenerate on demand. `reanalyze=False` is a lightweight switch that keeps the
+        existing artifacts and only refreshes the deterministic facts — the pipeline still runs
+        but skips the AI work (see `_run_pipeline`)."""
         repo = self._repos.get(repository_id)
         if repo is None:
             raise NotFoundError("Repository not found")
@@ -352,8 +392,10 @@ class RepositoryService:
             except DirtyWorkingTreeError as exc:
                 raise ConflictError(str(exc)) from exc
 
-        # Everything generated so far describes the old branch.
-        self._analysis.clear_artifacts(repository_id)
+        # Everything generated so far describes the old branch. A lightweight switch keeps them
+        # (stale but token-free) — the user can re-analyze deliberately to refresh the AI ones.
+        if reanalyze:
+            self._analysis.clear_artifacts(repository_id)
 
         repo.current_branch = branch
         repo.mark_cloning()
@@ -390,13 +432,19 @@ class RepositoryService:
         branch: str | None = None,
         tool_ids: list[str] | None = None,
         pull: bool = False,
+        analyze_ai: bool = True,
     ) -> None:
         """Run clone→analyze for an already-registered repository (the background-task body)."""
         repository = self._repos.get(repository_id)
         if repository is None:
             return
         self._run_pipeline(
-            repository, repository.url.value, branch=branch, tool_ids=tool_ids, pull=pull
+            repository,
+            repository.url.value,
+            branch=branch,
+            tool_ids=tool_ids,
+            pull=pull,
+            analyze_ai=analyze_ai,
         )
 
     def _run_pipeline(
@@ -407,6 +455,7 @@ class RepositoryService:
         branch: str | None = None,
         tool_ids: list[str] | None = None,
         pull: bool = False,
+        analyze_ai: bool = True,
     ) -> Repository:
         """Clone/update (optionally checking out `branch`) → analyze → ready; failures persist
         the error state (no raise). Runs on a background-task session — each phase transition
@@ -468,14 +517,14 @@ class RepositoryService:
             # need an engine job per repository (with a monorepo's subrepos that's dozens of
             # runs for a handful of new commits). Re-run it deliberately from the Actions tab.
             # Best-effort: a queueing failure must never fail the ingest.
-            if first_ingest:
+            if first_ingest and analyze_ai:
                 try:
                     self._analysis.enqueue_ai_dependency_scan_if_needed(repository.id)
                 except Exception:
                     logger.exception(
                         "Could not auto-enqueue the AI dependency scan for %s", repository.id
                     )
-            if repository.watched:
+            if repository.watched and analyze_ai:
                 # Watched repos auto-summarize their pending digest delta so the
                 # Developments feed fills in without a click. Best-effort — a summary
                 # failure must never fail the pull itself. (Local import: watchlist
@@ -526,18 +575,22 @@ def run_ingest_pipeline(
     branch: str | None = None,
     tool_ids: list[str] | None = None,
     pull: bool = False,
+    analyze_ai: bool = True,
 ) -> None:
     """Background-task entry point for ingest/refresh/branch-switch: run the clone→analyze
     pipeline on its own transactional session. Phase transitions commit inside `_run_pipeline`
     so pollers see cloning → analyzing → ready/failed as they happen.
 
     `pull=True` marks a user-initiated "pull latest": local-provider repos then fast-forward
-    the user's own checkout before analysis (see `GitCloneService._use_local`)."""
+    the user's own checkout before analysis (see `GitCloneService._use_local`).
+
+    `analyze_ai=False` runs the deterministic analysis (commit counts, contributors, languages,
+    deps) but skips the token-spending AI follow-ups — used by the lightweight branch switch."""
     from shire.core.db import unit_of_work
 
     logger.info("Ingest pipeline started for %s", repository_id)
     with unit_of_work() as session:
         RepositoryService(session).run_pipeline(
-            repository_id, branch=branch, tool_ids=tool_ids, pull=pull
+            repository_id, branch=branch, tool_ids=tool_ids, pull=pull, analyze_ai=analyze_ai
         )
     logger.info("Ingest pipeline finished for %s", repository_id)

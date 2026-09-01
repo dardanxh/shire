@@ -327,9 +327,7 @@ class SqlAnalysisRepository:
     def delete_for_repository(self, repository_id: uuid.UUID) -> None:
         """Delete every analysis snapshot for a repo. Child rows (contributors, hotspots, tool
         runs, code chunks, …) cascade via their FK to analyses.id."""
-        self._session.execute(
-            delete(AnalysisRow).where(AnalysisRow.repository_id == repository_id)
-        )
+        self._session.execute(delete(AnalysisRow).where(AnalysisRow.repository_id == repository_id))
 
     def get_latest_for_repository(self, repository_id: uuid.UUID) -> Analysis | None:
         stmt = (
@@ -659,6 +657,26 @@ class SqlArtifactVersionRepository:
             stmt = stmt.where(ArtifactVersionRow.kind == kind)
         return list(self._session.scalars(stmt))
 
+    def latest(
+        self,
+        repository_id: uuid.UUID,
+        artifact: str,
+        kind: str = "",
+        branch: str | None = None,
+    ) -> ArtifactVersionRow | None:
+        """The newest version of one artifact slot — the generation behind the current disk
+        cache. Filtered to `branch` when given so a branch switch doesn't read another branch's
+        commit."""
+        stmt = select(ArtifactVersionRow).where(
+            ArtifactVersionRow.repository_id == repository_id,
+            ArtifactVersionRow.artifact == artifact,
+            ArtifactVersionRow.kind == kind,
+        )
+        if branch is not None:
+            stmt = stmt.where(ArtifactVersionRow.branch == branch)
+        stmt = stmt.order_by(ArtifactVersionRow.created_at.desc()).limit(1)
+        return self._session.scalars(stmt).first()
+
 
 class SqlAnalysisDeltaNoteRepository:
     def __init__(self, session: Session) -> None:
@@ -698,9 +716,7 @@ class SqlAnalysisDeltaNoteRepository:
 
 
 def _content_hash(content: dict) -> str:
-    return hashlib.sha256(
-        json.dumps(content, sort_keys=True, default=str).encode()
-    ).hexdigest()
+    return hashlib.sha256(json.dumps(content, sort_keys=True, default=str).encode()).hexdigest()
 
 
 class SqlRepositoryToolRepository:

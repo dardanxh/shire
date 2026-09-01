@@ -4,6 +4,7 @@ import { Loader2Icon, SparklesIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import { GeneratedBadge } from "@/components/shared/GeneratedBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +16,6 @@ import {
   useTechnologyCategoriesQuery,
   useTechnologyCorpusQuery,
 } from "@/features/technologies";
-import { formatDateTime } from "@/lib/format";
 import { useGenerateTechStackMutation, useTechStackQuery } from "../api";
 import { repositoryKeys } from "../keys";
 import { ArtifactVersionHistory } from "./ArtifactVersionHistory";
@@ -167,13 +167,10 @@ export function TechStackPanel({ repoId }: { repoId: string }) {
               </p>
             ) : null}
 
-            {data.generated_at ? (
-              <p className="text-xs text-muted-foreground">
-                {t("repositories.view.tech_stack.generated_at", {
-                  when: formatDateTime(data.generated_at),
-                })}
-              </p>
-            ) : null}
+            <GeneratedBadge
+              generatedAt={data.generated_at}
+              commitsBehind={data.commits_behind}
+            />
             <ArtifactVersionHistory
               repoId={repoId}
               artifact="tech-stack"

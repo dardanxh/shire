@@ -169,6 +169,20 @@ class SqlRepositoryRepository:
         )
         return self._session.scalar(select(func.count()).select_from(families)) or 0
 
+    def list_family(self, coordinates: RepoCoordinates) -> list[Repository]:
+        """Every record in one family (same provider/owner/name, any subpath) — the whole-repo
+        record and all its subrepos. The whole-repo record ('' subpath) sorts first."""
+        stmt = (
+            select(RepositoryRow)
+            .where(
+                RepositoryRow.provider == coordinates.provider.value,
+                RepositoryRow.owner == coordinates.owner,
+                RepositoryRow.name == coordinates.name,
+            )
+            .order_by(RepositoryRow.subpath.asc())
+        )
+        return [_to_domain(r) for r in self._session.scalars(stmt)]
+
     def count_clone_sharers(self, coordinates: RepoCoordinates, exclude_id: uuid.UUID) -> int:
         """How many OTHER records point at the same clone on disk (same provider/owner/name,
         any subpath). Guards clone deletion — sibling monorepo records share one clone."""

@@ -4,12 +4,12 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import { GeneratedBadge } from "@/components/shared/GeneratedBadge";
 import { Highlightable } from "@/components/shared/Highlightable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTrackedJob } from "@/features/jobs";
-import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
   useCodebaseOverviewQuery,
@@ -146,13 +146,10 @@ export function CodebaseOverviewPanel({ repoId }: { repoId: string }) {
               </section>
             ) : null}
 
-            {data.generated_at ? (
-              <p className="text-xs text-muted-foreground">
-                {t("repositories.view.overview.generated_at", {
-                  when: formatDateTime(data.generated_at),
-                })}
-              </p>
-            ) : null}
+            <GeneratedBadge
+              generatedAt={data.generated_at}
+              commitsBehind={data.commits_behind}
+            />
             <ArtifactVersionHistory
               repoId={repoId}
               artifact="codebase-overview"

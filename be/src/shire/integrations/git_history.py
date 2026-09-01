@@ -115,3 +115,24 @@ def commit_subjects_since(
         return repo.git.log(*args).strip()
     except (GitCommandError, OSError, ValueError):
         return ""
+
+
+def count_commits_between(
+    clone_path: Path, from_sha: str | None, to_sha: str | None, subpath: str = ""
+) -> int | None:
+    """Commits in `from_sha..to_sha` — reachable from `to_sha` but not `from_sha` (i.e. how far
+    `to_sha` is ahead). Used to tell how many commits an AI artifact is behind the latest
+    analyzed HEAD. `0` when the two match; `None` when either sha is empty or unknown to the
+    clone (git can't answer). Scoped to `subpath` for monorepo-focused records."""
+    if not from_sha or not to_sha:
+        return None
+    if from_sha == to_sha:
+        return 0
+    try:
+        repo = Repo(clone_path)
+        args = ["--count", f"{from_sha}..{to_sha}"]
+        if subpath:
+            args += ["--", subpath]
+        return int(repo.git.rev_list(*args).strip() or 0)
+    except (GitCommandError, OSError, ValueError):
+        return None

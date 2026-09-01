@@ -2,13 +2,14 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import { GeneratedBadge } from "@/components/shared/GeneratedBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import type { ContextMarkdownOut } from "@/lib/api";
-import { formatDateTime, shortSha } from "@/lib/format";
+import { shortSha } from "@/lib/format";
 import {
   useContextMarkdownQuery,
   useResetContextMarkdownMutation,
@@ -117,12 +118,11 @@ function MarkdownEditor({
         <p className="text-sm text-muted-foreground">
           {t("repositories.view.context.intro")}
         </p>
-        <p className="text-xs text-muted-foreground">
-          {t("repositories.view.context.generated_meta", {
-            when: formatDateTime(markdown.generated_at),
-            sha: shortSha(markdown.commit_sha),
-          })}
-        </p>
+        <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+          <GeneratedBadge generatedAt={markdown.generated_at} />
+          <span>·</span>
+          <span className="font-mono">{shortSha(markdown.commit_sha)}</span>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2">

@@ -299,6 +299,23 @@ export function RepositoriesListPage({
         cell: ({ row }) => <StatusBadge status={row.original.status} />,
       },
       {
+        id: "branch",
+        accessorFn: (repo) => repo.current_branch || repo.default_branch,
+        header: t("repositories.list.col_branch"),
+        cell: ({ row }) => {
+          // Subrepos share the family's single clone/branch — show it once, on the parent.
+          if (row.depth > 0) return null;
+          const branch =
+            row.original.current_branch || row.original.default_branch;
+          return branch ? (
+            <span className="inline-flex items-center gap-1 font-mono text-xs text-muted-foreground">
+              <GitBranchIcon className="size-3.5 shrink-0" />
+              {branch}
+            </span>
+          ) : null;
+        },
+      },
+      {
         // Commits per day over the last month. Single series, so no axes and no legend;
         // the numbers live in the title attribute rather than a floating tooltip, which
         // would fight the row's click-to-open.

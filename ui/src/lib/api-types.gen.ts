@@ -186,10 +186,55 @@ export interface paths {
         put?: never;
         /**
          * Switch Repository Branch
-         * @description Check out a branch, clear generated artifacts, and re-run the full analysis in the
-         *     background (non-blocking — poll the repository's `status`).
+         * @description Check out a branch and re-run analysis in the background (non-blocking — poll the
+         *     repository's `status`). `reanalyze=True` clears artifacts and re-runs everything; a
+         *     lightweight switch (`reanalyze=False`) refreshes only the deterministic facts (commit
+         *     counts, etc.) and leaves the existing AI artifacts in place.
          */
         post: operations["switch_repository_branch_api_v1_repositories__repository_id__branch_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/subrepo-candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Subrepo Candidates
+         * @description New subproject folders in this monorepo's clone that aren't onboarded yet (detected by
+         *     mirroring the family's existing subrepo layout). Empty unless the family already has
+         *     subrepos. Read the current clone — poll first to pull newly added folders into view.
+         */
+        get: operations["list_subrepo_candidates_api_v1_repositories__repository_id__subrepo_candidates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/repositories/{repository_id}/subrepos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Subrepo
+         * @description Onboard one detected subproject as a sibling subrepo (shares the family's clone) and start
+         *     its clone→analyze pipeline in the background.
+         */
+        post: operations["add_subrepo_api_v1_repositories__repository_id__subrepos_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3944,6 +3989,14 @@ export interface components {
             occurred_at: string;
         };
         /**
+         * AddSubrepoRequest
+         * @description Onboard one detected subproject as a sibling subrepo (shares the family's clone).
+         */
+        AddSubrepoRequest: {
+            /** Subpath */
+            subpath: string;
+        };
+        /**
          * AnalysisDeltaResult
          * @description Deterministic diff between two analysis snapshots, plus any persisted narrative.
          */
@@ -4129,6 +4182,8 @@ export interface components {
             generated: boolean;
             /** Generated At */
             generated_at?: string | null;
+            /** Commits Behind */
+            commits_behind?: number | null;
             /** Mermaid */
             mermaid?: string | null;
         };
@@ -5106,6 +5161,8 @@ export interface components {
             generated: boolean;
             /** Generated At */
             generated_at?: string | null;
+            /** Commits Behind */
+            commits_behind?: number | null;
             /**
              * Agent Available
              * @default true
@@ -10084,6 +10141,19 @@ export interface components {
             findings: components["schemas"]["Finding"][];
         };
         /**
+         * SubrepoCandidateResult
+         * @description A monorepo subproject directory that carries a manifest but isn't onboarded yet — offered
+         *     for one-click add. Detected by mirroring the layout of the family's existing subrepos.
+         */
+        SubrepoCandidateResult: {
+            /** Subpath */
+            subpath: string;
+            /** Slug */
+            slug: string;
+            /** Manifest */
+            manifest: string;
+        };
+        /**
          * SubscriptionResult
          * @description The Claude subscription this machine is logged into (from ~/.claude.json).
          */
@@ -10111,11 +10181,21 @@ export interface components {
         };
         /**
          * SwitchBranchRequest
-         * @description Switch the repository's active branch (checkout + pull + full re-analysis).
+         * @description Switch the repository's active branch (checkout + pull).
+         *
+         *     `reanalyze=True` (default) clears the branch's generated artifacts and re-runs the full
+         *     pipeline, regenerating AI artifacts on demand. `reanalyze=False` is a lightweight switch:
+         *     checkout + pull + refresh the deterministic facts (commit counts, contributors, languages,
+         *     deps) only, keeping the existing AI artifacts untouched to avoid token spend.
          */
         SwitchBranchRequest: {
             /** Branch */
             branch: string;
+            /**
+             * Reanalyze
+             * @default true
+             */
+            reanalyze: boolean;
         };
         /**
          * TeamContributionResult
@@ -10308,6 +10388,8 @@ export interface components {
             generated: boolean;
             /** Generated At */
             generated_at?: string | null;
+            /** Commits Behind */
+            commits_behind?: number | null;
             /** Branch */
             branch?: string | null;
             /**
@@ -11437,6 +11519,72 @@ export interface operations {
         responses: {
             /** @description Successful Response */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepositoryResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_subrepo_candidates_api_v1_repositories__repository_id__subrepo_candidates_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubrepoCandidateResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_subrepo_api_v1_repositories__repository_id__subrepos_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddSubrepoRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };

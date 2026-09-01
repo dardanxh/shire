@@ -1,9 +1,9 @@
 import { BookOpenIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { GeneratedBadge } from "@/components/shared/GeneratedBadge";
 import { Badge } from "@/components/ui/badge";
 import type { BriefingItemOut } from "@/lib/api";
-import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 /** Prettify a hobit slug for display: "repo-onboarding" → "Repo onboarding". */
@@ -76,7 +76,7 @@ function Post({
             <span>·</span>
             <span className="font-mono">{post.repository_slug}</span>
             <span>·</span>
-            <span>{formatDateTime(post.created_at)}</span>
+            <GeneratedBadge generatedAt={post.created_at} label="" />
             <Badge variant="outline" className="ml-1 text-[10px]">
               {t(`briefing.tiers.${post.tier.toLowerCase()}`)}
             </Badge>

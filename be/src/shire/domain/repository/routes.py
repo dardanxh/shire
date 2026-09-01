@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from shire.core.db import get_session
 from shire.core.pagination import Page, PaginationParams
 from shire.domain.repository.schemas import (
+    AddSubrepoRequest,
     AskQuestionRequest,
     BranchesResult,
     BranchNamesResult,
@@ -17,6 +18,7 @@ from shire.domain.repository.schemas import (
     QuestionResult,
     RepositoryResult,
     StarRequest,
+    SubrepoCandidateResult,
     SwitchBranchRequest,
 )
 from shire.domain.repository.services import RepositoryService, run_ingest_pipeline
@@ -130,12 +132,49 @@ def switch_repository_branch(
     background_tasks: BackgroundTasks,
     session: Session = Depends(get_session),
 ) -> RepositoryResult:
-    """Check out a branch, clear generated artifacts, and re-run the full analysis in the
-    background (non-blocking — poll the repository's `status`)."""
-    result = RepositoryService(session).switch_branch(repository_id, body.branch)
+    """Check out a branch and re-run analysis in the background (non-blocking — poll the
+    repository's `status`). `reanalyze=True` clears artifacts and re-runs everything; a
+    lightweight switch (`reanalyze=False`) refreshes only the deterministic facts (commit
+    counts, etc.) and leaves the existing AI artifacts in place."""
+    result = RepositoryService(session).switch_branch(
+        repository_id, body.branch, reanalyze=body.reanalyze
+    )
     # Same-branch switches return early with the repo still `ready` — nothing to re-run.
     if result.status == "cloning":
-        background_tasks.add_task(run_ingest_pipeline, result.id, branch=body.branch)
+        background_tasks.add_task(
+            run_ingest_pipeline, result.id, branch=body.branch, analyze_ai=body.reanalyze
+        )
+    return result
+
+
+@router.get(
+    "/{repository_id}/subrepo-candidates",
+    response_model=list[SubrepoCandidateResult],
+)
+def list_subrepo_candidates(
+    repository_id: uuid.UUID, session: Session = Depends(get_session)
+) -> list[SubrepoCandidateResult]:
+    """New subproject folders in this monorepo's clone that aren't onboarded yet (detected by
+    mirroring the family's existing subrepo layout). Empty unless the family already has
+    subrepos. Read the current clone — poll first to pull newly added folders into view."""
+    return RepositoryService(session).subrepo_candidates(repository_id)
+
+
+@router.post(
+    "/{repository_id}/subrepos",
+    response_model=RepositoryResult,
+    status_code=status.HTTP_201_CREATED,
+)
+def add_subrepo(
+    repository_id: uuid.UUID,
+    body: AddSubrepoRequest,
+    background_tasks: BackgroundTasks,
+    session: Session = Depends(get_session),
+) -> RepositoryResult:
+    """Onboard one detected subproject as a sibling subrepo (shares the family's clone) and start
+    its clone→analyze pipeline in the background."""
+    result = RepositoryService(session).add_subrepo(repository_id, body.subpath)
+    background_tasks.add_task(run_ingest_pipeline, result.id)
     return result
 
 

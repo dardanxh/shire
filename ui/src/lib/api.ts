@@ -83,6 +83,8 @@ export type RepositoriesPage = components["schemas"]["Page_RepositoryResult_"];
 export type BranchesOut = components["schemas"]["BranchesResult"];
 export type BranchOut = components["schemas"]["BranchResult"];
 export type BranchNamesOut = components["schemas"]["BranchNamesResult"];
+export type SubrepoCandidateOut =
+  components["schemas"]["SubrepoCandidateResult"];
 export type MergeReviewOut = components["schemas"]["MergeReviewResult"];
 export type MergeReviewDetailOut =
   components["schemas"]["MergeReviewDetailResult"];

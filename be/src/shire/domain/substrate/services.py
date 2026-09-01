@@ -90,7 +90,7 @@ from shire.integrations.external_tools.code_maat import CodeMaatAdapter
 from shire.integrations.external_tools.codecharta import CodeChartaAdapter
 from shire.integrations.external_tools.emerge import EmergeAdapter
 from shire.integrations.external_tools.git_of_theseus import GitOfTheseusAdapter
-from shire.integrations.git_history import build_scan_context
+from shire.integrations.git_history import build_scan_context, count_commits_between
 from shire.integrations.scanners import base_scanners, tool_scanners
 from shire.integrations.scanners.code import manifest_inventory
 
@@ -237,9 +237,7 @@ class AnalysisService:
         """Raw findings log for a tool's latest run — None when it hasn't run or produced none."""
         analysis = self._analyses.get_latest_for_repository(repository_id)
         run = (
-            next((t for t in analysis.tool_runs if t.name == tool_name), None)
-            if analysis
-            else None
+            next((t for t in analysis.tool_runs if t.name == tool_name), None) if analysis else None
         )
         log = run.log if run else None
         return ToolLogResult(
@@ -272,9 +270,7 @@ class AnalysisService:
             )
         return results
 
-    def commit_history_for_emails(
-        self, emails: list[str]
-    ) -> list[RepositoryCommitHistoryResult]:
+    def commit_history_for_emails(self, emails: list[str]) -> list[RepositoryCommitHistoryResult]:
         """Every repo's latest-analysis commit rows for one identity (members read seam).
 
         `emails` is the identity's full alias set. Returns an entry per analyzed repository —
@@ -416,8 +412,7 @@ class AnalysisService:
                 for email, count in authors.most_common()
             ],
             daily=[
-                CommitActivityDay(day=day, commits=count)
-                for day, count in sorted(daily.items())
+                CommitActivityDay(day=day, commits=count) for day, count in sorted(daily.items())
             ],
         )
 
@@ -426,9 +421,7 @@ class AnalysisService:
         idempotence check)."""
         return self._delta_notes.get(from_id, to_id) is not None
 
-    def enqueue_delta_note(
-        self, repository_id: uuid.UUID, body: ExplainDelta
-    ) -> JobResult:
+    def enqueue_delta_note(self, repository_id: uuid.UUID, body: ExplainDelta) -> JobResult:
         """Enqueue the on-demand "what changed since last check" narrative."""
         from_id, to_id = self._resolve_delta_pair(repository_id, body.from_id, body.to_id)
         delta = self.analysis_delta(repository_id, from_id, to_id)
@@ -826,9 +819,7 @@ class AnalysisService:
         self.enqueue_ai_dependency_scan(repository_id)
         return True
 
-    def apply_ai_dependencies(
-        self, repository_id: uuid.UUID, deps: list[Dependency]
-    ) -> int:
+    def apply_ai_dependencies(self, repository_id: uuid.UUID, deps: list[Dependency]) -> int:
         """Merge an engine scan's findings into the latest snapshot (completion-handler seam).
 
         Returns how many were new; duplicates of what the parsers already found are dropped, and
@@ -870,9 +861,7 @@ class AnalysisService:
         cache.write_text(json.dumps([i.model_dump() for i in items]))
 
     # --- dependency freshness (PyPI latest vs. declared) ----------------------
-    def dependency_freshness_status(
-        self, repository_id: uuid.UUID
-    ) -> DependencyFreshnessResult:
+    def dependency_freshness_status(self, repository_id: uuid.UUID) -> DependencyFreshnessResult:
         """The cached freshness check, if one has been run."""
         cache = self._artifact_dir("dependency-freshness", repository_id) / "freshness.json"
         gains_job = SqlJobRepository(self._session).latest_unsettled(
@@ -898,15 +887,11 @@ class AnalysisService:
             gains_job_id=gains_job.id if gains_job else None,
         )
 
-    def generate_dependency_freshness(
-        self, repository_id: uuid.UUID
-    ) -> DependencyFreshnessResult:
+    def generate_dependency_freshness(self, repository_id: uuid.UUID) -> DependencyFreshnessResult:
         """Fetch each pip dependency's latest version from PyPI, compute the gap, and (if the agent
         is available) summarize what upgrading gets you. Cached to disk."""
         analysis = self.latest_result(repository_id)  # raises if the repo has no analysis
-        pip_names = sorted(
-            {d.name for d in analysis.dependencies if d.ecosystem == Ecosystem.pip}
-        )
+        pip_names = sorted({d.name for d in analysis.dependencies if d.ecosystem == Ecosystem.pip})
         latest_map = pypi.latest_many(pip_names)
 
         items: list[DependencyFreshnessItem] = []
@@ -916,11 +901,12 @@ class AnalysisService:
                 # engine scan recorded, when it had one.
                 items.append(
                     DependencyFreshnessItem(
-                        name=dep.name, ecosystem=dep.ecosystem.value, current=dep.version,
-                        latest=dep.latest_version, latest_released_at=None,
-                        gap=pypi.compute_gap(
-                            pypi.base_version(dep.version), dep.latest_version
-                        ),
+                        name=dep.name,
+                        ecosystem=dep.ecosystem.value,
+                        current=dep.version,
+                        latest=dep.latest_version,
+                        latest_released_at=None,
+                        gap=pypi.compute_gap(pypi.base_version(dep.version), dep.latest_version),
                     )
                 )
                 continue
@@ -929,17 +915,19 @@ class AnalysisService:
             base = pypi.base_version(dep.version)
             items.append(
                 DependencyFreshnessItem(
-                    name=dep.name, ecosystem=dep.ecosystem.value, current=dep.version,
-                    latest=latest_v, latest_released_at=released, latest_url=url,
+                    name=dep.name,
+                    ecosystem=dep.ecosystem.value,
+                    current=dep.version,
+                    latest=latest_v,
+                    latest_released_at=released,
+                    latest_url=url,
                     gap=pypi.compute_gap(base, latest_v),
                 )
             )
 
         out_dir = self._artifact_dir("dependency-freshness", repository_id)
         out_dir.mkdir(parents=True, exist_ok=True)
-        (out_dir / "freshness.json").write_text(
-            json.dumps([i.model_dump() for i in items])
-        )
+        (out_dir / "freshness.json").write_text(json.dumps([i.model_dump() for i in items]))
 
         # The deterministic columns are ready now; the per-package "what you gain" lines are an
         # engine job — the handler in jobs.py fills them into the cached file when it settles.
@@ -958,7 +946,7 @@ class AnalysisService:
                     "timeout_seconds": timeout_seconds,
                     "repository_id": str(repository_id),
                     "branch": repo.current_branch or repo.default_branch,
-                "commit_sha": repo.last_analyzed_commit or "",
+                    "commit_sha": repo.last_analyzed_commit or "",
                 },
                 repository_id=repository_id,
             )
@@ -987,6 +975,9 @@ class AnalysisService:
                     entry.mermaid = str(mermaid)
                     entry.generated = True
                     entry.generated_at = _mtime(cache)
+                    entry.commits_behind = self._artifact_commits_behind(
+                        repository_id, "architecture", kind.slug
+                    )
             diagrams.append(entry)
         return ArchitectureResult(
             repository_id=repository_id,
@@ -994,9 +985,7 @@ class AnalysisService:
             agent_available=claude_available(),
         )
 
-    def enqueue_architecture_diagram(
-        self, repository_id: uuid.UUID, kind_slug: str
-    ) -> JobResult:
+    def enqueue_architecture_diagram(self, repository_id: uuid.UUID, kind_slug: str) -> JobResult:
         """Enqueue one Mermaid diagram generation for the engine service (non-blocking).
         The handler in jobs.py writes the artifact when the job settles."""
         kind = architecture.CATALOG_BY_SLUG.get(kind_slug)
@@ -1040,6 +1029,7 @@ class AnalysisService:
             repository_id=repository_id,
             generated=True,
             generated_at=_mtime(cache),
+            commits_behind=self._artifact_commits_behind(repository_id, "codebase-overview"),
             agent_available=True,
             summary=data.get("summary"),
             kind=data.get("kind"),
@@ -1094,6 +1084,7 @@ class AnalysisService:
             repository_id=repository_id,
             generated=True,
             generated_at=_mtime(cache),
+            commits_behind=self._artifact_commits_behind(repository_id, "tech-stack"),
             branch=data.get("branch"),
             agent_available=True,
             items=items,
@@ -1170,6 +1161,26 @@ class AnalysisService:
             raise ConflictError("Repository has not been cloned.")
         return repo
 
+    def _artifact_commits_behind(
+        self, repository_id: uuid.UUID, artifact: str, kind: str = ""
+    ) -> int | None:
+        """How many commits an artifact slot's current content is behind the latest analyzed
+        HEAD — the refresh cue surfaced on AI-generated content. Reads the generation commit
+        from the artifact's newest version row (on the active branch) and counts commits up to
+        the repo's `last_analyzed_commit`. None when it can't be determined; 0 when up to date."""
+        repo = self._repos.get(repository_id)
+        if repo is None or not repo.clone_path or not repo.last_analyzed_commit:
+            return None
+        branch = repo.current_branch or repo.default_branch
+        version = self._artifact_versions.latest(repository_id, artifact, kind, branch)
+        gen_sha = version.commit_sha if version else None
+        return count_commits_between(
+            Path(repo.clone_path),
+            gen_sha,
+            repo.last_analyzed_commit,
+            repo.coordinates.subpath or "",
+        )
+
 
 # --- helpers ------------------------------------------------------------------
 
@@ -1211,8 +1222,15 @@ def _extract_mermaid_block(text: str) -> str | None:
     # No fence — accept a raw diagram if the text itself looks like Mermaid.
     stripped = text.strip()
     keywords = (
-        "flowchart", "graph", "sequenceDiagram", "stateDiagram", "erDiagram",
-        "classDiagram", "journey", "gantt", "C4Context",
+        "flowchart",
+        "graph",
+        "sequenceDiagram",
+        "stateDiagram",
+        "erDiagram",
+        "classDiagram",
+        "journey",
+        "gantt",
+        "C4Context",
     )
     if stripped.startswith(keywords):
         return stripped
@@ -1581,9 +1599,7 @@ def _fact_deltas(before: Analysis, after: Analysis) -> list[FactDelta]:
 
 def _dependency_deltas(before: Analysis, after: Analysis) -> DeltaDependencies:
     def keyed(analysis: Analysis) -> dict[tuple[str, str], str | None]:
-        return {
-            (dep.ecosystem.value, dep.name): dep.version for dep in analysis.dependencies
-        }
+        return {(dep.ecosystem.value, dep.name): dep.version for dep in analysis.dependencies}
 
     old, new = keyed(before), keyed(after)
     added = [
@@ -1621,9 +1637,7 @@ def _language_shifts(before: Analysis, after: Analysis) -> list[LanguageShift]:
 
 def _contributor_deltas(before: Analysis, after: Analysis) -> DeltaContributors:
     def keyed(analysis: Analysis) -> dict[str, str]:
-        return {
-            c.email.strip().lower(): (c.name or c.email) for c in analysis.contributors
-        }
+        return {c.email.strip().lower(): (c.name or c.email) for c in analysis.contributors}
 
     old, new = keyed(before), keyed(after)
     return DeltaContributors(

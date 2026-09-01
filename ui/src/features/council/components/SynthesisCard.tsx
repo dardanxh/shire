@@ -1,6 +1,7 @@
 import { GavelIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { GeneratedBadge } from "@/components/shared/GeneratedBadge";
 import { Markdown } from "@/components/shared/Markdown";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { CouncilTopicDetailOut } from "@/lib/api";
@@ -19,6 +20,7 @@ export function SynthesisCard({ topic }: { topic: CouncilTopicDetailOut }) {
           {t("council.view.synthesis_title")}
         </p>
         <CardTitle className="text-lg">{synthesis.headline}</CardTitle>
+        <GeneratedBadge generatedAt={topic.convened_at ?? topic.updated_at} />
       </CardHeader>
       <CardContent className="space-y-4">
         {/* The chair writes the synthesis as Markdown. */}

@@ -23,9 +23,10 @@ import { useBranchNamesQuery, useSwitchBranchMutation } from "../api";
 
 /**
  * The header branch selector: all repository data reflects the selected (active) branch.
- * Picking a branch opens a confirm dialog — switching checks the branch out, clears generated
- * artifacts, and re-runs the full analysis (blocking, minutes). The Select's value is
- * server-derived, so cancelling simply closes the dialog and the selector snaps back.
+ * Picking a branch opens a confirm dialog offering two switches: a lightweight "Switch"
+ * (checkout + pull + refresh the non-AI facts, keeping existing artifacts) and "Switch and
+ * re-analyze" (also clears artifacts and re-runs everything, blocking for minutes). The
+ * Select's value is server-derived, so cancelling just closes the dialog and it snaps back.
  */
 export function BranchSwitcher({
   id,
@@ -48,22 +49,25 @@ export function BranchSwitcher({
     ? names.branches
     : [currentBranch, ...(names?.branches ?? [])];
 
-  const handleConfirm = () => {
+  const handleConfirm = (reanalyze: boolean) => {
     const branch = pendingBranch;
     if (!branch) return;
-    switchBranch(branch, {
-      onSuccess: (repo) => {
-        setPendingBranch(null);
-        if (repo.status === "failed") {
-          toast.error(t("repositories.branch.switch_failed", { branch }), {
-            description: repo.error ?? undefined,
-          });
-        } else {
-          toast.success(t("repositories.branch.switched", { branch }));
-        }
+    switchBranch(
+      { branch, reanalyze },
+      {
+        onSuccess: (repo) => {
+          setPendingBranch(null);
+          if (repo.status === "failed") {
+            toast.error(t("repositories.branch.switch_failed", { branch }), {
+              description: repo.error ?? undefined,
+            });
+          } else {
+            toast.success(t("repositories.branch.switched", { branch }));
+          }
+        },
+        onError: () => setPendingBranch(null),
       },
-      onError: () => setPendingBranch(null),
-    });
+    );
   };
 
   return (
@@ -124,7 +128,17 @@ export function BranchSwitcher({
             >
               {t("common.actions.cancel")}
             </Button>
-            <Button onClick={handleConfirm} disabled={isPending}>
+            <Button
+              variant="secondary"
+              onClick={() => handleConfirm(false)}
+              disabled={isPending}
+            >
+              {isPending ? (
+                <Loader2Icon className="size-4 animate-spin" />
+              ) : null}
+              {t("repositories.branch.switch_button")}
+            </Button>
+            <Button onClick={() => handleConfirm(true)} disabled={isPending}>
               {isPending ? (
                 <Loader2Icon className="size-4 animate-spin" />
               ) : null}

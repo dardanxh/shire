@@ -15,6 +15,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import { GeneratedBadge } from "@/components/shared/GeneratedBadge";
 import { Markdown } from "@/components/shared/Markdown";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -502,6 +503,12 @@ function DeltaNarrative({
           {t("developments.copy")}
         </Button>
         <Markdown className="pr-20">{delta.note}</Markdown>
+        {delta.note_generated_at ? (
+          <GeneratedBadge
+            className="mt-2"
+            generatedAt={delta.note_generated_at}
+          />
+        ) : null}
       </div>
     );
   }

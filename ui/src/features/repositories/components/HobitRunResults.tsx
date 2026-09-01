@@ -2,6 +2,7 @@ import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { GeneratedBadge } from "@/components/shared/GeneratedBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +12,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRunDetailQuery } from "@/features/briefing/api";
 import { RunFeedback } from "@/features/briefing/components/RunFeedback";
 import type { HobitOut, HobitRunOut } from "@/lib/api";
-import { formatTimeAgo } from "@/lib/format";
 
 /** Runs whose response the user can rate (the backend rejects the rest with a 409). */
 const RATABLE_STATUSES = ["completed", "parse_failed"];
@@ -118,9 +118,11 @@ function RunResultCard({
             </p>
           )}
         </div>
-        <span className="shrink-0 text-xs text-muted-foreground">
-          {formatTimeAgo(run.started_at)}
-        </span>
+        <GeneratedBadge
+          className="shrink-0"
+          generatedAt={run.finished_at ?? run.started_at}
+          label=""
+        />
       </button>
       {open && <RunResultDetail repoId={repoId} run={run} />}
     </div>

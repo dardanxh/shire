@@ -345,6 +345,9 @@ class ArchitectureDiagram(BaseModel):
     mermaid_type: str
     generated: bool = False
     generated_at: datetime | None = None
+    # Commits between this diagram's generation commit and the latest analyzed HEAD (the refresh
+    # cue). None when it can't be determined; 0 when up to date.
+    commits_behind: int | None = None
     mermaid: str | None = None
 
 
@@ -362,6 +365,8 @@ class CodebaseOverviewResult(BaseModel):
     repository_id: uuid.UUID
     generated: bool
     generated_at: datetime | None = None
+    # Commits between the generation commit and the latest analyzed HEAD (the refresh cue).
+    commits_behind: int | None = None
     agent_available: bool = True
     summary: str | None = None  # one sentence — what it is
     kind: str | None = None  # library | backend service | CLI | data pipeline | ML system | ...
@@ -387,6 +392,8 @@ class TechStackResult(BaseModel):
     repository_id: uuid.UUID
     generated: bool
     generated_at: datetime | None = None
+    # Commits between the generation commit and the latest analyzed HEAD (the refresh cue).
+    commits_behind: int | None = None
     branch: str | None = None
     agent_available: bool = True
     items: list[TechStackItem] = []

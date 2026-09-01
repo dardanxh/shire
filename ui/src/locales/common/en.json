@@ -91,6 +91,14 @@
     },
     "filters": {
       "starred": "Starred"
+    },
+    "generated": {
+      "prefix": "Generated",
+      "exact": "Generated {{when}}",
+      "up_to_date": "Up to date with the latest analyzed commit",
+      "commits_behind_one": "{{count}} commit behind the latest analyzed commit",
+      "commits_behind_other": "{{count}} commits behind the latest analyzed commit",
+      "commits_behind_short": "{{count}} behind"
     }
   }
 }

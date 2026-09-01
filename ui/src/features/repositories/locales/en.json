@@ -12,6 +12,7 @@
       "starred_empty_body": "Star a repository from the Repositories tab and it shows up here for one-click access.",
       "col_repository": "Repository",
       "col_status": "Status",
+      "col_branch": "Branch",
       "col_last_polled": "Last polled",
       "col_activity": "Activity",
       "col_checks": "Actions",
@@ -654,11 +655,19 @@
     "branch": {
       "label": "Branch",
       "confirm_title": "Switch branch",
-      "confirm_body": "Switch \"{{slug}}\" to {{branch}}? This checks out the branch, re-runs the full analysis, and clears generated artifacts (diagrams, overview, graphs) — they regenerate on demand. This can take a few minutes.",
+      "confirm_body": "Switch \"{{slug}}\" to {{branch}}? \"Switch\" checks out the branch, pulls the latest, and refreshes the non-AI facts (commit counts, contributors, languages) while keeping the existing AI artifacts — no tokens spent. \"Switch and re-analyze\" also clears the generated artifacts (diagrams, overview, graphs) so they regenerate on demand, which can take a few minutes.",
       "confirm_button": "Switch and re-analyze",
+      "switch_button": "Switch",
       "switching": "Switching…",
       "switched": "Switched to {{branch}}",
       "switch_failed": "Switch to {{branch}} failed"
+    },
+    "subrepos": {
+      "detected_title_one": "{{count}} new subproject detected",
+      "detected_title_other": "{{count}} new subprojects detected",
+      "detected_body": "These folders appeared in the monorepo and carry a project manifest, but aren't tracked yet. Add the ones you want as subrepos.",
+      "add": "Add",
+      "added": "Adding {{slug}} — analysis started"
     },
     "ask": {
       "placeholder": "Ask anything about this repository — architecture, where things live, how a flow works…",

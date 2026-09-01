@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import { CollapsibleBlock } from "@/components/shared/CollapsibleBlock";
+import { GeneratedBadge } from "@/components/shared/GeneratedBadge";
 import { Badge } from "@/components/ui/badge";
 import type { CouncilTakeOut } from "@/lib/api";
 
@@ -46,15 +47,18 @@ export function DebateTranscript({
                 defaultOpen={defaultOpen}
                 variant={take.is_devils_advocate ? "destructive" : "default"}
                 titleAccessory={
-                  take.is_devils_advocate ? (
-                    <Badge variant="destructive">
-                      {t("council.takes.devils_advocate")}
-                    </Badge>
-                  ) : take.status !== "completed" ? (
-                    <Badge variant="outline">
-                      {t(`council.takes.status.${take.status}`)}
-                    </Badge>
-                  ) : null
+                  <span className="flex items-center gap-2">
+                    {take.is_devils_advocate ? (
+                      <Badge variant="destructive">
+                        {t("council.takes.devils_advocate")}
+                      </Badge>
+                    ) : take.status !== "completed" ? (
+                      <Badge variant="outline">
+                        {t(`council.takes.status.${take.status}`)}
+                      </Badge>
+                    ) : null}
+                    <GeneratedBadge generatedAt={take.finished_at} label="" />
+                  </span>
                 }
               />
             ))}

@@ -6,7 +6,8 @@
       "name_required": "Give the team a name",
       "color_label": "Color",
       "color_invalid": "Pick a valid hex color",
-      "pick_color": "Use color {{color}}"
+      "pick_color": "Use color {{color}}",
+      "random_color": "Pick a random color"
     },
     "manage": {
       "title": "Manage teams",

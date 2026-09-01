@@ -1,5 +1,5 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { CheckIcon, Trash2Icon } from "lucide-react";
+import { CheckIcon, DicesIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -27,7 +27,17 @@ import {
 } from "../api";
 import { makeTeamSchema, TEAM_PALETTE, type TeamFormValues } from "../schemas";
 
-/** A row of clickable palette swatches; the active color gets a ring. */
+/** A random 6-digit hex color, e.g. "#3fa9c1". */
+function randomHexColor() {
+  const n = Math.floor(Math.random() * 0xffffff);
+  return `#${n.toString(16).padStart(6, "0")}`;
+}
+
+/**
+ * A row of clickable palette swatches; the active color gets a ring. A dice
+ * button picks a random color, and any off-palette color is shown as an extra
+ * selected swatch so it stays visible/editable.
+ */
 function ColorSwatches({
   value,
   onChange,
@@ -38,8 +48,11 @@ function ColorSwatches({
   disabled?: boolean;
 }) {
   const { t } = useTranslation();
+  const isCustom = !TEAM_PALETTE.some(
+    (color) => color.toLowerCase() === value.toLowerCase(),
+  );
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className="flex flex-wrap items-center gap-1.5">
       {TEAM_PALETTE.map((color) => (
         <button
           key={color}
@@ -55,6 +68,24 @@ function ColorSwatches({
           style={{ backgroundColor: color }}
         />
       ))}
+      {isCustom ? (
+        <span
+          role="img"
+          aria-label={t("teams.form.pick_color", { color: value })}
+          className="size-6 rounded-full border border-border ring-2 ring-ring ring-offset-1 ring-offset-background"
+          style={{ backgroundColor: value }}
+        />
+      ) : null}
+      <button
+        type="button"
+        disabled={disabled}
+        aria-label={t("teams.form.random_color")}
+        title={t("teams.form.random_color")}
+        onClick={() => onChange(randomHexColor())}
+        className="flex size-6 items-center justify-center rounded-full border border-dashed border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      >
+        <DicesIcon className="size-3.5" />
+      </button>
     </div>
   );
 }

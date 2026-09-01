@@ -30,6 +30,7 @@ import {
   type ReadinessStatusOut,
   type RepositoryOut,
   type RunInspectionsOut,
+  type SubrepoCandidateOut,
   type TechStackOut,
   type ToolLogOut,
   type ToolName,
@@ -214,6 +215,47 @@ export function useBranchNamesQuery(id: string) {
     },
     enabled: id !== "",
     staleTime: 60_000,
+  });
+}
+
+/**
+ * Newly detected monorepo subprojects that aren't onboarded yet — offered for one-click add.
+ * Empty for non-monorepos and for families with no subrepos. Reads the current clone, so a poll
+ * that pulled the new folder surfaces it here.
+ */
+export function useSubrepoCandidatesQuery(id: string) {
+  return useQuery<SubrepoCandidateOut[]>({
+    queryKey: repositoryKeys.subrepoCandidates(id),
+    queryFn: async () => {
+      const { data, error } = await api.GET(
+        "/api/v1/repositories/{repository_id}/subrepo-candidates",
+        { params: { path: { repository_id: id } } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    enabled: id !== "",
+    staleTime: 60_000,
+  });
+}
+
+/** Onboard one detected subproject as a sibling subrepo (shares the family's clone) and start
+ * its analysis. Invalidates the list so the new subrepo appears, and the candidates so it drops
+ * off the "detected" set. */
+export function useAddSubrepoMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (subpath: string): Promise<RepositoryOut> => {
+      const { data, error } = await api.POST(
+        "/api/v1/repositories/{repository_id}/subrepos",
+        { params: { path: { repository_id: id } }, body: { subpath } },
+      );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: repositoryKeys.all });
+    },
   });
 }
 
@@ -525,15 +567,26 @@ export function useAskQuestionMutation(id: string) {
   });
 }
 
-/** Switch the active branch: checkout + pull + full re-analysis; generated artifacts are
- * cleared and regenerate on demand (blocking, like refresh). */
+/** Switch the active branch: checkout + pull (blocking, like refresh). `reanalyze` (default
+ * true) clears the generated artifacts and re-runs everything; `reanalyze: false` is a
+ * lightweight switch that refreshes only the deterministic facts (commit counts, etc.) and
+ * leaves the existing AI artifacts in place to avoid token spend. */
 export function useSwitchBranchMutation(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (branch: string): Promise<RepositoryOut> => {
+    mutationFn: async ({
+      branch,
+      reanalyze = true,
+    }: {
+      branch: string;
+      reanalyze?: boolean;
+    }): Promise<RepositoryOut> => {
       const { data, error } = await api.POST(
         "/api/v1/repositories/{repository_id}/branch",
-        { params: { path: { repository_id: id } }, body: { branch } },
+        {
+          params: { path: { repository_id: id } },
+          body: { branch, reanalyze },
+        },
       );
       if (error) throw error;
       return data;

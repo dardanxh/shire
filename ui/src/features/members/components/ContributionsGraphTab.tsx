@@ -442,7 +442,14 @@ export function ContributionsGraphTab({ anonymize }: { anonymize: boolean }) {
             onValueChange={(v) => setTeamId(!v || v === "all" ? null : v)}
           >
             <SelectTrigger className="w-40">
-              <SelectValue placeholder={t("members.graph.all_teams")} />
+              <SelectValue placeholder={t("members.graph.all_teams")}>
+                {(value) =>
+                  value === "all"
+                    ? t("members.graph.all_teams")
+                    : ((teams ?? []).find((team) => team.id === value)?.name ??
+                      t("members.graph.all_teams"))
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">

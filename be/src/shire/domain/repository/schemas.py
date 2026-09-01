@@ -81,10 +81,31 @@ class StarRequest(BaseModel):
     starred: bool
 
 
+class SubrepoCandidateResult(BaseModel):
+    """A monorepo subproject directory that carries a manifest but isn't onboarded yet — offered
+    for one-click add. Detected by mirroring the layout of the family's existing subrepos."""
+
+    subpath: str
+    slug: str
+    manifest: str  # the manifest kind that marked it a project (e.g. "package.json")
+
+
+class AddSubrepoRequest(BaseModel):
+    """Onboard one detected subproject as a sibling subrepo (shares the family's clone)."""
+
+    subpath: str
+
+
 class SwitchBranchRequest(BaseModel):
-    """Switch the repository's active branch (checkout + pull + full re-analysis)."""
+    """Switch the repository's active branch (checkout + pull).
+
+    `reanalyze=True` (default) clears the branch's generated artifacts and re-runs the full
+    pipeline, regenerating AI artifacts on demand. `reanalyze=False` is a lightweight switch:
+    checkout + pull + refresh the deterministic facts (commit counts, contributors, languages,
+    deps) only, keeping the existing AI artifacts untouched to avoid token spend."""
 
     branch: str
+    reanalyze: bool = True
 
 
 class AskQuestionRequest(BaseModel):

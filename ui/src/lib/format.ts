@@ -58,6 +58,28 @@ export function formatTimeAgo(iso: string | null | undefined): string {
   return `${Math.round(years)} year${Math.round(years) === 1 ? "" : "s"} ago`;
 }
 
+/** Compact relative time, e.g. "just now", "5m ago", "3h ago", "3d ago", "2w ago", "5mo ago",
+ * "1y ago". Preferred for dense metadata badges (AI-generated content stamps). */
+export function formatTimeAgoShort(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "—";
+  const seconds = (Date.now() - then) / 1_000;
+  if (seconds < 45) return "just now";
+  const minutes = seconds / 60;
+  if (minutes < 60) return `${Math.round(minutes)}m ago`;
+  const hours = minutes / 60;
+  if (hours < 24) return `${Math.round(hours)}h ago`;
+  const days = hours / 24;
+  if (days < 7) return `${Math.round(days)}d ago`;
+  const weeks = days / 7;
+  if (weeks < 4.35) return `${Math.round(weeks)}w ago`;
+  const months = days / 30.44;
+  if (months < 12) return `${Math.round(months)}mo ago`;
+  const years = days / 365.25;
+  return `${Math.round(years)}y ago`;
+}
+
 /** Compact USD, e.g. "$1.2M", "$45.0K", "$820". */
 export function formatUsd(n: number | null | undefined): string {
   if (n == null) return "—";

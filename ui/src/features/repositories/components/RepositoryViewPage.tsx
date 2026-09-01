@@ -69,6 +69,7 @@ import { IntegrationsPanel } from "./integrations/IntegrationsPanel";
 import { LanguageBars } from "./LanguageBars";
 import { RatingBadge } from "./RatingBadge";
 import { RepositoryActions } from "./RepositoryActions";
+import { SubrepoCandidatesCard } from "./SubrepoCandidatesCard";
 import { TechStackPanel } from "./TechStackPanel";
 import { VulnerabilitiesTable } from "./VulnerabilitiesTable";
 
@@ -151,6 +152,7 @@ export function RepositoryViewPage({
             {repo.error}
           </Card>
         ) : null}
+        <SubrepoCandidatesCard repoId={repo.id} />
       </div>
 
       {/* Tabs stay visible (and clickable) while the repo initializes — content fills in

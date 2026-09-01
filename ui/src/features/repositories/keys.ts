@@ -32,6 +32,8 @@ export const repositoryKeys = {
       artifact,
       kind,
     ] as const,
+  subrepoCandidates: (id: string) =>
+    [...repositoryKeys.detail(id), "subrepo-candidates"] as const,
   branches: (id: string) => [...repositoryKeys.detail(id), "branches"] as const,
   branchNames: (id: string) =>
     [...repositoryKeys.detail(id), "branch-names"] as const,
