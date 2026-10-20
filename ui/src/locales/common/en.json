@@ -15,6 +15,7 @@
     },
     "nav": {
       "home": "Home",
+      "launchpad": "Launchpad",
       "repositories": "Repositories",
       "highlights": "Highlights",
       "hobits": "Hobits",

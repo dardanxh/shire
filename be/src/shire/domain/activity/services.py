@@ -35,6 +35,8 @@ HIDDEN_JOB_KINDS = (
     # one job per model, which would drown the feed.
     "prompt.run",
     "prompt.judge",
+    # Background tick every 15 minutes; Home's MCP card shows its outcome.
+    "mcp.probe",
 )
 
 

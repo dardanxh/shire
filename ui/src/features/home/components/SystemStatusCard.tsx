@@ -1,4 +1,9 @@
-import { ExternalLinkIcon, TerminalIcon, ZapIcon } from "lucide-react";
+import {
+  ExternalLinkIcon,
+  LaptopIcon,
+  TerminalIcon,
+  ZapIcon,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +16,7 @@ const CLAUDE_INSTALL_URL = "https://code.claude.com/docs/en/quickstart";
 /** Claude CLI + engine health — the substrate everything else runs on. */
 export function SystemStatusCard({ status }: { status: HomeStatusOut }) {
   const { t } = useTranslation();
-  const { claude, engine } = status;
+  const { claude, engine, host_runner: hostRunner } = status;
 
   return (
     <Card className="gap-4 p-5">
@@ -76,6 +81,34 @@ export function SystemStatusCard({ status }: { status: HomeStatusOut }) {
         {!engine.running ? (
           <span className="text-xs text-muted-foreground">
             {t("home.system.engine_hint")}
+          </span>
+        ) : null}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <LaptopIcon
+          className={cn(
+            "size-4",
+            hostRunner.running
+              ? "text-emerald-600 dark:text-emerald-400"
+              : "text-muted-foreground",
+          )}
+        />
+        <span className="font-medium">
+          {hostRunner.running
+            ? t("home.system.host_runner_running")
+            : t("home.system.host_runner_stopped")}
+        </span>
+        <span className="text-xs text-muted-foreground">
+          {hostRunner.running
+            ? t("home.system.host_runner_detail")
+            : t("home.system.host_runner_hint")}
+        </span>
+        {hostRunner.pending_jobs > 0 ? (
+          <span className="text-xs text-amber-700 dark:text-amber-400">
+            {t("home.system.host_runner_pending", {
+              count: hostRunner.pending_jobs,
+            })}
           </span>
         ) : null}
       </div>

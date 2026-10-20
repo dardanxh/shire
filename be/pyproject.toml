@@ -25,6 +25,7 @@ dependencies = [
     "mcp>=1.2",
     "packaging>=24.0",
     "prefect>=3.7.7",
+    "cronsim>=2.6",
 ]
 
 [project.scripts]

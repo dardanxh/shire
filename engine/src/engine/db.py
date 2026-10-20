@@ -24,6 +24,8 @@ _CLAIM_SQL = """
 WITH next_job AS (
     SELECT id FROM jobs
     WHERE status = 'pending'
+      AND (%(include)s::text[] IS NULL OR kind = ANY(%(include)s::text[]))
+      AND NOT (kind = ANY(%(exclude)s::text[]))
     ORDER BY created_at
     LIMIT 1
     FOR UPDATE SKIP LOCKED
@@ -68,8 +70,19 @@ RETURNING id, status;
 """
 
 
+# Set once at startup by the worker (configure()); every helper's connection carries it.
+_application_name = "shire-engine"
+
+
+def configure(*, application_name: str) -> None:
+    global _application_name
+    _application_name = application_name
+
+
 def connect(dsn: str) -> psycopg.Connection:
-    return psycopg.connect(dsn, autocommit=True, row_factory=dict_row)
+    return psycopg.connect(
+        dsn, autocommit=True, row_factory=dict_row, application_name=_application_name
+    )
 
 
 def fetch_config(dsn: str) -> dict[str, Any] | None:
@@ -85,11 +98,28 @@ def fetch_config(dsn: str) -> dict[str, Any] | None:
         return None
 
 
-def claim_next(dsn: str, worker_id: str) -> dict[str, Any] | None:
-    """Atomically claim the oldest pending job for this worker, or None when the queue is idle."""
+def claim_next(
+    dsn: str,
+    worker_id: str,
+    *,
+    include_kinds: list[str] | None = None,
+    exclude_kinds: list[str] | None = None,
+) -> dict[str, Any] | None:
+    """Atomically claim the oldest pending job this worker may run (see the kind-routing
+    settings), or None when there is none."""
     with connect(dsn) as conn:
-        row = conn.execute(_CLAIM_SQL, {"worker_id": worker_id}).fetchone()
-    return row
+        row = conn.execute(_CLAIM_SQL, claim_params(worker_id, include_kinds, exclude_kinds))
+        return row.fetchone()
+
+
+def claim_params(
+    worker_id: str, include_kinds: list[str] | None, exclude_kinds: list[str] | None
+) -> dict[str, Any]:
+    return {
+        "worker_id": worker_id,
+        "include": include_kinds or None,
+        "exclude": list(exclude_kinds or ()),
+    }
 
 
 _PROGRESS_SQL = """

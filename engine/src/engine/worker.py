@@ -20,6 +20,7 @@ import psycopg
 
 from engine import db
 from engine.claude_cli import ClaudeCliEngine
+from engine.mcp_probe import PROBE_KIND, run_probe
 from engine.model import Engine, EngineRequest
 from engine.settings import EngineSettings, get_settings
 
@@ -74,7 +75,15 @@ def _execute(settings: EngineSettings, engine: Engine, job: dict[str, Any]) -> N
                 except Exception:
                     logger.debug("Progress flush failed for job %s", job_id, exc_info=True)
 
-        result = engine.run(request, on_event=on_event)
+        if job["kind"] == PROBE_KIND:
+            result = run_probe(
+                binary=settings.claude_binary,
+                use_api_key=settings.use_api_key,
+                cwd=request.cwd,
+                model=request.model or "haiku",
+            )
+        else:
+            result = engine.run(request, on_event=on_event)
         if events:
             try:
                 db.update_progress(settings.database_url, job_id, events)
@@ -130,6 +139,7 @@ def _publish_claude_version(path: str | None, version: str | None) -> None:
 
 def main() -> None:
     settings = get_settings()
+    db.configure(application_name=settings.application_name)
     engine: Engine = ClaudeCliEngine(
         binary=settings.claude_binary, use_api_key=settings.use_api_key
     )
@@ -155,11 +165,13 @@ def main() -> None:
     last_config = 0.0
 
     logger.info(
-        "Engine %s listening on %s (concurrency=%d, poll=%.0fs)",
+        "Engine %s listening on %s (concurrency=%d, poll=%.0fs, kinds=%s, excluding=%s)",
         settings.worker_id,
         db.JOBS_NEW_CHANNEL,
         target_concurrency,
         settings.poll_interval_seconds,
+        settings.include_kinds_list or "all",
+        settings.exclude_kinds_list or "none",
     )
 
     while True:
@@ -192,7 +204,12 @@ def main() -> None:
                     # Claim as long as we're under the live target and pending jobs exist.
                     active = {f for f in active if not f.done()}
                     while len(active) < target_concurrency:
-                        job = db.claim_next(settings.database_url, settings.worker_id)
+                        job = db.claim_next(
+                            settings.database_url,
+                            settings.worker_id,
+                            include_kinds=settings.include_kinds_list,
+                            exclude_kinds=settings.exclude_kinds_list,
+                        )
                         if job is None:
                             break
                         active.add(pool.submit(_execute, settings, engine, job))

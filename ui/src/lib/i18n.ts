@@ -11,6 +11,8 @@ import highlights from "@/features/highlights/locales/en.json";
 import hobits from "@/features/hobits/locales/en.json";
 import home from "@/features/home/locales/en.json";
 import jobs from "@/features/jobs/locales/en.json";
+import launchpad from "@/features/launchpad/locales/en.json";
+import mcp from "@/features/mcp/locales/en.json";
 import members from "@/features/members/locales/en.json";
 import mergeReviews from "@/features/merge-reviews/locales/en.json";
 import modelling from "@/features/modelling/locales/en.json";
@@ -65,6 +67,8 @@ const en = {
   ...prompts,
   ...treasury,
   ...teams,
+  ...launchpad,
+  ...mcp,
 };
 
 i18n.use(initReactI18next).init({

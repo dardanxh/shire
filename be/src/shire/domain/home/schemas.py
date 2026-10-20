@@ -49,10 +49,20 @@ class AttentionResult(BaseModel):
     failed_jobs_24h: int
     violated_principles: int  # (principle, repo) pairs whose newest check is violated
     briefing_now_unread: int  # unread NOW-tier briefing items
+    launchpad_unread: int  # Launchpad action runs that flagged something, not yet read
+
+
+class HostRunnerStatusResult(BaseModel):
+    """The Launchpad host runner: the engine running natively with the operator's `claude`
+    (and its claude.ai MCP connectors). Launchpad actions wait in the queue while it's down."""
+
+    running: bool
+    pending_jobs: int
 
 
 class HomeStatusResult(BaseModel):
     claude: ClaudeStatusResult
     engine: EngineStatusResult
+    host_runner: HostRunnerStatusResult
     checklist: OnboardingChecklistResult
     attention: AttentionResult

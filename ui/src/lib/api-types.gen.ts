@@ -3941,6 +3941,310 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/launchpad/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Categories */
+        get: operations["list_categories_api_v1_launchpad_categories_get"];
+        put?: never;
+        /** Create Category */
+        post: operations["create_category_api_v1_launchpad_categories_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/launchpad/categories/{category_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Category */
+        delete: operations["delete_category_api_v1_launchpad_categories__category_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Category */
+        patch: operations["update_category_api_v1_launchpad_categories__category_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/launchpad/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Notifications
+         * @description Action runs that need the user (newest first), plus the unread total for the bell.
+         */
+        get: operations["list_notifications_api_v1_launchpad_notifications_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/launchpad/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark All Read */
+        post: operations["mark_all_read_api_v1_launchpad_notifications_read_all_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/launchpad/runs/{run_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark Run Read */
+        post: operations["mark_run_read_api_v1_launchpad_runs__run_id__read_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/launchpad/bookmarks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Bookmarks
+         * @description All matching bookmarks — starred first, then most-used (decayed), then name.
+         */
+        get: operations["list_bookmarks_api_v1_launchpad_bookmarks_get"];
+        put?: never;
+        /** Create Bookmark */
+        post: operations["create_bookmark_api_v1_launchpad_bookmarks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/launchpad/bookmarks/{bookmark_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Bookmark */
+        get: operations["get_bookmark_api_v1_launchpad_bookmarks__bookmark_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Bookmark */
+        delete: operations["delete_bookmark_api_v1_launchpad_bookmarks__bookmark_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Bookmark */
+        patch: operations["update_bookmark_api_v1_launchpad_bookmarks__bookmark_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/launchpad/bookmarks/{bookmark_id}/visit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record Visit
+         * @description Count a "Visit page" click — feeds the most-used ordering.
+         */
+        post: operations["record_visit_api_v1_launchpad_bookmarks__bookmark_id__visit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/launchpad/bookmarks/{bookmark_id}/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Logo */
+        get: operations["get_logo_api_v1_launchpad_bookmarks__bookmark_id__logo_get"];
+        /** Upload Logo */
+        put: operations["upload_logo_api_v1_launchpad_bookmarks__bookmark_id__logo_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/launchpad/bookmarks/{bookmark_id}/logo/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Refresh Logo
+         * @description Re-fetch the site's icon.
+         */
+        post: operations["refresh_logo_api_v1_launchpad_bookmarks__bookmark_id__logo_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/launchpad/bookmarks/{bookmark_id}/action": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Action */
+        get: operations["get_action_api_v1_launchpad_bookmarks__bookmark_id__action_get"];
+        /** Upsert Action */
+        put: operations["upsert_action_api_v1_launchpad_bookmarks__bookmark_id__action_put"];
+        post?: never;
+        /** Delete Action */
+        delete: operations["delete_action_api_v1_launchpad_bookmarks__bookmark_id__action_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/launchpad/bookmarks/{bookmark_id}/action/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Action
+         * @description Run the action now (queued for the host runner).
+         */
+        post: operations["run_action_api_v1_launchpad_bookmarks__bookmark_id__action_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/launchpad/bookmarks/{bookmark_id}/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Runs */
+        get: operations["list_runs_api_v1_launchpad_bookmarks__bookmark_id__runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/launchpad/bookmarks/{bookmark_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark Bookmark Read
+         * @description Mark every notification from this bookmark's action read.
+         */
+        post: operations["mark_bookmark_read_api_v1_launchpad_bookmarks__bookmark_id__read_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mcp/servers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Servers
+         * @description The MCP servers the host runner's Claude CLI sees, from the latest probe.
+         */
+        get: operations["list_servers_api_v1_mcp_servers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mcp/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Refresh Servers
+         * @description Queue a probe (deduplicated) — the snapshot updates when the host runner finishes it.
+         */
+        post: operations["refresh_servers_api_v1_mcp_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -3962,6 +4266,87 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ActionRunItemResult */
+        ActionRunItemResult: {
+            /** Key */
+            key: string;
+            /** Title */
+            title: string;
+            /** Url */
+            url?: string | null;
+            /** Detail */
+            detail?: string | null;
+            /**
+             * Is New
+             * @default false
+             */
+            is_new: boolean;
+        };
+        /** ActionRunResult */
+        ActionRunResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Action Id
+             * Format: uuid
+             */
+            action_id: string;
+            /**
+             * Bookmark Id
+             * Format: uuid
+             */
+            bookmark_id: string;
+            /** Bookmark Name */
+            bookmark_name: string;
+            /** Job Id */
+            job_id: string | null;
+            /** Trigger */
+            trigger: string;
+            /** Status */
+            status: string;
+            /** Outcome */
+            outcome: string | null;
+            /** Summary */
+            summary: string | null;
+            /** Items */
+            items: components["schemas"]["ActionRunItemResult"][];
+            /** New Count */
+            new_count: number;
+            /** Notify */
+            notify: boolean;
+            /** Read At */
+            read_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /**
+         * ActionSummaryResult
+         * @description What a bookmark card needs to show about its action.
+         */
+        ActionSummaryResult: {
+            /** Enabled */
+            enabled: boolean;
+            /** Cadence */
+            cadence: string;
+            /** Next Run At */
+            next_run_at: string | null;
+            /** Last Run At */
+            last_run_at: string | null;
+            /** Last Outcome */
+            last_outcome: string | null;
+            /** Last Status */
+            last_status: string | null;
+            /** Unread Count */
+            unread_count: number;
+        };
         /**
          * ActivityEventResult
          * @description One entry of the Home activity feed — a recent piece of work, newest first.
@@ -4373,6 +4758,8 @@ export interface components {
             violated_principles: number;
             /** Briefing Now Unread */
             briefing_now_unread: number;
+            /** Launchpad Unread */
+            launchpad_unread: number;
         };
         /**
          * AuthMethod
@@ -4581,6 +4968,100 @@ export interface components {
             owner_name: string;
             /** Owner Email */
             owner_email: string;
+        };
+        /** BookmarkActionResult */
+        BookmarkActionResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Bookmark Id
+             * Format: uuid
+             */
+            bookmark_id: string;
+            /** Prompt */
+            prompt: string;
+            /** Mcp Servers */
+            mcp_servers: string[];
+            /** Allow Writes */
+            allow_writes: boolean;
+            /** Model */
+            model: string | null;
+            /** Timeout Seconds */
+            timeout_seconds: number;
+            /** Cadence */
+            cadence: string;
+            /** Timezone */
+            timezone: string;
+            /** Enabled */
+            enabled: boolean;
+            /** Notify On */
+            notify_on: string;
+            /** Seen Count */
+            seen_count: number;
+            /** Next Run At */
+            next_run_at: string | null;
+            /** Last Run At */
+            last_run_at: string | null;
+            /** Denied Tools */
+            denied_tools: string[];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** BookmarkResult */
+        BookmarkResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Url */
+            url: string;
+            /** Host */
+            host: string;
+            /** Description */
+            description: string | null;
+            /** Category Id */
+            category_id: string | null;
+            /** Category Name */
+            category_name: string | null;
+            /** Starred */
+            starred: boolean;
+            /** Logo Kind */
+            logo_kind: string;
+            /** Logo Color */
+            logo_color: string | null;
+            /** Logo Url */
+            logo_url: string | null;
+            /** Visit Count */
+            visit_count: number;
+            /** Last Visited At */
+            last_visited_at: string | null;
+            /** Score */
+            score: number;
+            action: components["schemas"]["ActionSummaryResult"] | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /**
          * BranchNamesResult
@@ -5865,6 +6346,30 @@ export interface components {
              */
             owner_email: string;
         };
+        /** CreateBookmark */
+        CreateBookmark: {
+            /** Name */
+            name: string;
+            /** Url */
+            url: string;
+            /** Description */
+            description?: string | null;
+            /** Category Id */
+            category_id?: string | null;
+            /**
+             * Starred
+             * @default false
+             */
+            starred: boolean;
+            /**
+             * Logo Kind
+             * @default favicon
+             * @enum {string}
+             */
+            logo_kind: "favicon" | "upload" | "monogram";
+            /** Logo Color */
+            logo_color?: string | null;
+        };
         /** CreateCapacityCalculation */
         CreateCapacityCalculation: {
             /** Name */
@@ -5967,6 +6472,15 @@ export interface components {
              * Format: uuid
              */
             depends_on_item_id: string;
+        };
+        /** CreateLaunchpadCategory */
+        CreateLaunchpadCategory: {
+            /** Name */
+            name: string;
+            /** Icon */
+            icon?: string | null;
+            /** Position */
+            position?: number | null;
         };
         /** CreateMemberExclusion */
         CreateMemberExclusion: {
@@ -7318,8 +7832,20 @@ export interface components {
         HomeStatusResult: {
             claude: components["schemas"]["ClaudeStatusResult"];
             engine: components["schemas"]["EngineStatusResult"];
+            host_runner: components["schemas"]["HostRunnerStatusResult"];
             checklist: components["schemas"]["OnboardingChecklistResult"];
             attention: components["schemas"]["AttentionResult"];
+        };
+        /**
+         * HostRunnerStatusResult
+         * @description The Launchpad host runner: the engine running natively with the operator's `claude`
+         *     (and its claude.ai MCP connectors). Launchpad actions wait in the queue while it's down.
+         */
+        HostRunnerStatusResult: {
+            /** Running */
+            running: boolean;
+            /** Pending Jobs */
+            pending_jobs: number;
         };
         /**
          * Hotspot
@@ -7621,6 +8147,29 @@ export interface components {
             /** Pct */
             pct: number;
         };
+        /** LaunchpadCategoryResult */
+        LaunchpadCategoryResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Icon */
+            icon: string | null;
+            /** Position */
+            position: number;
+            /** Bookmark Count */
+            bookmark_count: number;
+        };
+        /** LaunchpadNotificationsResult */
+        LaunchpadNotificationsResult: {
+            /** Unread Count */
+            unread_count: number;
+            /** Items */
+            items: components["schemas"]["ActionRunResult"][];
+        };
         /**
          * LifetimeTotalsResult
          * @description All-time machine totals from Claude's own stats cache — cheap but refreshed only when
@@ -7633,6 +8182,41 @@ export interface components {
             machine_cost_usd_estimated: number;
             /** As Of */
             as_of: string | null;
+        };
+        /** McpServerResult */
+        McpServerResult: {
+            /** Name */
+            name: string;
+            /** Target */
+            target: string;
+            /** Status */
+            status: string;
+            /** Status Detail */
+            status_detail: string | null;
+            /** Tool Count */
+            tool_count: number;
+            /** Write Tool Count */
+            write_tool_count: number;
+            /**
+             * Checked At
+             * Format: date-time
+             */
+            checked_at: string;
+        };
+        /** McpServersResult */
+        McpServersResult: {
+            /** Servers */
+            servers: components["schemas"]["McpServerResult"][];
+            /** Checked At */
+            checked_at: string | null;
+            /** Probe Job Id */
+            probe_job_id: string | null;
+            /** Probe Status */
+            probe_status: string | null;
+            /** Probe Error */
+            probe_error: string | null;
+            /** Host Runner Running */
+            host_runner_running: boolean;
         };
         /** MemberActivityResult */
         MemberActivityResult: {
@@ -8434,6 +9018,19 @@ export interface components {
          * @enum {string}
          */
         OutputFormat: "none" | "markdown" | "json" | "plain" | "table";
+        /** Page[ActionRunResult] */
+        Page_ActionRunResult_: {
+            /** Items */
+            items: components["schemas"]["ActionRunResult"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
+        };
         /** Page[ActivityEventResult] */
         Page_ActivityEventResult_: {
             /** Items */
@@ -10731,6 +11328,31 @@ export interface components {
             starred?: boolean | null;
         };
         /**
+         * UpdateBookmark
+         * @description Partial edit — only the fields sent change (so the card's star toggle is one field).
+         */
+        UpdateBookmark: {
+            /** Name */
+            name?: string | null;
+            /** Url */
+            url?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Category Id */
+            category_id?: string | null;
+            /**
+             * Clear Category
+             * @default false
+             */
+            clear_category: boolean;
+            /** Starred */
+            starred?: boolean | null;
+            /** Logo Kind */
+            logo_kind?: ("favicon" | "upload" | "monogram") | null;
+            /** Logo Color */
+            logo_color?: string | null;
+        };
+        /**
          * UpdateConnection
          * @description Edit input. A blank/omitted `secret` keeps the existing one.
          */
@@ -10836,6 +11458,15 @@ export interface components {
             timeout_seconds: number;
             /** Tags */
             tags?: string[];
+        };
+        /** UpdateLaunchpadCategory */
+        UpdateLaunchpadCategory: {
+            /** Name */
+            name?: string | null;
+            /** Icon */
+            icon?: string | null;
+            /** Position */
+            position?: number | null;
         };
         /** UpdateModellingStrategy */
         UpdateModellingStrategy: {
@@ -11032,6 +11663,51 @@ export interface components {
             notes?: string | null;
             /** Starred */
             starred?: boolean | null;
+        };
+        /** UploadBookmarkLogo */
+        UploadBookmarkLogo: {
+            /** Data Url */
+            data_url: string;
+        };
+        /** UpsertBookmarkAction */
+        UpsertBookmarkAction: {
+            /** Prompt */
+            prompt: string;
+            /** Mcp Servers */
+            mcp_servers?: string[];
+            /**
+             * Allow Writes
+             * @default false
+             */
+            allow_writes: boolean;
+            /** Model */
+            model?: string | null;
+            /**
+             * Timeout Seconds
+             * @default 600
+             */
+            timeout_seconds: number;
+            /**
+             * Cadence
+             * @default manual
+             */
+            cadence: string;
+            /**
+             * Timezone
+             * @default UTC
+             */
+            timezone: string;
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+            /**
+             * Notify On
+             * @default new_items
+             * @enum {string}
+             */
+            notify_on: "new_items" | "any_attention" | "always";
         };
         /**
          * UpsertHobitRunFeedback
@@ -18944,6 +19620,722 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_categories_api_v1_launchpad_categories_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LaunchpadCategoryResult"][];
+                };
+            };
+        };
+    };
+    create_category_api_v1_launchpad_categories_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateLaunchpadCategory"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LaunchpadCategoryResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_category_api_v1_launchpad_categories__category_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_category_api_v1_launchpad_categories__category_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateLaunchpadCategory"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LaunchpadCategoryResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_notifications_api_v1_launchpad_notifications_get: {
+        parameters: {
+            query?: {
+                /** @description Only unread notifications */
+                unread?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LaunchpadNotificationsResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_all_read_api_v1_launchpad_notifications_read_all_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mark_run_read_api_v1_launchpad_runs__run_id__read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_bookmarks_api_v1_launchpad_bookmarks_get: {
+        parameters: {
+            query?: {
+                q?: string | null;
+                category_id?: string | null;
+                starred?: boolean | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookmarkResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_bookmark_api_v1_launchpad_bookmarks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBookmark"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookmarkResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_bookmark_api_v1_launchpad_bookmarks__bookmark_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookmark_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookmarkResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_bookmark_api_v1_launchpad_bookmarks__bookmark_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookmark_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_bookmark_api_v1_launchpad_bookmarks__bookmark_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookmark_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateBookmark"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookmarkResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    record_visit_api_v1_launchpad_bookmarks__bookmark_id__visit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookmark_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookmarkResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_logo_api_v1_launchpad_bookmarks__bookmark_id__logo_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookmark_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/*": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_logo_api_v1_launchpad_bookmarks__bookmark_id__logo_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookmark_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UploadBookmarkLogo"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookmarkResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    refresh_logo_api_v1_launchpad_bookmarks__bookmark_id__logo_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookmark_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookmarkResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_action_api_v1_launchpad_bookmarks__bookmark_id__action_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookmark_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookmarkActionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upsert_action_api_v1_launchpad_bookmarks__bookmark_id__action_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookmark_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertBookmarkAction"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookmarkActionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_action_api_v1_launchpad_bookmarks__bookmark_id__action_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookmark_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_action_api_v1_launchpad_bookmarks__bookmark_id__action_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookmark_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActionRunResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_runs_api_v1_launchpad_bookmarks__bookmark_id__runs_get: {
+        parameters: {
+            query?: {
+                /** @description 1-based page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                bookmark_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ActionRunResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_bookmark_read_api_v1_launchpad_bookmarks__bookmark_id__read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookmark_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_servers_api_v1_mcp_servers_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["McpServersResult"];
+                };
+            };
+        };
+    };
+    refresh_servers_api_v1_mcp_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["McpServersResult"];
                 };
             };
         };

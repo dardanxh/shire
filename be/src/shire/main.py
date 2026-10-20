@@ -30,6 +30,8 @@ from shire.domain.hobits.routes import router as hobits_router
 from shire.domain.home.routes import router as home_router
 from shire.domain.inspections.routes import router as inspections_router
 from shire.domain.jobs.routes import router as jobs_router
+from shire.domain.launchpad.routes import router as launchpad_router
+from shire.domain.mcp.routes import router as mcp_router
 from shire.domain.members.routes import router as members_router
 from shire.domain.merge_review.routes import router as merge_reviews_router
 from shire.domain.modelling.routes import router as modelling_router
@@ -66,12 +68,16 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """On startup: start the job-completion dispatcher (applies engine job results to their
-    domains) and converge Prefect deployments to the stored cadences (no-op unless the scheduler
-    is enabled). Best-effort: a Prefect outage must never block the API from serving."""
+    domains) and the Launchpad ticker, and converge Prefect deployments to the stored cadences
+    (no-op unless the scheduler is enabled). Best-effort: a Prefect outage must never block the
+    API from serving."""
     from shire.domain.jobs import dispatcher
+    from shire.domain.launchpad import ticker
 
     stop_dispatcher = threading.Event()
     dispatcher.start(stop_dispatcher)
+    # Starts due Launchpad actions and refreshes the MCP snapshot (shares the stop event).
+    ticker.start(stop_dispatcher)
 
     # Ingestion runs as in-process background tasks; a restart mid-pipeline would leave repos
     # stuck in cloning/analyzing forever (the busy-guard would even block a retry). Fail them.
@@ -158,6 +164,8 @@ app.include_router(techchoice_router, prefix=API_V1_PREFIX)
 app.include_router(highlights_router, prefix=API_V1_PREFIX)
 app.include_router(prompts_router, prefix=API_V1_PREFIX)
 app.include_router(treasury_router, prefix=API_V1_PREFIX)
+app.include_router(launchpad_router, prefix=API_V1_PREFIX)
+app.include_router(mcp_router, prefix=API_V1_PREFIX)
 
 # fastapi-pagination wires its Params/Page plumbing for the catalog routers above.
 add_pagination(app)

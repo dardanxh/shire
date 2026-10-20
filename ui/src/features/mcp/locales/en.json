@@ -1,0 +1,22 @@
+{
+  "mcp": {
+    "status": {
+      "connected": "Connected",
+      "needs_auth": "Needs auth",
+      "failed": "Failed",
+      "unknown": "Unknown"
+    },
+    "card": {
+      "title": "MCP servers",
+      "checked": "checked {{ago}}",
+      "refresh": "Refresh",
+      "probing": "Probing…",
+      "tools": "{{count}} tools · {{writes}} write",
+      "needs_auth_hint": "Run /mcp in Claude Code to sign in",
+      "empty": "No MCP servers configured for your Claude CLI.",
+      "first_probe": "Asking Claude which MCP servers it can reach…",
+      "runner_offline_title": "Host runner not running",
+      "runner_offline_body": "Your MCP connectors live in the Claude CLI on this machine. Start the host runner so Shire can see them and run Launchpad actions:"
+    }
+  }
+}

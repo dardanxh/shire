@@ -18,6 +18,8 @@ from shire.domain.council import models as _council_models  # noqa: F401
 from shire.domain.highlights import models as _highlights_models  # noqa: F401
 from shire.domain.hobits import models as _hobits_models  # noqa: F401
 from shire.domain.jobs import models as _jobs_models  # noqa: F401
+from shire.domain.launchpad import models as _launchpad_models  # noqa: F401
+from shire.domain.mcp import models as _mcp_models  # noqa: F401
 from shire.domain.members import models as _members_models  # noqa: F401
 from shire.domain.merge_review import models as _merge_review_models  # noqa: F401
 from shire.domain.modelling import models as _modelling_models  # noqa: F401

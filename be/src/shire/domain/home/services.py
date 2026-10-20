@@ -21,10 +21,14 @@ from shire.domain.home.schemas import (
     ClaudeStatusResult,
     EngineStatusResult,
     HomeStatusResult,
+    HostRunnerStatusResult,
     OnboardingChecklistResult,
 )
+from shire.domain.jobs import kinds as job_kinds
 from shire.domain.jobs.models import JobRow
 from shire.domain.jobs.services import JobService
+from shire.domain.launchpad.services import LaunchpadService
+from shire.domain.mcp.services import HOST_RUNNER_APPLICATION_NAME, McpService
 from shire.domain.principles.models import PrincipleRow
 from shire.domain.repository.models import RepositoryRow
 from shire.domain.roadmap.models import (
@@ -50,6 +54,7 @@ class HomeService:
         return HomeStatusResult(
             claude=self._claude_status(),
             engine=self._engine_status(),
+            host_runner=self._host_runner_status(),
             checklist=self._checklist(),
             attention=self._attention(),
         )
@@ -70,8 +75,10 @@ class HomeService:
             self._session.execute(
                 text(
                     "SELECT count(*) FROM pg_stat_activity "
-                    "WHERE query ILIKE 'listen shire_jobs_new%'"
-                )
+                    "WHERE query ILIKE 'listen shire_jobs_new%' "
+                    "AND application_name IS DISTINCT FROM :host_runner"
+                ),
+                {"host_runner": HOST_RUNNER_APPLICATION_NAME},
             ).scalar()
             or 0
         )
@@ -91,6 +98,20 @@ class HomeService:
             listeners=0,
             last_job_activity_at=last_started,
             detail="recent job activity" if recently_active else None,
+        )
+
+    def _host_runner_status(self) -> HostRunnerStatusResult:
+        pending = int(
+            self._session.scalar(
+                select(func.count(JobRow.id)).where(
+                    JobRow.status == "pending",
+                    JobRow.kind.in_((job_kinds.LAUNCHPAD_ACTION, job_kinds.MCP_PROBE)),
+                )
+            )
+            or 0
+        )
+        return HostRunnerStatusResult(
+            running=McpService(self._session).host_runner_running(), pending_jobs=pending
         )
 
     def _attention(self) -> AttentionResult:
@@ -153,6 +174,7 @@ class HomeService:
             failed_jobs_24h=failed_jobs_24h,
             violated_principles=violated,
             briefing_now_unread=briefing_now,
+            launchpad_unread=LaunchpadService(session).unread_count(),
         )
 
     def _checklist(self) -> OnboardingChecklistResult:

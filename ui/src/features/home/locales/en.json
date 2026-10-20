@@ -16,7 +16,13 @@
       "engine_detail": {
         "pg_listener": "",
         "recent_job_activity": "inferred from recent job activity"
-      }
+      },
+      "host_runner_running": "Host runner running",
+      "host_runner_stopped": "Host runner not running",
+      "host_runner_detail": "runs Launchpad actions with your MCP connectors",
+      "host_runner_hint": "Launchpad actions need it: scripts/host-runner.sh",
+      "host_runner_pending_one": "{{count}} job waiting",
+      "host_runner_pending_other": "{{count}} jobs waiting"
     },
     "checklist": {
       "title": "Get started",
@@ -100,7 +106,8 @@
         "prs": "AI-opened pull requests waiting for review",
         "failed_jobs": "Jobs failed in the last 24 hours",
         "principles": "Principles currently violated",
-        "briefing": "Urgent briefing items unread"
+        "briefing": "Urgent briefing items unread",
+        "launchpad": "Launchpad actions that found something for you"
       }
     },
     "spend": {

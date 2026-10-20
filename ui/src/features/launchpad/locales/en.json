@@ -1,0 +1,202 @@
+{
+  "launchpad": {
+    "title": "Launchpad",
+    "subtitle": "Your fastest way to everything — and small Claude actions that keep an eye on it for you.",
+    "add": "Add bookmark",
+    "search": {
+      "placeholder": "Search bookmarks…  ( / )",
+      "enter_hint": "Enter opens {{name}}",
+      "no_results": "No bookmarks match."
+    },
+    "filters": {
+      "all": "All",
+      "starred": "Starred",
+      "uncategorized": "Uncategorized"
+    },
+    "sections": {
+      "starred": "Starred",
+      "uncategorized": "Uncategorized"
+    },
+    "empty": {
+      "title": "No bookmarks yet",
+      "body": "Add the boards, groups and dashboards you open every day. Attach an action to any of them and Claude will check it on a schedule and tell you when something needs you."
+    },
+    "card": {
+      "visit": "Visit page",
+      "star": "Star {{name}}",
+      "unstar": "Unstar {{name}}",
+      "running": "Running…",
+      "manual_action": "Action",
+      "needs_you_one": "{{count}} needs you",
+      "needs_you_other": "{{count}} need you"
+    },
+    "categories": {
+      "manage": "Categories",
+      "title": "Categories",
+      "description": "Group bookmarks (e.g. all Google Groups together). Deleting a category keeps its bookmarks — they become uncategorized.",
+      "empty": "No categories yet.",
+      "rename": "Rename category",
+      "move_up": "Move up",
+      "move_down": "Move down"
+    },
+    "form": {
+      "new_title": "Add bookmark",
+      "edit_title": "Edit {{name}}",
+      "description": "A link you want one click away. The site's icon is fetched automatically.",
+      "toast_created": "Added {{name}}",
+      "toast_saved": "Saved {{name}}",
+      "url": {
+        "label": "URL",
+        "required": "Enter the page address",
+        "invalid": "Enter a valid http(s) address"
+      },
+      "name": {
+        "label": "Name",
+        "placeholder": "e.g. Ops board",
+        "required": "Give it a name"
+      },
+      "category": {
+        "label": "Category",
+        "new": "New category",
+        "new_placeholder": "e.g. Google Groups",
+        "add": "Add"
+      },
+      "notes": {
+        "label": "Notes",
+        "placeholder": "Optional — also used as context for the bookmark's action"
+      },
+      "logo": {
+        "label": "Logo",
+        "favicon": "The site's icon",
+        "monogram": "Coloured initial",
+        "uploaded_note": "Using an uploaded image — pick another option to replace it."
+      }
+    },
+    "delete": {
+      "title": "Delete bookmark?",
+      "description": "{{name}} will be removed from your Launchpad.",
+      "description_with_action": "{{name}} will be removed, together with its action and run history.",
+      "toast": "Deleted {{name}}"
+    },
+    "view": {
+      "back": "Launchpad",
+      "crumb": "Bookmark",
+      "not_found": "This bookmark doesn't exist (anymore).",
+      "tabs": {
+        "details": "Details",
+        "action": "Action",
+        "runs": "Runs"
+      },
+      "visits": "Usage",
+      "visits_value_one": "{{count}} visit",
+      "visits_value_other": "{{count}} visits",
+      "last_visit": "last {{at}}",
+      "upload_logo": "Upload logo",
+      "refetch_logo": "Re-fetch site icon",
+      "logo_too_big": "Logos can be at most 256 KB.",
+      "logo_uploaded": "Logo updated"
+    },
+    "cadence": {
+      "manual": "Manual only",
+      "every:5m": "Every 5 minutes",
+      "every:15m": "Every 15 minutes",
+      "every:30m": "Every 30 minutes",
+      "hourly": "Hourly",
+      "weekdays": "Weekdays at 09:00",
+      "daily": "Daily at 09:00",
+      "weekly": "Mondays at 09:00",
+      "custom": "Custom…"
+    },
+    "notify_on": {
+      "new_items": "Only when something new shows up",
+      "any_attention": "Whenever something needs me",
+      "always": "After every run"
+    },
+    "action": {
+      "create": "Create action",
+      "run_now": "Run now",
+      "save_first": "Save your changes first",
+      "delete": "Remove action",
+      "toast_saved": "Action saved",
+      "toast_queued": "Run queued — the host runner will pick it up",
+      "toast_deleted": "Action removed",
+      "next_run": "Next run {{at}}",
+      "no_schedule": "Not scheduled",
+      "last_run": "last run {{at}}",
+      "seen_one": "{{count}} item already reported",
+      "seen_other": "{{count}} items already reported",
+      "runner_offline": "Actions run through your own Claude CLI and its MCP connectors. Start scripts/host-runner.sh — runs wait in the queue until it's up.",
+      "form": {
+        "prompt": {
+          "label": "What should Claude check?",
+          "description": "Describe the check in plain words. Claude reports back what needs you; you'll be notified based on the rule below.",
+          "placeholder": "Search Jira project DATA for open tickets asking for BigQuery access that are not assigned to anyone yet. For each, tell me who needs access, to which dataset, and the ticket link.",
+          "required": "Describe what to check"
+        },
+        "servers": {
+          "label": "MCP servers it may use",
+          "description": "Only these servers' tools are available to the action.",
+          "none_probed": "No MCP servers known yet — refresh them on Home (needs the host runner).",
+          "placeholder": "Pick servers…",
+          "search": "Search servers…",
+          "empty": "No servers",
+          "unhealthy": "Not connected right now: {{names}} — runs will report the failure."
+        },
+        "cadence": {
+          "label": "Schedule"
+        },
+        "custom_cadence": {
+          "label": "Custom schedule",
+          "description": "cron:<expr> in your timezone, or every:<N>m / every:<N>h",
+          "required": "Enter a schedule"
+        },
+        "notify": {
+          "label": "Notify me"
+        },
+        "model": {
+          "label": "Model",
+          "default": "Engine default"
+        },
+        "enabled": {
+          "label": "Run on schedule"
+        },
+        "writes": {
+          "label": "Allow changes (write tools)",
+          "read_only": "Read-only: write-type tools are blocked for this action.",
+          "blocked_one": "Read-only: {{count}} write tool is blocked for this action.",
+          "blocked_other": "Read-only: {{count}} write tools are blocked for this action.",
+          "warning": "This action may create, edit or delete things through its MCP servers, unattended. Only enable this for instructions you trust to run on their own."
+        }
+      }
+    },
+    "runs": {
+      "empty": "No runs yet. Run the action, or wait for its schedule.",
+      "pending": "Running…",
+      "outcome": {
+        "attention": "Needs you",
+        "clear": "All clear",
+        "error": "Failed"
+      },
+      "trigger": {
+        "manual": "manual",
+        "schedule": "scheduled"
+      },
+      "new_one": "{{count}} new",
+      "new_other": "{{count}} new",
+      "new_badge": "NEW",
+      "seen_badge": "seen",
+      "mark_read": "Mark read",
+      "mark_all_read": "Mark all read",
+      "view_job": "View job",
+      "open_item": "Open {{title}}"
+    },
+    "bell": {
+      "title": "Launchpad",
+      "aria": "Launchpad notifications ({{count}} unread)",
+      "empty": "Nothing needs you right now.",
+      "mark_all_read": "Mark all read",
+      "enable_desktop": "Enable desktop notifications",
+      "desktop_title": "{{name}} needs you"
+    }
+  }
+}

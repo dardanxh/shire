@@ -23,6 +23,7 @@ import { Route as PrinciplesRouteImport } from './routes/principles'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as MergeReviewsRouteImport } from './routes/merge-reviews'
 import { Route as MembersRouteImport } from './routes/members'
+import { Route as LaunchpadRouteImport } from './routes/launchpad'
 import { Route as JobsRouteImport } from './routes/jobs'
 import { Route as HobitsRouteImport } from './routes/hobits'
 import { Route as HighlightsRouteImport } from './routes/highlights'
@@ -44,6 +45,7 @@ import { Route as RepositoriesIndexRouteImport } from './routes/repositories.ind
 import { Route as QualitiesIndexRouteImport } from './routes/qualities/index'
 import { Route as PromptsIndexRouteImport } from './routes/prompts/index'
 import { Route as MembersIndexRouteImport } from './routes/members/index'
+import { Route as LaunchpadIndexRouteImport } from './routes/launchpad.index'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
 import { Route as HobitsIndexRouteImport } from './routes/hobits.index'
 import { Route as DataIndexRouteImport } from './routes/data/index'
@@ -60,6 +62,7 @@ import { Route as PromptsIdRouteImport } from './routes/prompts/$id'
 import { Route as MergeReviewsIdRouteImport } from './routes/merge-reviews.$id'
 import { Route as MembersCompareRouteImport } from './routes/members/compare'
 import { Route as MembersIdRouteImport } from './routes/members/$id'
+import { Route as LaunchpadIdRouteImport } from './routes/launchpad.$id'
 import { Route as JobsIdRouteImport } from './routes/jobs.$id'
 import { Route as HobitsSlugRouteImport } from './routes/hobits.$slug'
 import { Route as DataNewRouteImport } from './routes/data/new'
@@ -148,6 +151,11 @@ const MergeReviewsRoute = MergeReviewsRouteImport.update({
 const MembersRoute = MembersRouteImport.update({
   id: '/members',
   path: '/members',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LaunchpadRoute = LaunchpadRouteImport.update({
+  id: '/launchpad',
+  path: '/launchpad',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JobsRoute = JobsRouteImport.update({
@@ -255,6 +263,11 @@ const MembersIndexRoute = MembersIndexRouteImport.update({
   path: '/',
   getParentRoute: () => MembersRoute,
 } as any)
+const LaunchpadIndexRoute = LaunchpadIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LaunchpadRoute,
+} as any)
 const JobsIndexRoute = JobsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -334,6 +347,11 @@ const MembersIdRoute = MembersIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => MembersRoute,
+} as any)
+const LaunchpadIdRoute = LaunchpadIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => LaunchpadRoute,
 } as any)
 const JobsIdRoute = JobsIdRouteImport.update({
   id: '/$id',
@@ -445,6 +463,7 @@ export interface FileRoutesByFullPath {
   '/highlights': typeof HighlightsRoute
   '/hobits': typeof HobitsRouteWithChildren
   '/jobs': typeof JobsRouteWithChildren
+  '/launchpad': typeof LaunchpadRouteWithChildren
   '/members': typeof MembersRouteWithChildren
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
@@ -468,6 +487,7 @@ export interface FileRoutesByFullPath {
   '/data/new': typeof DataNewRoute
   '/hobits/$slug': typeof HobitsSlugRoute
   '/jobs/$id': typeof JobsIdRoute
+  '/launchpad/$id': typeof LaunchpadIdRoute
   '/members/$id': typeof MembersIdRoute
   '/members/compare': typeof MembersCompareRoute
   '/merge-reviews/$id': typeof MergeReviewsIdRoute
@@ -484,6 +504,7 @@ export interface FileRoutesByFullPath {
   '/data/': typeof DataIndexRoute
   '/hobits/': typeof HobitsIndexRoute
   '/jobs/': typeof JobsIndexRoute
+  '/launchpad/': typeof LaunchpadIndexRoute
   '/members/': typeof MembersIndexRoute
   '/prompts/': typeof PromptsIndexRoute
   '/qualities/': typeof QualitiesIndexRoute
@@ -527,6 +548,7 @@ export interface FileRoutesByTo {
   '/data/new': typeof DataNewRoute
   '/hobits/$slug': typeof HobitsSlugRoute
   '/jobs/$id': typeof JobsIdRoute
+  '/launchpad/$id': typeof LaunchpadIdRoute
   '/members/$id': typeof MembersIdRoute
   '/members/compare': typeof MembersCompareRoute
   '/merge-reviews/$id': typeof MergeReviewsIdRoute
@@ -543,6 +565,7 @@ export interface FileRoutesByTo {
   '/data': typeof DataIndexRoute
   '/hobits': typeof HobitsIndexRoute
   '/jobs': typeof JobsIndexRoute
+  '/launchpad': typeof LaunchpadIndexRoute
   '/members': typeof MembersIndexRoute
   '/prompts': typeof PromptsIndexRoute
   '/qualities': typeof QualitiesIndexRoute
@@ -577,6 +600,7 @@ export interface FileRoutesById {
   '/highlights': typeof HighlightsRoute
   '/hobits': typeof HobitsRouteWithChildren
   '/jobs': typeof JobsRouteWithChildren
+  '/launchpad': typeof LaunchpadRouteWithChildren
   '/members': typeof MembersRouteWithChildren
   '/merge-reviews': typeof MergeReviewsRouteWithChildren
   '/news': typeof NewsRoute
@@ -600,6 +624,7 @@ export interface FileRoutesById {
   '/data/new': typeof DataNewRoute
   '/hobits/$slug': typeof HobitsSlugRoute
   '/jobs/$id': typeof JobsIdRoute
+  '/launchpad/$id': typeof LaunchpadIdRoute
   '/members/$id': typeof MembersIdRoute
   '/members/compare': typeof MembersCompareRoute
   '/merge-reviews/$id': typeof MergeReviewsIdRoute
@@ -616,6 +641,7 @@ export interface FileRoutesById {
   '/data/': typeof DataIndexRoute
   '/hobits/': typeof HobitsIndexRoute
   '/jobs/': typeof JobsIndexRoute
+  '/launchpad/': typeof LaunchpadIndexRoute
   '/members/': typeof MembersIndexRoute
   '/prompts/': typeof PromptsIndexRoute
   '/qualities/': typeof QualitiesIndexRoute
@@ -651,6 +677,7 @@ export interface FileRouteTypes {
     | '/highlights'
     | '/hobits'
     | '/jobs'
+    | '/launchpad'
     | '/members'
     | '/merge-reviews'
     | '/news'
@@ -674,6 +701,7 @@ export interface FileRouteTypes {
     | '/data/new'
     | '/hobits/$slug'
     | '/jobs/$id'
+    | '/launchpad/$id'
     | '/members/$id'
     | '/members/compare'
     | '/merge-reviews/$id'
@@ -690,6 +718,7 @@ export interface FileRouteTypes {
     | '/data/'
     | '/hobits/'
     | '/jobs/'
+    | '/launchpad/'
     | '/members/'
     | '/prompts/'
     | '/qualities/'
@@ -733,6 +762,7 @@ export interface FileRouteTypes {
     | '/data/new'
     | '/hobits/$slug'
     | '/jobs/$id'
+    | '/launchpad/$id'
     | '/members/$id'
     | '/members/compare'
     | '/merge-reviews/$id'
@@ -749,6 +779,7 @@ export interface FileRouteTypes {
     | '/data'
     | '/hobits'
     | '/jobs'
+    | '/launchpad'
     | '/members'
     | '/prompts'
     | '/qualities'
@@ -782,6 +813,7 @@ export interface FileRouteTypes {
     | '/highlights'
     | '/hobits'
     | '/jobs'
+    | '/launchpad'
     | '/members'
     | '/merge-reviews'
     | '/news'
@@ -805,6 +837,7 @@ export interface FileRouteTypes {
     | '/data/new'
     | '/hobits/$slug'
     | '/jobs/$id'
+    | '/launchpad/$id'
     | '/members/$id'
     | '/members/compare'
     | '/merge-reviews/$id'
@@ -821,6 +854,7 @@ export interface FileRouteTypes {
     | '/data/'
     | '/hobits/'
     | '/jobs/'
+    | '/launchpad/'
     | '/members/'
     | '/prompts/'
     | '/qualities/'
@@ -855,6 +889,7 @@ export interface RootRouteChildren {
   HighlightsRoute: typeof HighlightsRoute
   HobitsRoute: typeof HobitsRouteWithChildren
   JobsRoute: typeof JobsRouteWithChildren
+  LaunchpadRoute: typeof LaunchpadRouteWithChildren
   MembersRoute: typeof MembersRouteWithChildren
   MergeReviewsRoute: typeof MergeReviewsRouteWithChildren
   NewsRoute: typeof NewsRoute
@@ -970,6 +1005,13 @@ declare module '@tanstack/react-router' {
       path: '/members'
       fullPath: '/members'
       preLoaderRoute: typeof MembersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/launchpad': {
+      id: '/launchpad'
+      path: '/launchpad'
+      fullPath: '/launchpad'
+      preLoaderRoute: typeof LaunchpadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/jobs': {
@@ -1119,6 +1161,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MembersIndexRouteImport
       parentRoute: typeof MembersRoute
     }
+    '/launchpad/': {
+      id: '/launchpad/'
+      path: '/'
+      fullPath: '/launchpad/'
+      preLoaderRoute: typeof LaunchpadIndexRouteImport
+      parentRoute: typeof LaunchpadRoute
+    }
     '/jobs/': {
       id: '/jobs/'
       path: '/'
@@ -1230,6 +1279,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/members/$id'
       preLoaderRoute: typeof MembersIdRouteImport
       parentRoute: typeof MembersRoute
+    }
+    '/launchpad/$id': {
+      id: '/launchpad/$id'
+      path: '/$id'
+      fullPath: '/launchpad/$id'
+      preLoaderRoute: typeof LaunchpadIdRouteImport
+      parentRoute: typeof LaunchpadRoute
     }
     '/jobs/$id': {
       id: '/jobs/$id'
@@ -1449,6 +1505,20 @@ const JobsRouteChildren: JobsRouteChildren = {
 
 const JobsRouteWithChildren = JobsRoute._addFileChildren(JobsRouteChildren)
 
+interface LaunchpadRouteChildren {
+  LaunchpadIdRoute: typeof LaunchpadIdRoute
+  LaunchpadIndexRoute: typeof LaunchpadIndexRoute
+}
+
+const LaunchpadRouteChildren: LaunchpadRouteChildren = {
+  LaunchpadIdRoute: LaunchpadIdRoute,
+  LaunchpadIndexRoute: LaunchpadIndexRoute,
+}
+
+const LaunchpadRouteWithChildren = LaunchpadRoute._addFileChildren(
+  LaunchpadRouteChildren,
+)
+
 interface MembersRouteChildren {
   MembersIdRoute: typeof MembersIdRoute
   MembersCompareRoute: typeof MembersCompareRoute
@@ -1597,6 +1667,7 @@ const rootRouteChildren: RootRouteChildren = {
   HighlightsRoute: HighlightsRoute,
   HobitsRoute: HobitsRouteWithChildren,
   JobsRoute: JobsRouteWithChildren,
+  LaunchpadRoute: LaunchpadRouteWithChildren,
   MembersRoute: MembersRouteWithChildren,
   MergeReviewsRoute: MergeReviewsRouteWithChildren,
   NewsRoute: NewsRoute,

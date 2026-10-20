@@ -18,6 +18,7 @@ import {
   MapIcon,
   NewspaperIcon,
   PlugIcon,
+  RocketIcon,
   ScaleIcon,
   SettingsIcon,
   ShieldIcon,
@@ -64,6 +65,13 @@ const HOME_ITEMS: NavItem[] = [
     labelKey: "common.nav.home",
     icon: HomeIcon,
     match: (p) => p === "/",
+  },
+  {
+    to: "/launchpad",
+    labelKey: "common.nav.launchpad",
+    icon: RocketIcon,
+    search: {},
+    match: (p) => p === "/launchpad" || p.startsWith("/launchpad/"),
   },
 ];
 

@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { McpServersCard } from "@/features/mcp";
 import { extractErrorMessage } from "@/lib/api";
 import { useHomeStatusQuery } from "../api";
 import { ActivityFeedCard } from "./ActivityFeedCard";
@@ -53,6 +54,7 @@ export function HomePage() {
           <AttentionCard status={status} />
           <ActivityFeedCard />
           <SystemStatusCard status={status} />
+          <McpServersCard />
           <OnboardingChecklistCard status={status} />
           <SpendCard />
           <ToolsCard />

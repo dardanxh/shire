@@ -19,6 +19,8 @@ from shire.domain.council.jobs import (
 from shire.domain.hobits.jobs import handle_feedback_distill, handle_hobit_run
 from shire.domain.jobs import kinds
 from shire.domain.jobs.models import JobRow
+from shire.domain.launchpad.jobs import handle_launchpad_action
+from shire.domain.mcp.jobs import handle_mcp_probe
 from shire.domain.merge_review.jobs import (
     handle_mr_classification,
     handle_mr_hobit_review,
@@ -100,4 +102,6 @@ HANDLERS: dict[str, Callable[[JobRow], None]] = {
     kinds.PROMPT_SUGGEST: handle_prompt_suggest,
     kinds.PROMPT_RUN: handle_prompt_run,
     kinds.PROMPT_JUDGE: handle_prompt_judge,
+    kinds.LAUNCHPAD_ACTION: handle_launchpad_action,
+    kinds.MCP_PROBE: handle_mcp_probe,
 }

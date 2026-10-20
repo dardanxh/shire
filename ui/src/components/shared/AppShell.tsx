@@ -9,6 +9,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { SelectionHighlighter } from "@/features/highlights";
+import { NotificationsBell } from "@/features/launchpad";
 import { cn } from "@/lib/utils";
 
 /**
@@ -30,6 +31,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         <header className="sticky top-0 z-10 flex items-center gap-2 border-b border-border bg-background/80 px-4 py-3 backdrop-blur sm:px-6">
           <SidebarTrigger className="-ml-1" />
           <Breadcrumbs />
+          <div className="ml-auto">
+            <NotificationsBell />
+          </div>
         </header>
         <main
           className={cn(

@@ -4,6 +4,7 @@ import {
   GitPullRequestIcon,
   type LucideIcon,
   RadarIcon,
+  RocketIcon,
   ScaleIcon,
   SirenIcon,
   XCircleIcon,
@@ -31,6 +32,12 @@ export function AttentionCard({ status }: { status: HomeStatusOut }) {
   const { attention } = status;
 
   const rows: AttentionRow[] = [
+    {
+      key: "launchpad",
+      count: attention.launchpad_unread,
+      icon: RocketIcon,
+      go: () => navigate({ to: "/launchpad", search: {} }),
+    },
     {
       key: "drift",
       count: attention.drift_findings,
