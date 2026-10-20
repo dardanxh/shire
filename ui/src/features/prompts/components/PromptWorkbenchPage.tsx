@@ -1,5 +1,6 @@
 import {
   ChartLineIcon,
+  DownloadIcon,
   GaugeIcon,
   HistoryIcon,
   ListChecksIcon,
@@ -10,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,6 +24,7 @@ import {
   usePromptAnalysisQuery,
   usePromptQuery,
 } from "../api";
+import { buildPromptReportHtml, downloadHtml, reportFileName } from "../report";
 import type { PromptTab } from "../tabs";
 import { useDebouncedValue } from "../use-debounced-value";
 import { ArenaPanel } from "./ArenaPanel";
@@ -100,6 +103,21 @@ export function PromptWorkbenchPage({
     );
   };
 
+  const handleDownloadReport = () => {
+    if (!prompt || !saved) return;
+    const html = buildPromptReportHtml({
+      t,
+      prompt,
+      version: saved,
+      // The live analysis scores the editor text; it only describes the saved body when nothing is edited.
+      analysis: isDirty ? undefined : analysis,
+    });
+    downloadHtml(html, reportFileName(prompt.name, saved.number));
+    toast.success(t("prompts.report.downloaded"), {
+      description: isDirty ? t("prompts.report.dirty_note") : undefined,
+    });
+  };
+
   if (isError) {
     return (
       <Card>
@@ -144,6 +162,12 @@ export function PromptWorkbenchPage({
           />
           {isDirty ? (
             <Badge variant="warning">{t("prompts.unsaved")}</Badge>
+          ) : null}
+          {saved ? (
+            <Button size="sm" variant="outline" onClick={handleDownloadReport}>
+              <DownloadIcon />
+              {t("prompts.report.download")}
+            </Button>
           ) : null}
         </div>
       </div>
