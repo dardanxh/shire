@@ -111,3 +111,78 @@ def test_execute_settles_crashed_job_as_failed(monkeypatch: pytest.MonkeyPatch) 
     assert settled["ok"] is False
     assert settled["text"] == ""
     assert "engine worker crashed" in settled["error"]
+
+
+def test_build_request_rejects_unknown_permission_mode() -> None:
+    with pytest.raises(ValueError):
+        worker.build_request(
+            {"id": 3, "prompt": "p", "payload": {"permission_mode": "acceptEdits"}}
+        )
+
+
+def test_result_file_name_must_be_a_plain_name() -> None:
+    assert worker.result_file_name({}) is None
+    assert worker.result_file_name({"result_file": "report.html"}) == "report.html"
+    for bad in ("../etc/passwd", "/tmp/x.html", "sub/report.html", ".env", ".."):
+        with pytest.raises(ValueError):
+            worker.result_file_name({"result_file": bad})
+
+
+class _FileWritingEngine:
+    """Engine double that writes the deliverable where the system prompt says to."""
+
+    def __init__(self, content: str | None) -> None:
+        self._content = content
+        self.request: EngineRequest | None = None
+
+    def run(self, request: EngineRequest, on_event=None) -> EngineResult:
+        self.request = request
+        if self._content is not None:
+            target = request.system.split("WRITE TO ", 1)[1].strip()
+            with open(target, "w", encoding="utf-8") as fh:
+                fh.write(self._content)
+        return EngineResult(ok=True, text="Report written.", duration_seconds=2.0)
+
+
+def _file_job(tmp_path) -> dict[str, Any]:
+    return {
+        "id": 11,
+        "kind": "test.kind",
+        "prompt": "p",
+        "payload": {
+            "cwd": str(tmp_path),
+            "system": f"WRITE TO {worker.RESULT_FILE_TOKEN}",
+            "result_file": "report.html",
+        },
+    }
+
+
+def test_execute_returns_result_file_and_cleans_workspace(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    completions: list[dict[str, Any]] = []
+    monkeypatch.setattr(
+        worker.db, "complete", lambda dsn, job_id, **kw: completions.append({"id": job_id, **kw})
+    )
+    engine = _FileWritingEngine("<html><body>hi</body></html>")
+    worker._execute(_settings(), engine, _file_job(tmp_path))
+
+    assert completions[0]["ok"] is True
+    assert completions[0]["text"] == "<html><body>hi</body></html>"
+    # Ran in its own scratch directory under the payload cwd, removed afterwards.
+    assert engine.request is not None
+    assert engine.request.cwd != str(tmp_path)
+    assert engine.request.cwd.startswith(str(tmp_path))
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_execute_falls_back_to_text_when_no_file_written(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    completions: list[dict[str, Any]] = []
+    monkeypatch.setattr(
+        worker.db, "complete", lambda dsn, job_id, **kw: completions.append({"id": job_id, **kw})
+    )
+    worker._execute(_settings(), _FileWritingEngine(None), _file_job(tmp_path))
+    assert completions[0]["text"] == "Report written."
+    assert list(tmp_path.iterdir()) == []

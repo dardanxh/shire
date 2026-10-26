@@ -24,6 +24,14 @@ class EngineRequest(BaseModel):
     disallowed_tools: tuple[str, ...] = ()
     model: str | None = None
     timeout_seconds: float = 500.0
+    # `default` makes the allow-list the permission boundary (non-allowed tools are auto-denied
+    # in --print mode). `bypassPermissions` allows everything *except* `disallowed_tools` — for
+    # runs whose tool set isn't known up front (every claude.ai connector), bounded by deny globs.
+    permission_mode: str = "default"
+    # `--setting-sources`. Empty isolates the run from every settings file; "user" loads the
+    # operator's user-level skills and plugins (what a slash-command prompt like `/my-skill`
+    # needs), along with their user-level hooks.
+    setting_sources: str = ""
 
 
 class EngineResult(BaseModel):

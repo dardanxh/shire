@@ -35,6 +35,7 @@ import { Route as CapacityPlannerRouteImport } from './routes/capacity-planner'
 import { Route as ArchitecturesRouteImport } from './routes/architectures'
 import { Route as AppsRouteImport } from './routes/apps'
 import { Route as AiReadinessRouteImport } from './routes/ai-readiness'
+import { Route as AiActionsRouteImport } from './routes/ai-actions'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TechnologiesIndexRouteImport } from './routes/technologies/index'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
@@ -49,6 +50,7 @@ import { Route as HobitsIndexRouteImport } from './routes/hobits.index'
 import { Route as DataIndexRouteImport } from './routes/data/index'
 import { Route as CouncilIndexRouteImport } from './routes/council.index'
 import { Route as ArchitecturesIndexRouteImport } from './routes/architectures/index'
+import { Route as AiActionsIndexRouteImport } from './routes/ai-actions.index'
 import { Route as TechnologiesNewRouteImport } from './routes/technologies/new'
 import { Route as TechnologiesCompareRouteImport } from './routes/technologies/compare'
 import { Route as RoadmapsNewRouteImport } from './routes/roadmaps.new'
@@ -69,6 +71,7 @@ import { Route as CouncilIdRouteImport } from './routes/council.$id'
 import { Route as ArchitecturesNewRouteImport } from './routes/architectures/new'
 import { Route as ArchitecturesCompareRouteImport } from './routes/architectures/compare'
 import { Route as ArchitecturesAdvisorRouteImport } from './routes/architectures/advisor'
+import { Route as AiActionsIdRouteImport } from './routes/ai-actions.$id'
 import { Route as TechnologiesIdIndexRouteImport } from './routes/technologies/$id/index'
 import { Route as DataIdIndexRouteImport } from './routes/data/$id/index'
 import { Route as ArchitecturesIdIndexRouteImport } from './routes/architectures/$id/index'
@@ -210,6 +213,11 @@ const AiReadinessRoute = AiReadinessRouteImport.update({
   path: '/ai-readiness',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiActionsRoute = AiActionsRouteImport.update({
+  id: '/ai-actions',
+  path: '/ai-actions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -279,6 +287,11 @@ const ArchitecturesIndexRoute = ArchitecturesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ArchitecturesRoute,
+} as any)
+const AiActionsIndexRoute = AiActionsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AiActionsRoute,
 } as any)
 const TechnologiesNewRoute = TechnologiesNewRouteImport.update({
   id: '/new',
@@ -380,6 +393,11 @@ const ArchitecturesAdvisorRoute = ArchitecturesAdvisorRouteImport.update({
   path: '/advisor',
   getParentRoute: () => ArchitecturesRoute,
 } as any)
+const AiActionsIdRoute = AiActionsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AiActionsRoute,
+} as any)
 const TechnologiesIdIndexRoute = TechnologiesIdIndexRouteImport.update({
   id: '/$id/',
   path: '/$id/',
@@ -433,6 +451,7 @@ const ArchitecturesIdDiagramRoute = ArchitecturesIdDiagramRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-actions': typeof AiActionsRouteWithChildren
   '/ai-readiness': typeof AiReadinessRoute
   '/apps': typeof AppsRoute
   '/architectures': typeof ArchitecturesRouteWithChildren
@@ -459,6 +478,7 @@ export interface FileRoutesByFullPath {
   '/technologies': typeof TechnologiesRouteWithChildren
   '/tools': typeof ToolsRoute
   '/treasury': typeof TreasuryRoute
+  '/ai-actions/$id': typeof AiActionsIdRoute
   '/architectures/advisor': typeof ArchitecturesAdvisorRoute
   '/architectures/compare': typeof ArchitecturesCompareRoute
   '/architectures/new': typeof ArchitecturesNewRoute
@@ -479,6 +499,7 @@ export interface FileRoutesByFullPath {
   '/roadmaps/new': typeof RoadmapsNewRoute
   '/technologies/compare': typeof TechnologiesCompareRoute
   '/technologies/new': typeof TechnologiesNewRoute
+  '/ai-actions/': typeof AiActionsIndexRoute
   '/architectures/': typeof ArchitecturesIndexRoute
   '/council/': typeof CouncilIndexRoute
   '/data/': typeof DataIndexRoute
@@ -518,6 +539,7 @@ export interface FileRoutesByTo {
   '/tech-chooser': typeof TechChooserRoute
   '/tools': typeof ToolsRoute
   '/treasury': typeof TreasuryRoute
+  '/ai-actions/$id': typeof AiActionsIdRoute
   '/architectures/advisor': typeof ArchitecturesAdvisorRoute
   '/architectures/compare': typeof ArchitecturesCompareRoute
   '/architectures/new': typeof ArchitecturesNewRoute
@@ -538,6 +560,7 @@ export interface FileRoutesByTo {
   '/roadmaps/new': typeof RoadmapsNewRoute
   '/technologies/compare': typeof TechnologiesCompareRoute
   '/technologies/new': typeof TechnologiesNewRoute
+  '/ai-actions': typeof AiActionsIndexRoute
   '/architectures': typeof ArchitecturesIndexRoute
   '/council': typeof CouncilIndexRoute
   '/data': typeof DataIndexRoute
@@ -565,6 +588,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-actions': typeof AiActionsRouteWithChildren
   '/ai-readiness': typeof AiReadinessRoute
   '/apps': typeof AppsRoute
   '/architectures': typeof ArchitecturesRouteWithChildren
@@ -591,6 +615,7 @@ export interface FileRoutesById {
   '/technologies': typeof TechnologiesRouteWithChildren
   '/tools': typeof ToolsRoute
   '/treasury': typeof TreasuryRoute
+  '/ai-actions/$id': typeof AiActionsIdRoute
   '/architectures/advisor': typeof ArchitecturesAdvisorRoute
   '/architectures/compare': typeof ArchitecturesCompareRoute
   '/architectures/new': typeof ArchitecturesNewRoute
@@ -611,6 +636,7 @@ export interface FileRoutesById {
   '/roadmaps/new': typeof RoadmapsNewRoute
   '/technologies/compare': typeof TechnologiesCompareRoute
   '/technologies/new': typeof TechnologiesNewRoute
+  '/ai-actions/': typeof AiActionsIndexRoute
   '/architectures/': typeof ArchitecturesIndexRoute
   '/council/': typeof CouncilIndexRoute
   '/data/': typeof DataIndexRoute
@@ -639,6 +665,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ai-actions'
     | '/ai-readiness'
     | '/apps'
     | '/architectures'
@@ -665,6 +692,7 @@ export interface FileRouteTypes {
     | '/technologies'
     | '/tools'
     | '/treasury'
+    | '/ai-actions/$id'
     | '/architectures/advisor'
     | '/architectures/compare'
     | '/architectures/new'
@@ -685,6 +713,7 @@ export interface FileRouteTypes {
     | '/roadmaps/new'
     | '/technologies/compare'
     | '/technologies/new'
+    | '/ai-actions/'
     | '/architectures/'
     | '/council/'
     | '/data/'
@@ -724,6 +753,7 @@ export interface FileRouteTypes {
     | '/tech-chooser'
     | '/tools'
     | '/treasury'
+    | '/ai-actions/$id'
     | '/architectures/advisor'
     | '/architectures/compare'
     | '/architectures/new'
@@ -744,6 +774,7 @@ export interface FileRouteTypes {
     | '/roadmaps/new'
     | '/technologies/compare'
     | '/technologies/new'
+    | '/ai-actions'
     | '/architectures'
     | '/council'
     | '/data'
@@ -770,6 +801,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/ai-actions'
     | '/ai-readiness'
     | '/apps'
     | '/architectures'
@@ -796,6 +828,7 @@ export interface FileRouteTypes {
     | '/technologies'
     | '/tools'
     | '/treasury'
+    | '/ai-actions/$id'
     | '/architectures/advisor'
     | '/architectures/compare'
     | '/architectures/new'
@@ -816,6 +849,7 @@ export interface FileRouteTypes {
     | '/roadmaps/new'
     | '/technologies/compare'
     | '/technologies/new'
+    | '/ai-actions/'
     | '/architectures/'
     | '/council/'
     | '/data/'
@@ -843,6 +877,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiActionsRoute: typeof AiActionsRouteWithChildren
   AiReadinessRoute: typeof AiReadinessRoute
   AppsRoute: typeof AppsRoute
   ArchitecturesRoute: typeof ArchitecturesRouteWithChildren
@@ -1056,6 +1091,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AiReadinessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai-actions': {
+      id: '/ai-actions'
+      path: '/ai-actions'
+      fullPath: '/ai-actions'
+      preLoaderRoute: typeof AiActionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -1153,6 +1195,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/architectures/'
       preLoaderRoute: typeof ArchitecturesIndexRouteImport
       parentRoute: typeof ArchitecturesRoute
+    }
+    '/ai-actions/': {
+      id: '/ai-actions/'
+      path: '/'
+      fullPath: '/ai-actions/'
+      preLoaderRoute: typeof AiActionsIndexRouteImport
+      parentRoute: typeof AiActionsRoute
     }
     '/technologies/new': {
       id: '/technologies/new'
@@ -1294,6 +1343,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ArchitecturesAdvisorRouteImport
       parentRoute: typeof ArchitecturesRoute
     }
+    '/ai-actions/$id': {
+      id: '/ai-actions/$id'
+      path: '/$id'
+      fullPath: '/ai-actions/$id'
+      preLoaderRoute: typeof AiActionsIdRouteImport
+      parentRoute: typeof AiActionsRoute
+    }
     '/technologies/$id/': {
       id: '/technologies/$id/'
       path: '/$id'
@@ -1366,6 +1422,20 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AiActionsRouteChildren {
+  AiActionsIdRoute: typeof AiActionsIdRoute
+  AiActionsIndexRoute: typeof AiActionsIndexRoute
+}
+
+const AiActionsRouteChildren: AiActionsRouteChildren = {
+  AiActionsIdRoute: AiActionsIdRoute,
+  AiActionsIndexRoute: AiActionsIndexRoute,
+}
+
+const AiActionsRouteWithChildren = AiActionsRoute._addFileChildren(
+  AiActionsRouteChildren,
+)
 
 interface ArchitecturesRouteChildren {
   ArchitecturesAdvisorRoute: typeof ArchitecturesAdvisorRoute
@@ -1585,6 +1655,7 @@ const TechnologiesRouteWithChildren = TechnologiesRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiActionsRoute: AiActionsRouteWithChildren,
   AiReadinessRoute: AiReadinessRoute,
   AppsRoute: AppsRoute,
   ArchitecturesRoute: ArchitecturesRouteWithChildren,

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
+from shire.domain.ai_actions.jobs import handle_ai_action_run
 from shire.domain.cicd.jobs import handle_cicd_apply, handle_cicd_scan
 from shire.domain.compliance.jobs import handle_compliance_check
 from shire.domain.council.jobs import (
@@ -100,4 +101,5 @@ HANDLERS: dict[str, Callable[[JobRow], None]] = {
     kinds.PROMPT_SUGGEST: handle_prompt_suggest,
     kinds.PROMPT_RUN: handle_prompt_run,
     kinds.PROMPT_JUDGE: handle_prompt_judge,
+    kinds.AI_ACTION_RUN: handle_ai_action_run,
 }

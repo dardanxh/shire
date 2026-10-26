@@ -31,6 +31,20 @@ uv run python -m engine   # instance 2, in another terminal
 Each instance stamps its `worker_id` (`hostname:pid`) on the jobs it runs, requeues only its own
 jobs on restart, and participates in the stale sweep that recovers jobs from dead workers.
 
+## Kind routing and the host runner
+
+`ENGINE_INCLUDE_KINDS` / `ENGINE_EXCLUDE_KINDS` (comma-separated) limit which job kinds an
+instance claims. The Docker engine excludes `ai_action.run`; `scripts/host-runner.sh` runs this
+service natively with the operator's own `claude` (their claude.ai connectors and skills) and
+includes only that kind. `ENGINE_APPLICATION_NAME` tags its DB connections so the backend can
+tell whether the runner is connected.
+
+Optional payload keys beyond the basics: `permission_mode` (`default` | `bypassPermissions`, where
+the deny-list becomes the boundary), `setting_sources` (`""` | `"user"`, which loads user-level
+skills), `scratch_workspace` (run in a fresh temp dir under `cwd`, removed afterwards), and
+`result_file` (a plain file name in that scratch dir; its contents become the job result, and
+`{{RESULT_FILE}}` in the system prompt is replaced with its absolute path).
+
 ## Constraints
 
 - Must run on the **same host** as the backend for now: jobs reference repo clones by absolute

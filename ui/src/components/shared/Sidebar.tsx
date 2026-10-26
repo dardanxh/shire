@@ -1,6 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   BookOpenIcon,
+  BotIcon,
   ChevronDownIcon,
   CoinsIcon,
   CpuIcon,
@@ -103,6 +104,12 @@ const WORKSPACE_ITEMS: NavItem[] = [
 
 /** AI-driven analysis modules. */
 const INTELLIGENCE_ITEMS: NavItem[] = [
+  {
+    to: "/ai-actions",
+    labelKey: "common.nav.ai_actions",
+    icon: BotIcon,
+    match: (p) => p === "/ai-actions" || p.startsWith("/ai-actions/"),
+  },
   {
     to: "/hobits",
     labelKey: "common.nav.hobits",

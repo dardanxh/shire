@@ -3895,6 +3895,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ai-actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Ai Actions
+         * @description Every action with its latest run, alphabetical.
+         */
+        get: operations["list_ai_actions_api_v1_ai_actions_get"];
+        put?: never;
+        /** Create Ai Action */
+        post: operations["create_ai_action_api_v1_ai_actions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ai-actions/runner": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Ai Actions Runner
+         * @description Whether the host runner is connected — without it, runs wait in the queue.
+         */
+        get: operations["get_ai_actions_runner_api_v1_ai_actions_runner_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ai-actions/{action_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Ai Action */
+        get: operations["get_ai_action_api_v1_ai_actions__action_id__get"];
+        /** Update Ai Action */
+        put: operations["update_ai_action_api_v1_ai_actions__action_id__put"];
+        post?: never;
+        /** Delete Ai Action */
+        delete: operations["delete_ai_action_api_v1_ai_actions__action_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ai-actions/{action_id}/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Ai Action
+         * @description Queue a run now, regardless of the schedule.
+         */
+        post: operations["run_ai_action_api_v1_ai_actions__action_id__run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ai-actions/{action_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel Ai Action Run
+         * @description Withdraw a queued run that no worker has picked up yet.
+         */
+        post: operations["cancel_ai_action_run_api_v1_ai_actions__action_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ai-actions/{action_id}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Ai Action Report
+         * @description The latest report as a standalone, sandboxed page (`?download=true` to save it).
+         */
+        get: operations["get_ai_action_report_api_v1_ai_actions__action_id__report_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/treasury/overview": {
         parameters: {
             query?: never;
@@ -3995,6 +4115,79 @@ export interface components {
         AddSubrepoRequest: {
             /** Subpath */
             subpath: string;
+        };
+        /** AiActionResult */
+        AiActionResult: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Prompt */
+            prompt: string;
+            /** Model */
+            model: string | null;
+            /** Schedule */
+            schedule: string;
+            /** Timezone */
+            timezone: string;
+            /** Enabled */
+            enabled: boolean;
+            /** Allow Shell */
+            allow_shell: boolean;
+            /** Timeout Seconds */
+            timeout_seconds: number;
+            /** Next Run At */
+            next_run_at: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "idle" | "pending" | "running" | "succeeded" | "failed";
+            /** Last Job Id */
+            last_job_id: string | null;
+            /** Last Trigger */
+            last_trigger: string | null;
+            /** Last Queued At */
+            last_queued_at: string | null;
+            /** Last Started At */
+            last_started_at: string | null;
+            /** Last Finished At */
+            last_finished_at: string | null;
+            /** Last Duration Seconds */
+            last_duration_seconds: number | null;
+            /** Last Cost Usd */
+            last_cost_usd: number | null;
+            /** Last Error */
+            last_error: string | null;
+            /** Has Report */
+            has_report: boolean;
+            /** Last Report Format */
+            last_report_format: string | null;
+            /** Last Report At */
+            last_report_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * AiActionRunnerResult
+         * @description Whether the host runner — the only worker that can run actions — is connected.
+         */
+        AiActionRunnerResult: {
+            /** Connected */
+            connected: boolean;
+            /** Queued */
+            queued: number;
         };
         /**
          * AnalysisDeltaResult
@@ -5770,6 +5963,40 @@ export interface components {
              * @default false
              */
             tool_available: boolean;
+        };
+        /** CreateAiAction */
+        CreateAiAction: {
+            /** Title */
+            title: string;
+            /** Prompt */
+            prompt: string;
+            /** Model */
+            model?: string | null;
+            /**
+             * Schedule
+             * @default manual
+             */
+            schedule: string;
+            /**
+             * Timezone
+             * @default UTC
+             */
+            timezone: string;
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+            /**
+             * Allow Shell
+             * @default false
+             */
+            allow_shell: boolean;
+            /**
+             * Timeout Seconds
+             * @default 900
+             */
+            timeout_seconds: number;
         };
         /** CreateBlueprint */
         CreateBlueprint: {
@@ -10683,6 +10910,43 @@ export interface components {
              * @default sonnet
              */
             target_model: string;
+        };
+        /**
+         * UpdateAiAction
+         * @description Full replacement — the form always sends every field.
+         */
+        UpdateAiAction: {
+            /** Title */
+            title: string;
+            /** Prompt */
+            prompt: string;
+            /** Model */
+            model?: string | null;
+            /**
+             * Schedule
+             * @default manual
+             */
+            schedule: string;
+            /**
+             * Timezone
+             * @default UTC
+             */
+            timezone: string;
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+            /**
+             * Allow Shell
+             * @default false
+             */
+            allow_shell: boolean;
+            /**
+             * Timeout Seconds
+             * @default 900
+             */
+            timeout_seconds: number;
         };
         /**
          * UpdateArchitectureQuality
@@ -18873,6 +19137,269 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ArenaBatchResult"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_ai_actions_api_v1_ai_actions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiActionResult"][];
+                };
+            };
+        };
+    };
+    create_ai_action_api_v1_ai_actions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAiAction"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiActionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_ai_actions_runner_api_v1_ai_actions_runner_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiActionRunnerResult"];
+                };
+            };
+        };
+    };
+    get_ai_action_api_v1_ai_actions__action_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                action_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiActionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_ai_action_api_v1_ai_actions__action_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                action_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAiAction"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiActionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_ai_action_api_v1_ai_actions__action_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                action_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_ai_action_api_v1_ai_actions__action_id__run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                action_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiActionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_ai_action_run_api_v1_ai_actions__action_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                action_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiActionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_ai_action_report_api_v1_ai_actions__action_id__report_get: {
+        parameters: {
+            query?: {
+                download?: boolean;
+            };
+            header?: never;
+            path: {
+                action_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": string;
                 };
             };
             /** @description Validation Error */

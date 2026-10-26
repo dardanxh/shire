@@ -67,6 +67,9 @@ services:
       ENGINE_CONCURRENCY: ${ENGINE_CONCURRENCY:-2}
       ENGINE_CLAUDE_VERSION_FILE: /data/.shire/claude-version
       ENGINE_USE_API_KEY: ${USE_API_KEY:-false}
+      # AI action runs need the operator's claude.ai connectors and user-level skills, which only
+      # the host CLI has — they're left for the host runner (scripts/host-runner.sh).
+      ENGINE_EXCLUDE_KINDS: ai_action.run
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       CLAUDE_CODE_OAUTH_TOKEN: ${CLAUDE_CODE_OAUTH_TOKEN:-}
     volumes:

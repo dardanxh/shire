@@ -17,6 +17,7 @@ from fastapi_pagination import add_pagination
 
 from shire.core.exceptions import register_exception_handlers
 from shire.core.settings import get_settings
+from shire.domain.ai_actions.routes import router as ai_actions_router
 from shire.domain.blueprint.routes import router as blueprints_router
 from shire.domain.briefing.routes import router as briefing_router
 from shire.domain.capacity.routes import router as capacity_router
@@ -66,12 +67,16 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """On startup: start the job-completion dispatcher (applies engine job results to their
-    domains) and converge Prefect deployments to the stored cadences (no-op unless the scheduler
-    is enabled). Best-effort: a Prefect outage must never block the API from serving."""
+    domains) and the AI Actions scheduler, and converge Prefect deployments to the stored
+    cadences (no-op unless the scheduler is enabled). Best-effort: a Prefect outage must never
+    block the API from serving."""
+    from shire.domain.ai_actions import ticker as ai_actions_ticker
     from shire.domain.jobs import dispatcher
 
     stop_dispatcher = threading.Event()
     dispatcher.start(stop_dispatcher)
+    # Queues due AI actions (shares the dispatcher's stop event).
+    ai_actions_ticker.start(stop_dispatcher)
 
     # Ingestion runs as in-process background tasks; a restart mid-pipeline would leave repos
     # stuck in cloning/analyzing forever (the busy-guard would even block a retry). Fail them.
@@ -157,6 +162,7 @@ app.include_router(inspections_router, prefix=API_V1_PREFIX)
 app.include_router(techchoice_router, prefix=API_V1_PREFIX)
 app.include_router(highlights_router, prefix=API_V1_PREFIX)
 app.include_router(prompts_router, prefix=API_V1_PREFIX)
+app.include_router(ai_actions_router, prefix=API_V1_PREFIX)
 app.include_router(treasury_router, prefix=API_V1_PREFIX)
 
 # fastapi-pagination wires its Params/Page plumbing for the catalog routers above.

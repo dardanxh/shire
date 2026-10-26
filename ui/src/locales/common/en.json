@@ -15,6 +15,7 @@
     },
     "nav": {
       "home": "Home",
+      "ai_actions": "AI Actions",
       "repositories": "Repositories",
       "highlights": "Highlights",
       "hobits": "Hobits",

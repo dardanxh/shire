@@ -164,6 +164,23 @@ the generic async job queue in `src/shire/domain/jobs/` (`kinds.py` enumerates e
 `main.py`'s lifespan starts a completion dispatcher thread (`jobs/dispatcher.py`) that LISTENs on
 Postgres for settled jobs and applies each one exactly once via its handler.
 
+## AI Actions and the host runner
+
+`domain/ai_actions/` holds user-written prompts (often a skill slash command like `/dx-github-prs`)
+that run unattended, on demand or on a schedule (`ticker.py`, a lifespan thread, not Prefect), and
+come back as one HTML report. Only the latest result is kept, on the action row itself.
+
+Their job kind, `ai_action.run`, is **host-only**: it needs the operator's claude.ai connectors
+and `~/.claude/skills`, which exist only for the logged-in CLI on the host. The Docker engine
+excludes it (`ENGINE_EXCLUDE_KINDS`), and `scripts/host-runner.sh` runs the engine natively,
+claiming only that kind, against the DB published on `127.0.0.1:5434`
+(`docker-compose.db-port.yml`). Runs use `bypassPermissions` with a deny-list (write-verb globs
+over every `mcp__*` tool, plus `Bash(open:*)`, and `Bash` unless the action allows a shell) and
+`--setting-sources user`. The deny-list is the permission boundary, so new write-type connector
+tools need their verb in `domain.py`'s `_WRITE_VERBS` (the test lists real tool names). The engine
+gives each run a scratch directory and returns the `report.html` the agent wrote there as the job
+result.
+
 ## Visualization tools
 
 `external_tools/` wraps standalone repo-analysis tools surfaced via `GET /tools` for availability,

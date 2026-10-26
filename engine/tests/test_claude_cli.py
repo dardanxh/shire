@@ -139,3 +139,21 @@ def test_compact_events_squashes_stream_json() -> None:
 
     # Non-message events (system init, etc.) produce nothing.
     assert _compact_events({"type": "system", "subtype": "init"}) == []
+
+
+def test_build_argv_bypass_mode_drops_allow_list_and_keeps_denies() -> None:
+    engine = ClaudeCliEngine()
+    argv = engine._build_argv(
+        EngineRequest(
+            prompt="/my-skill",
+            cwd=".",
+            disallowed_tools=("Bash(open:*)", "mcp__*__*create*"),
+            permission_mode="bypassPermissions",
+            setting_sources="user",
+        )
+    )
+    assert "--allowedTools" not in argv
+    i = argv.index("--disallowedTools")
+    assert argv[i + 1 : i + 3] == ["Bash(open:*)", "mcp__*__*create*"]
+    assert argv[argv.index("--setting-sources") + 1] == "user"
+    assert argv[-2:] == ["--permission-mode", "bypassPermissions"]

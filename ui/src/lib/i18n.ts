@@ -1,5 +1,6 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import aiActions from "@/features/ai-actions/locales/en.json";
 import apps from "@/features/apps/locales/en.json";
 import architectures from "@/features/architectures/locales/en.json";
 import briefing from "@/features/briefing/locales/en.json";
@@ -63,6 +64,7 @@ const en = {
   ...developments,
   ...highlights,
   ...prompts,
+  ...aiActions,
   ...treasury,
   ...teams,
 };

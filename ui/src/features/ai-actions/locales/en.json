@@ -1,0 +1,128 @@
+{
+  "ai_actions": {
+    "crumb": "AI Actions",
+    "view_crumb": "Report",
+    "title": "AI Actions",
+    "desc": "Prompts that run on your own Claude, with your connectors and skills, and come back as an HTML report. Run one now or put it on a schedule. Each action keeps its latest report.",
+    "new": "New action",
+    "load_error": "Couldn't load AI actions: {{message}}",
+    "empty": {
+      "title": "No AI actions yet",
+      "body": "An action is a title and a prompt, for example a skill like /dx-github-prs. Run it whenever you like, or on a schedule."
+    },
+    "status": {
+      "idle": "Never run",
+      "pending": "Queued",
+      "running": "Running",
+      "succeeded": "Done",
+      "failed": "Failed"
+    },
+    "schedule": {
+      "manual": "Manual only",
+      "every:15m": "Every 15 minutes",
+      "every:30m": "Every 30 minutes",
+      "hourly": "Hourly",
+      "every:4h": "Every 4 hours",
+      "weekdays": "Weekdays at 09:00",
+      "daily": "Daily at 09:00",
+      "weekly": "Mondays at 09:00",
+      "custom": "Custom…",
+      "every_minutes_one": "Every minute",
+      "every_minutes_other": "Every {{count}} minutes",
+      "every_hours_one": "Every hour",
+      "every_hours_other": "Every {{count}} hours",
+      "cron": "Cron: {{expr}}"
+    },
+    "card": {
+      "schedule": "Schedule",
+      "paused": "paused",
+      "next": "next {{at}}",
+      "last_report": "Latest report",
+      "report_from": "Report from {{ago}}",
+      "no_report": "No report yet",
+      "shell": "Shell allowed",
+      "default_model": "Default model"
+    },
+    "actions": {
+      "run": "Run now",
+      "cancel": "Cancel run"
+    },
+    "toast": {
+      "queued": "Queued “{{title}}”",
+      "cancelled": "Run cancelled",
+      "created": "Created “{{title}}”",
+      "saved": "Saved “{{title}}”",
+      "deleted": "Deleted “{{title}}”"
+    },
+    "runner": {
+      "offline_title": "The host runner isn't connected",
+      "offline_body": "Actions run on your own claude CLI, because that's where your claude.ai connectors and skills are. Start the runner on this machine. Until then, runs wait in the queue.",
+      "offline_queued_one": "{{count}} run is waiting. Actions run on your own claude CLI, because that's where your claude.ai connectors and skills are. Start the runner on this machine to pick it up.",
+      "offline_queued_other": "{{count}} runs are waiting. Actions run on your own claude CLI, because that's where your claude.ai connectors and skills are. Start the runner on this machine to pick them up."
+    },
+    "dialog": {
+      "new_title": "New AI action",
+      "edit_title": "Edit AI action",
+      "description": "Write the prompt you'd type into Claude. Shire adds the report instructions, so the run always comes back as one HTML page.",
+      "create": "Create action"
+    },
+    "form": {
+      "title": {
+        "label": "Title",
+        "placeholder": "e.g. Open PRs to review",
+        "required": "Give the action a title."
+      },
+      "prompt": {
+        "label": "Prompt",
+        "description": "A slash command for one of your skills (/dx-github-prs), or plain instructions. If a skill has its own HTML template, the report follows it.",
+        "placeholder": "/dx-github-prs",
+        "required": "Write a prompt."
+      },
+      "model": {
+        "label": "Model",
+        "default": "Engine default"
+      },
+      "timeout": {
+        "label": "Time limit",
+        "minutes_one": "{{count}} minute",
+        "minutes_other": "{{count}} minutes"
+      },
+      "schedule": {
+        "label": "Schedule"
+      },
+      "custom_schedule": {
+        "label": "Custom schedule",
+        "description": "cron:<expression> or every:<N>m / every:<N>h (15 minutes at the least). Times use your browser's timezone.",
+        "required": "Enter a schedule."
+      },
+      "enabled": {
+        "label": "Run on schedule"
+      },
+      "shell": {
+        "label": "Allow shell commands",
+        "on": "The run can use the shell (Bash) on this machine. Skills often need it for dates and repo lists. Opening a browser is always blocked.",
+        "off": "No shell. The run can only use your connectors and read files."
+      },
+      "read_only_note": "Runs are read-only: connector tools that create, edit, post, comment or delete are switched off."
+    },
+    "view": {
+      "running": "Running, started {{ago}}",
+      "queued": "Queued. Waiting for the host runner to pick it up.",
+      "live": "Live progress",
+      "failed": "The latest run failed ({{at}})",
+      "showing_previous": "Showing the previous report below.",
+      "took": "took {{seconds}}s",
+      "prompt": "Prompt",
+      "report_from": "Report from {{at}} ({{ago}})",
+      "text_fallback": "The run returned text instead of HTML",
+      "open_tab": "Open in new tab",
+      "download": "Download",
+      "no_report_title": "No report yet",
+      "no_report_body": "Run the action to get its first report. Only the latest report is kept."
+    },
+    "delete": {
+      "title": "Delete this action?",
+      "description": "“{{title}}” and its latest report will be deleted. A queued run is cancelled."
+    }
+  }
+}

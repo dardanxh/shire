@@ -160,20 +160,22 @@ class ClaudeCliEngine:
             "stream-json",
             "--verbose",
             "--setting-sources",
-            "",
+            request.setting_sources,
         ]
         if request.model:
             argv += ["--model", request.model]
         if request.system:
             argv += ["--append-system-prompt", request.system]
-        if request.allowed_tools:
+        # Under bypassPermissions an allow-list would be meaningless (everything not denied runs).
+        if request.allowed_tools and request.permission_mode != "bypassPermissions":
             argv += ["--allowedTools", *request.allowed_tools]
         # Deny wins over allow, so this is how a run gets no tools at all.
         if request.disallowed_tools:
             argv += ["--disallowedTools", *request.disallowed_tools]
         # In --print mode, `default` auto-denies non-allowed tools instead of prompting (which
         # would hang headlessly) — so the allow-list above is the actual permission boundary.
-        argv += ["--permission-mode", "default"]
+        # `bypassPermissions` inverts that: the deny-list is the boundary.
+        argv += ["--permission-mode", request.permission_mode]
         return argv
 
 

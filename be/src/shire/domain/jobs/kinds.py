@@ -38,6 +38,8 @@ PROMPT_REVIEW = "prompt.review"
 PROMPT_SUGGEST = "prompt.suggest"
 PROMPT_RUN = "prompt.run"
 PROMPT_JUDGE = "prompt.judge"
+# Host-runner kind: needs the operator's claude.ai connectors and skills (scripts/host-runner.sh).
+AI_ACTION_RUN = "ai_action.run"
 
 # Models the engine's `claude` CLI accepts: aliases (track the latest version) plus pinned
 # IDs for reproducibility. Curated here so the Config tab's dropdown has one place to update.

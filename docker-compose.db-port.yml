@@ -1,0 +1,11 @@
+# Opt-in overlay: publish the stack's Postgres on the host loopback so the host runner
+# (scripts/host-runner.sh) — the engine running natively with your logged-in `claude`, its
+# claude.ai connectors and your skills — can claim AI action runs. Port 5434 because the native
+# dev DB already owns 5433. Bound to 127.0.0.1 only; nothing off-machine can reach it.
+#
+# Enable by appending it to COMPOSE_FILE in .env:
+#   COMPOSE_FILE=docker-compose.yml:...:docker-compose.db-port.yml
+services:
+  db:
+    ports:
+      - "127.0.0.1:5434:5432"

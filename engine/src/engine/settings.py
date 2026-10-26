@@ -47,6 +47,29 @@ class EngineSettings(BaseSettings):
 
     worker_id: str = Field(default_factory=lambda: f"{socket.gethostname()}:{os.getpid()}")
 
+    # Job-kind routing, comma-separated. A worker claims only `include_kinds` when set, and never
+    # `exclude_kinds`. The Docker engine excludes the host-only kinds (claude.ai MCP connectors and
+    # the operator's skills exist only for the logged-in host CLI); the host runner
+    # (scripts/host-runner.sh) includes just those.
+    include_kinds: str = Field(default="")
+    exclude_kinds: str = Field(default="")
+
+    # libpq application_name for every connection — lets the backend tell instances apart in
+    # pg_stat_activity (the host runner's liveness signal).
+    application_name: str = Field(default="shire-engine")
+
+    @property
+    def include_kinds_list(self) -> list[str] | None:
+        return _split(self.include_kinds) or None
+
+    @property
+    def exclude_kinds_list(self) -> list[str]:
+        return _split(self.exclude_kinds)
+
+
+def _split(value: str) -> list[str]:
+    return [part.strip() for part in value.split(",") if part.strip()]
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> EngineSettings:

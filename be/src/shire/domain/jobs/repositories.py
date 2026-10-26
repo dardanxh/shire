@@ -26,6 +26,11 @@ class SqlJobRepository:
     def get(self, job_id: uuid.UUID) -> JobRow | None:
         return self._session.get(JobRow, job_id)
 
+    def get_many(self, job_ids: list[uuid.UUID]) -> list[JobRow]:
+        if not job_ids:
+            return []
+        return list(self._session.scalars(select(JobRow).where(JobRow.id.in_(job_ids))))
+
     def list(
         self,
         *,

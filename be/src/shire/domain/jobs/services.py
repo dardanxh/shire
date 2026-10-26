@@ -135,6 +135,13 @@ class JobService:
             raise NotFoundError("Job not found")
         return JobDetailResult.of_detail(row)
 
+    def summaries(self, job_ids: list[uuid.UUID]) -> dict[uuid.UUID, JobResult]:
+        """List-shape results for the given jobs, keyed by id (missing ids are simply absent)."""
+        return {row.id: JobResult.of(row) for row in self._jobs.get_many(job_ids)}
+
+    def count_pending(self, kind: str) -> int:
+        return self._jobs.count(status="pending", repository_id=None, kind=kind)
+
     def stats(self) -> JobStatsResult:
         return JobStatsResult.model_validate(self._jobs.usage_stats())
 
@@ -171,6 +178,13 @@ class JobService:
             raise ConflictError(
                 "Council jobs can't be retried individually — re-convene the topic."
             )
+        if row.kind == kinds.AI_ACTION_RUN:
+            # Through the action, so the run is recorded as its latest (a bare re-enqueue
+            # would be ignored by the handler as stale).
+            from shire.domain.ai_actions.services import AiActionService
+
+            action = AiActionService(self._session).run(uuid.UUID(row.payload["action_id"]))
+            return JobResult.of(self._jobs.get(action.last_job_id))
         if row.kind == kinds.HOBIT_RUN:
             # Local import: hobits.services imports JobService (enqueue path).
             from shire.domain.hobits.services import HobitService
