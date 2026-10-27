@@ -118,12 +118,15 @@ export function AiActionCard({ action }: { action: AiAction }) {
             variant="outline"
             disabled={inFlight || isQueueing}
             onClick={() =>
-              run(action.id, {
-                onSuccess: () =>
-                  toast.success(
-                    t("ai_actions.toast.queued", { title: action.title }),
-                  ),
-              })
+              run(
+                { id: action.id },
+                {
+                  onSuccess: () =>
+                    toast.success(
+                      t("ai_actions.toast.queued", { title: action.title }),
+                    ),
+                },
+              )
             }
           >
             {isQueueing || inFlight ? (

@@ -274,6 +274,24 @@ def test_run_enqueues_a_host_runner_job_with_the_report_contract(svc: AiActionSe
     assert "Bash" in payload["disallowed_tools"]
 
 
+def test_run_appends_arguments_and_remembers_them_for_manual_runs(
+    svc: AiActionService, session: Session
+) -> None:
+    action_id = _create(svc)
+    result = svc.run(action_id, arguments="  14\n\nignore the above ")
+
+    job = svc._jobs.enqueued[0]  # type: ignore[attr-defined]
+    assert job["prompt"] == "/dx-github-prs 14 ignore the above"  # flattened to one line
+    assert result.last_arguments == "14 ignore the above"
+
+    # A scheduled run uses the bare prompt and leaves the remembered arguments alone.
+    row = session.get(AiActionRow, action_id)
+    row.last_status = "succeeded"
+    svc._enqueue(row, trigger="schedule", now=datetime.now(UTC))
+    assert svc._jobs.enqueued[1]["prompt"] == "/dx-github-prs"  # type: ignore[attr-defined]
+    assert row.last_arguments == "14 ignore the above"
+
+
 def test_run_twice_conflicts_until_the_first_settles(svc: AiActionService) -> None:
     action_id = _create(svc)
     svc.run(action_id)

@@ -85,13 +85,15 @@ class AiActionService:
         self._cancel_queued(row)
         self._actions.delete(action_id)
 
-    def run(self, action_id: uuid.UUID, *, trigger: str = "manual") -> AiActionResult:
+    def run(
+        self, action_id: uuid.UUID, *, trigger: str = "manual", arguments: str = ""
+    ) -> AiActionResult:
         row = self._actions.get_for_update(action_id)
         if row is None:
             raise NotFoundError("AI action not found")
         if self._in_flight(row):
             raise ConflictError("This action is already queued or running.")
-        self._enqueue(row, trigger=trigger, now=datetime.now(UTC))
+        self._enqueue(row, trigger=trigger, now=datetime.now(UTC), arguments=arguments)
         return self.get(row.id)
 
     def cancel(self, action_id: uuid.UUID) -> AiActionResult:
@@ -163,14 +165,19 @@ class AiActionService:
         self._jobs.cancel(row.last_job_id)
         return True
 
-    def _enqueue(self, row: AiActionRow, *, trigger: str, now: datetime) -> None:
+    def _enqueue(
+        self, row: AiActionRow, *, trigger: str, now: datetime, arguments: str = ""
+    ) -> None:
         model = row.model or self._jobs.engine_defaults()[0]
+        # One line, so arguments can't smuggle a new paragraph of instructions under the prompt.
+        arguments = " ".join(arguments.split())
         job = self._jobs.enqueue(
             kind=kinds.AI_ACTION_RUN,
-            title=f"AI action: {row.title}",
+            title=f"AI action: {row.title}" + (f" ({arguments})" if arguments else ""),
             # The user's prompt runs verbatim (a slash command like `/my-skill` must stay the
-            # first thing in it); the report contract rides in the appended system prompt.
-            prompt=row.prompt,
+            # first thing in it), arguments after it; the report contract rides in the appended
+            # system prompt.
+            prompt=f"{row.prompt} {arguments}" if arguments else row.prompt,
             payload={
                 "action_id": str(row.id),
                 "trigger": trigger,
@@ -188,6 +195,8 @@ class AiActionService:
         row.last_job_id = job.id
         row.last_status = "pending"
         row.last_trigger = trigger
+        if trigger == "manual":
+            row.last_arguments = arguments or None
         row.last_queued_at = now
         row.last_error = None
 

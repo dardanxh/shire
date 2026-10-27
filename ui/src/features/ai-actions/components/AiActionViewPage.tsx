@@ -17,6 +17,7 @@ import { toast } from "sonner";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { extractErrorMessage } from "@/lib/api";
 import { formatDateTime, formatTimeAgo, formatUsd } from "@/lib/format";
@@ -185,6 +186,8 @@ function RunButton({ action }: { action: AiAction }) {
   const { mutate: run, isPending: isQueueing } = useRunAiActionMutation();
   const { mutate: cancel, isPending: isCancelling } =
     useCancelAiActionMutation();
+  // Starts from what the last manual run used, so re-running `14` is one click.
+  const [args, setArgs] = useState(action.last_arguments ?? "");
 
   if (action.status === "pending") {
     return (
@@ -204,22 +207,37 @@ function RunButton({ action }: { action: AiAction }) {
   }
   const busy = isQueueing || action.status === "running";
   return (
-    <Button
-      disabled={busy}
-      onClick={() =>
-        run(action.id, {
-          onSuccess: () =>
-            toast.success(
-              t("ai_actions.toast.queued", { title: action.title }),
-            ),
-        })
-      }
+    <form
+      className="flex items-center gap-2"
+      onSubmit={(event) => {
+        event.preventDefault();
+        run(
+          { id: action.id, arguments: args },
+          {
+            onSuccess: () =>
+              toast.success(
+                t("ai_actions.toast.queued", { title: action.title }),
+              ),
+          },
+        );
+      }}
     >
-      {busy ? <Loader2Icon className="animate-spin" /> : <PlayIcon />}
-      {action.status === "running"
-        ? t("ai_actions.status.running")
-        : t("ai_actions.actions.run")}
-    </Button>
+      <Input
+        value={args}
+        onChange={(event) => setArgs(event.target.value)}
+        disabled={busy}
+        placeholder={t("ai_actions.run_arguments.placeholder")}
+        aria-label={t("ai_actions.run_arguments.label")}
+        title={t("ai_actions.run_arguments.hint", { prompt: action.prompt })}
+        className="w-44"
+      />
+      <Button type="submit" disabled={busy}>
+        {busy ? <Loader2Icon className="animate-spin" /> : <PlayIcon />}
+        {action.status === "running"
+          ? t("ai_actions.status.running")
+          : t("ai_actions.actions.run")}
+      </Button>
+    </form>
   );
 }
 

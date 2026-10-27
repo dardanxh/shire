@@ -17,6 +17,7 @@ from shire.domain.ai_actions.schemas import (
     AiActionResult,
     AiActionRunnerResult,
     CreateAiAction,
+    RunAiAction,
     UpdateAiAction,
 )
 from shire.domain.ai_actions.services import AiActionService
@@ -71,9 +72,13 @@ def delete_ai_action(action_id: uuid.UUID, session: Session = Depends(get_sessio
 
 
 @router.post("/{action_id}/run", response_model=AiActionResult)
-def run_ai_action(action_id: uuid.UUID, session: Session = Depends(get_session)) -> AiActionResult:
-    """Queue a run now, regardless of the schedule."""
-    return AiActionService(session).run(action_id)
+def run_ai_action(
+    action_id: uuid.UUID,
+    body: RunAiAction | None = None,
+    session: Session = Depends(get_session),
+) -> AiActionResult:
+    """Queue a run now, regardless of the schedule. `arguments` are appended to the prompt."""
+    return AiActionService(session).run(action_id, arguments=body.arguments if body else "")
 
 
 @router.post("/{action_id}/cancel", response_model=AiActionResult)

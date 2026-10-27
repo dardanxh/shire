@@ -47,6 +47,11 @@
       "run": "Run now",
       "cancel": "Cancel run"
     },
+    "run_arguments": {
+      "label": "Arguments for this run",
+      "placeholder": "Arguments (optional)",
+      "hint": "Added after the prompt for this run only, e.g. 14 runs “{{prompt}} 14”. Scheduled runs use the prompt as is."
+    },
     "toast": {
       "queued": "Queued “{{title}}”",
       "cancelled": "Run cancelled",

@@ -3966,7 +3966,7 @@ export interface paths {
         put?: never;
         /**
          * Run Ai Action
-         * @description Queue a run now, regardless of the schedule.
+         * @description Queue a run now, regardless of the schedule. `arguments` are appended to the prompt.
          */
         post: operations["run_ai_action_api_v1_ai_actions__action_id__run_post"];
         delete?: never;
@@ -4150,6 +4150,8 @@ export interface components {
             last_job_id: string | null;
             /** Last Trigger */
             last_trigger: string | null;
+            /** Last Arguments */
+            last_arguments: string | null;
             /** Last Queued At */
             last_queued_at: string | null;
             /** Last Started At */
@@ -10255,6 +10257,14 @@ export interface components {
             created_at: string;
             /** Finished At */
             finished_at: string | null;
+        };
+        /** RunAiAction */
+        RunAiAction: {
+            /**
+             * Arguments
+             * @default
+             */
+            arguments: string;
         };
         /** RunInspectionsRequest */
         RunInspectionsRequest: {
@@ -19327,7 +19337,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["RunAiAction"] | null;
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {

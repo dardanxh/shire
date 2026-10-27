@@ -34,6 +34,11 @@ class UpdateAiAction(_ActionFields):
     """Full replacement — the form always sends every field."""
 
 
+class RunAiAction(BaseModel):
+    # Appended to the prompt for this run only: `/dx-github-prs` + `14` runs `/dx-github-prs 14`.
+    arguments: str = Field(default="", max_length=2_000)
+
+
 class AiActionResult(BaseModel):
     id: uuid.UUID
     title: str
@@ -49,6 +54,7 @@ class AiActionResult(BaseModel):
     status: ActionStatus
     last_job_id: uuid.UUID | None
     last_trigger: str | None
+    last_arguments: str | None
     last_queued_at: datetime | None
     # When the engine actually picked the run up (from the live job; None while queued).
     last_started_at: datetime | None
@@ -95,6 +101,7 @@ class AiActionResult(BaseModel):
             status=status,
             last_job_id=row.last_job_id,
             last_trigger=row.last_trigger,
+            last_arguments=row.last_arguments,
             last_queued_at=row.last_queued_at,
             last_started_at=job_started_at,
             last_finished_at=row.last_finished_at,

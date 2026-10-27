@@ -122,10 +122,20 @@ export function useDeleteAiActionMutation() {
 export function useRunAiActionMutation() {
   const invalidate = useInvalidateAiActions();
   return useMutation({
-    mutationFn: async (id: string): Promise<AiAction> => {
+    mutationFn: async ({
+      id,
+      arguments: args = "",
+    }: {
+      id: string;
+      /** Appended to the prompt for this run only, e.g. `14` for `/dx-github-prs 14`. */
+      arguments?: string;
+    }): Promise<AiAction> => {
       const { data, error } = await api.POST(
         "/api/v1/ai-actions/{action_id}/run",
-        { params: { path: { action_id: id } } },
+        {
+          params: { path: { action_id: id } },
+          body: { arguments: args },
+        },
       );
       if (error) throw error;
       return data;
