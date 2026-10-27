@@ -8,7 +8,7 @@
     "load_error": "Couldn't load AI actions: {{message}}",
     "empty": {
       "title": "No AI actions yet",
-      "body": "An action is a title and a prompt, for example a skill like /dx-github-prs. Run it whenever you like, or on a schedule."
+      "body": "An action is a title and a prompt, for example a skill like /dx-github-open-prs. Run it whenever you like, or on a schedule."
     },
     "status": {
       "idle": "Never run",
@@ -79,8 +79,8 @@
       },
       "prompt": {
         "label": "Prompt",
-        "description": "A slash command for one of your skills (/dx-github-prs), or plain instructions. If a skill has its own HTML template, the report follows it.",
-        "placeholder": "/dx-github-prs",
+        "description": "A slash command for one of your skills (/dx-github-open-prs), or plain instructions. If a skill has its own HTML template, the report follows it.",
+        "placeholder": "/dx-github-open-prs",
         "required": "Write a prompt."
       },
       "model": {

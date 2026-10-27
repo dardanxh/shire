@@ -166,9 +166,10 @@ Postgres for settled jobs and applies each one exactly once via its handler.
 
 ## AI Actions and the host runner
 
-`domain/ai_actions/` holds user-written prompts (often a skill slash command like `/dx-github-prs`)
+`domain/ai_actions/` holds user-written prompts (often a skill slash command like `/dx-github-open-prs`)
 that run unattended, on demand or on a schedule (`ticker.py`, a lifespan thread, not Prefect), and
-come back as one HTML report. Only the latest result is kept, on the action row itself.
+come back as one HTML report. Only the latest result is kept, on the action row itself. A manual
+run can append arguments to the prompt (`30` runs `/dx-github-pr-stats 30`); scheduled runs never do.
 
 Their job kind, `ai_action.run`, is **host-only**: it needs the operator's claude.ai connectors
 and `~/.claude/skills`, which exist only for the logged-in CLI on the host. The Docker engine

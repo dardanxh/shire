@@ -127,7 +127,7 @@ export function useRunAiActionMutation() {
       arguments: args = "",
     }: {
       id: string;
-      /** Appended to the prompt for this run only, e.g. `14` for `/dx-github-prs 14`. */
+      /** Appended to the prompt for this run only, e.g. `14` for `/dx-github-open-prs 14`. */
       arguments?: string;
     }): Promise<AiAction> => {
       const { data, error } = await api.POST(

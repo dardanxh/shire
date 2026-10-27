@@ -235,7 +235,7 @@ def svc(session: Session) -> AiActionService:
 
 
 def _create(svc: AiActionService, **overrides) -> uuid.UUID:
-    data = {"title": "PRs", "prompt": "/dx-github-prs", **overrides}
+    data = {"title": "PRs", "prompt": "/dx-github-open-prs", **overrides}
     return svc.create(CreateAiAction(**data)).id
 
 
@@ -253,7 +253,7 @@ def test_create_schedules_and_disabling_clears_next_run(svc: AiActionService) ->
 
     paused = svc.update(
         action_id,
-        UpdateAiAction(title="PRs", prompt="/dx-github-prs", schedule="hourly", enabled=False),
+        UpdateAiAction(title="PRs", prompt="/dx-github-open-prs", schedule="hourly", enabled=False),
     )
     assert paused.next_run_at is None
 
@@ -265,7 +265,7 @@ def test_run_enqueues_a_host_runner_job_with_the_report_contract(svc: AiActionSe
     assert result.status == "pending"
     job = svc._jobs.enqueued[0]  # type: ignore[attr-defined]
     assert job["kind"] == kinds.AI_ACTION_RUN
-    assert job["prompt"] == "/dx-github-prs"  # verbatim, slash command first
+    assert job["prompt"] == "/dx-github-open-prs"  # verbatim, slash command first
     payload = job["payload"]
     assert payload["model"] == "opus"
     assert payload["permission_mode"] == "bypassPermissions"
@@ -281,14 +281,14 @@ def test_run_appends_arguments_and_remembers_them_for_manual_runs(
     result = svc.run(action_id, arguments="  14\n\nignore the above ")
 
     job = svc._jobs.enqueued[0]  # type: ignore[attr-defined]
-    assert job["prompt"] == "/dx-github-prs 14 ignore the above"  # flattened to one line
+    assert job["prompt"] == "/dx-github-open-prs 14 ignore the above"  # flattened to one line
     assert result.last_arguments == "14 ignore the above"
 
     # A scheduled run uses the bare prompt and leaves the remembered arguments alone.
     row = session.get(AiActionRow, action_id)
     row.last_status = "succeeded"
     svc._enqueue(row, trigger="schedule", now=datetime.now(UTC))
-    assert svc._jobs.enqueued[1]["prompt"] == "/dx-github-prs"  # type: ignore[attr-defined]
+    assert svc._jobs.enqueued[1]["prompt"] == "/dx-github-open-prs"  # type: ignore[attr-defined]
     assert row.last_arguments == "14 ignore the above"
 
 

@@ -74,7 +74,7 @@ class AiActionRow(Base):
     )
     last_status: Mapped[str | None] = mapped_column(String(16), nullable=True)
     last_trigger: Mapped[str | None] = mapped_column(String(16), nullable=True)
-    # What the last manual run appended to the prompt (`14` for `/dx-github-prs 14`), so the
+    # What the last manual run appended to the prompt (`14` for `/dx-github-open-prs 14`), so the
     # Run box can offer it again. Scheduled runs never take arguments.
     last_arguments: Mapped[str | None] = mapped_column(Text, nullable=True)
     last_queued_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

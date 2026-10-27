@@ -35,7 +35,8 @@ class UpdateAiAction(_ActionFields):
 
 
 class RunAiAction(BaseModel):
-    # Appended to the prompt for this run only: `/dx-github-prs` + `14` runs `/dx-github-prs 14`.
+    # Appended to the prompt for this run only: `/dx-github-open-prs` + `14` runs
+    # `/dx-github-open-prs 14`.
     arguments: str = Field(default="", max_length=2_000)
 
 
