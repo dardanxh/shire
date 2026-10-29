@@ -118,6 +118,12 @@ class AiActionResult(BaseModel):
         )
 
 
+class AiActionRunAllResult(BaseModel):
+    queued: int
+    # Already queued or running, so left alone.
+    skipped: int
+
+
 class AiActionRunnerResult(BaseModel):
     """Whether the host runner — the only worker that can run actions — is connected."""
 

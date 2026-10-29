@@ -9,6 +9,7 @@ export type AiAction = components["schemas"]["AiActionResult"];
 export type AiActionStatus = AiAction["status"];
 export type AiActionRunner = components["schemas"]["AiActionRunnerResult"];
 export type AiActionIn = components["schemas"]["CreateAiAction"];
+export type AiActionRunAll = components["schemas"]["AiActionRunAllResult"];
 
 /** Queued or running — the card polls while any action is in this state. */
 export function isInFlight(action: Pick<AiAction, "status">): boolean {
@@ -137,6 +138,19 @@ export function useRunAiActionMutation() {
           body: { arguments: args },
         },
       );
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: invalidate,
+  });
+}
+
+/** Refresh every report: queues each action that isn't already queued or running. */
+export function useRunAllAiActionsMutation() {
+  const invalidate = useInvalidateAiActions();
+  return useMutation({
+    mutationFn: async (): Promise<AiActionRunAll> => {
+      const { data, error } = await api.POST("/api/v1/ai-actions/run-all");
       if (error) throw error;
       return data;
     },

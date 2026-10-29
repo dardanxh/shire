@@ -292,6 +292,22 @@ def test_run_appends_arguments_and_remembers_them_for_manual_runs(
     assert row.last_arguments == "14 ignore the above"
 
 
+def test_run_all_skips_in_flight_actions_and_reuses_last_arguments(svc: AiActionService) -> None:
+    busy = _create(svc, title="Busy")
+    _create(svc, title="Stats", prompt="/dx-github-pr-stats")
+    _create(svc, title="Paused", schedule="hourly", enabled=False)
+    svc.run(busy)
+    stats = next(a for a in svc.list() if a.title == "Stats")
+    svc.run(stats.id, arguments="30")
+    svc._jobs.status[svc._jobs.enqueued[-1]["id"]] = "succeeded"  # type: ignore[attr-defined]
+
+    result = svc.run_all()
+
+    assert (result.queued, result.skipped) == (2, 1)
+    prompts = sorted(j["prompt"] for j in svc._jobs.enqueued[2:])  # type: ignore[attr-defined]
+    assert prompts == ["/dx-github-open-prs", "/dx-github-pr-stats 30"]
+
+
 def test_run_twice_conflicts_until_the_first_settles(svc: AiActionService) -> None:
     action_id = _create(svc)
     svc.run(action_id)

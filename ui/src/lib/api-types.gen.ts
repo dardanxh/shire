@@ -3936,6 +3936,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ai-actions/run-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run All Ai Actions
+         * @description Refresh every report: queue each action not already in flight, with its last arguments.
+         */
+        post: operations["run_all_ai_actions_api_v1_ai_actions_run_all_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/ai-actions/{action_id}": {
         parameters: {
             query?: never;
@@ -4180,6 +4200,13 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+        };
+        /** AiActionRunAllResult */
+        AiActionRunAllResult: {
+            /** Queued */
+            queued: number;
+            /** Skipped */
+            skipped: number;
         };
         /**
          * AiActionRunnerResult
@@ -19229,6 +19256,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AiActionRunnerResult"];
+                };
+            };
+        };
+    };
+    run_all_ai_actions_api_v1_ai_actions_run_all_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiActionRunAllResult"];
                 };
             };
         };

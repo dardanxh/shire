@@ -1,7 +1,7 @@
 """FastAPI routes for AI Actions. HTTP concerns only — logic lives in the service.
 
-`/ai-actions/runner` is declared before `/ai-actions/{action_id}` so the static segment isn't
-swallowed by the UUID path param.
+`/ai-actions/runner` and `/ai-actions/run-all` are declared before `/ai-actions/{action_id}` so the
+static segments aren't swallowed by the UUID path param.
 """
 
 from __future__ import annotations
@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from shire.core.db import get_session
 from shire.domain.ai_actions.schemas import (
     AiActionResult,
+    AiActionRunAllResult,
     AiActionRunnerResult,
     CreateAiAction,
     RunAiAction,
@@ -51,6 +52,12 @@ def create_ai_action(
 def get_ai_actions_runner(session: Session = Depends(get_session)) -> AiActionRunnerResult:
     """Whether the host runner is connected — without it, runs wait in the queue."""
     return AiActionService(session).runner()
+
+
+@router.post("/run-all", response_model=AiActionRunAllResult)
+def run_all_ai_actions(session: Session = Depends(get_session)) -> AiActionRunAllResult:
+    """Refresh every report: queue each action not already in flight, with its last arguments."""
+    return AiActionService(session).run_all()
 
 
 @router.get("/{action_id}", response_model=AiActionResult)

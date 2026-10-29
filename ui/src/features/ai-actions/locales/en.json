@@ -55,6 +55,8 @@
     "toast": {
       "queued": "Queued “{{title}}”",
       "cancelled": "Run cancelled",
+      "run_all_one": "Queued {{count}} run",
+      "run_all_other": "Queued {{count}} runs",
       "created": "Created “{{title}}”",
       "saved": "Saved “{{title}}”",
       "deleted": "Deleted “{{title}}”"
@@ -124,6 +126,15 @@
       "download": "Download",
       "no_report_title": "No report yet",
       "no_report_body": "Run the action to get its first report. Only the latest report is kept."
+    },
+    "run_all": {
+      "button": "Refresh all",
+      "title": "Refresh every report?",
+      "description_one": "This queues a fresh run of {{count}} action, with the arguments its last run used. Each run is a Claude session and costs as much as running it by hand.",
+      "description_other": "This queues a fresh run of all {{count}} actions, each with the arguments its last run used. Each run is a Claude session and costs as much as running it by hand.",
+      "busy_one": "{{count}} action is already queued or running and is left alone.",
+      "busy_other": "{{count}} actions are already queued or running and are left alone.",
+      "confirm": "Refresh all"
     },
     "delete": {
       "title": "Delete this action?",

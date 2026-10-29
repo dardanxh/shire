@@ -25,6 +25,7 @@ from shire.domain.ai_actions.models import AiActionRow
 from shire.domain.ai_actions.repositories import SqlAiActionRepository
 from shire.domain.ai_actions.schemas import (
     AiActionResult,
+    AiActionRunAllResult,
     AiActionRunnerResult,
     CreateAiAction,
     UpdateAiAction,
@@ -95,6 +96,20 @@ class AiActionService:
             raise ConflictError("This action is already queued or running.")
         self._enqueue(row, trigger=trigger, now=datetime.now(UTC), arguments=arguments)
         return self.get(row.id)
+
+    def run_all(self) -> AiActionRunAllResult:
+        """Refresh every report: queue a manual run of each action that isn't already queued or
+        running, with the arguments its last manual run used. Paused schedules don't matter here,
+        just as they don't for Run now."""
+        now = datetime.now(UTC)
+        queued = skipped = 0
+        for row in self._actions.list():
+            if self._in_flight(row):
+                skipped += 1
+                continue
+            self._enqueue(row, trigger="manual", now=now, arguments=row.last_arguments or "")
+            queued += 1
+        return AiActionRunAllResult(queued=queued, skipped=skipped)
 
     def cancel(self, action_id: uuid.UUID) -> AiActionResult:
         """Withdraw a run that no worker has picked up yet. A running one can't be stopped."""

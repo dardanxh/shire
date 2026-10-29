@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { BotIcon, PlusIcon } from "lucide-react";
+import { BotIcon, PlusIcon, RefreshCwIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -11,9 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { extractErrorMessage } from "@/lib/api";
-import { useAiActionsQuery } from "../api";
+import { isInFlight, useAiActionsQuery } from "../api";
 import { AiActionCard } from "./AiActionCard";
 import { AiActionFormDialog } from "./AiActionFormDialog";
+import { RunAllAiActionsDialog } from "./RunAllAiActionsDialog";
 import { RunnerBanner } from "./RunnerBanner";
 
 /** Every AI action as a card: run it, see when it runs next, open its latest report. */
@@ -23,6 +24,7 @@ export function AiActionsPage() {
   const { data: actions, isPending, isError, error } = useAiActionsQuery();
   const [gridClass, columns, setColumns] = useCardColumns();
   const [creating, setCreating] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   return (
     <div className="flex flex-col gap-6">
@@ -40,6 +42,14 @@ export function AiActionsPage() {
             label={t("common.cards.per_row")}
             autoLabel={t("common.cards.auto")}
           />
+          <Button
+            variant="outline"
+            disabled={!actions?.length || actions.every(isInFlight)}
+            onClick={() => setRefreshing(true)}
+          >
+            <RefreshCwIcon />
+            {t("ai_actions.run_all.button")}
+          </Button>
           <Button onClick={() => setCreating(true)}>
             <PlusIcon />
             {t("ai_actions.new")}
@@ -85,6 +95,11 @@ export function AiActionsPage() {
         </div>
       ) : null}
 
+      <RunAllAiActionsDialog
+        actions={actions ?? []}
+        open={refreshing}
+        onOpenChange={setRefreshing}
+      />
       <AiActionFormDialog
         open={creating}
         onOpenChange={setCreating}
